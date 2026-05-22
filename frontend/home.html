@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>SeaPirates — Ana Sayfa</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --gold: #c8962a;
+      --gold-b: #f0c040;
+      --gold-p: #fde68a;
+      --wood-d: #1a0e05;
+      --wood-m: #2d1a08;
+      --wood-plank: #5c3518;
+      --txt: #f5e6c8;
+      --txt-d: #b8956a;
+      --txt-m: #7a5a38;
+      --red: #c0392b;
+      --red-b: #e74c3c;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #0d0702;
+      font-family: 'Inter', sans-serif;
+      color: var(--txt);
+    }
+
+    /* PAGE */
+    .page {
+      max-width: 430px;
+      margin: 0 auto;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      /* Yeni home.png arkaplanı (Dikey/Midjourney çıktısı uyumlu) */
+      background: url('assets/background/home.png') center top / cover no-repeat;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      padding: 14px 14px 8px;
+      display: flex;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+
+    .shop-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 11px;
+      background: linear-gradient(180deg, #4a2c08 0%, #241204 100%);
+      border: 2px solid var(--gold);
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(200, 150, 42, 0.2);
+      transition: all 0.18s;
+    }
+
+    .shop-btn:hover {
+      border-color: var(--gold-b);
+      box-shadow: 0 3px 20px rgba(200, 150, 42, 0.45);
+    }
+
+    .shop-btn-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .shop-btn-lbl {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--gold-b);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    /* LEADERBOARD SECTION — narrower, background visible on sides */
+    .lb-wrap {
+      flex: 1;
+      position: relative;
+      z-index: 5;
+      margin: 0 20px 25px;
+      /* sides & bottom: background visible */
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    /* Title board */
+    .lb-title-bar {
+      background: url('assets/ranktxtbackgroun.png') center/cover no-repeat;
+      position: relative;
+      padding: 9px 16px;
+      text-align: center;
+      border-radius: 10px 10px 0 0;
+      border: 2px solid #6a4218;
+      border-bottom: none;
+      flex-shrink: 0;
+    }
+
+    .lb-title-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 10px 10px 0 0;
+      pointer-events: none;
+    }
+
+    .lb-title {
+      position: relative;
+      z-index: 1;
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-b);
+      text-shadow: 0 0 18px rgba(200, 150, 42, 0.9), 0 2px 4px rgba(0, 0, 0, 1);
+    }
+
+    /* Board body */
+    .lb-body {
+      flex: 1;
+      min-height: 0;
+      /* Tahta arkaplanı yatayda tam sığdır, dikeyde tekrar et ki kesiklik olmasın */
+      background: url('assets/leaderboardbackground.png') center top repeat-y;
+      background-size: 100% auto;
+      border: 2px solid #6a4218;
+      border-top: 1px solid #9a6228;
+      border-radius: 0 0 10px 10px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #5c3518 transparent;
+      position: relative;
+    }
+
+    .lb-body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      /* Overlay opaklığını azaltarak arkaplanın görünmesini sağla */
+      background: rgba(6, 3, 0, 0.40);
+      pointer-events: none;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .lb-body::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .lb-body::-webkit-scrollbar-thumb {
+      background: #5c3518;
+      border-radius: 2px;
+    }
+
+    /* Column headers */
+    .lb-header {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 40px 1fr auto 38px;
+      gap: 0 12px;
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(100, 66, 24, 0.7);
+    }
+
+    .lb-header span {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--txt-m);
+    }
+
+    .lb-header .col-icon {
+      text-align: center;
+    }
+
+    /* Rows */
+    .lb-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 40px 1fr auto 38px;
+      gap: 0 12px;
+      align-items: center;
+      padding: 16px 10px;
+      border-bottom: 1px solid rgba(80, 50, 16, 0.35);
+      transition: background 0.15s;
+    }
+
+    .lb-row:hover {
+      background: rgba(200, 150, 42, 0.07);
+    }
+
+    .lb-row.me {
+      background: rgba(200, 150, 42, 0.13);
+      border-color: rgba(200, 150, 42, 0.3);
+    }
+
+    /* Sıra no badge */
+    .sira {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: rgba(20, 10, 2, 0.75);
+      border: 1px solid #5c3518;
+      color: var(--txt-m);
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Nick */
+    .nick {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--txt);
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .lb-row.me .nick {
+      color: var(--gold-b);
+    }
+
+    /* Rütbe adı + puan */
+    .rutbe-col {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .rutbe-puan {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gold-b);
+      white-space: nowrap;
+    }
+
+    /* Rütbe ikonu */
+    .rutbe-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(60, 40, 20, 0.45) 0%, rgba(10, 5, 2, 0.9) 100%);
+      border: 1.5px solid rgba(122, 74, 24, 0.7);
+      border-radius: 50%;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.6);
+      flex-shrink: 0;
+      overflow: visible;
+      transition: all 0.2s ease;
+    }
+
+    .rutbe-icon.r1 {
+      width: 38px;
+      height: 38px;
+      background: radial-gradient(circle, rgba(160, 120, 40, 0.5) 0%, rgba(20, 10, 2, 0.95) 100%);
+      border-color: rgba(200, 150, 42, 0.95);
+      box-shadow: inset 0 0 6px rgba(255, 215, 0, 0.4), 0 2px 8px rgba(255, 215, 0, 0.35);
+    }
+
+    .rutbe-icon.r2-3 {
+      width: 32px;
+      height: 32px;
+      background: radial-gradient(circle, rgba(100, 80, 50, 0.4) 0%, rgba(15, 8, 3, 0.9) 100%);
+      border-color: rgba(200, 150, 42, 0.65);
+    }
+
+    .rutbe-icon.r4-10 {
+      width: 26px;
+      height: 26px;
+      background: radial-gradient(circle, rgba(60, 45, 30, 0.3) 0%, rgba(15, 8, 3, 0.9) 100%);
+      border-color: rgba(122, 74, 24, 0.6);
+    }
+
+    .rutbe-icon.r-low {
+      width: 21px;
+      height: 21px;
+      background: radial-gradient(circle, rgba(50, 35, 20, 0.25) 0%, rgba(10, 5, 2, 0.92) 100%);
+      border-color: rgba(122, 74, 24, 0.45);
+    }
+
+    .rutbe-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 1.5px 3px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 3px rgba(200, 150, 42, 0.35)) brightness(1.15) contrast(1.05);
+    }
+
+    .rutbe-icon.r-low img {
+      /* Alt rütbe görsellerini parlatıp kontrastını yükselterek ve kahve/bronz ışıma ekleyerek belirginleştiriyoruz */
+      filter: drop-shadow(0 1.5px 2px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 4px rgba(184, 149, 106, 0.8)) brightness(1.4) contrast(1.2);
+    }
+
+    /* Player panel rank icon override */
+    .p-rank-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid rgba(200, 150, 42, 0.6); /* Asil eskitme altın çerçeve */
+      /* Yumuşak bir iç aydınlatma / warm gold backlighting */
+      background: radial-gradient(circle, rgba(120, 95, 50, 0.45) 0%, rgba(12, 6, 3, 0.98) 100%);
+      flex-shrink: 0;
+      box-shadow: inset 0 0 6px rgba(200, 150, 42, 0.25), 0 0 6px rgba(200, 150, 42, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .p-rank-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      /* Kontrastı ve parlaklığı arttırarak karanlık arka planda kaybolmasını engelliyoruz */
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 3px rgba(200, 150, 42, 0.35)) brightness(1.22) contrast(1.1);
+    }
+
+    /* Separator before current player if not in list */
+    .lb-sep {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 4px;
+      font-size: 0.6rem;
+      color: var(--txt-m);
+      border-top: 1px dashed rgba(90, 58, 21, 0.6);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── PLAYER PANEL ── */
+    .player-panel {
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+      margin: 0 10px 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #7a4a18;
+      box-shadow: 0 -3px 20px rgba(0, 0, 0, 0.75);
+      background: url('assets/background/playerınfobackground.png') center/cover no-repeat;
+    }
+
+    /* Username strip */
+    .pinfo-top {
+      position: relative;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(90, 58, 21, 0.6);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .pinfo-top::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 2, 0, 0.3);
+      pointer-events: none;
+    }
+
+    .p-name {
+      position: relative;
+      z-index: 1;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--txt);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Stats + buttons */
+    .pinfo-body {
+      position: relative;
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .pinfo-body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 2, 0, 0.55);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Stats grid */
+    .p-stats {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 14px;
+    }
+
+    .s-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .s-icon {
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .s-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+    }
+
+    .s-key {
+      font-size: 0.6rem;
+      color: var(--txt-m);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .s-val {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--txt);
+    }
+
+    .s-val.gc {
+      color: var(--gold-b);
+    }
+
+    .s-val.pc {
+      color: #b8f0e8;
+    }
+
+    /* LVL bar row — full width */
+    .lvl-row {
+      grid-column: 1/-1;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding-top: 2px;
+    }
+
+    .lvl-lbl {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--txt-d);
+      white-space: nowrap;
+    }
+
+    .lvl-track {
+      flex: 1;
+      height: 14px;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid #5a3a15;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .lvl-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #154360, #2980b9);
+      transition: width .5s ease;
+    }
+
+    .lvl-pct {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px #000;
+      white-space: nowrap;
+    }
+
+    /* VIP row */
+    .vip-row {
+      grid-column: 1/-1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .vip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
+    }
+
+    .vip-badge.on {
+      background: linear-gradient(135deg, #b8860b, #f0c040);
+      color: #1a0e05;
+      box-shadow: 0 1px 8px rgba(200, 150, 42, 0.5);
+    }
+
+    .vip-badge.off {
+      background: rgba(20, 10, 2, 0.7);
+      border: 1px solid #5c3518;
+      color: var(--txt-m);
+    }
+
+    /* Right action buttons */
+    .p-actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 10px 10px 0;
+      margin-left: 0;
+      border-left: 1px solid rgba(90, 58, 21, 0.45);
+      padding-left: 10px;
+    }
+
+    .act-btn {
+      padding: 7px 12px;
+      min-width: 72px;
+      background: linear-gradient(180deg, #3d2108, #1e0e03);
+      border: 1px solid #7a4a18;
+      border-radius: 7px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--txt-d);
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      transition: all 0.18s;
+    }
+
+    .act-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold-b);
+    }
+
+    .act-btn.primary {
+      background: url('assets/ikon/images/240_btn_active_seamless.png') center/cover no-repeat;
+      border-color: #c8962a;
+      color: #fff;
+      text-shadow: 0 1px 2px #000;
+      box-shadow: 0 2px 10px rgba(200, 150, 42, 0.4);
+    }
+
+    .act-btn.primary:hover {
+      filter: brightness(1.15);
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-70px);
+      z-index: 9999;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.ok {
+      background: rgba(25, 70, 40, 0.95);
+      border: 1px solid #27ae60;
+      color: #c8f0d8;
+    }
+
+    .toast.err {
+      background: rgba(80, 20, 10, 0.95);
+      border: 1px solid #e05a3a;
+      color: #ffd0c0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="toast" id="toast"></div>
+  <div class="page">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <a class="shop-btn" href="#" onclick="toast2('🛍️ Paket dükkanı yakında!','ok');return false;">
+        <span class="shop-btn-icon">🛍️</span>
+        <span class="shop-btn-lbl">Paketler</span>
+      </a>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="lb-wrap">
+      <div class="lb-title-bar">
+        <span class="lb-title">☠ Top 100 Pirates ☠</span>
+      </div>
+      <div class="lb-body" id="lb-body">
+        <!-- Rows injected by JS -->
+      </div>
+    </div>
+
+    <!-- PLAYER PANEL -->
+    <div class="player-panel">
+      <div class="pinfo-top">
+        <div class="rutbe-icon p-rank-icon" id="p-rank-icon" title="Rütbe">☠</div>
+        <span class="p-name" id="p-name">Kaptan_Korsan</span>
+      </div>
+      <div class="pinfo-body">
+        <div class="p-stats">
+          <div class="s-row">
+            <span class="s-icon"><img src="assets/pearl.png"
+                style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+            <span class="s-val pc" id="p-pearl">0</span>
+          </div>
+          <div class="s-row">
+            <span class="s-icon"><img src="assets/gold.png"
+                style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+            <span class="s-val gc" id="p-gold">0</span>
+          </div>
+          <div class="s-row">
+            <span class="s-key">XP:</span>
+            <span class="s-val" id="p-xp">0</span>
+          </div>
+          <div class="s-row">
+            <span class="s-key">ELP:</span>
+            <span class="s-val" id="p-elp">0</span>
+          </div>
+          <div class="vip-row">
+            <span class="vip-badge off" id="vip-badge">VIP Sahip Değilsin</span>
+          </div>
+          <div class="lvl-row">
+            <span class="lvl-lbl" id="p-lvl">1 LVL</span>
+            <div class="lvl-track">
+              <div class="lvl-fill" id="p-lvl-fill" style="width:8%"></div>
+              <span class="lvl-pct" id="p-lvl-pct">0 / 1.000</span>
+            </div>
+          </div>
+        </div>
+        <div class="p-actions">
+          <button class="act-btn" onclick="window.location.href='menu.html'">☰ Menü</button>
+          <button class="act-btn" onclick="toast2('🎉 Etkinlikler yakında!','ok')">🎉 Etkinlik</button>
+          <button class="act-btn primary" onclick="window.location.href='map.html'">▶ OYNA</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script>
+    const API_URL = 'http://localhost:3000/api/player';
+    // Session/Beni Hatırla doğrulaması
+    const isRemembered = localStorage.getItem('sp_remember_me') === 'true';
+    const isSessionActive = sessionStorage.getItem('sp_session_active') === 'true';
+    
+    if (localStorage.getItem('sp_token') && !isRemembered && !isSessionActive) {
+      localStorage.removeItem('sp_token');
+      localStorage.removeItem('sp_player');
+    }
+
+    const token = localStorage.getItem('sp_token');
+
+    if (!token) {
+      window.location.href = 'index.html';
+    } else if (!isRemembered) {
+      // Oturum aktifliğini koru
+      sessionStorage.setItem('sp_session_active', 'true');
+    }
+
+    function fmt(n) { return Number(n).toLocaleString('tr-TR'); }
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    /* ── TOAST 2 ── */
+    function toast2(msg, type = 'ok', ms = 2400) {
+      const el = document.getElementById('toast');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'toast ' + type;
+      el.getBoundingClientRect();
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), ms);
+    }
+
+    async function fetchPlayer() {
+      try {
+        const res = await fetch(`${API_URL}/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+          localStorage.removeItem('sp_token');
+          window.location.href = 'index.html';
+          return null;
+        }
+        const data = await res.json();
+        localStorage.setItem('sp_player', JSON.stringify(data));
+        return data;
+      } catch (err) {
+        console.error(err);
+        return JSON.parse(localStorage.getItem('sp_player') || '{}');
+      }
+    }
+
+    async function fetchLeaderboard() {
+      try {
+        const res = await fetch(`${API_URL}/leaderboard`);
+        const data = await res.json();
+        return data;
+      } catch (err) {
+        console.error(err);
+        return [];
+      }
+    }
+
+    async function init() {
+      const [playerData, lbData] = await Promise.all([fetchPlayer(), fetchLeaderboard()]);
+      if (!playerData) return;
+
+      // Render Player Info Panel
+      document.getElementById('p-name').textContent = playerData.username || 'Kaptan';
+      document.getElementById('p-pearl').textContent = fmt(playerData.pearl || 0);
+      document.getElementById('p-gold').textContent = fmt(playerData.gold || 0);
+      document.getElementById('p-xp').textContent = fmt(playerData.xp || 0);
+      document.getElementById('p-elp').textContent = fmt(playerData.elite_points || 0);
+      document.getElementById('p-lvl').textContent = (playerData.level || 1) + ' LVL';
+
+      const rankIconEl = document.getElementById('p-rank-icon');
+      if (rankIconEl) {
+        rankIconEl.innerHTML = `<img src="assets/rank/rank${playerData.rankBadge}.png" style="width: 100%; height: 100%; object-fit: contain;" alt="${playerData.rankName}" title="${playerData.rankName}">`;
+      }
+
+      const xpNext = playerData.xpNext || 999999999;
+      document.getElementById('p-lvl-pct').textContent = fmt(playerData.xp || 0) + ' / ' + fmt(xpNext);
+      const pct = Math.min(100, ((playerData.xp || 0) / xpNext) * 100);
+      document.getElementById('p-lvl-fill').style.width = pct + '%';
+
+      if (playerData.vip_until) {
+        const b = document.getElementById('vip-badge');
+        b.className = 'vip-badge on';
+        b.textContent = 'VIP';
+      }
+
+      // Render Leaderboard
+      const body = document.getElementById('lb-body');
+      let html = '';
+      lbData.forEach((row, i) => {
+        const rank = i + 1;
+        const isMe = row.username === playerData.username;
+        const badge = row.rankBadge || 13;
+        const rbClass = badge === 1 ? 'r1' : (badge === 2 || badge === 3) ? 'r2-3' : badge <= 10 ? 'r4-10' : 'r-low';
+
+        html += `<div class="lb-row${isMe ? ' me' : ''}">
+      <div class="sira">${rank}</div>
+      <span class="nick">${esc(row.username)}</span>
+      <div class="rutbe-col">
+        <span class="rutbe-puan">${fmt(row.score || 0)}</span>
+      </div>
+      <div class="rutbe-icon ${rbClass}" title="${esc(row.rankName || 'Kara Adamı')}">
+        <img src="assets/rank/rank${badge}.png" alt="${esc(row.rankName || 'Kara Adamı')}">
+      </div>
+    </div>`;
+      });
+
+      const inList = lbData.some(r => r.username === playerData.username);
+      if (!inList) {
+        const badge = playerData.rankBadge || 13;
+        const rbClass = badge === 1 ? 'r1' : (badge === 2 || badge === 3) ? 'r2-3' : badge <= 10 ? 'r4-10' : 'r-low';
+        html += `<div class="lb-sep">· · ·</div>
+    <div class="lb-row me">
+      <div class="sira">—</div>
+      <span class="nick">${esc(playerData.username)}</span>
+      <div class="rutbe-col">
+        <span class="rutbe-puan">${fmt(playerData.score || 0)}</span>
+      </div>
+      <div class="rutbe-icon ${rbClass}" title="${esc(playerData.rankName || 'Kara Adamı')}">
+        <img src="assets/rank/rank${badge}.png" alt="${esc(playerData.rankName || 'Kara Adamı')}">
+      </div>
+    </div>`;
+      }
+
+      body.innerHTML = html;
+    }
+
+    // 60 saniyede bir playtime (oyun süresi) arttırmak için sunucuyu pingle
+    setInterval(async () => {
+      try {
+        await fetch(`${API_URL}/ping`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (err) {
+        console.error("Playtime ping error:", err);
+      }
+    }, 60000);
+
+    init();
+  </script>
+</body>
+
+</html>

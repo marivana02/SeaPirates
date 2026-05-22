@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>SeaPirates — Harita Suları</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:      #c8962a;
+      --gold-b:    #f0c040;
+      --gold-p:    #fde68a;
+      --wood-d:    #1a0e05;
+      --wood-m:    #2d1a08;
+      --wood-l:    #422812;
+      --wood-plank: #5c3518;
+      --txt:       #f5e6c8;
+      --txt-d:     #b8956a;
+      --txt-m:     #7a5a38;
+      --pearl:     #a8edea;
+      --border:    rgba(200, 150, 42, 0.4);
+      --sea-bg:    #071428;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #050a10;
+      font-family: 'Inter', sans-serif;
+      color: var(--txt);
+      user-select: none;
+    }
+
+    .page {
+      max-width: 430px;
+      margin: 0 auto;
+      height: 100dvh;
+      position: relative;
+      background: var(--sea-bg) url('assets/sea.png') repeat;
+      background-size: 200px auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-left: 2px solid var(--gold);
+      border-right: 2px solid var(--gold);
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.95);
+    }
+
+    /* TOP HEADER: DUAL NAVIGATION BUTTONS */
+    .top-header {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 130px 1fr 130px;
+      align-items: center;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(10, 5, 2, 0.95) 0%, rgba(10, 5, 2, 0.6) 80%, transparent 100%);
+      border-bottom: 1.5px solid rgba(200, 150, 42, 0.25);
+    }
+
+    .nav-arrow-btn {
+      background: linear-gradient(180deg, #3d2108 0%, #1e0e03 100%);
+      border: 1.5px solid var(--gold);
+      border-radius: 6px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      font-weight: 900;
+      color: var(--gold-p);
+      padding: 7px 10px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.6), inset 0 0 5px rgba(0,0,0,0.5);
+      transition: border-color 0.15s, color 0.15s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .nav-arrow-btn:hover {
+      border-color: var(--gold-b);
+      color: var(--gold-b);
+      box-shadow: 0 3px 12px rgba(240, 192, 64, 0.25), inset 0 0 5px rgba(0,0,0,0.5);
+    }
+    .nav-arrow-btn:active {
+      transform: scale(0.95);
+    }
+    .nav-arrow-btn.locked {
+      border-color: #555;
+      color: #888;
+      background: linear-gradient(180deg, #201005 0%, #0d0702 100%);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .nav-arrow-btn.locked:hover {
+      border-color: #555;
+      color: #888;
+      box-shadow: none;
+    }
+
+    /* Coordinate Title (Center) */
+    .map-title-box {
+      text-align: center;
+    }
+    .map-coordinate-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--gold-b);
+      text-shadow: 0 2px 5px rgba(0,0,0,0.95), 0 0 10px rgba(200,150,42,0.5);
+      letter-spacing: 0.05em;
+    }
+
+    /* ACTION CARDS ROW */
+    .action-row {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 0 14px;
+      margin-top: 15px;
+    }
+    .action-card {
+      background: url('assets/leaderboardbackground.png') center/cover;
+      border: 1.5px solid #6a4218;
+      border-radius: 8px;
+      padding: 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.7), inset 0 0 10px rgba(0,0,0,0.6);
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .action-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 10, 0, 0.35);
+      border-radius: 6px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .action-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold-b);
+    }
+    .action-card-icon {
+      font-size: 1.3rem;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    }
+    .action-card-lbl {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--txt);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 1px 3px #000;
+    }
+
+    /* CENTER AREA (NPC SEARCH) */
+    .center-sea {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .ambient-ship {
+      position: absolute;
+      font-size: 3.5rem;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.75));
+      animation: shipSway 4s infinite ease-in-out;
+      opacity: 0.85;
+      pointer-events: none;
+      top: 25%;
+    }
+
+    .system-banner {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      background: rgba(26, 14, 5, 0.88);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      text-align: center;
+      color: var(--gold-p);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      z-index: 5;
+    }
+
+    /* STATIC NPC ARA BUTTON */
+    .btn-search-holder {
+      position: relative;
+      z-index: 5;
+      margin-top: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    .btn-npc-ara {
+      background: linear-gradient(180deg, #d4a331 0%, #9e6f16 100%);
+      border: 2px solid var(--gold-p);
+      border-radius: 40px;
+      color: #1c1005;
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 1.15rem;
+      padding: 12px 48px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.4);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+      outline: none;
+      transition: transform 0.1s, filter 0.2s;
+    }
+    .btn-npc-ara:hover {
+      filter: brightness(1.1);
+    }
+    .btn-npc-ara:active {
+      transform: scale(0.96);
+    }
+    .btn-npc-ara:disabled {
+      filter: grayscale(0.8) brightness(0.6);
+      cursor: not-allowed;
+    }
+
+    /* DIRECT IN-FLOW NPC INFO PANEL */
+    .npc-info-panel {
+      display: none; /* starts hidden, shown flex */
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      padding: 10px 14px;
+      background: url('assets/leaderboardbackground.png') center/cover;
+      border: 2px solid var(--gold);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.7);
+      position: relative;
+      z-index: 10;
+    }
+    .npc-info-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 6, 2, 0.75);
+      border-radius: 8px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .npc-img-box {
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid rgba(200, 150, 42, 0.4);
+      background: rgba(0,0,0,0.5);
+      border-radius: 6px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      box-shadow: inset 0 0 5px #000;
+    }
+    .npc-img-box img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px #000);
+    }
+    .npc-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
+    .npc-name-text {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #e74c3c;
+      text-shadow: 0 1px 2px #000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .npc-name-text.boss {
+      color: #f1c40f;
+      text-shadow: 0 0 6px rgba(241,196,15,0.4), 0 1px 2px #000;
+    }
+    .npc-stat-row {
+      display: flex;
+      align-items: center;
+      font-size: 0.68rem;
+      line-height: 1.2;
+    }
+    .npc-stat-lbl {
+      color: var(--txt-d);
+      font-weight: 700;
+      margin-right: 4px;
+      text-transform: uppercase;
+      font-size: 0.58rem;
+    }
+    .npc-stat-val {
+      color: var(--txt);
+      font-weight: 700;
+    }
+    .npc-stat-val.loot {
+      color: var(--gold-p);
+    }
+    .btn-npc-saldır {
+      padding: 8px 14px;
+      background: linear-gradient(180deg, #e74c3c 0%, #962d22 100%);
+      border: 1.5px solid #ff7675;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+      white-space: nowrap;
+      position: relative;
+      z-index: 1;
+      transition: filter 0.15s;
+    }
+    .btn-npc-saldır:hover {
+      filter: brightness(1.1);
+    }
+
+    /* UNIFIED BOTTOM DASHBOARD PANEL */
+    .dashboard-panel {
+      position: relative;
+      z-index: 10;
+      margin: 0 10px 10px;
+      border-radius: 12px;
+      border: 2.5px solid #7a4a18;
+      box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.85);
+      background: url('assets/background/playerınfobackground.png') center/cover no-repeat;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dashboard-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 4, 1, 0.6);
+      border-radius: 9px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Panel top content: rank emblem, name, hp bar */
+    .panel-top-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .rank-emblem-box {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(200, 150, 42, 0.7);
+      border-radius: 6px;
+      background: radial-gradient(circle, rgba(120, 95, 50, 0.4) 0%, rgba(12, 6, 3, 0.98) 100%);
+      box-shadow: inset 0 0 6px rgba(200, 150, 42, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rank-emblem-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 1.5px 3px #000) brightness(1.2);
+    }
+    .player-identity {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .player-username {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--txt);
+      text-shadow: 0 1px 3px #000;
+    }
+    /* HP Bar in Panel */
+    .hp-bar-holder {
+      height: 14px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #5c3518;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c8962a 0%, #f0c040 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .hp-bar-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px #000;
+    }
+
+    /* Panel bottom layout: Stats grid + Actions column */
+    .panel-bottom-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Stats Grid */
+    .stats-dashboard {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px 12px;
+      align-content: center;
+    }
+    .stat-strip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .stat-icon-img {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+    }
+    .stat-label-text {
+      font-size: 0.58rem;
+      color: var(--txt-m);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .stat-value-text {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--txt);
+    }
+    .stat-value-text.pearl {
+      color: var(--pearl);
+    }
+    .stat-value-text.gold {
+      color: var(--gold-b);
+    }
+    /* XP progress bar in grid */
+    .xp-strip-full {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    .xp-level-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--txt-d);
+      white-space: nowrap;
+    }
+    .xp-bar-holder {
+      flex: 1;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #4a2a10;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+    .xp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #154360, #2980b9);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .xp-bar-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px #000;
+    }
+    .vip-tag {
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(200, 150, 42, 0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold-b);
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      box-shadow: 0 0 5px rgba(200,150,42,0.2);
+    }
+
+    /* Navigation Stack (Right) */
+    .nav-actions-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      justify-content: center;
+      border-left: 1.5px dashed rgba(122, 74, 24, 0.45);
+      padding-left: 10px;
+      min-width: 90px;
+    }
+    .stack-btn {
+      width: 100%;
+      padding: 6px 4px;
+      background: linear-gradient(180deg, #3d2108 0%, #1e0e03 100%);
+      border: 1.5px solid #7a4a18;
+      border-radius: 6px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--gold-p);
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .stack-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold-b);
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: absolute;
+      top: 100px;
+      left: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .toast {
+      background: rgba(26, 14, 5, 0.95);
+      border: 1px solid var(--gold);
+      color: var(--txt);
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      text-align: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+      animation: toastIn 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shipSway {
+      0%, 100% { transform: rotate(-1.5deg) translateY(0); }
+      50% { transform: rotate(1.5deg) translateY(-4px); }
+    }
+
+    /* Weekly Boss Modal Styles */
+    .boss-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .boss-modal-content {
+      background: linear-gradient(135deg, rgba(20, 10, 10, 0.95), rgba(40, 15, 15, 0.95));
+      border: 2px solid rgba(220, 53, 69, 0.4);
+      box-shadow: 0 0 30px rgba(220, 53, 69, 0.3);
+      border-radius: 12px;
+      width: 95%;
+      max-width: 440px;
+      padding: 22px;
+      position: relative;
+      text-align: center;
+      color: #f8f9fa;
+      transform: scale(0.9);
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .boss-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .boss-modal-close:hover {
+      color: #fff;
+    }
+
+    .boss-modal-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #dc3545;
+      text-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+      margin-bottom: 8px;
+    }
+
+    .boss-modal-info {
+      font-size: 0.75rem;
+      color: #ffc107;
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid rgba(255, 193, 7, 0.2);
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 20px;
+    }
+
+    .boss-section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      text-align: left;
+      margin-bottom: 8px;
+      border-left: 3px solid #dc3545;
+      padding-left: 8px;
+    }
+
+    .boss-ranking-list {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 20px;
+      font-size: 0.72rem;
+      text-align: left;
+    }
+
+    .boss-ranking-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .boss-ranking-item:last-child {
+      border-bottom: none;
+    }
+
+    .boss-rank-badge {
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .boss-rank-1 { color: #ffd700; }
+    .boss-rank-2 { color: #c0c0c0; }
+    .boss-rank-3 { color: #cd7f32; }
+
+    .boss-rewards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .boss-reward-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .boss-reward-rank {
+      font-size: 0.62rem;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    .boss-reward-val {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .boss-reward-img {
+      width: 12px;
+      height: 12px;
+      object-fit: contain;
+    }
+
+    .btn-boss-saldır {
+      background: linear-gradient(180deg, #e43f5a, #b01a33);
+      color: #fff;
+      border: 1px solid #ff4b5c;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 10px 0;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-boss-saldır:hover {
+      background: linear-gradient(180deg, #ff4b5c, #e43f5a);
+      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+    
+    <!-- TOP HEADER: DUAL NAVIGATION BAR -->
+    <div class="top-header">
+      <button class="nav-arrow-btn" id="btn-prev-map">◀ MAP —</button>
+      <div class="map-title-box">
+        <div class="map-coordinate-title" id="lbl-current-map">1-1</div>
+      </div>
+      <button class="nav-arrow-btn" id="btn-next-map">MAP — ▶</button>
+    </div>
+
+    <!-- SUBHEADER ACTION CARDS -->
+    <div class="action-row">
+      <a href="quest.html" class="action-card">
+        <span class="action-card-icon">📜</span>
+        <span class="action-card-lbl">Quest</span>
+      </a>
+      <a href="tower.html" class="action-card">
+        <span class="action-card-icon">🗼</span>
+        <span class="action-card-lbl">Daily Tower</span>
+      </a>
+      <a href="#" class="action-card" id="btn-weekly-boss-trigger">
+        <span class="action-card-icon">💀</span>
+        <span class="action-card-lbl">Weekly Boss</span>
+      </a>
+      <a href="glitter.html" class="action-card">
+        <span class="action-card-icon">✨</span>
+        <span class="action-card-lbl">Pırıltı</span>
+      </a>
+    </div>
+
+    <!-- CENTER SEA AREA -->
+    <div class="center-sea">
+
+      <!-- SEARCH BUTTON AND DIRECT PANEL HOLDER -->
+      <div class="btn-search-holder">
+        <button class="btn-npc-ara" id="btn-search">NPC ARA</button>
+
+        <!-- DIRECT IN-FLOW NPC INFO PANEL -->
+        <div class="npc-info-panel" id="npc-info-panel">
+          <div class="npc-img-box">
+            <img src="" id="npc-panel-img" alt="NPC" />
+          </div>
+          <div class="npc-details">
+            <div class="npc-name-text" id="npc-panel-name">-</div>
+            <div class="npc-stat-row">
+              <span class="npc-stat-lbl">Can:</span>
+              <span class="npc-stat-val" id="npc-panel-hp">-</span>
+            </div>
+            <div class="npc-stat-row">
+              <span class="npc-stat-lbl">Hasar:</span>
+              <span class="npc-stat-val" id="npc-panel-dmg">-</span>
+            </div>
+            <div class="npc-stat-row" style="align-items: center;">
+              <span class="npc-stat-lbl">Ganimet:</span>
+              <div id="npc-panel-loot-box" style="display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:6px;">-</div>
+            </div>
+          </div>
+          <button class="btn-npc-saldır" id="btn-saldır-trigger">SALDIR ⚔️</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- UNIFIED PLAYER PANEL -->
+    <div class="dashboard-panel">
+      <!-- Top section: Avatar, username, HP -->
+      <div class="panel-top-row">
+        <div class="rank-emblem-box" id="p-rank-box">
+          <img src="assets/rank/rank13.png" alt="Emblem" />
+        </div>
+        <div class="player-identity">
+          <span class="player-username" id="p-name">Kaptan</span>
+          <div class="hp-bar-holder">
+            <div class="hp-bar-fill" id="p-hp-bar"></div>
+            <div class="hp-text hp-bar-text" id="p-hp-text">0 / 0 HP</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom section: Stats, XP level bar & Quick buttons -->
+      <div class="panel-bottom-row">
+        <div class="stats-dashboard">
+          <div class="stat-strip">
+            <img src="assets/pearl.png" class="stat-icon-img" alt="Pearl" />
+            <span class="stat-label-text">İnci:</span>
+            <span class="stat-value-text pearl" id="p-pearl">0</span>
+          </div>
+          <div class="stat-strip">
+            <img src="assets/gold.png" class="stat-icon-img" alt="Gold" />
+            <span class="stat-label-text">Altın:</span>
+            <span class="stat-value-text gold" id="p-gold">0</span>
+          </div>
+          <div class="stat-strip">
+            <span class="stat-label-text">XP:</span>
+            <span class="stat-value-text" id="p-xp">0</span>
+          </div>
+          <div class="stat-strip">
+            <span class="stat-label-text">ELP:</span>
+            <span class="stat-value-text" id="p-elp">0</span>
+            <span class="vip-tag" id="vip-badge" style="display:none;">VIP</span>
+          </div>
+
+          <!-- XP Level progress bar -->
+          <div class="xp-strip-full">
+            <span class="xp-level-badge" id="p-lvl-lbl">1 LVL</span>
+            <div class="xp-bar-holder">
+              <div class="xp-bar-fill" id="p-lvl-fill"></div>
+              <span class="xp-bar-text" id="p-lvl-pct">0 / 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation column stack -->
+        <div class="nav-actions-stack">
+          <button class="stack-btn" onclick="window.location.href='home.html'">🏠 Liman</button>
+          <button class="stack-btn" id="btn-tamir">🔨 Tamir</button>
+          <button class="stack-btn" onclick="window.location.href='equipment.html'">⚔️ Ekipman</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <audio id="audio-sea" src="assets/sounds/1_ambient.mp3" loop></audio>
+  <audio id="audio-repair" src="assets/sounds/repair1.mp3" loop></audio>
+
+  <!-- WEEKLY BOSS MODAL -->
+  <div class="boss-modal-overlay" id="boss-modal">
+    <div class="boss-modal-content">
+      <button class="boss-modal-close" id="btn-close-boss-modal">&times;</button>
+      <div class="boss-modal-title">EFSANEVİ LEVİATHAN</div>
+      <div class="boss-modal-info" id="boss-modal-status-info">
+        ⚠️ Günlük 1 defa saldırılabilir. Yükleniyor...
+      </div>
+
+      <div class="boss-section-title">En Yüksek Hasar Sıralaması</div>
+      <div class="boss-ranking-list" id="boss-ranking-list" style="max-height:220px; overflow-y:auto;">
+        <div style="text-align:center; color:#aaa; padding:12px; font-size:0.72rem;">⏳ Sıralama yükleniyor...</div>
+      </div>
+
+      <div class="boss-section-title">Sıralama Ödülleri</div>
+      <div class="boss-rewards-grid">
+        <div class="boss-reward-card">
+          <div class="boss-reward-rank" style="color:#ffd700;">1. Sıra</div>
+          <div class="boss-reward-val">
+            <img src="assets/pearl.png" class="boss-reward-img" /> 50.000
+            <span style="font-size:0.55rem; color:#aaa;">+250k Patlayan</span>
+          </div>
+        </div>
+        <div class="boss-reward-card">
+          <div class="boss-reward-rank" style="color:#c0c0c0;">2. Sıra</div>
+          <div class="boss-reward-val">
+            <img src="assets/pearl.png" class="boss-reward-img" /> 25.000
+            <span style="font-size:0.55rem; color:#aaa;">+100k Patlayan</span>
+          </div>
+        </div>
+        <div class="boss-reward-card">
+          <div class="boss-reward-rank" style="color:#cd7f32;">3. Sıra</div>
+          <div class="boss-reward-val">
+            <img src="assets/pearl.png" class="boss-reward-img" /> 10.000
+            <span style="font-size:0.55rem; color:#aaa;">+50k Patlayan</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-boss-saldır" id="btn-boss-saldır-real">SALDIR ⚔️</button>
+    </div>
+  </div>
+
+  <script>
+    const OFFLINE_NPCS = {
+      1: {
+        npcs: {
+          blackpearl: { name: "Blackpearl", hp: 6000, damage: 90, gold: 180, pearl: 0, xp: 35 },
+          rackham: { name: "Rackham", hp: 12000, damage: 150, gold: 320, pearl: 0, xp: 65 },
+          calicosJack: { name: "Calicos Jack", hp: 25000, damage: 250, gold: 550, pearl: 0, xp: 120 }
+        },
+        boss: { name: "Admiral Jack", hp: 150000, damage: 300, gold: 0, pearl: 180, xp: 3500, img: "assets/npcc/map1/calicosJack.swf/images/amiraljack.png", isAdmiral: true }
+      },
+      2: {
+        npcs: {
+          wild13: { name: "Wild 13", hp: 12000, damage: 160, gold: 280, pearl: 0, xp: 55 },
+          "red korsar": { name: "Red Korsar", hp: 22000, damage: 260, gold: 500, pearl: 0, xp: 100 },
+          ratpack: { name: "Ratpack", hp: 45000, damage: 400, gold: 850, pearl: 0, xp: 185 }
+        },
+        boss: { name: "Admiral Ratpack", hp: 280000, damage: 450, gold: 0, pearl: 320, xp: 5500, img: "assets/npcc/map2/ratpack.swf/images/amiralratpack.png", isAdmiral: true }
+      },
+      3: {
+        npcs: {
+          sinclaresmen: { name: "Sinclares Men", hp: 20000, damage: 250, gold: 400, pearl: 0, xp: 80 },
+          tortugagang: { name: "Tortuga Gang", hp: 38000, damage: 420, gold: 720, pearl: 0, xp: 145 },
+          losrenegados: { name: "Los Renegados", hp: 80000, damage: 600, gold: 1200, pearl: 0, xp: 260 }
+        },
+        boss: { name: "Admiral Renegado", hp: 450000, damage: 650, gold: 0, pearl: 520, xp: 8500, img: "assets/npcc/map3/losrenegados.swf/images/amiralrenegados.png", isAdmiral: true }
+      },
+      4: {
+        npcs: {
+          ratpack: { name: "Ratpack", hp: 32000, damage: 360, gold: 620, pearl: 0, xp: 120 },
+          sinclaresmen: { name: "Sinclares Men", hp: 60000, damage: 620, gold: 1100, pearl: 0, xp: 220 },
+          calocosmen: { name: "Calocosmen", hp: 120000, damage: 900, gold: 0, pearl: 55, xp: 380 }
+        },
+        boss: { name: "Admiral Calico", hp: 750000, damage: 900, gold: 0, pearl: 1260, xp: 13000, img: "assets/npcc/map4/calocosmen.swf/images/amiralcalcos.png", isAdmiral: true }
+      },
+      5: {
+        npcs: {
+          wild13: { name: "Wild 13", hp: 45000, damage: 500, gold: 920, pearl: 0, xp: 180 },
+          losrenegados: { name: "Los Renegados", hp: 90000, damage: 800, gold: 1650, pearl: 0, xp: 330 },
+          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 180000, damage: 1200, gold: 0, pearl: 85, xp: 560 }
+        },
+        boss: { name: "Admiral Morgan", hp: 1100000, damage: 1350, gold: 0, pearl: 2140, xp: 20000, img: "assets/npcc/map5/morgansbuccaneers.swf/images/amiralmorgan.png", isAdmiral: true }
+      },
+      6: {
+        npcs: {
+          tortugagang: { name: "Tortuga Gang", hp: 60000, damage: 650, gold: 1150, pearl: 0, xp: 225 },
+          calocosmen: { name: "Calocosmen", hp: 110000, damage: 1000, gold: 2050, pearl: 0, xp: 415 },
+          sinclaresmen: { name: "Sinclares Men", hp: 220000, damage: 1500, gold: 0, pearl: 110, xp: 700 }
+        },
+        boss: { name: "Admiral Sinclare", hp: 1600000, damage: 1800, gold: 0, pearl: 3010, xp: 28000, img: "assets/npcc/map6/sinclaresmen.swf/images/amiralsiclares.png", isAdmiral: true }
+      },
+      7: {
+        npcs: {
+          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 80000, damage: 850, gold: 1600, pearl: 0, xp: 310 },
+          sinclaresmen: { name: "Sinclares Men", hp: 150000, damage: 1300, gold: 2850, pearl: 0, xp: 580 },
+          flyingdutchman: { name: "Flyingdutchman", hp: 300000, damage: 1900, gold: 0, pearl: 155, xp: 980 }
+        },
+        boss: { name: "Admiral Dutchman", hp: 2200000, damage: 2200, gold: 0, pearl: 4560, xp: 40000, img: "assets/npcc/map7/flyingdutchman.swf/images/amiralflying.png", isAdmiral: true }
+      },
+      8: {
+        npcs: {
+          kiliwallis: { name: "Kiliwallis", hp: 100000, damage: 1050, gold: 2000, pearl: 0, xp: 390 },
+          flyingdutchman: { name: "Flyingdutchman", hp: 190000, damage: 1650, gold: 3600, pearl: 0, xp: 720 },
+          kilimatu: { name: "Kilimatu", hp: 380000, damage: 2400, gold: 0, pearl: 195, xp: 1220 }
+        },
+        boss: { name: "Admiral Kilimatu", hp: 2800000, damage: 2900, gold: 0, pearl: 6430, xp: 55000, img: "assets/npcc/map8/kilimatu.swf/images/amiralkilimatu.png", isAdmiral: true }
+      },
+      9: {
+        npcs: {
+          kokelua: { name: "Kokelua", hp: 120000, damage: 1300, gold: 2450, pearl: 0, xp: 475 },
+          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 230000, damage: 2100, gold: 4350, pearl: 0, xp: 870 },
+          kiribati: { name: "Kiribati", hp: 460000, damage: 3000, gold: 0, pearl: 235, xp: 1480 }
+        },
+        boss: { name: "Admiral Kiribati", hp: 3300000, damage: 3600, gold: 0, pearl: 8860, xp: 72000, img: "assets/npcc/map9/kiribati.swf/images/amiralkiribati.png", isAdmiral: true }
+      },
+      10: {
+        npcs: {
+          kilimatu: { name: "Kilimatu", hp: 150000, damage: 1750, gold: 3000, pearl: 0, xp: 580 },
+          kiribati: { name: "Kiribati", hp: 280000, damage: 2700, gold: 5300, pearl: 0, xp: 1060 },
+          flyingdutchman: { name: "Flyingdutchman", hp: 560000, damage: 3900, gold: 0, pearl: 285, xp: 1800 }
+        },
+        boss: { name: "Admiral Dutchman", hp: 4000000, damage: 4500, gold: 0, pearl: 13950, xp: 110000, img: "assets/npcc/map10/flyingdutchman.swf/images/amiralflying.png", isAdmiral: true }
+      }
+    };
+
+    // State variables
+    var player = { level: 1, gold: 0, pearl: 0, elite_points: 0, xp: 0, hp: 10000, max_hp: 10000, username: "Korsan", rankBadge: 13, rankName: "Kara Korsan" };
+    var currentMapLevel = 1;
+    var currentMapSub = 1;
+    var mapNpcs = {};
+    var mapBoss = null;
+    var foundNpc = null;
+
+    var uiLocked = false;
+    var isRepairing = false;
+    var repairInterval = null;
+
+    const btnSearch = document.getElementById('btn-search');
+    const npcInfoPanel = document.getElementById('npc-info-panel');
+
+    function fmt(n) { return Number(n||0).toLocaleString('tr-TR'); }
+
+    function toast(msg, duration = 2500) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerHTML = msg;
+      container.appendChild(t);
+      setTimeout(() => { t.remove(); }, duration);
+    }
+
+    function setUiLocked(locked) {
+      uiLocked = locked;
+      
+      const btnSearchEl = document.getElementById('btn-search');
+      if (btnSearchEl) {
+        btnSearchEl.disabled = locked;
+        btnSearchEl.style.opacity = locked ? '0.6' : '1';
+        btnSearchEl.style.cursor = locked ? 'not-allowed' : 'pointer';
+      }
+
+      const prevMapBtn = document.getElementById('btn-prev-map');
+      const nextMapBtn = document.getElementById('btn-next-map');
+      if (prevMapBtn) {
+        prevMapBtn.style.pointerEvents = locked ? 'none' : 'auto';
+        prevMapBtn.style.opacity = locked ? '0.5' : '1';
+      }
+      if (nextMapBtn) {
+        nextMapBtn.style.pointerEvents = locked ? 'none' : 'auto';
+        nextMapBtn.style.opacity = locked ? '0.5' : '1';
+      }
+
+      const actionCards = document.querySelectorAll('.action-card');
+      actionCards.forEach(card => {
+        card.style.pointerEvents = locked ? 'none' : 'auto';
+        card.style.opacity = locked ? '0.5' : '1';
+      });
+
+      const stackBtns = document.querySelectorAll('.stack-btn');
+      stackBtns.forEach(btn => {
+        btn.style.pointerEvents = locked ? 'none' : 'auto';
+        btn.style.opacity = locked ? '0.5' : '1';
+      });
+    }
+
+    // Helper functions for map coordinate math
+    function getPrevMap(level, sub) {
+      if (level === 1 && sub === 1) return null;
+      if (sub === 2) {
+        return { level, sub: 1 };
+      } else {
+        const prevLvl = level - 1;
+        const prevSub = (prevLvl <= 4) ? 2 : 1;
+        return { level: prevLvl, sub: prevSub };
+      }
+    }
+
+    function getNextMap(level, sub) {
+      if (level === 10 && sub === 1) return null;
+      if (level <= 4 && sub === 1) {
+        return { level, sub: 2 };
+      } else {
+        const nextLvl = level + 1;
+        return { level: nextLvl, sub: 1 };
+      }
+    }
+
+    // Map Navigation UI updates
+    function updateMapNavigationButtons() {
+      const prev = getPrevMap(currentMapLevel, currentMapSub);
+      const btnPrev = document.getElementById('btn-prev-map');
+      if (prev) {
+        btnPrev.style.visibility = 'visible';
+        btnPrev.innerHTML = `◀ MAP ${prev.level}-${prev.sub}`;
+        btnPrev.className = 'nav-arrow-btn';
+        btnPrev.onclick = () => doChangeMap(prev.level, prev.sub);
+      } else {
+        btnPrev.style.visibility = 'hidden';
+      }
+
+      document.getElementById('lbl-current-map').innerText = `${currentMapLevel}-${currentMapSub}`;
+
+      const next = getNextMap(currentMapLevel, currentMapSub);
+      const btnNext = document.getElementById('btn-next-map');
+      if (next) {
+        btnNext.style.visibility = 'visible';
+        if (next.level > player.level) {
+          btnNext.innerHTML = `MAP ${next.level}-${next.sub} 🔒`;
+          btnNext.className = 'nav-arrow-btn locked';
+          btnNext.onclick = () => toast(`🔒 Seviye yetersiz! Gereken Seviye: ${next.level}`, 3000);
+        } else {
+          btnNext.innerHTML = `MAP ${next.level}-${next.sub} ▶`;
+          btnNext.className = 'nav-arrow-btn';
+          btnNext.onclick = () => doChangeMap(next.level, next.sub);
+        }
+      } else {
+        btnNext.style.visibility = 'hidden';
+      }
+    }
+
+    // Call map change API with 5 seconds lock
+    async function doChangeMap(targetLevel, targetSub) {
+      if (uiLocked) return;
+      if (isRepairing) stopRepair();
+
+      setUiLocked(true);
+      toast("🗺️ Yelkenler fora! Yeni sulara seyir alınıyor... (5 sn)");
+
+      setTimeout(async () => {
+        const token = localStorage.getItem('sp_token');
+        try {
+          const res = await fetch('/api/maps/change', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ targetLevel, targetSub })
+          });
+          const d = await res.json();
+          if (d.success) {
+            currentMapLevel = targetLevel;
+            currentMapSub = targetSub;
+            localStorage.setItem('sp_current_map', currentMapLevel);
+            npcInfoPanel.style.display = 'none';
+            foundNpc = null;
+            await fetchMapNpcs();
+            updateMapNavigationButtons();
+          } else {
+            toast(d.error || "Harita geçişi başarısız!", 3000);
+          }
+        } catch(e) {
+          console.error("Change map failed, running fallback", e);
+          currentMapLevel = targetLevel;
+          currentMapSub = targetSub;
+          localStorage.setItem('sp_current_map', currentMapLevel);
+          npcInfoPanel.style.display = 'none';
+          foundNpc = null;
+          updateMapNavigationButtons();
+        } finally {
+          setUiLocked(false);
+        }
+      }, 5000);
+    }
+
+    function drawStats() {
+      document.getElementById('p-gold').innerText = fmt(player.gold);
+      document.getElementById('p-pearl').innerText = fmt(player.pearl);
+      document.getElementById('p-xp').innerText = fmt(player.xp);
+      document.getElementById('p-elp').innerText = fmt(player.elite_points || player.elp || 0);
+      document.getElementById('p-name').innerText = player.username || "Korsan";
+      
+      // Rank emblem
+      const badgeId = player.rankBadge || 13;
+      const rankBox = document.getElementById('p-rank-box');
+      if(rankBox) {
+        rankBox.innerHTML = `<img src="assets/rank/rank${badgeId}.png" alt="${player.rankName || 'Rank'}" title="${player.rankName || 'Rank'}" />`;
+      }
+
+      // VIP Status
+      const vip = document.getElementById('vip-badge');
+      if(vip) {
+        vip.style.display = player.vip_until ? 'inline-block' : 'none';
+      }
+
+      // HP Bar
+      const pct = Math.max(0, Math.min(100, (player.hp / player.max_hp) * 100));
+      document.getElementById('p-hp-bar').style.width = pct + '%';
+      document.getElementById('p-hp-text').innerText = `${fmt(player.hp)} / ${fmt(player.max_hp)} HP`;
+
+      // XP Progress Bar
+      const xpNext = player.xpNext || 8000;
+      document.getElementById('p-lvl-lbl').innerText = `${player.level} LVL`;
+      const xpPct = Math.max(0, Math.min(100, (player.xp / xpNext) * 100));
+      document.getElementById('p-lvl-fill').style.width = xpPct + '%';
+      document.getElementById('p-lvl-pct').innerText = `${fmt(player.xp)} / ${fmt(xpNext)}`;
+    }
+
+    // Fetch active NPCs for the current map
+    async function fetchMapNpcs() {
+      const token = localStorage.getItem('sp_token');
+      try {
+        const res = await fetch('/api/maps/npcs', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const d = await res.json();
+        mapNpcs = d.npcs || {};
+        mapBoss = d.bossData || null;
+      } catch(e) {
+        console.error("Failed to fetch NPCs, loading offline dictionary", e);
+        const mapData = OFFLINE_NPCS[currentMapLevel] || OFFLINE_NPCS[1];
+        mapNpcs = mapData.npcs;
+        const isBossSubmap = (currentMapLevel <= 4 && currentMapSub === 2) || (currentMapLevel >= 5 && currentMapSub === 1);
+        mapBoss = isBossSubmap ? mapData.boss : null;
+      }
+    }
+
+    // Fetch live backend player metrics via JWT
+    async function loadData() {
+      const token = localStorage.getItem('sp_token');
+      try {
+        const res = await fetch('/api/player/panel', { 
+          headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        const d = await res.json();
+        if (d.success) {
+          player = d.player;
+          // Set map values from the db position
+          const mapRes = await fetch('/api/maps', { 
+            headers: { 'Authorization': `Bearer ${token}` } 
+          });
+          const mData = await mapRes.json();
+          currentMapLevel = mData.currentMapLevel || 1;
+          currentMapSub = mData.currentMapSub || 1;
+        }
+      } catch(e) {
+        console.error("Player loading failed, loading mock fallback", e);
+        const savedPlayer = JSON.parse(localStorage.getItem('sp_player') || '{}');
+        player = {
+          username: savedPlayer.username || "Korsan_Kaptan",
+          level: savedPlayer.level || 2,
+          gold: savedPlayer.gold || 450000,
+          pearl: savedPlayer.pearl || 1400,
+          elite_points: savedPlayer.elite_points || 4501908,
+          xp: savedPlayer.xp || 4620,
+          xpNext: savedPlayer.xpNext || 8000,
+          hp: savedPlayer.hp || 5800,
+          max_hp: savedPlayer.max_hp || 14500,
+          rankBadge: savedPlayer.rankBadge || 13,
+          vip_until: savedPlayer.vip_until || null
+        };
+      }
+      drawStats();
+      localStorage.setItem('sp_current_map', currentMapLevel);
+      await fetchMapNpcs();
+      updateMapNavigationButtons();
+
+      // Trigger ambient sound
+      const audio = document.getElementById('audio-sea');
+      if (audio) {
+        audio.volume = 0.15;
+        audio.play().catch(err => {});
+      }
+    }
+
+    // "NPC ARA" click handler (3-second delay, locks UI, picks NPC)
+    btnSearch.addEventListener('click', () => {
+      if (uiLocked) return;
+      if (isRepairing) stopRepair();
+
+      const keys = Object.keys(mapNpcs);
+      if (keys.length === 0) {
+        toast("Suda canavar tespit edilemedi!");
+        return;
+      }
+
+      setUiLocked(true);
+      btnSearch.innerText = "🔍 ARAŞTIRILIYOR... (3 sn)";
+      toast("🔍 Sular gözleniyor, canavarlar aranıyor...");
+
+      setTimeout(() => {
+        const roll = Math.random() * 100;
+        let selectedNpc = null;
+        let frontKey = '';
+
+        if (mapBoss !== null && Math.random() < 0.15) {
+          selectedNpc = mapBoss;
+          frontKey = 'boss';
+        } else {
+          if (roll < 45) {
+            frontKey = keys[0];
+            selectedNpc = mapNpcs[frontKey];
+          } else if (roll < 80) {
+            frontKey = keys[1] || keys[0];
+            selectedNpc = mapNpcs[frontKey];
+          } else {
+            frontKey = keys[2] || keys[1] || keys[0];
+            selectedNpc = mapNpcs[frontKey];
+          }
+        }
+
+        if (!selectedNpc) {
+          btnSearch.innerText = "NPC ARA";
+          setUiLocked(false);
+          return;
+        }
+
+        foundNpc = {
+          id: Math.floor(Math.random() * 9000) + 1,
+          name: selectedNpc.name,
+          hp: selectedNpc.hp,
+          damage: selectedNpc.damage,
+          gold: selectedNpc.gold || 0,
+          pearl: selectedNpc.pearl || 0,
+          xp: selectedNpc.xp || 0,
+          isBoss: !!selectedNpc.isAdmiral,
+          frontKey: frontKey,
+          img: selectedNpc.isAdmiral ? selectedNpc.img : `assets/npcc/map${currentMapLevel}/${frontKey}.swf/images/7.png`
+        };
+
+        const nameEl = document.getElementById('npc-panel-name');
+        nameEl.innerText = foundNpc.name;
+        nameEl.className = foundNpc.isBoss ? "npc-name-text boss" : "npc-name-text";
+
+        document.getElementById('npc-panel-img').src = foundNpc.img;
+        document.getElementById('npc-panel-hp').innerText = `${fmt(foundNpc.hp)} HP`;
+        document.getElementById('npc-panel-dmg').innerText = `${fmt(foundNpc.damage)} Hasar`;
+
+        const lootBox = document.getElementById('npc-panel-loot-box');
+        lootBox.innerHTML = '';
+        if (foundNpc.gold > 0) {
+          lootBox.innerHTML += `<div style="display:inline-flex; align-items:center; gap:3.5px;"><img src="assets/gold.png" style="width:12.5px; height:12.5px; object-fit:contain;" /> <span class="npc-stat-val" style="color:var(--gold-b); font-size:0.68rem; margin:0;">${fmt(foundNpc.gold)}</span></div>`;
+        }
+        if (foundNpc.pearl > 0) {
+          lootBox.innerHTML += `<div style="display:inline-flex; align-items:center; gap:3.5px;"><img src="assets/pearl.png" style="width:12.5px; height:12.5px; object-fit:contain;" /> <span class="npc-stat-val" style="color:var(--pearl); font-size:0.68rem; margin:0;">${fmt(foundNpc.pearl)}</span></div>`;
+        }
+        if (foundNpc.xp > 0) {
+          lootBox.innerHTML += `<div style="display:inline-flex; align-items:center; gap:3.5px;"><span style="font-size:0.65rem;">⭐</span> <span class="npc-stat-val" style="color:var(--txt); font-size:0.68rem; margin:0;">${fmt(foundNpc.xp)} XP</span></div>`;
+        }
+        if (lootBox.innerHTML === '') lootBox.innerText = 'Yok';
+
+        npcInfoPanel.style.display = 'flex';
+        
+        btnSearch.innerText = "NPC ARA";
+        setUiLocked(false);
+
+        const audio = document.getElementById('audio-sea');
+        if(audio && audio.paused) {
+          audio.play().catch(e => {});
+        }
+      }, 3000);
+    });
+
+    // Start normal NPC battle
+    document.getElementById('btn-saldır-trigger').addEventListener('click', () => {
+      if (!foundNpc) return;
+      if (isRepairing) stopRepair();
+      
+      localStorage.setItem('sp_current_map', currentMapLevel);
+      localStorage.setItem('sp_current_target_name', foundNpc.name);
+      localStorage.setItem('sp_current_target_img', foundNpc.img);
+      localStorage.setItem('sp_current_target_hp', foundNpc.hp);
+      localStorage.setItem('sp_current_target_maxHp', foundNpc.hp);
+      localStorage.setItem('sp_current_target_dmg', foundNpc.damage);
+      localStorage.setItem('sp_current_target_gold', foundNpc.gold);
+      localStorage.setItem('sp_current_target_pearl', foundNpc.pearl);
+      localStorage.setItem('sp_current_target_xp', foundNpc.xp);
+      localStorage.setItem('sp_current_target_tier', foundNpc.isBoss ? 3 : 1);
+
+      window.location.href = `fight.html?npcId=${foundNpc.id}&map=${currentMapLevel}&submap=${currentMapSub}`;
+    });
+
+    // Weekly Boss Modal Triggers
+    const bossModal = document.getElementById('boss-modal');
+    
+    async function loadBossLeaderboard() {
+      const listEl = document.getElementById('boss-ranking-list');
+      const infoEl = document.getElementById('boss-modal-status-info');
+      const atkBtn = document.getElementById('btn-boss-saldır-real');
+      
+      listEl.innerHTML = '<div style="text-align:center; color:#aaa; padding:12px; font-size:0.72rem;">⏳ Sıralama yükleniyor...</div>';
+      
+      const token = localStorage.getItem('sp_token');
+      try {
+        const res = await fetch('/api/combat/boss/status', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        
+        // Update status info
+        const canAttack = data.canAttack;
+        const countdown = data.countdown || '?';
+        const myDmg = data.weeklyDamage || 0;
+        
+        let statusHtml = `⚠️ Günlük 1 defa saldırılabilir. Sıfırlanma: <b>${countdown}</b>`;
+        if (myDmg > 0) {
+          statusHtml += `<br>Senin hasarın: <b style="color:#ff6b6b;">${fmt(myDmg)} Dmg</b>`;
+        }
+        if (!canAttack) {
+          statusHtml += `<br><span style="color:#dc3545;">❌ Bugün zaten saldırdınız!</span>`;
+        }
+        infoEl.innerHTML = statusHtml;
+        
+        // Update attack button
+        if (!canAttack) {
+          atkBtn.disabled = true;
+          atkBtn.style.opacity = '0.5';
+          atkBtn.style.cursor = 'not-allowed';
+          atkBtn.innerText = '❌ BUGÜN SALDIRILDI';
+        } else {
+          atkBtn.disabled = false;
+          atkBtn.style.opacity = '1';
+          atkBtn.style.cursor = 'pointer';
+          atkBtn.innerText = 'SALDIR ⚔️';
+        }
+        
+        // Render leaderboard
+        const lb = data.leaderboard || [];
+        if (lb.length === 0) {
+          listEl.innerHTML = '<div style="text-align:center; color:#888; padding:14px; font-size:0.72rem;">Bu hafta henüz kimse saldırmadı.</div>';
+        } else {
+          let html = '';
+          lb.forEach((entry, idx) => {
+            const rank = idx + 1;
+            let rankClass = '';
+            let dmgColor = '#ccc';
+            if (rank === 1) { rankClass = 'boss-rank-1'; dmgColor = '#ffd700'; }
+            else if (rank === 2) { rankClass = 'boss-rank-2'; dmgColor = '#c0c0c0'; }
+            else if (rank === 3) { rankClass = 'boss-rank-3'; dmgColor = '#cd7f32'; }
+            
+            const username = entry.username || '???';
+            const dmg = parseInt(entry.weekly_boss_damage || 0);
+            
+            html += `<div class="boss-ranking-item">
+              <div><span class="boss-rank-badge ${rankClass}">${rank}.</span> ${username}</div>
+              <div style="color: ${dmgColor}; font-weight: 600;">${fmt(dmg)} Dmg</div>
+            </div>`;
+          });
+          listEl.innerHTML = html;
+        }
+      } catch(e) {
+        console.error('Boss leaderboard fetch failed:', e);
+        infoEl.innerHTML = '⚠️ Günlük 1 defa saldırılabilir. <span style="color:#dc3545;">Bağlantı hatası!</span>';
+        listEl.innerHTML = '<div style="text-align:center; color:#dc3545; padding:14px; font-size:0.72rem;">Sıralama yüklenemedi. Sunucu çevrimdışı olabilir.</div>';
+      }
+    }
+    
+    document.getElementById('btn-weekly-boss-trigger').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (uiLocked) return;
+      if (isRepairing) stopRepair();
+      bossModal.style.display = 'flex';
+      loadBossLeaderboard();
+    });
+
+    document.getElementById('btn-close-boss-modal').addEventListener('click', () => {
+      bossModal.style.display = 'none';
+    });
+
+    document.getElementById('btn-boss-saldır-real').addEventListener('click', () => {
+      if (document.getElementById('btn-boss-saldır-real').disabled) return;
+      bossModal.style.display = 'none';
+      toast("⚔️ Efsanevi Leviathan'ın inine giriliyor...");
+      localStorage.setItem('sp_combat_is_weekly_boss', 'true');
+      setTimeout(() => {
+        window.location.href = 'fight.html';
+      }, 800);
+    });
+
+    // Repair action functions with ticking / sounds / GDD alignment
+    function stopRepair() {
+      if (!isRepairing) return;
+      clearInterval(repairInterval);
+      repairInterval = null;
+      isRepairing = false;
+
+      const btn = document.getElementById('btn-tamir');
+      if (btn) btn.innerHTML = "🔨 Tamir";
+
+      const audRepair = document.getElementById('audio-repair');
+      if (audRepair) {
+        audRepair.pause();
+        audRepair.currentTime = 0;
+      }
+      toast("🔨 Tamir durduruldu.");
+    }
+
+    async function startRepair() {
+      if (uiLocked) return;
+      if (player.hp >= player.max_hp) {
+        toast("✅ Gemi zaten tam tamirli!");
+        return;
+      }
+
+      isRepairing = true;
+      const btn = document.getElementById('btn-tamir');
+      if (btn) btn.innerHTML = "🔧 Durdur";
+      toast("🔧 Gemi tamiri başladı...");
+
+      const audRepair = document.getElementById('audio-repair');
+      if (audRepair) {
+        audRepair.volume = 0.25;
+        audRepair.play().catch(e => {});
+      }
+
+      await doRepairStep();
+      
+      if (isRepairing && player.hp < player.max_hp) {
+        repairInterval = setInterval(async () => {
+          await doRepairStep();
+        }, 5000);
+      }
+    }
+
+    async function doRepairStep() {
+      const token = localStorage.getItem('sp_token');
+      try {
+        const res = await fetch('/api/player/repair', { 
+          method: 'POST', 
+          headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        const d = await res.json();
+        if (d.hp !== undefined) {
+          player.hp = d.hp;
+          player.max_hp = d.max_hp;
+          drawStats();
+          if (d.full || d.hp >= d.max_hp) {
+            clearInterval(repairInterval);
+            repairInterval = null;
+            isRepairing = false;
+            
+            const btn = document.getElementById('btn-tamir');
+            if (btn) btn.innerHTML = "🔨 Tamir";
+
+            const audRepair = document.getElementById('audio-repair');
+            if (audRepair) {
+              audRepair.pause();
+              audRepair.currentTime = 0;
+            }
+            toast("✅ Gemi tamamen tamir edildi.");
+          } else {
+            toast(`🔧 Kalafat yapılıyor... (${fmt(d.hp)} / ${fmt(d.max_hp)} HP)`);
+          }
+        } else {
+          stopRepair();
+          toast("❌ Tamir başarısız!");
+        }
+      } catch(e) {
+        player.hp = Math.min(player.max_hp, player.hp + Math.floor(player.max_hp * 0.05));
+        drawStats();
+        if (player.hp >= player.max_hp) {
+          clearInterval(repairInterval);
+          repairInterval = null;
+          isRepairing = false;
+          
+          const btn = document.getElementById('btn-tamir');
+          if (btn) btn.innerHTML = "🔨 Tamir";
+
+          const audRepair = document.getElementById('audio-repair');
+          if (audRepair) {
+            audRepair.pause();
+            audRepair.currentTime = 0;
+          }
+          toast("✅ Gemi tamamen tamir edildi.");
+        } else {
+          toast(`🔧 Kalafat yapılıyor (Yerel)... (${fmt(player.hp)} / ${fmt(player.max_hp)} HP)`);
+        }
+      }
+    }
+
+    document.getElementById('btn-tamir').addEventListener('click', () => {
+      if (isRepairing) {
+        stopRepair();
+      } else {
+        startRepair();
+      }
+    });
+
+    // Check last battle results
+    const lastBattle = localStorage.getItem('sp_lastBattle');
+    if (lastBattle) {
+      try {
+        const data = JSON.parse(lastBattle);
+        if (data.win) {
+          let text = `✓ Zafer! +${fmt(data.gold)}🪙 +${fmt(data.xp)}⭐`;
+          if (data.pearl > 0) text += ` +${fmt(data.pearl)}💎`;
+          toast(text, 3500);
+        } else {
+          toast("💀 Filo imha oldu, savaşı kaybettin!", 3000);
+        }
+      } catch (e) {}
+      localStorage.removeItem('sp_lastBattle');
+    }
+
+    loadData();
+  </script>
+
+  <!-- AMBIENT ANIMATIONS FOR MAP -->
+  <script id="ambient-fx">
+    (function () {
+      const cfg = [
+        { p: 'assets/DefineSprite_19_bird', f: 9, t: 'bird' },
+        { p: 'assets/DefineSprite_31_albatross', f: 15, t: 'bird' },
+        { p: 'assets/DefineSprite_27_dolphin4', f: 13, t: 'fish' },
+        { p: 'assets/DefineSprite_54_dolphin3', f: 13, t: 'fish' },
+        { p: 'assets/DefineSprite_81_dolphin2', f: 13, t: 'fish' }
+      ];
+      const layer = document.createElement('div');
+      layer.style.cssText = 'position:absolute; inset:0; z-index:2; pointer-events:none; overflow:hidden;';
+      const page = document.querySelector('.page') || document.body;
+      page.appendChild(layer);
+
+      function spawn() {
+        if (localStorage.getItem('sp_setting_graphics') === 'false') return;
+        if (Math.random() > 0.75) return;
+        const c = cfg[Math.floor(Math.random() * cfg.length)];
+        const img = document.createElement('img');
+        img.style.position = 'absolute';
+        img.style.width = c.t === 'bird' ? '30px' : '70px';
+        img.style.height = c.t === 'bird' ? '30px' : '70px';
+        img.style.objectFit = 'contain';
+        img.style.opacity = '0';
+        img.style.filter = 'drop-shadow(0 8px 8px rgba(0,0,0,0.5))';
+
+        let flyRight = Math.random() > 0.5;
+        let startX = c.t === 'bird' ? (flyRight ? -50 : 450) : (Math.random() * 350 - 20);
+        let startY = c.t === 'bird' ? (Math.random() * 500 + 100) : (Math.random() * 150 + 350);
+
+        let moveX = c.t === 'bird' ? (flyRight ? 520 : -520) : 0;
+        let moveY = c.t === 'bird' ? ((Math.random() - 0.5) * 160) : 0;
+
+        let duration = c.t === 'bird' ? 8000 : 1600;
+
+        img.style.transition = `opacity 0.6s, transform ${duration}ms linear`;
+        img.style.left = startX + 'px';
+        img.style.top = startY + 'px';
+
+        let scale = moveX < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+
+        let angle = 0;
+        if (c.t === 'bird') {
+          angle = Math.atan2(moveY, Math.abs(moveX)) * (180 / Math.PI);
+          angle = angle * 0.5;
+        }
+        let rotate = c.t === 'bird' ? ` rotate(${angle}deg)` : '';
+
+        img.style.transform = scale + rotate;
+        layer.appendChild(img);
+
+        let frame = 1;
+        img.src = `${c.p}/${frame}.png`;
+
+        setTimeout(() => {
+          img.style.opacity = c.t === 'fish' ? '0.95' : '0.90';
+          img.style.transform = `translate(${moveX}px, ${moveY}px) ${scale}${rotate}`;
+        }, 50);
+
+        let frameInterval = c.t === 'bird' ? 100 : 130;
+        const anim = setInterval(() => {
+          frame++;
+          if (frame > c.f) {
+            if (c.t === 'fish') {
+              clearInterval(anim);
+              return;
+            }
+            frame = 1;
+          }
+          img.src = `${c.p}/${frame}.png`;
+        }, frameInterval);
+
+        setTimeout(() => {
+          img.style.opacity = '0';
+          setTimeout(() => {
+            clearInterval(anim);
+            if (img.parentNode) img.parentNode.removeChild(img);
+          }, 600);
+        }, duration - 600);
+      }
+
+      setInterval(spawn, 2000);
+      setTimeout(spawn, 500);
+    })();
+  </script>
+</body>
+</html>

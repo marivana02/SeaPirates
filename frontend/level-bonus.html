@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>SeaPirates — Seviye Bonusu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root {
+      --gold: #c8962a;
+      --gold-b: #f0c040;
+      --gold-p: #fde68a;
+      --wood-d: #1a0e05;
+      --wood-m: #2d1a08;
+      --wood-plank: #5c3518;
+      --txt: #f5e6c8;
+      --txt-d: #b8956a;
+      --txt-m: #7a5a38;
+    }
+
+    html,body{
+      width:100%;height:100dvh;overflow:hidden;
+      background:#0a0806;font-family:'Inter',sans-serif;
+      color:#ece4d4;
+    }
+
+    .page{
+      max-width:430px;margin:0 auto;height:100dvh;
+      display:flex;flex-direction:column;
+      position:relative;
+      background: url('assets/background/menubackground.png') center center / cover no-repeat;
+    }
+    .page::before {
+      content:'';position:absolute;inset:0;
+      background:rgba(0,0,0,0.65);
+      pointer-events:none;z-index:0;
+    }
+
+    .top-bar{
+      position:relative;z-index:10;
+      padding:14px;
+      display:flex;align-items:center;
+      justify-content:space-between;
+      flex-shrink:0;
+      border-bottom:1px solid rgba(200,150,42,0.3);
+      background:linear-gradient(180deg, rgba(20,10,2,0.95), rgba(10,5,0,0.85));
+    }
+    .btn-back{
+      padding:8px 12px;
+      background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:7px;
+      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;
+      color:var(--txt-d);letter-spacing:0.04em;
+      cursor:pointer;text-align:center;text-decoration:none;
+      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1.05rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 10px rgba(200,150,42,0.6);
+      text-transform:uppercase;
+    }
+
+    .body{
+      position:relative;z-index:5;
+      flex:1;display:flex;flex-direction:column;
+      padding:12px;gap:10px;overflow-y:auto;
+      scrollbar-width: thin;
+      scrollbar-color: #5c3518 transparent;
+      background: rgba(10, 5, 2, 0.45);
+    }
+
+    .body::-webkit-scrollbar {
+      width: 4px;
+    }
+    .body::-webkit-scrollbar-thumb {
+      background: #5c3518;
+      border-radius: 2px;
+    }
+
+    /* INFO STATS */
+    .info-row{
+      flex-shrink:0;
+      display:flex;
+      gap:8px;
+    }
+    .info-box{
+      flex:1;
+      text-align:center;
+      border-radius:8px;
+      background: rgba(12, 6, 3, 0.85);
+      border: 1px solid #5a3a15;
+      padding: 6px 4px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+    }
+    .info-box.vip-status-box {
+      border-color: #c8962a;
+      background: rgba(66, 8, 8, 0.7);
+    }
+    .info-box.vip-status-box .l {
+      color: #f0c040;
+    }
+    .info-box.vip-status-box .v {
+      color: #ffd700;
+    }
+    .info-box .l{
+      font-size:0.58rem;
+      color:var(--txt-d);
+      text-transform:uppercase;
+      letter-spacing:0.07em;
+      font-weight:600;
+    }
+    .info-box .v{
+      font-family:'Cinzel',serif;
+      font-size:0.8rem;
+      font-weight:900;
+      color:var(--gold-b);
+      margin-top:2px;
+      text-shadow: 0 0 8px rgba(240,192,64,0.3);
+    }
+    .info-box .v span{
+      font-size:0.6rem;
+      color:var(--txt-m);
+      font-family:'Inter',sans-serif;
+      font-weight:400;
+    }
+
+    /* PROGRESS BAR */
+    .prog-wrap{
+      flex-shrink:0;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      border-radius:8px;
+      padding:6px 10px;
+      background: rgba(12, 6, 3, 0.7);
+      border: 1px solid rgba(90, 58, 21, 0.4);
+    }
+    .prog-lbl{
+      font-family:'Cinzel',serif;
+      font-size:0.6rem;
+      font-weight:700;
+      color:var(--txt-d);
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      flex-shrink:0;
+    }
+    .prog-track{
+      flex:1;
+      height:6px;
+      border-radius:3px;
+      background:rgba(0,0,0,0.6);
+      border: 1px solid #5a3a15;
+      overflow:hidden;
+    }
+    .prog-fill{
+      height:100%;
+      border-radius:3px;
+      background:linear-gradient(90deg, #c8962a, #ffd700);
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+      transition:width 0.4s ease;
+    }
+    .prog-num{
+      font-family:'Cinzel',serif;
+      font-size:0.7rem;
+      font-weight:900;
+      color:var(--gold-b);
+      flex-shrink:0;
+    }
+
+    /* CABINET WRAP (WOODEN CABINET STRUCTURE) */
+    .cabinet-wrap {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(12, 6, 3, 0.85);
+      border: 3px solid #7c4e20;
+      box-shadow: 
+        0 12px 28px rgba(0,0,0,0.95),
+        inset 0 0 20px rgba(0,0,0,0.9);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cabinet-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .header-col {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 5px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      text-shadow: 0 1px 2px #000;
+    }
+    .normal-title {
+      background: rgba(92, 53, 24, 0.3);
+      border: 1px solid rgba(166, 124, 70, 0.3);
+      color: var(--txt-d);
+    }
+    .vip-title {
+      background: linear-gradient(90deg, rgba(92, 24, 24, 0.4), rgba(200, 150, 42, 0.2));
+      border: 1px solid rgba(200, 150, 42, 0.4);
+      color: #fde68a;
+      box-shadow: 0 0 8px rgba(200, 150, 42, 0.15);
+    }
+
+    /* GRID LAYOUT */
+    .grid-wrap{
+      flex:1;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    /* CARD DESIGN */
+    .lv-card{
+      position: relative;
+      border-radius:8px;
+      padding:10px 8px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:space-between;
+      gap:5px;
+      text-align:center;
+      transition:all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
+      background: linear-gradient(135deg, #2b1a0d 0%, #150c05 100%);
+      border:2px solid #a67c46;
+      box-shadow:0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.8);
+    }
+    .lv-card::before{
+      content:'';position:absolute;inset:0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%);
+      border-radius:6px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* VIP CARD COLOR SYSTEM (Deep Crimson & Amber Gold) */
+    .lv-card.vip {
+      background: linear-gradient(135deg, #420808 0%, #1c0303 100%);
+      border-color: #c8962a;
+      box-shadow:0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(200, 150, 42, 0.15);
+    }
+
+    /* CARD STATE: AVAILABLE */
+    .lv-card.avail{
+      border-color:#ffd700;
+      background: linear-gradient(135deg, #4d3019 0%, #2b1a0d 100%);
+      cursor:pointer;
+      animation: cardPulse 2s ease-in-out infinite;
+    }
+    .lv-card.vip.avail {
+      border-color: #ffd700;
+      background: linear-gradient(135deg, #5c0c0c 0%, #2e0505 100%);
+      animation: vipCardPulse 2s ease-in-out infinite;
+    }
+    .lv-card.avail::before{
+      background: linear-gradient(180deg, rgba(255,215,0,0.15) 0%, rgba(0,0,0,0) 100%);
+    }
+    .lv-card.avail:hover{
+      transform:translateY(-2px);
+      border-color:#fff;
+      box-shadow:0 6px 18px rgba(255,215,0,0.3), inset 0 0 10px rgba(0,0,0,0.5);
+    }
+    .lv-card.vip.avail:hover {
+      box-shadow:0 6px 18px rgba(200, 150, 42, 0.5), 0 0 10px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    /* CARD STATE: CLAIMED (DONE) */
+    .lv-card.done{
+      opacity:0.5;
+      border-color: #3b220b;
+      background: linear-gradient(135deg, #180f08 0%, #0d0602 100%);
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
+      filter: grayscale(0.2);
+    }
+    .lv-card.vip.done {
+      border-color: #4a1212;
+      background: linear-gradient(135deg, #1f0404 0%, #0d0101 100%);
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
+    }
+    .lv-card.done::before{
+      background:rgba(0,0,0,0.5);
+    }
+
+    /* CARD STATE: LOCKED (WAIT) */
+    .lv-card.wait{
+      opacity:0.5;
+      border-color: #3b220b;
+      background: linear-gradient(135deg, #180f08 0%, #0d0602 100%);
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
+    }
+    .lv-card.vip.wait {
+      border-color: #4a1212;
+      background: linear-gradient(135deg, #1f0404 0%, #0d0101 100%);
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
+    }
+    .lv-card.wait::before{
+      background:rgba(0,0,0,0.65);
+    }
+
+    /* BADGE & NUMBER SEALS */
+    .lv-badge{
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1.5px solid #a67c46;
+      background: linear-gradient(135deg, #1e0e03 0%, #3d2108 100%);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+      position: relative;
+      z-index: 1;
+    }
+    .lv-card.vip .lv-badge {
+      border-color: #c8962a;
+      color: #fde68a;
+    }
+    .lv-card.avail .lv-badge{
+      border-color:#ffd700;
+      background: linear-gradient(135deg, #3d2108 0%, #c8962a 100%);
+    }
+    .lv-card.done .lv-badge{
+      border-color:#5a3a15;
+      background:#110803;
+    }
+    .lv-num{
+      font-family:'Cinzel',serif;
+      font-size:0.65rem;
+      font-weight:900;
+      color:#e0d0b8;
+      text-shadow: 0 1px 1px #000;
+    }
+    .lv-card.avail .lv-num{
+      color:#fff;
+    }
+
+    .lv-lbl{
+      font-family:'Cinzel',serif;
+      font-size:0.5rem;
+      font-weight:600;
+      color:#ece4d4;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      text-shadow: 0 1px 2px #000;
+      position: relative;
+      z-index: 1;
+    }
+    .lv-card.vip .lv-lbl {
+      color: #fde68a;
+    }
+    .lv-card.avail .lv-lbl{
+      color: var(--gold-p);
+    }
+
+    /* REWARD CONTAINER */
+    .lv-rwd-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      width: 100%;
+      min-height: 40px;
+    }
+    .lv-rwd-img-wrap {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+    .lv-rwd-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85));
+    }
+    .lv-rwd-text {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #ffd0c0;
+      text-shadow: 0 1px 2px #000;
+      white-space: nowrap;
+    }
+    .lv-card.vip .lv-rwd-text {
+      color: #fde68a;
+    }
+    .lv-card.done .lv-rwd-text {
+      color: #a0a0a0;
+    }
+    .lv-card.avail .lv-rwd-text {
+      color: #fff;
+    }
+
+    /* BADGE OVERLAYS */
+    .day-badge {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      z-index: 2;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .day-badge.claimed {
+      background: #27ae60;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 900;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .day-badge.locked {
+      background: #2c3e50;
+      color: #bdc3c7;
+      font-size: 0.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .day-badge.locked-vip {
+      background: #5c0c0c;
+      color: #fde68a;
+      font-size: 0.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+
+    /* DOUBLE IMAGES DISPLAY FOR DAY 10 SPECIAL */
+    .lv-card.double-reward-card .lv-rwd-container {
+      flex-direction: row;
+      justify-content: center;
+      gap: 4px;
+      min-height: auto;
+      flex-wrap: wrap;
+    }
+    .lv-card.double-reward-card .lv-rwd-img-wrap {
+      width: 26px;
+      height: 26px;
+      margin-bottom: 0;
+    }
+
+    /* SPECIAL CARD TYPE (FULL WIDTH DAY 10) */
+    .lv-card.special{
+      grid-column:1/-1;
+      flex-direction:row;
+      padding:12px 16px;
+      gap:12px;
+      text-align:left;
+      border-color: #8a6a20;
+    }
+    .lv-card.special::before {
+      background: linear-gradient(135deg, rgba(40,25,10,0.65) 0%, rgba(20,10,2,0.85) 100%);
+    }
+    .lv-card.special.vip {
+      border-color: #c8962a;
+      background: linear-gradient(135deg, #420808 0%, #1c0303 100%);
+    }
+    .lv-card.special.avail {
+      border-color: #ffd700;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.12), 0 4px 10px rgba(0,0,0,0.85);
+    }
+    .lv-card.special.vip.avail {
+      border-color: #ffd700;
+      box-shadow: 0 0 25px rgba(200, 150, 42, 0.35), 0 4px 10px rgba(0,0,0,0.85);
+    }
+    .lv-card.special .lv-rwd-container {
+      flex-direction: row;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-left: auto;
+      min-height: auto;
+    }
+    .lv-card.special .lv-badge {
+      width: 36px;
+      height: 36px;
+    }
+
+    /* CLAIM BUTTON OVERLAY FOR ACTIVE CARD */
+    .claim-action-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.22s ease;
+      border-radius: 6px;
+    }
+    .lv-card.avail:hover .claim-action-overlay {
+      opacity: 1;
+    }
+    .claim-action-btn {
+      padding: 4px 10px;
+      background: url('assets/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
+      border: 1px solid #27ae60;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      text-shadow: 0 1px 1px #000;
+      cursor: pointer;
+    }
+
+    /* PULSE KEYFRAMES */
+    @keyframes cardPulse {
+      0% {
+        box-shadow: 0 0 8px rgba(240, 192, 64, 0.15), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
+        border-color: var(--gold-b);
+      }
+      50% {
+        box-shadow: 0 0 18px rgba(240, 192, 64, 0.4), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
+        border-color: #ffd700;
+      }
+      100% {
+        box-shadow: 0 0 8px rgba(240, 192, 64, 0.15), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
+        border-color: var(--gold-b);
+      }
+    }
+
+    @keyframes vipCardPulse {
+      0% {
+        box-shadow: 0 0 8px rgba(200, 150, 42, 0.2), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
+        border-color: #c8962a;
+      }
+      50% {
+        box-shadow: 0 0 18px rgba(200, 150, 42, 0.55), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
+        border-color: #ffd700;
+      }
+      100% {
+        box-shadow: 0 0 8px rgba(200, 150, 42, 0.2), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
+        border-color: #c8962a;
+      }
+    }
+
+    /* TOAST STYLE */
+    .toast {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-70px);
+      z-index: 9999;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.ok {
+      background: rgba(25, 70, 40, 0.95);
+      border: 1px solid #27ae60;
+      color: #c8f0d8;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="page">
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back">◀ LİMAN</a>
+    <div class="page-title">SEVİYE BONUSU</div>
+    <div style="width:44px;"></div>
+  </div>
+  <div class="body">
+    <!-- STATS -->
+    <div class="info-row">
+      <div class="info-box"><div class="l">⭐ Seviye</div><div class="v" id="lvl-val">1</div></div>
+      <div class="info-box"><div class="l">🎯 Açık</div><div class="v" id="open-val">1 <span>seviye</span></div></div>
+      <div class="info-box vip-status-box" id="vip-box">
+        <div class="l">VIP Durumu</div>
+        <div class="v" id="vip-val">AKTİF DEĞİL</div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="prog-wrap">
+      <span class="prog-lbl">İlerleme</span>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <span class="prog-num" id="prog-num">0/10</span>
+    </div>
+
+    <!-- WOODEN CABINET CONTAINER -->
+    <div class="cabinet-wrap">
+      <!-- CABINET HEADERS -->
+      <div class="cabinet-header">
+        <div class="header-col normal-title">NORMAL ÖDÜL</div>
+        <div class="header-col vip-title">👑 VIP ÖDÜLÜ</div>
+      </div>
+      <!-- GRID FOR 10 DAYS (Normal & VIP alternated) -->
+      <div class="grid-wrap" id="grid-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = 'http://localhost:3000/api/player';
+  const token = localStorage.getItem('sp_token');
+
+  let playerLv = parseInt(localStorage.getItem('sp_level')) || 1;
+  let isVip = false;
+
+  // Normal Seviye Ödülleri
+  const LV_normal = [
+    { l: 1, text: '10.000 Altın', img: 'assets/gold.png' },
+    { l: 2, text: '250 İnci', img: 'assets/pearl.png' },
+    { l: 3, text: '1.000 Oyuk', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
+    { l: 4, text: '25.000 Altın', img: 'assets/gold.png' },
+    { l: 5, text: '500 İnci', img: 'assets/pearl.png' },
+    { l: 6, text: '15x Barut & Zırh', img: 'assets/ikon/images/1_powdericon_bmpref0.png' },
+    { l: 7, text: '1.000 Patlayan', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
+    { l: 8, text: '50.000 Altın', img: 'assets/gold.png' },
+    { l: 9, text: '1.000 İnci', img: 'assets/pearl.png' },
+    { l: 10, text: '2.000 İnci + 2K Patlayan', img: 'assets/pearl.png', doubleImg: 'assets/ikon/images/11_ammoskull_bmpref0.png', x: true }
+  ];
+
+  // VIP Seviye Ödülleri
+  const LV_vip = [
+    { l: 1, text: '50.000 Altın', img: 'assets/gold.png' },
+    { l: 2, text: '1.000 İnci', img: 'assets/pearl.png' },
+    { l: 3, text: '5.000 Oyuk', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
+    { l: 4, text: '100.000 Altın', img: 'assets/gold.png' },
+    { l: 5, text: '2.000 İnci', img: 'assets/pearl.png' },
+    { l: 6, text: '50x Barut & Zırh', img: 'assets/ikon/images/1_powdericon_bmpref0.png' },
+    { l: 7, text: '5.000 Patlayan', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
+    { l: 8, text: '250.000 Altın', img: 'assets/gold.png' },
+    { l: 9, text: '5.000 İnci', img: 'assets/pearl.png' },
+    { l: 10, text: '10.000 İnci + 10K Patlayan', img: 'assets/pearl.png', doubleImg: 'assets/ikon/images/11_ammoskull_bmpref0.png', x: true }
+  ];
+
+  let claimedNormal = {};
+  let claimedVip = {};
+
+  function toast2(msg, type = 'ok') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast ' + type;
+    el.getBoundingClientRect();
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  async function fetchPlayerLevel() {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/level-bonus/status`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        playerLv = data.playerLevel || playerLv;
+        localStorage.setItem('sp_level', playerLv);
+        isVip = data.isVip;
+        
+        claimedNormal = {};
+        claimedVip = {};
+        (data.claimedNormal || []).forEach(l => claimedNormal[l] = true);
+        (data.claimedVip || []).forEach(l => claimedVip[l] = true);
+      }
+    } catch (e) {
+      console.error("Oyuncu bilgisi yüklenirken hata:", e);
+    }
+  }
+
+  function rd(){
+    const g=document.getElementById('grid-wrap');g.innerHTML='';
+
+    // Update VIP Status Box display
+    const vipValEl = document.getElementById('vip-val');
+    const vipBoxEl = document.getElementById('vip-box');
+    if (isVip) {
+      vipValEl.textContent = 'AKTİF 👑';
+      vipBoxEl.style.borderColor = '#c8962a';
+      vipBoxEl.style.background = 'rgba(66, 8, 8, 0.7)';
+      vipValEl.style.color = '#ffd700';
+    } else {
+      vipValEl.textContent = 'AKTİF DEĞİL';
+      vipBoxEl.style.borderColor = '#5a3a15';
+      vipBoxEl.style.background = 'rgba(12, 6, 3, 0.85)';
+      vipValEl.style.color = '#7a5a38';
+    }
+
+    for (let i = 1; i <= 10; i++) {
+      const norm = LV_normal[i - 1];
+      const vip = LV_vip[i - 1];
+
+      // ── NORMAL CARD ──
+      const isNormClaimed = claimedNormal[norm.l];
+      const isNormUnlocked = norm.l <= playerLv;
+      const isNormAvailable = isNormUnlocked && !isNormClaimed;
+
+      const normCard = document.createElement('div');
+      normCard.className = 'lv-card normal';
+      if (norm.x) normCard.classList.add('special', 'double-reward-card');
+
+      if (isNormClaimed) normCard.classList.add('done');
+      else if (isNormAvailable) normCard.classList.add('avail');
+      else normCard.classList.add('wait');
+
+      let normImgHTML = '';
+      if (norm.x) {
+        normImgHTML = `
+          <div class="lv-rwd-img-wrap"><img src="${norm.img}" class="lv-rwd-img" alt="Reward"></div>
+          <div class="lv-rwd-img-wrap"><img src="${norm.doubleImg}" class="lv-rwd-img" alt="Reward"></div>
+        `;
+      } else {
+        normImgHTML = `<div class="lv-rwd-img-wrap"><img src="${norm.img}" class="lv-rwd-img" alt="Reward"></div>`;
+      }
+
+      let normBadgeHTML = '';
+      if (isNormClaimed) normBadgeHTML = `<div class="day-badge claimed">✓</div>`;
+      else if (!isNormUnlocked) normBadgeHTML = `<div class="day-badge locked">🔒</div>`;
+
+      normCard.innerHTML = `
+        <div class="day-header">
+          <div class="lv-badge"><span class="lv-num">${norm.l}</span></div>
+          <div class="lv-lbl">${norm.x ? '★ BONUS' : 'SEVİYE ' + norm.l}</div>
+        </div>
+        <div class="lv-rwd-container">
+          ${normImgHTML}
+          <div class="lv-rwd-text">${norm.text}</div>
+        </div>
+        ${normBadgeHTML}
+      `;
+
+      if (isNormAvailable) {
+        normCard.innerHTML += `
+          <div class="claim-action-overlay">
+            <button class="claim-action-btn">AL</button>
+          </div>
+        `;
+        normCard.onclick = () => claimReward('normal', norm.l);
+      }
+
+      // ── VIP CARD ──
+      const isVipClaimed = claimedVip[vip.l];
+      const isVipUnlocked = vip.l <= playerLv;
+      const isVipAvailable = isVipUnlocked && !isVipClaimed && isVip;
+      const isVipLocked = !isVipClaimed && !isVipAvailable;
+
+      const vipCard = document.createElement('div');
+      vipCard.className = 'lv-card vip';
+      if (vip.x) vipCard.classList.add('special', 'double-reward-card');
+
+      if (isVipClaimed) vipCard.classList.add('done');
+      else if (isVipAvailable) vipCard.classList.add('avail');
+      else vipCard.classList.add('wait');
+
+      let vipImgHTML = '';
+      if (vip.x) {
+        vipImgHTML = `
+          <div class="lv-rwd-img-wrap"><img src="${vip.img}" class="lv-rwd-img" alt="Reward"></div>
+          <div class="lv-rwd-img-wrap"><img src="${vip.doubleImg}" class="lv-rwd-img" alt="Reward"></div>
+        `;
+      } else {
+        vipImgHTML = `<div class="lv-rwd-img-wrap"><img src="${vip.img}" class="lv-rwd-img" alt="Reward"></div>`;
+      }
+
+      let vipBadgeHTML = '';
+      if (isVipClaimed) vipBadgeHTML = `<div class="day-badge claimed">✓</div>`;
+      else if (isVipAvailable) vipBadgeHTML = `<div class="day-badge claimed" style="background:#c8962a">👑</div>`;
+      else vipBadgeHTML = `<div class="day-badge locked-vip">🔒</div>`;
+
+      vipCard.innerHTML = `
+        <div class="day-header">
+          <div class="lv-badge"><span class="lv-num">${vip.l}</span></div>
+          <div class="lv-lbl">👑 VIP ${vip.l}</div>
+        </div>
+        <div class="lv-rwd-container">
+          ${vipImgHTML}
+          <div class="lv-rwd-text">${vip.text}</div>
+        </div>
+        ${vipBadgeHTML}
+      `;
+
+      if (isVipAvailable) {
+        vipCard.innerHTML += `
+          <div class="claim-action-overlay">
+            <button class="claim-action-btn" style="border-color:#c8962a">AL</button>
+          </div>
+        `;
+        vipCard.onclick = () => claimReward('vip', vip.l);
+      }
+
+      g.appendChild(normCard);
+      g.appendChild(vipCard);
+    }
+
+    const totalClaimedNormal = LV_normal.filter(x => claimedNormal[x.l]).length;
+    const totalClaimedVip = LV_vip.filter(x => claimedVip[x.l]).length;
+    const totalClaims = totalClaimedNormal + totalClaimedVip;
+    const unlocked = LV_normal.filter(x => x.l <= playerLv).length;
+
+    document.getElementById('prog-fill').style.width = (totalClaimedNormal / 10 * 100) + '%';
+    document.getElementById('prog-num').textContent = totalClaimedNormal + '/10';
+    document.getElementById('lvl-val').textContent = playerLv;
+    document.getElementById('open-val').innerHTML = unlocked + ' <span>seviye</span>';
+    document.getElementById('total-val').innerHTML = totalClaims + ' <span>alındı</span>';
+  }
+
+  async function claimReward(type, l) {
+    try {
+      const res = await fetch(`${API_URL}/level-bonus/claim`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ type, level: l })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast2(data.message || 'Ödül başarıyla alındı!', 'ok');
+        await fetchPlayerLevel();
+        rd();
+      } else {
+        toast2(data.error || 'Ödül alınamadı!', 'err');
+      }
+    } catch (err) {
+      console.error(err);
+      toast2('Sunucu hatası!', 'err');
+    }
+  }
+
+  async function init() {
+    await fetchPlayerLevel();
+    rd();
+  }
+
+  init();
+</script>
+</body>
+</html>

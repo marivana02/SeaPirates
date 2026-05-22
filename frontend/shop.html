@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>SeaPirates — Dükkan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
+      --wood-d:#1a0e05;--wood-m:#2d1a08;--wood-plank:#5c3518;
+      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
+      --red:#c0392b;--red-b:#e74c3c;--green:#27ae60;--green-b:#2ecc71;
+      --pearl:#a8edea;
+    }
+    html,body{
+      width:100%;height:100dvh;overflow:hidden;
+      background:#0d0702;
+      font-family:'Inter',sans-serif;
+      color:var(--txt);
+    }
+    .page{
+      max-width:430px;margin:0 auto;
+      height:100dvh;
+      display:flex;flex-direction:column;
+      position:relative;
+      background:url('assets/background/menubackground.png') center center / cover no-repeat;
+    }
+    .page::before{
+      content:'';position:absolute;inset:0;
+      background:rgba(0,0,0,0.65);
+      pointer-events:none;z-index:0;
+    }
+
+    /* TOP BAR */
+    .top-bar{
+      position:relative;z-index:10;
+      padding:14px;
+      display:flex;align-items:center;
+      justify-content:space-between;
+      flex-shrink:0;
+      border-bottom:1px solid rgba(200,150,42,0.3);
+      background:linear-gradient(180deg, rgba(20,10,2,0.95), rgba(10,5,0,0.85));
+    }
+    .btn-back{
+      padding:8px 12px;
+      background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:7px;
+      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;
+      color:var(--txt-d);letter-spacing:0.04em;
+      cursor:pointer;text-align:center;text-decoration:none;
+      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1.1rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 10px rgba(200,150,42,0.6);
+      text-transform:uppercase;
+    }
+
+    /* CURRENCY BAR */
+    .currency-bar{
+      position:relative;z-index:5;
+      display:flex;justify-content:center;gap:16px;
+      padding:8px 14px;
+      background:rgba(0,0,0,0.5);
+      border-bottom:1px solid rgba(200,150,42,0.15);
+    }
+    .c-item{
+      display:flex;align-items:center;gap:6px;
+      font-size:0.78rem;font-weight:600;
+    }
+    .c-item .c-val{color:var(--gold-b);}
+    .c-item.c-pearl .c-val{color:var(--pearl);}
+
+    /* SHOP LIST */
+    .shop-list{
+      flex:1;
+      position:relative;z-index:5;
+      padding:12px;
+      overflow-y:auto;
+      scrollbar-width:none;
+      -ms-overflow-style:none;
+      display:flex;flex-direction:column;
+      gap:8px;
+    }
+    .shop-list::-webkit-scrollbar{display:none;}
+
+    /* ITEM CARD */
+    .item-card{
+      position:relative;
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px 10px 14px;
+      background:url('assets/leaderboardbackground.png') center/cover;
+      border:1.5px solid #6a4218;border-radius:10px;
+      border-left:3px solid rgba(200,150,42,0.2);
+      box-shadow:0 4px 12px rgba(0,0,0,0.6);
+      transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    .item-card::before{
+      content:'';position:absolute;inset:0;
+      background:rgba(6,3,0,0.4);
+      border-radius:10px;pointer-events:none;z-index:0;
+    }
+    .item-card::after{
+      content:'';position:absolute;inset:-1px;
+      border-radius:11px;
+      background:linear-gradient(135deg, rgba(200,150,42,0.15), transparent 40%, transparent 60%, rgba(200,150,42,0.08));
+      pointer-events:none;z-index:0;opacity:0;
+      transition:opacity 0.25s;
+    }
+    .item-card:hover{
+      border-color:var(--gold);
+      border-left-color:var(--gold);
+      box-shadow:0 4px 16px rgba(0,0,0,0.7), 0 0 20px rgba(200,150,42,0.1);
+    }
+    .item-card:hover::after{opacity:1;}
+    .item-card:last-child{margin-bottom:4px;}
+
+    /* ICON */
+    .item-icon-wrap{
+      width:48px;height:48px;
+      background:linear-gradient(135deg, rgba(200,150,42,0.2), rgba(0,0,0,0.6));
+      border:1px solid rgba(200,150,42,0.3);
+      border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;position:relative;z-index:1;
+      overflow:hidden;
+      box-shadow:inset 0 0 12px rgba(0,0,0,0.4);
+    }
+    .item-icon{width:82%;height:82%;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.6));}
+    .item-icon.fallback{font-size:1.5rem;}
+
+    /* INFO */
+    .item-info{
+      flex:1;display:flex;flex-direction:column;gap:3px;
+      position:relative;z-index:1;min-width:0;
+    }
+    .item-name{
+      font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;color:var(--txt);
+    }
+    .item-stats{
+      display:flex;flex-direction:column;gap:1px;
+    }
+    .item-stat{
+      font-size:0.68rem;font-weight:600;line-height:1.3;
+    }
+    .item-stat.dmg{color:var(--red-b);}
+    .item-stat.hp{color:var(--green);}
+    .item-stat.spd{color:#5fb3c8;}
+    .item-stat.elp{color:#c084fc;}
+    .item-stat.atk{color:#ff9f43;}
+    .item-stat.def{color:#5fb3c8;}
+
+    /* BUY ZONE */
+    .item-buy-zone{
+      display:flex;flex-direction:column;align-items:flex-end;gap:5px;
+      position:relative;z-index:1;flex-shrink:0;
+    }
+    .item-price{
+      display:flex;align-items:center;gap:4px;
+      font-family:'Cinzel',serif;font-size:0.75rem;font-weight:700;
+      text-shadow:0 1px 3px rgba(0,0,0,0.5);
+    }
+    .item-price.gold{color:var(--gold-b);}
+    .item-price.pearl{color:var(--pearl);}
+
+    .buy-row{
+      display:flex;align-items:center;gap:5px;
+    }
+    .qty-input{
+      width:44px;padding:5px 3px;text-align:center;
+      background:rgba(0,0,0,0.6);
+      border:1px solid #5a3a15;border-radius:5px;
+      color:var(--txt);font-family:'Inter',sans-serif;
+      font-size:0.72rem;font-weight:600;
+      outline:none;
+    }
+    .qty-input:focus{border-color:var(--gold);box-shadow:0 0 6px rgba(200,150,42,0.2);}
+    .qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+    .qty-input[type=number]{-moz-appearance:textfield;}
+
+    .btn-buy{
+      padding:6px 14px;
+      background:url('assets/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
+      border:1px solid #1e5a32;border-radius:5px;
+      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;
+      color:#fff;cursor:pointer;white-space:nowrap;
+      box-shadow:0 2px 4px rgba(0,0,0,0.4);
+      text-shadow:0 1px 2px #000;
+      transition:all 0.15s;
+    }
+    .btn-buy:hover{filter:brightness(1.15);border-color:#27ae60;}
+    .btn-buy:active{transform:scale(0.95);}
+    .btn-buy.premium{
+      background:url('assets/ikon/images/173_btn_blue_seamless.png') center/cover no-repeat;
+      border-color:#104060;
+      color:#fff;
+      box-shadow:0 2px 8px rgba(16,64,96,0.3);
+    }
+    .btn-buy.premium:hover{filter:brightness(1.15);border-color:#2980b9;}
+
+    /* TOAST */
+    .toast{
+      position:fixed;top:14px;left:50%;
+      transform:translateX(-50%) translateY(-70px);
+      z-index:9999;padding:10px 20px;border-radius:10px;
+      font-size:0.8rem;font-weight:600;white-space:nowrap;
+      transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.ok{background:rgba(25,70,40,0.95);border:1px solid #27ae60;color:#c8f0d8;}
+    .toast.err{background:rgba(80,20,20,0.95);border:1px solid #c0392b;color:#f8d8d8;}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="page">
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back">◀ GERİ</a>
+    <div class="page-title">DÜKKAN</div>
+    <div style="width:60px;"></div>
+  </div>
+
+  <div class="currency-bar">
+    <div class="c-item">
+      <span><img src="assets/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+      <span>Altın:</span>
+      <span class="c-val" id="disp-gold">0</span>
+    </div>
+    <div class="c-item c-pearl">
+      <span><img src="assets/pearl.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+      <span>İnci:</span>
+      <span class="c-val" id="disp-pearl">0</span>
+    </div>
+  </div>
+
+  <div class="shop-list" id="shop-list"></div>
+</div>
+
+<script>
+  const ITEMS = [
+    { cat:'TOPLAR', id:1, name:'30 Pounder', stats:[{t:'Hasar: 120',c:'dmg'},{t:'Doldurma: 4sn',c:'spd'}], price:10000, currency:'gold', img:'assets/toppp/top1.png' },
+    { cat:'TOPLAR', id:2, name:'55 Pounder', stats:[{t:'Hasar: 185',c:'dmg'},{t:'Doldurma: 3sn',c:'spd'}], price:2000, currency:'pearl', img:'assets/toppp/top2.png' },
+    { cat:'TOPLAR', id:3, name:'60 Pounder', stats:[{t:'Hasar: 260',c:'dmg'},{t:'Doldurma: 2sn',c:'spd'}], price:6000, currency:'pearl', img:'assets/toppp/top3.png' },
+    { cat:'GÜLLELER', id:10, name:'Misket Gülle (x100)', stats:[{t:'Hasar: +30',c:'dmg'}], price:4000, currency:'gold', img:'assets/dükkan/misketgülle.png' },
+    { cat:'GÜLLELER', id:11, name:'Oyuk Gülle (x100)', stats:[{t:'Hasar: +75',c:'dmg'}], price:8000, currency:'gold', img:'assets/dükkan/oyukgülle.png' },
+    { cat:'GÜLLELER', id:12, name:'Patlayan Gülle (x100)', stats:[{t:'Hasar: +130',c:'dmg'},{t:'Elit Puan: 1.0/top',c:'elp'}], price:400, currency:'pearl', img:'assets/dükkan/elitgülle.png' },
+    { cat:'DİREKLER', id:20, name:'Tahta Kiriş', stats:[{t:'HP: +500',c:'hp'}], price:35000, currency:'gold', img:'assets/dükkan/tahtakiriş.png' },
+    { cat:'DİREKLER', id:21, name:'Elit Kiriş', stats:[{t:'HP: +1.200',c:'hp'}], price:1200, currency:'pearl', img:'assets/dükkan/elitkiriş.png' },
+    { cat:'SARF', id:30, name:'Barut (x100)', stats:[{t:'Hasar: +%10',c:'atk'}], price:120, currency:'pearl', img:'assets/dükkan/barut-dükkan.png' },
+    { cat:'SARF', id:31, name:'Zırh (x100)', stats:[{t:'Hasar Önleme: -%10',c:'def'}], price:120, currency:'pearl', img:'assets/dükkan/zırh-dükkan.png' },
+    { cat:'GEMİLER', id:40, name:'Elit Gemi I', stats:[{t:'HP: 16.000',c:'hp'},{t:'Top Yeri: 34',c:'dmg'},{t:'Direk Yeri: 12',c:'spd'}], price:10000, currency:'pearl', img:'assets/dükkan/elit gemi 1.png' }
+  ];
+
+  function render() {
+    const list = document.getElementById('shop-list');
+    list.innerHTML = '';
+
+    const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
+    const shipLevel = parseInt(saved.ship_level) || 0;
+
+    ITEMS.forEach(item => {
+      // Eğer elit gemi 1 satın alınmışsa dükkanda bir daha gösterme
+      if (item.id === 40 && shipLevel >= 1) {
+        return;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      const isGold = item.currency === 'gold';
+      const priceCls = isGold ? 'gold' : 'pearl';
+      
+      card.innerHTML = `
+        <div class="item-icon-wrap">
+          <img src="${item.img}" class="item-icon" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <span class="item-icon fallback" style="display:none;">${isGold ? '🔫' : '💎'}</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          <div class="item-stats">${item.stats.map(s => `<span class="item-stat ${s.c}">${s.t}</span>`).join('')}</div>
+        </div>
+        <div class="item-buy-zone">
+          <div class="item-price ${priceCls}">
+            <span>${item.price.toLocaleString('tr-TR')}</span>
+            <span>${isGold ? '<img src="assets/gold.png" style="width:14px;vertical-align:middle;">' : '<img src="assets/pearl.png" style="width:14px;vertical-align:middle;">'}</span>
+          </div>
+          <div class="buy-row">
+            <input type="number" class="qty-input" value="1" min="1" max="999" id="qty-${item.id}"/>
+            <button class="btn-buy${isGold?'':' premium'}" onclick="buyItem('${item.name}', ${item.id})">SATIN AL</button>
+          </div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  const API_URL = 'http://localhost:3000/api';
+  const token = localStorage.getItem('sp_token');
+
+  if (!token) {
+    window.location.href = 'index.html';
+  }
+
+  async function buyItem(name, id) {
+    const qty = parseInt(document.getElementById('qty-' + id).value) || 1;
+    
+    try {
+      const res = await fetch(`${API_URL}/shop/buy`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ itemId: id, quantity: qty })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error || 'Satın alma başarısız!', 'err');
+        return;
+      }
+      
+      toast(data.message, 'ok');
+      
+      // Update local storage player stats
+      const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
+      saved.gold = data.gold;
+      saved.pearl = data.pearl;
+      saved.ship_level = data.ship_level;
+      localStorage.setItem('sp_player', JSON.stringify(saved));
+      
+      updateCurrency();
+      render();
+    } catch (err) {
+      console.error(err);
+      toast('Sunucuya bağlanılamadı!', 'err');
+    }
+  }
+
+  function toast(msg, type) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.className = 'toast ' + type;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  function updateCurrency() {
+    const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
+    document.getElementById('disp-gold').textContent = (saved.gold || 0).toLocaleString('tr-TR');
+    document.getElementById('disp-pearl').textContent = (saved.pearl || 0).toLocaleString('tr-TR');
+  }
+
+  updateCurrency();
+  render();
+</script>
+</body>
+</html>

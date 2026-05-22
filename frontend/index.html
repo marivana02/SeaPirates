@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>SeaPirates — Giriş</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+      --wood-dark:   #1a0e05;
+      --wood-mid:    #2d1a08;
+      --wood-warm:   #3d2410;
+      --wood-plank:  #5c3518;
+      --wood-light:  #7a4a22;
+      --gold:        #c8962a;
+      --gold-bright: #f0c040;
+      --gold-pale:   #fde68a;
+      --rope:        #8b6340;
+      --rust:        #8b3a1a;
+      --text-light:  #f5e6c8;
+      --text-dim:    #b8956a;
+      --text-muted:  #7a5a38;
+      --shadow:      0 8px 32px rgba(0,0,0,0.7);
+      --r-md:        10px;
+      --r-lg:        16px;
+    }
+
+    html,body{
+      width:100%;min-height:100dvh;
+      background:#0d0702;
+      font-family:'Inter',sans-serif;
+      color:var(--text-light);
+      overflow-x:hidden;
+    }
+
+    /* ── FULL BACKGROUND ── */
+    .page-bg{
+      position:fixed;inset:0;z-index:0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(90,50,10,0.55) 0%, transparent 65%),
+        linear-gradient(180deg,#0d0702 0%,#1a0e05 40%,#0a0500 100%);
+    }
+    /* Wooden texture overlay via repeating-linear-gradient */
+    .page-bg::before{
+      content:'';position:absolute;inset:0;
+      background-image:
+        repeating-linear-gradient(90deg,rgba(255,255,255,0.012) 0px,transparent 2px,transparent 60px,rgba(255,255,255,0.012) 62px),
+        repeating-linear-gradient(0deg,rgba(0,0,0,0.18) 0px,transparent 1px,transparent 40px,rgba(0,0,0,0.18) 41px);
+      pointer-events:none;
+    }
+    /* Vignette */
+    .page-bg::after{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.65) 100%);
+      pointer-events:none;
+    }
+
+    /* ── FRAME ── */
+    .frame{
+      position:relative;z-index:10;
+      max-width:430px;margin:0 auto;
+      min-height:100dvh;
+      display:flex;flex-direction:column;
+      align-items:center;
+      padding:0 20px 40px;
+    }
+
+    /* ── LOGO ── */
+    .logo-wrap{
+      width:100%;max-width:280px;
+      margin:32px auto 24px;
+      position:relative;
+    }
+    .logo-wrap img{
+      width:100%;border-radius:12px;
+      filter:drop-shadow(0 0 28px rgba(200,150,42,0.6));
+    }
+
+    /* ── BOARD (main card) ── */
+    .board{
+      width:100%;
+      background:
+        linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);
+      border:2px solid var(--wood-plank);
+      border-radius:var(--r-lg);
+      box-shadow:
+        var(--shadow),
+        inset 0 1px 0 rgba(200,150,42,0.15),
+        inset 0 -1px 0 rgba(0,0,0,0.5);
+      overflow:hidden;
+      position:relative;
+    }
+    /* plank lines on card */
+    .board::before{
+      content:'';position:absolute;inset:0;
+      background:repeating-linear-gradient(
+        180deg,
+        transparent 0px,transparent 38px,
+        rgba(0,0,0,0.22) 38px,rgba(0,0,0,0.22) 40px
+      );
+      pointer-events:none;border-radius:var(--r-lg);
+    }
+    /* top gold bar */
+    .board::after{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,transparent,var(--gold),var(--gold-bright),var(--gold),transparent);
+    }
+
+    /* ── TABS ── */
+    .tabs{
+      display:flex;position:relative;z-index:2;
+      border-bottom:2px solid var(--wood-plank);
+    }
+    .tab-btn{
+      flex:1;padding:14px 0;
+      background:transparent;border:none;cursor:pointer;
+      font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;
+      letter-spacing:0.08em;text-transform:uppercase;
+      color:var(--text-muted);
+      transition:all 0.25s;
+      position:relative;
+    }
+    .tab-btn.active{color:var(--gold-bright);}
+    .tab-btn.active::after{
+      content:'';position:absolute;bottom:-2px;left:10%;right:10%;height:2px;
+      background:linear-gradient(90deg,transparent,var(--gold-bright),transparent);
+    }
+    .tab-btn:not(.active):hover{color:var(--text-dim);}
+
+    /* Divider between tabs */
+    .tabs .tab-btn:first-child{border-right:1px solid var(--wood-plank);}
+
+    /* ── PANELS ── */
+    .panel{display:none;flex-direction:column;gap:14px;padding:24px 20px;}
+    .panel.active{display:flex;animation:fadeUp 0.28s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── INPUT ── */
+    .field{position:relative;}
+    .field-icon{
+      position:absolute;left:13px;top:50%;transform:translateY(-50%);
+      font-size:1rem;color:var(--text-muted);pointer-events:none;
+      transition:color 0.2s;
+    }
+    .field input{
+      width:100%;padding:14px 14px 14px 42px;
+      background:rgba(0,0,0,0.45);
+      border:1.5px solid var(--wood-plank);
+      border-radius:var(--r-md);
+      color:var(--text-light);
+      font-family:'Inter',sans-serif;font-size:0.92rem;
+      outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+    }
+    .field input::placeholder{color:var(--text-muted);}
+    .field input:focus{
+      border-color:var(--gold);
+      box-shadow:0 0 0 3px rgba(200,150,42,0.15);
+    }
+    .field:focus-within .field-icon{color:var(--gold);}
+
+    /* ── ERROR ── */
+    .err{font-size:0.74rem;color:#e05a3a;padding-left:4px;display:none;}
+    .err.show{display:block;}
+
+    /* ── PASSWORD STRENGTH ── */
+    .strength{display:none;gap:4px;flex-direction:column;}
+    .strength.show{display:flex;}
+    .s-bars{display:flex;gap:4px;}
+    .s-bar{flex:1;height:3px;border-radius:2px;background:var(--wood-plank);transition:background 0.3s;}
+    .s-bar.weak{background:#e05a3a;}
+    .s-bar.mid{background:#d4a12a;}
+    .s-bar.strong{background:#4caf7a;}
+    .s-txt{font-size:0.7rem;color:var(--text-muted);}
+    .s-txt.weak{color:#e05a3a;} .s-txt.mid{color:#d4a12a;} .s-txt.strong{color:#4caf7a;}
+
+    /* ── TERMS ── */
+    .terms{display:flex;align-items:flex-start;gap:9px;font-size:0.78rem;color:var(--text-dim);line-height:1.45;cursor:pointer;}
+    .terms input{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer;}
+    .terms a{color:var(--gold-pale);text-decoration:none;}
+
+    /* ── BUTTON ── */
+    .btn{
+      width:100%;padding:15px;border:none;border-radius:var(--r-md);cursor:pointer;
+      font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;
+      letter-spacing:0.07em;text-transform:uppercase;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:all 0.2s;position:relative;overflow:hidden;
+    }
+    .btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.07);opacity:0;transition:opacity 0.2s;}
+    .btn:hover::after{opacity:1;}
+    .btn:active{transform:scale(0.97);}
+    .btn-primary{
+      background:linear-gradient(135deg,#b8851e 0%,#f0c040 50%,#b8851e 100%);
+      background-size:200% auto;
+      color:#1a0e05;
+      box-shadow:0 4px 18px rgba(200,150,42,0.45),inset 0 1px 0 rgba(255,255,255,0.2);
+      animation:shine 3s linear infinite;
+    }
+    @keyframes shine{0%{background-position:0% center}100%{background-position:200% center}}
+    .btn-primary:hover{box-shadow:0 6px 26px rgba(200,150,42,0.65);transform:translateY(-1px);}
+    .btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+    /* spinner */
+    .spinner{width:17px;height:17px;border:2px solid rgba(26,14,5,0.4);border-top-color:#1a0e05;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+    .btn.loading .btn-txt{display:none;} .btn.loading .spinner{display:block;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── ROPE DIVIDER ── */
+    .rope-div{
+      display:flex;align-items:center;gap:10px;
+      color:var(--text-muted);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
+    }
+    .rope-div::before,.rope-div::after{
+      content:'';flex:1;height:1px;
+      background:repeating-linear-gradient(90deg,var(--wood-plank) 0px,var(--wood-plank) 4px,transparent 4px,transparent 7px);
+    }
+
+    /* ── FORGOT ── */
+    .meta-row{display:flex;align-items:center;justify-content:space-between;}
+    .remember{display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--text-dim);cursor:pointer;}
+    .remember input{accent-color:var(--gold);}
+    .forgot{font-size:0.78rem;color:var(--text-muted);text-decoration:none;transition:color 0.2s;}
+    .forgot:hover{color:var(--gold-bright);}
+
+    /* ── NAIL DECORATIONS ── */
+    .nail{
+      position:absolute;width:10px;height:10px;border-radius:50%;
+      background:radial-gradient(circle at 35% 35%,#8a7060,#3a2510);
+      box-shadow:inset 0 1px 2px rgba(255,255,255,0.2),0 1px 3px rgba(0,0,0,0.6);
+    }
+    .nail.tl{top:10px;left:10px;} .nail.tr{top:10px;right:10px;}
+    .nail.bl{bottom:10px;left:10px;} .nail.br{bottom:10px;right:10px;}
+
+    /* ── TOAST ── */
+    .toast{
+      position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-80px);
+      z-index:9999;padding:11px 20px;border-radius:var(--r-md);
+      font-size:0.85rem;font-weight:500;white-space:nowrap;
+      transition:transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
+      max-width:90vw;text-align:center;
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.ok{background:rgba(30,80,50,0.95);border:1px solid #4caf7a;color:#c8f0d8;}
+    .toast.err{background:rgba(80,20,10,0.95);border:1px solid #e05a3a;color:#ffd0c0;}
+
+    /* ── BOTTOM LINK ── */
+    .bottom-note{
+      margin-top:16px;text-align:center;font-size:0.75rem;color:var(--text-muted);
+    }
+    .bottom-note a{color:var(--text-dim);text-decoration:none;}
+    .bottom-note a:hover{color:var(--gold-bright);}
+
+    /* ── CORNER ORNAMENTS ── */
+    .corner-ornament{
+      position:absolute;width:40px;height:40px;
+      border-color:var(--gold);border-style:solid;opacity:0.35;
+    }
+    .corner-ornament.tl{top:0;left:0;border-width:2px 0 0 2px;border-radius:6px 0 0 0;}
+    .corner-ornament.tr{top:0;right:0;border-width:2px 2px 0 0;border-radius:0 6px 0 0;}
+    .corner-ornament.bl{bottom:0;left:0;border-width:0 0 2px 2px;border-radius:0 0 0 6px;}
+    .corner-ornament.br{bottom:0;right:0;border-width:0 2px 2px 0;border-radius:0 0 6px 0;}
+
+    /* ── MODAL OVERLAY & CONTENT ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-content {
+      background: linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);
+      border: 2px solid var(--gold);
+      border-radius: var(--r-lg);
+      max-width: 400px;
+      width: 100%;
+      padding: 24px;
+      position: relative;
+      box-shadow: var(--shadow);
+      color: var(--text-light);
+    }
+    .modal-header {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--gold-bright);
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--wood-plank);
+      padding-bottom: 8px;
+      text-align: center;
+    }
+    .modal-body {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      max-height: 280px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      color: var(--text-dim);
+      padding-right: 4px;
+    }
+    .modal-body p {
+      margin-bottom: 12px;
+    }
+    .modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-body::-webkit-scrollbar-thumb {
+      background: var(--wood-plank);
+      border-radius: 3px;
+    }
+    .modal-body::-webkit-scrollbar-thumb:hover {
+      background: var(--gold);
+    }
+    .modal-close-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--wood-plank);
+      border: 1px solid var(--wood-light);
+      color: var(--text-light);
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      border-radius: var(--r-md);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .modal-close-btn:hover {
+      background: var(--wood-light);
+      border-color: var(--gold);
+      color: var(--gold-bright);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-bg"></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="frame">
+
+    <!-- LOGO -->
+    <div class="logo-wrap">
+      <img src="assets/login.png" alt="SeaPirates" id="logo-img"/>
+    </div>
+
+    <!-- BOARD CARD -->
+    <div class="board" style="position:relative;">
+      <div class="nail tl"></div><div class="nail tr"></div>
+      <div class="nail bl"></div><div class="nail br"></div>
+      <div class="corner-ornament tl"></div>
+      <div class="corner-ornament tr"></div>
+      <div class="corner-ornament bl"></div>
+      <div class="corner-ornament br"></div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">⚓ Giriş Yap</button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">⚔ Kayıt Ol</button>
+      </div>
+
+      <!-- LOGIN PANEL -->
+      <div class="panel active" id="panel-login">
+
+        <div class="field">
+          <span class="field-icon">👤</span>
+          <input type="text" id="l-user" placeholder="Kullanıcı adı" autocomplete="username" autocapitalize="none" spellcheck="false"/>
+        </div>
+        <span class="err" id="l-user-err">Kullanıcı adı gerekli.</span>
+
+        <div class="field">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="l-pass" placeholder="Şifre" autocomplete="current-password"/>
+        </div>
+        <span class="err" id="l-pass-err">Şifre gerekli.</span>
+
+        <div class="meta-row">
+          <label class="remember">
+            <input type="checkbox" id="remember"/>
+            <span>Beni hatırla</span>
+          </label>
+          <a href="#" class="forgot" onclick="forgotPass(event)">Şifremi unuttum</a>
+        </div>
+
+        <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
+          <span class="btn-txt">⚓ &nbsp;Denize Açıl</span>
+          <div class="spinner"></div>
+        </button>
+
+      </div>
+
+      <!-- REGISTER PANEL -->
+      <div class="panel" id="panel-register">
+
+        <div class="field">
+          <span class="field-icon">👤</span>
+          <input type="text" id="r-user" placeholder="Kullanıcı adı (3–20 karakter)" autocomplete="username" autocapitalize="none" maxlength="20" oninput="liveValidUser(this)"/>
+        </div>
+        <span class="err" id="r-user-err">3–20 karakter, harf/rakam/_ kullanın.</span>
+
+        <div class="field">
+          <span class="field-icon">📧</span>
+          <input type="email" id="r-email" placeholder="E-posta adresi" autocomplete="email"/>
+        </div>
+        <span class="err" id="r-email-err">Geçerli bir e-posta giriniz.</span>
+
+        <div class="field">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="r-pass" placeholder="Şifre (min. 6 karakter)" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+        </div>
+        <span class="err" id="r-pass-err">Şifre en az 6 karakter olmalı.</span>
+
+        <div class="strength" id="strength">
+          <div class="s-bars">
+            <div class="s-bar" id="sb1"></div><div class="s-bar" id="sb2"></div>
+            <div class="s-bar" id="sb3"></div><div class="s-bar" id="sb4"></div>
+          </div>
+          <span class="s-txt" id="s-label">Zayıf</span>
+        </div>
+
+        <div class="field">
+          <span class="field-icon">🔐</span>
+          <input type="password" id="r-pass2" placeholder="Şifreyi tekrar gir" autocomplete="new-password"/>
+        </div>
+        <span class="err" id="r-pass2-err">Şifreler eşleşmiyor.</span>
+
+        <label class="terms">
+          <input type="checkbox" id="terms"/>
+          <span><a href="#" onclick="openModal('terms'); return false;">Kullanım şartlarını</a> kabul ediyorum.</span>
+        </label>
+        <span class="err" id="terms-err">Şartları kabul etmelisiniz.</span>
+
+        <button class="btn btn-primary" id="reg-btn" onclick="doRegister()">
+          <span class="btn-txt">⚔ &nbsp;Korsan Ol</span>
+          <div class="spinner"></div>
+        </button>
+
+      </div>
+    </div>
+
+    <div class="bottom-note">
+      <a href="#" onclick="openModal('privacy'); return false;">Gizlilik Politikası</a> &nbsp;·&nbsp;
+      <a href="#" onclick="openModal('terms'); return false;">Kullanım Şartları</a><br/>
+      <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
+    </div>
+
+  </div>
+
+  <!-- MODAL OVERLAY -->
+  <div class="modal-overlay" id="sp-modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header" id="modal-title">⚓ KULLANIM ŞARTLARI</div>
+      <div class="modal-body" id="modal-body">
+        <!-- Dinamik içerik buraya yüklenecek -->
+      </div>
+      <button class="modal-close-btn" onclick="closeModal()">Tamam</button>
+    </div>
+  </div>
+
+  <script>
+    /* ── PAGE LOAD CHECK ── */
+    window.onload = () => {
+      // 1. Session/Beni Hatırla doğrulaması
+      const isRemembered = localStorage.getItem('sp_remember_me') === 'true';
+      const isSessionActive = sessionStorage.getItem('sp_session_active') === 'true';
+      
+      if (localStorage.getItem('sp_token') && !isRemembered && !isSessionActive) {
+        localStorage.removeItem('sp_token');
+        localStorage.removeItem('sp_player');
+        localStorage.removeItem('sp_remember_me');
+      }
+
+      // 2. Token kontrolü (otomatik giriş)
+      const token = localStorage.getItem('sp_token');
+      if (token) {
+        // Token varsa direkt home.html'e git
+        location.href = 'home.html';
+        return;
+      }
+      
+      // 3. Beni Hatırla kullanıcı adı doldurma
+      const rememberedUser = localStorage.getItem('sp_remembered_username');
+      if (rememberedUser) {
+        document.getElementById('l-user').value = rememberedUser;
+        document.getElementById('remember').checked = true;
+      }
+    };
+
+    /* ── TAB ── */
+    function switchTab(t){
+      ['login','register'].forEach(id=>{
+        document.getElementById('tab-'+id).classList.toggle('active', id===t);
+        document.getElementById('panel-'+id).classList.toggle('active', id===t);
+      });
+      clearErrs();
+    }
+
+    /* ── TOAST ── */
+    function toast(msg,type='ok',ms=2800){
+      const el=document.getElementById('toast');
+      el.textContent=msg; el.className='toast '+type;
+      el.getBoundingClientRect(); el.classList.add('show');
+      setTimeout(()=>el.classList.remove('show'),ms);
+    }
+
+    /* ── ERRORS ── */
+    function showErr(id,msg){const e=document.getElementById(id);if(msg)e.textContent=msg;e.classList.add('show');}
+    function hideErr(id){document.getElementById(id).classList.remove('show');}
+    function clearErrs(){document.querySelectorAll('.err').forEach(e=>e.classList.remove('show'));}
+
+    /* ── LIVE USERNAME VALIDATE ── */
+    function liveValidUser(el){
+      const v=el.value.trim();
+      if(v&&!/^[a-zA-Z0-9_]{3,20}$/.test(v)) showErr('r-user-err','3–20 karakter, harf/rakam/_ kullanın.');
+      else hideErr('r-user-err');
+    }
+
+    /* ── PASSWORD STRENGTH ── */
+    function checkStrength(v){
+      const w=document.getElementById('strength');
+      const bars=[document.getElementById('sb1'),document.getElementById('sb2'),document.getElementById('sb3'),document.getElementById('sb4')];
+      const lbl=document.getElementById('s-label');
+      if(!v){w.classList.remove('show');return;}
+      w.classList.add('show');
+      let sc=0;
+      if(v.length>=6)sc++;
+      if(v.length>=10)sc++;
+      if(/[A-Z]/.test(v)&&/[a-z]/.test(v))sc++;
+      if(/[0-9]/.test(v)||/[^a-zA-Z0-9]/.test(v))sc++;
+      const cls=sc<=1?'weak':sc<=2?'mid':'strong';
+      const txt=sc<=1?'Zayıf':sc<=2?'Orta':sc===3?'İyi':'Güçlü';
+      bars.forEach((b,i)=>{b.className='s-bar';if(i<sc)b.classList.add(cls);});
+      lbl.className='s-txt '+cls; lbl.textContent=txt;
+    }
+
+    /* ── LOADING ── */
+    function setLoading(id,on){
+      const b=document.getElementById(id);
+      b.classList.toggle('loading',on); b.disabled=on;
+    }
+
+    /* ── LOGIN ── */
+    async function doLogin(){
+      clearErrs();
+      const username=document.getElementById('l-user').value.trim();
+      const password=document.getElementById('l-pass').value;
+      const remember=document.getElementById('remember').checked;
+      let ok=true;
+      if(!username){showErr('l-user-err');ok=false;}
+      if(!password){showErr('l-pass-err');ok=false;}
+      if(!ok)return;
+      
+      setLoading('login-btn',true);
+      try {
+        const res = await fetch('http://localhost:3000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+          toast(data.error || 'Giriş başarısız', 'err');
+        } else {
+          // Token ve kullanıcı bilgisini checkbox'a göre kaydet
+          localStorage.setItem('sp_token', data.token);
+          if (remember) {
+            localStorage.setItem('sp_remember_me', 'true');
+            localStorage.setItem('sp_remembered_username', username);
+          } else {
+            localStorage.setItem('sp_remember_me', 'false');
+            localStorage.removeItem('sp_remembered_username');
+            sessionStorage.setItem('sp_session_active', 'true');
+          }
+          localStorage.setItem('sp_player', JSON.stringify(data.player));
+          toast('⚓ Hoş geldin '+data.player.username+'! Yükleniyor...','ok',2000);
+          setTimeout(()=>location.href='home.html',2000);
+        }
+      } catch (err) {
+        toast('Sunucuya bağlanılamadı!', 'err');
+      }
+      setLoading('login-btn',false);
+    }
+
+    /* ── REGISTER ── */
+    async function doRegister(){
+      clearErrs();
+      const username=document.getElementById('r-user').value.trim();
+      const email=document.getElementById('r-email').value.trim();
+      const password=document.getElementById('r-pass').value;
+      const pass2=document.getElementById('r-pass2').value;
+      const terms=document.getElementById('terms').checked;
+      let ok=true;
+      if(!username||!/^[a-zA-Z0-9_]{3,20}$/.test(username)){showErr('r-user-err');ok=false;}
+      if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('r-email-err');ok=false;}
+      if(!password||password.length<6){showErr('r-pass-err');ok=false;}
+      if(password!==pass2){showErr('r-pass2-err');ok=false;}
+      if(!terms){showErr('terms-err');ok=false;}
+      if(!ok)return;
+
+      setLoading('reg-btn',true);
+      try {
+        const res = await fetch('http://localhost:3000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          toast(data.error || 'Kayıt başarısız', 'err');
+        } else {
+          // Yeni kayıtta da varsayılan olarak oturum bilgisini sakla (Beni Hatırla açık varsayıyoruz)
+          localStorage.setItem('sp_token', data.token);
+          localStorage.setItem('sp_remember_me', 'true');
+          localStorage.setItem('sp_player', JSON.stringify(data.player));
+          toast('⚔ Kaptan '+data.player.username+' denizlere hoş geldin!','ok',2500);
+          setTimeout(()=>location.href='home.html',2000);
+        }
+      } catch (err) {
+        toast('Sunucuya bağlanılamadı!', 'err');
+      }
+      setLoading('reg-btn',false);
+    }
+
+    /* ── FORGOT ── */
+    function forgotPass(e){
+      e.preventDefault();
+      const u=document.getElementById('l-user').value.trim();
+      if(!u){toast('Önce kullanıcı adını gir.','err');return;}
+      toast('📧 Şifre sıfırlama bağlantısı gönderildi.','ok');
+    }
+
+    /* ── MODAL TERMS & PRIVACY ── */
+    function openModal(type) {
+      const modal = document.getElementById('sp-modal');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      if (!modal) return;
+
+      if (type === 'terms') {
+        title.innerHTML = '⚓ KULLANIM ŞARTLARI';
+        body.innerHTML = `
+          <p><strong>1. Kabul Edilme Şartları:</strong> SeaPirates web tabanlı bir clicker-RPG oyunudur. Bu oyuna üye olarak tüm kuralları ve şartları peşinen kabul etmiş sayılırsınız.</p>
+          <p><strong>2. Hesap Güvenliği:</strong> Hesabınızın şifresini korumak sizin sorumluluğunuzdadır. Üçüncü şahıslarla şifre paylaşımı yasaktır.</p>
+          <p><strong>3. Hile ve Suiistimal Yasağı:</strong> Otomatik botlar, açıklar (exploit) ve veritabanına hileli istek gönderen yazılımlar kullanmak kesinlikle yasaktır. Tespit edilen hesaplar süresiz olarak kapatılır.</p>
+          <p><strong>4. Sanal Para Birimleri:</strong> Oyun içindeki altın ve inci birimleri hiçbir şekilde gerçek paraya dönüştürülemez veya devredilemez.</p>
+          <p><strong>5. Yaş Sınırı:</strong> Oyunu oynamak için en az 13 yaşında olmanız gerekmektedir.</p>
+        `;
+      } else {
+        title.innerHTML = '🛡️ GİZLİLİK POLİTİKASI';
+        body.innerHTML = `
+          <p><strong>1. Toplanan Veriler:</strong> Kayıt sırasında sağladığınız kullanıcı adı, e-posta adresi ve şifre (güvenli bir şekilde şifrelenmiş olarak) sunucumuzda saklanır.</p>
+          <p><strong>2. Verilerin Kullanımı:</strong> Bilgileriniz yalnızca oyuna giriş yapabilmeniz ve ilerlemenizi kaydedebilmeniz amacıyla kullanılır.</p>
+          <p><strong>3. Üçüncü Şahıslarla Paylaşım:</strong> SeaPirates, verilerinizi hiçbir koşul altında reklam şirketleri veya üçüncü şahıslarla paylaşmaz.</p>
+          <p><strong>4. Çerezler (Cookies) ve Depolama:</strong> Oturumunuzun açık kalması için tarayıcınızın LocalStorage / SessionStorage özellikleri kullanılır. "Beni Hatırla" seçeneği dışında şifreniz asla yerel olarak saklanmaz.</p>
+        `;
+      }
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('sp-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    /* ── UTIL ── */
+    function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+    /* Enter key */
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        if(document.getElementById('panel-login').classList.contains('active')) doLogin();
+        else doRegister();
+      }
+    });
+  </script>
+</body>
+</html>

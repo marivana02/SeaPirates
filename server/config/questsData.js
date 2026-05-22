@@ -1,0 +1,335 @@
+// Tanımlı Görevler Listesi ve Hedefleri/Ödülleri (Her Level için 3 Görev)
+const QUESTS = {
+  1: {
+    id: 1,
+    title: 'Acemi Seyrüsefer',
+    levelReq: 1,
+    desc: 'Tayfa olmanın ilk kuralı, denizde pırıltı toplamak ve Blackpearl gemilerini batırmaktır.',
+    targetNpc: 'Blackpearl',
+    requiredKills: 5,
+    requiredDamage: 0,
+    requiredGlitters: 5,
+    rewards: { gold: 300, pearl: 8, xp: 100 }
+  },
+  2: {
+    id: 2,
+    title: 'Ufak Dokunuşlar',
+    levelReq: 1,
+    desc: 'Blackpearl gemilerine toplamda 5.000 hasar ver.',
+    targetNpc: 'Blackpearl',
+    requiredKills: 0,
+    requiredDamage: 5000,
+    requiredGlitters: 0,
+    rewards: { gold: 200, pearl: 5, xp: 80 }
+  },
+  3: {
+    id: 3,
+    title: 'Pırıltı Avcısı I',
+    levelReq: 1,
+    desc: 'Denizin üstündeki pırıltılardan 10 adet topla.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 0,
+    requiredGlitters: 10,
+    rewards: { gold: 150, pearl: 3, xp: 50 }
+  },
+  4: {
+    id: 4,
+    title: 'Korsan Sınavı',
+    levelReq: 2,
+    desc: 'Wild 13 gemilerini batır ve 10 adet pırıltı topla.',
+    targetNpc: 'Wild 13',
+    requiredKills: 6,
+    requiredDamage: 0,
+    requiredGlitters: 10,
+    rewards: { gold: 500, pearl: 12, xp: 250 }
+  },
+  5: {
+    id: 5,
+    title: 'Top Ateşi Testi',
+    levelReq: 2,
+    desc: 'Düşmanlara toplamda 15.000 hasar ver.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 15000,
+    requiredGlitters: 0,
+    rewards: { gold: 400, pearl: 10, xp: 200 }
+  },
+  6: {
+    id: 6,
+    title: 'Gizemli Parıltı II',
+    levelReq: 2,
+    desc: 'Denizde yüzen 15 pırıltıyı topla.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 0,
+    requiredGlitters: 15,
+    rewards: { gold: 300, pearl: 8, xp: 150 }
+  },
+  7: {
+    id: 7,
+    title: 'Korsan Avı III',
+    levelReq: 3,
+    desc: 'Wild 13 çetesinden 10 tanesini batır.',
+    targetNpc: 'Wild 13',
+    requiredKills: 10,
+    requiredDamage: 0,
+    requiredGlitters: 0,
+    rewards: { gold: 700, pearl: 18, xp: 450 }
+  },
+  8: {
+    id: 8,
+    title: 'Derin Yüzleşme',
+    levelReq: 3,
+    desc: 'Tortuga çetelerine toplamda 40.000 hasar ver.',
+    targetNpc: 'Tortuga Gang',
+    requiredKills: 0,
+    requiredDamage: 40000,
+    requiredGlitters: 5,
+    rewards: { gold: 800, pearl: 22, xp: 500 }
+  },
+  9: {
+    id: 9,
+    title: 'Parıltı Koleksiyonu',
+    levelReq: 3,
+    desc: '20 adet pırıltı topla.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 0,
+    requiredGlitters: 20,
+    rewards: { gold: 500, pearl: 15, xp: 350 }
+  },
+  10: {
+    id: 10,
+    title: 'Büyük Dalgalar',
+    levelReq: 4,
+    desc: 'Tortuga Gang gemilerinden 8 tane batır ve 15 pırıltı topla.',
+    targetNpc: 'Tortuga Gang',
+    requiredKills: 8,
+    requiredDamage: 0,
+    requiredGlitters: 15,
+    rewards: { gold: 1000, pearl: 30, xp: 800 }
+  },
+  11: {
+    id: 11,
+    title: 'Korsan Ezici',
+    levelReq: 4,
+    desc: 'Toplamda 75.000 hasar ver.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 75000,
+    requiredGlitters: 0,
+    rewards: { gold: 900, pearl: 25, xp: 700 }
+  },
+  12: {
+    id: 12,
+    title: 'Pırıltı Ustası IV',
+    levelReq: 4,
+    desc: '25 adet pırıltı topla.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 0,
+    requiredGlitters: 25,
+    rewards: { gold: 750, pearl: 20, xp: 600 }
+  },
+  13: {
+    id: 13,
+    title: 'Kızıl Akın',
+    levelReq: 5,
+    desc: 'Red Korsar gemilerini batır ve 15 pırıltı topla.',
+    targetNpc: 'Red Korsar',
+    requiredKills: 8,
+    requiredDamage: 0,
+    requiredGlitters: 15,
+    rewards: { gold: 1400, pearl: 45, xp: 1200 }
+  },
+  14: {
+    id: 14,
+    title: 'Ağır Hasar Gücü',
+    levelReq: 5,
+    desc: 'Toplamda 150.000 hasar ver.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 150000,
+    requiredGlitters: 0,
+    rewards: { gold: 1200, pearl: 38, xp: 1000 }
+  },
+  15: {
+    id: 15,
+    title: 'Altın Küpü',
+    levelReq: 5,
+    desc: 'Red Korsar gemilerine 80.000 hasar ver.',
+    targetNpc: 'Red Korsar',
+    requiredKills: 0,
+    requiredDamage: 80000,
+    requiredGlitters: 10,
+    rewards: { gold: 1300, pearl: 40, xp: 1100 }
+  },
+  16: {
+    id: 16,
+    title: 'Korsan Hükmü',
+    levelReq: 6,
+    desc: 'Morgansbuccaneers gemilerinden 6 adet batır.',
+    targetNpc: 'Morgansbuccaneers',
+    requiredKills: 6,
+    requiredDamage: 0,
+    requiredGlitters: 0,
+    rewards: { gold: 1800, pearl: 60, xp: 2000 }
+  },
+  17: {
+    id: 17,
+    title: 'Hırçın Denizler',
+    levelReq: 6,
+    desc: 'Düşmanlara 250.000 hasar ver ve 20 pırıltı topla.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 250000,
+    requiredGlitters: 20,
+    rewards: { gold: 2000, pearl: 65, xp: 2200 }
+  },
+  18: {
+    id: 18,
+    title: 'Denizlerin Yıldızı',
+    levelReq: 6,
+    desc: 'Denizden 35 pırıltı topla.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 0,
+    requiredGlitters: 35,
+    rewards: { gold: 1500, pearl: 50, xp: 1800 }
+  },
+  19: {
+    id: 19,
+    title: 'Amiral Avı',
+    levelReq: 7,
+    desc: 'Admiral Jack batır.',
+    targetNpc: 'Admiral Jack',
+    requiredKills: 1,
+    requiredDamage: 0,
+    requiredGlitters: 30,
+    rewards: { gold: 2500, pearl: 90, xp: 3500 }
+  },
+  20: {
+    id: 20,
+    title: 'Kuşatma Savaşı',
+    levelReq: 7,
+    desc: 'Morgansbuccaneers gemilerine 200.000 hasar ver.',
+    targetNpc: 'Morgansbuccaneers',
+    requiredKills: 0,
+    requiredDamage: 200000,
+    requiredGlitters: 15,
+    rewards: { gold: 2200, pearl: 80, xp: 3000 }
+  },
+  21: {
+    id: 21,
+    title: 'Büyük Hasar VII',
+    levelReq: 7,
+    desc: 'Toplamda 400.000 hasar ver.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 400000,
+    requiredGlitters: 0,
+    rewards: { gold: 2400, pearl: 85, xp: 3200 }
+  },
+  22: {
+    id: 22,
+    title: 'Morganın Sonu',
+    levelReq: 8,
+    desc: 'Morgansbuccaneers gemilerinden 10 tane batır.',
+    targetNpc: 'Morgansbuccaneers',
+    requiredKills: 10,
+    requiredDamage: 0,
+    requiredGlitters: 0,
+    rewards: { gold: 3000, pearl: 110, xp: 5000 }
+  },
+  23: {
+    id: 23,
+    title: 'Hollandalı Korkusu',
+    levelReq: 8,
+    desc: 'Flyingdutchman gemilerine 300.000 hasar ver.',
+    targetNpc: 'Flyingdutchman',
+    requiredKills: 0,
+    requiredDamage: 300000,
+    requiredGlitters: 20,
+    rewards: { gold: 3200, pearl: 120, xp: 5200 }
+  },
+  24: {
+    id: 24,
+    title: 'Deniz Hazinesi VIII',
+    levelReq: 8,
+    desc: 'Denizden 45 pırıltı topla.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 0,
+    requiredGlitters: 45,
+    rewards: { gold: 2600, pearl: 95, xp: 4200 }
+  },
+  25: {
+    id: 25,
+    title: 'Hayalet Gemi Avı',
+    levelReq: 9,
+    desc: 'Flyingdutchman gemilerinden 3 adet batır.',
+    targetNpc: 'Flyingdutchman',
+    requiredKills: 3,
+    requiredDamage: 0,
+    requiredGlitters: 0,
+    rewards: { gold: 3800, pearl: 140, xp: 6500 }
+  },
+  26: {
+    id: 26,
+    title: 'Efsanevi Yıkım',
+    levelReq: 9,
+    desc: 'Düşmanlara toplamda 800.000 hasar ver.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 800000,
+    requiredGlitters: 0,
+    rewards: { gold: 4000, pearl: 150, xp: 7000 }
+  },
+  27: {
+    id: 27,
+    title: 'Karanlık Sis',
+    levelReq: 9,
+    desc: 'Flyingdutchman gemilerine 500.000 hasar ver ve 30 pırıltı topla.',
+    targetNpc: 'Flyingdutchman',
+    requiredKills: 0,
+    requiredDamage: 500000,
+    requiredGlitters: 30,
+    rewards: { gold: 4200, pearl: 160, xp: 7500 }
+  },
+  28: {
+    id: 28,
+    title: 'Flyingdutchman Fatihi',
+    levelReq: 10,
+    desc: 'Flyingdutchman gemilerinden 5 adet batır ve 50 pırıltı topla.',
+    targetNpc: 'Flyingdutchman',
+    requiredKills: 5,
+    requiredDamage: 0,
+    requiredGlitters: 50,
+    rewards: { gold: 5000, pearl: 200, xp: 10000 }
+  },
+  29: {
+    id: 29,
+    title: 'Kıyamet Günü',
+    levelReq: 10,
+    desc: 'Toplamda 1.500.000 hasar ver.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 1500000,
+    requiredGlitters: 0,
+    rewards: { gold: 6000, pearl: 250, xp: 12000 }
+  },
+  30: {
+    id: 30,
+    title: 'Sonsuz Okyanus',
+    levelReq: 10,
+    desc: 'Denizden 80 pırıltı topla ve düşmanlara 1.000.000 hasar ver.',
+    targetNpc: null,
+    requiredKills: 0,
+    requiredDamage: 1000000,
+    requiredGlitters: 80,
+    rewards: { gold: 7000, pearl: 300, xp: 15000 }
+  }
+};
+
+module.exports = QUESTS;

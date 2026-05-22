@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>SeaPirates — Görevler</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --gold: #c8962a; --gold-b: #f0c040; --gold-p: #fde68a;
+      --wood-d: #1a0e05; --wood-m: #2d1a08; --wood-plank: #5c3518;
+      --txt: #f5e6c8; --txt-d: #b8956a; --txt-m: #7a5a38;
+      --red: #c0392b; --red-b: #e74c3c;
+    }
+    html, body {
+      width: 100%; height: 100dvh; overflow: hidden;
+      background: #0d0702;
+      font-family: 'Inter', sans-serif;
+      color: var(--txt);
+    }
+    
+    /* PAGE */
+    .page {
+      max-width: 430px; margin: 0 auto;
+      height: 100dvh;
+      display: flex; flex-direction: column;
+      position: relative;
+      background: url('assets/background/menubackground.png') center center / cover no-repeat;
+    }
+    .page::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0,0,0,0.65);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      position: relative; z-index: 10;
+      padding: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(200,150,42,0.3);
+      background: linear-gradient(180deg, rgba(20,10,2,0.95), rgba(10,5,0,0.85));
+    }
+    .btn-back {
+      padding: 8px 12px;
+      background: linear-gradient(180deg,#3d2108,#1e0e03);
+      border: 1px solid #7a4a18; border-radius: 7px;
+      font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 700;
+      color: var(--txt-d); letter-spacing: 0.04em;
+      cursor: pointer; text-align: center; text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .btn-back:hover { border-color: var(--gold); color: var(--gold-b); }
+    .page-title {
+      font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.1rem;
+      letter-spacing: 0.1em; color: var(--gold-b);
+      text-shadow: 0 0 10px rgba(200,150,42,0.6);
+      text-transform: uppercase;
+    }
+
+    /* TABS */
+    .tabs {
+      position: relative; z-index: 10;
+      display: flex;
+      background: rgba(20,10,2,0.9);
+      border-bottom: 2px solid var(--wood-plank);
+    }
+    .tab-btn {
+      flex: 1; padding: 12px 0;
+      background: transparent; border: none; cursor: pointer;
+      font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--txt-m); transition: all 0.25s;
+      position: relative;
+    }
+    .tab-btn.active { color: var(--gold-b); }
+    .tab-btn.active::after {
+      content: ''; position: absolute; bottom: -2px; left: 10%; right: 10%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-b), transparent);
+    }
+    .tab-btn:not(.active):hover { color: var(--txt-d); }
+
+    /* CONTENT WRAP */
+    .content-wrap {
+      flex: 1; position: relative; z-index: 5;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex; flex-direction: column; gap: 15px;
+    }
+    .content-wrap::-webkit-scrollbar { width: 4px; }
+    .content-wrap::-webkit-scrollbar-thumb { background: var(--wood-plank); border-radius: 2px; }
+
+    /* QUEST CARD */
+    .quest-card {
+      position: relative;
+      background: url('assets/leaderboardbackground.png') center/cover no-repeat;
+      border: 2px solid #6a4218;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.8), inset 0 0 10px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+    .quest-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(20,10,0,0.5); pointer-events: none; z-index: 0;
+    }
+    .q-header {
+      position: relative; z-index: 1;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.4);
+      border-bottom: 1px solid rgba(200,150,42,0.2);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-title {
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.9rem;
+      color: var(--gold-b); text-shadow: 0 1px 3px #000;
+    }
+    .q-level {
+      font-size: 0.65rem; font-weight: 700; color: var(--txt-d);
+      background: rgba(0,0,0,0.5); padding: 3px 6px; border-radius: 4px; border: 1px solid #4a2c08;
+    }
+
+    .q-body {
+      position: relative; z-index: 1;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    
+    /* Hikaye / Description */
+    .q-desc {
+      font-size: 0.75rem; color: var(--txt);
+      line-height: 1.4; font-style: italic;
+      border-left: 2px solid var(--wood-plank);
+      padding-left: 10px;
+    }
+
+    /* Hedefler (Objectives) */
+    .q-objectives {
+      background: rgba(0,0,0,0.3);
+      border: 1px dashed rgba(200,150,42,0.3);
+      border-radius: 8px; padding: 10px;
+    }
+    .q-obj-title {
+      font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 700;
+      color: var(--txt-d); margin-bottom: 8px; text-transform: uppercase;
+    }
+    .q-obj-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.75rem; font-weight: 600; color: var(--txt);
+      margin-bottom: 6px;
+    }
+    .q-obj-row:last-child { margin-bottom: 0; }
+    .q-obj-progress { color: var(--gold-p); }
+    .q-obj-progress.done { color: #2ecc71; }
+
+    /* Ödüller (Rewards) */
+    .q-rewards-wrap {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .q-reward {
+      display: flex; align-items: center; gap: 4px;
+      background: rgba(0,0,0,0.5); border: 1px solid #4a2c08;
+      border-radius: 6px; padding: 4px 8px;
+      font-size: 0.7rem; font-weight: 700; color: var(--txt);
+    }
+    .q-reward img { width: 14px; height: 14px; object-fit: contain; }
+
+    /* Footer (Action) */
+    .q-footer {
+      position: relative; z-index: 1;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.4);
+      border-top: 1px solid rgba(200,150,42,0.2);
+      display: flex; justify-content: flex-end;
+    }
+    .act-btn {
+      padding: 8px 18px;
+      background: url('assets/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
+      border: 1px solid #1e5a32; border-radius: 6px;
+      font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 700;
+      color: #fff; letter-spacing: 0.04em;
+      cursor: pointer; text-align: center; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      text-shadow: 0 1px 2px #000;
+      transition: all 0.2s;
+    }
+    .act-btn:hover:not(:disabled) { filter: brightness(1.15); border-color: #27ae60; }
+    .act-btn:disabled {
+      background: linear-gradient(180deg,#555,#333) !important;
+      border-color: #444; color: #888;
+      cursor: not-allowed; box-shadow: none;
+      text-shadow: none;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; margin-top: 40px;
+      font-size: 0.85rem; color: var(--txt-m); font-style: italic;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="map.html" class="btn-back">◀ HARİTAYA DÖN</a>
+    <div class="page-title"><img src="assets/ikon/images/40_ico_quest.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;object-fit:contain;">GÖREVLER</div>
+    <div style="width:85px;"></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('active')">Aktif Görev</button>
+    <button class="tab-btn" onclick="switchTab('available')">Mevcut Görevler</button>
+  </div>
+
+  <!-- ACTIVE QUESTS TAB -->
+  <div class="content-wrap" id="tab-active"></div>
+
+  <!-- AVAILABLE QUESTS TAB -->
+  <div class="content-wrap" id="tab-available" style="display:none;"></div>
+</div>
+
+<script>
+  const API_URL = 'http://localhost:3000/api/quests';
+  const token = localStorage.getItem('sp_token');
+
+  let activeTab = 'active'; // 'active' veya 'available'
+  let quests = [];
+  let activeQuestId = null;
+  let playerLevel = 1;
+
+  function switchTab(tab) {
+    activeTab = tab;
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs[0].classList.toggle('active', tab === 'active');
+    tabs[1].classList.toggle('active', tab === 'available');
+
+    document.getElementById('tab-active').style.display = tab === 'active' ? 'flex' : 'none';
+    document.getElementById('tab-available').style.display = tab === 'available' ? 'flex' : 'none';
+    render();
+  }
+
+  // Create toast dynamic element for beautiful premium UI feedback
+  function showToast(msg, type = 'ok') {
+    let el = document.getElementById('toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'toast';
+      el.style.position = 'fixed';
+      el.style.top = '14px';
+      el.style.left = '50%';
+      el.style.transform = 'translateX(-50%) translateY(-70px)';
+      el.style.zIndex = '9999';
+      el.style.padding = '10px 20px';
+      el.style.borderRadius = '10px';
+      el.style.fontSize = '0.8rem';
+      el.style.fontWeight = '600';
+      el.style.whiteSpace = 'nowrap';
+      el.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      document.body.appendChild(el);
+    }
+    
+    el.textContent = msg;
+    if (type === 'ok') {
+      el.style.background = 'rgba(25,70,40,0.95)';
+      el.style.border = '1px solid #27ae60';
+      el.style.color = '#c8f0d8';
+    } else {
+      el.style.background = 'rgba(80,20,20,0.95)';
+      el.style.border = '1px solid #c0392b';
+      el.style.color = '#f8d8d8';
+    }
+    
+    el.getBoundingClientRect();
+    el.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => {
+      el.style.transform = 'translateX(-50%) translateY(-70px)';
+    }, 3000);
+  }
+
+  async function loadQuests() {
+    if (!token) return;
+    try {
+      const res = await fetch(API_URL, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        quests = data.quests || [];
+        activeQuestId = data.activeQuestId;
+        playerLevel = data.playerLevel;
+        render();
+      }
+    } catch (e) {
+      console.error('Görevler yüklenirken hata:', e);
+    }
+  }
+
+  async function acceptQuest(qId) {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/accept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ questId: qId })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || 'Görev kabul edildi!', 'ok');
+        await loadQuests();
+        switchTab('active');
+      } else {
+        showToast(data.error || 'Görev kabul edilemedi!', 'err');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Sunucu hatası!', 'err');
+    }
+  }
+
+  async function deliverQuest() {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/deliver`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || 'Görev teslim edildi!', 'ok');
+        await loadQuests();
+      } else {
+        showToast(data.error || 'Görev teslim edilemedi!', 'err');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Sunucu hatası!', 'err');
+    }
+  }
+
+  function render() {
+    const actContainer = document.getElementById('tab-active');
+    const availContainer = document.getElementById('tab-available');
+
+    actContainer.innerHTML = '';
+    availContainer.innerHTML = '';
+
+    const activeQuest = quests.find(q => q.state === 'active');
+    const availableQuests = quests.filter(q => q.state === 'available');
+
+    // ── RENDER ACTIVE TAB ──
+    if (activeQuest) {
+      const card = createQuestCard(activeQuest);
+      actContainer.appendChild(card);
+    } else {
+      actContainer.innerHTML = `
+        <div class="empty-state">
+          Aktif bir göreviniz bulunmuyor.<br>
+          "Mevcut Görevler" sekmesinden yeni bir görev alabilirsiniz!
+        </div>
+      `;
+    }
+
+    // ── RENDER AVAILABLE TAB ──
+    if (availableQuests.length > 0) {
+      availableQuests.forEach(q => {
+        const card = createQuestCard(q);
+        availContainer.appendChild(card);
+      });
+    } else {
+      // Locked or completed quests show up in available tab too, but with disabled/locked states
+      const otherQuests = quests.filter(q => q.state === 'locked' || q.state === 'completed');
+      if (otherQuests.length > 0) {
+        otherQuests.forEach(q => {
+          const card = createQuestCard(q);
+          availContainer.appendChild(card);
+        });
+      } else {
+        availContainer.innerHTML = `
+          <div class="empty-state">
+            Şu an alabileceğiniz yeni bir görev yok.<br>
+            Tüm görevleri başarıyla tamamladınız!
+          </div>
+        `;
+      }
+    }
+  }
+
+  function createQuestCard(q) {
+    const card = document.createElement('div');
+    card.className = 'quest-card';
+
+    const isKillsDone = q.requiredKills === 0 || q.currentKills >= q.requiredKills;
+    const isDamageDone = q.requiredDamage === 0 || q.currentDamage >= q.requiredDamage;
+    const isGlittersDone = q.requiredGlitters === 0 || q.currentGlitters >= q.requiredGlitters;
+    const isQuestFullyDone = isKillsDone && isDamageDone && isGlittersDone;
+
+    // Rewards HTML
+    let rewardsHTML = '';
+    if (q.rewards.gold) {
+      rewardsHTML += `<div class="q-reward"><img src="assets/gold.png"> ${q.rewards.gold.toLocaleString('tr-TR')}</div>`;
+    }
+    if (q.rewards.pearl) {
+      rewardsHTML += `<div class="q-reward"><img src="assets/pearl.png"> ${q.rewards.pearl.toLocaleString('tr-TR')}</div>`;
+    }
+    if (q.rewards.xp) {
+      rewardsHTML += `<div class="q-reward">XP: ${q.rewards.xp.toLocaleString('tr-TR')}</div>`;
+    }
+
+    // Objectives HTML
+    let objectivesHTML = '';
+    if (q.state === 'active' || q.state === 'available' || q.state === 'locked' || q.state === 'completed') {
+      let rowsHTML = '';
+      if (q.requiredKills > 0) {
+        rowsHTML += `
+          <div class="q-obj-row">
+            <span>Batır: ${q.targetNpc || 'Herhangi'}</span>
+            <span class="q-obj-progress ${q.currentKills >= q.requiredKills ? 'done' : ''}">${q.currentKills} / ${q.requiredKills}</span>
+          </div>
+        `;
+      }
+      if (q.requiredDamage > 0) {
+        rowsHTML += `
+          <div class="q-obj-row">
+            <span>Hasar Ver</span>
+            <span class="q-obj-progress ${q.currentDamage >= q.requiredDamage ? 'done' : ''}">${q.currentDamage.toLocaleString('tr-TR')} / ${q.requiredDamage.toLocaleString('tr-TR')}</span>
+          </div>
+        `;
+      }
+      if (q.requiredGlitters > 0) {
+        rowsHTML += `
+          <div class="q-obj-row">
+            <span>Pırıltı Topla</span>
+            <span class="q-obj-progress ${q.currentGlitters >= q.requiredGlitters ? 'done' : ''}">${q.currentGlitters} / ${q.requiredGlitters}</span>
+          </div>
+        `;
+      }
+      objectivesHTML = `
+        <div class="q-objectives">
+          <div class="q-obj-title">Hedefler</div>
+          ${rowsHTML}
+        </div>
+      `;
+    }
+
+    // Footer Button HTML
+    let buttonHTML = '';
+    if (q.state === 'active') {
+      buttonHTML = `<button class="act-btn" onclick="deliverQuest()" ${isQuestFullyDone ? '' : 'disabled'}>TESLİM ET</button>`;
+    } else if (q.state === 'available') {
+      buttonHTML = `<button class="act-btn" onclick="acceptQuest(${q.id})">GÖREVİ AL</button>`;
+    } else if (q.state === 'locked') {
+      buttonHTML = `<button class="act-btn" disabled>SEVİYE ${q.levelReq} GEREKLİ</button>`;
+    } else if (q.state === 'completed') {
+      buttonHTML = `<button class="act-btn" style="background:#5a3a15 !important; border-color:#7a5a38;" disabled>✓ TAMAMLANDI</button>`;
+    }
+
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-title">${q.title}</div>
+        <div class="q-level">LVL ${q.levelReq}+</div>
+      </div>
+      <div class="q-body">
+        <div class="q-desc">"${q.desc}"</div>
+        ${objectivesHTML}
+        <div class="q-rewards-wrap">
+          ${rewardsHTML}
+        </div>
+      </div>
+      <div class="q-footer">
+        ${buttonHTML}
+      </div>
+    `;
+
+    return card;
+  }
+
+  // Init
+  loadQuests();
+</script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>SeaPirates — Şeref Salonu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
+      --wood-d:#0f0a05;--wood-m:#1a1108;
+      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
+      --red:#c0392b;--border:rgba(200,150,42,0.3);
+    }
+    html,body{width:100%;height:100dvh;overflow:hidden;background:#080502;font-family:'Inter',sans-serif;color:var(--txt);}
+    
+    .page{
+      max-width:430px;margin:0 auto;height:100dvh;
+      display:flex;flex-direction:column;position:relative;
+      background:url('assets/background/menubackground.png') center/cover no-repeat;
+    }
+    .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.72);pointer-events:none;z-index:0;}
+
+    /* TOP BAR */
+    .top-bar{
+      position:relative;z-index:10;flex-shrink:0;padding:12px 14px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid var(--border);
+      background:linear-gradient(180deg,rgba(20,10,2,0.98),rgba(10,5,0,0.9));
+    }
+    .btn-back{
+      padding:7px 11px;background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:7px;
+      font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;
+      color:var(--txt-d);text-decoration:none;
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 12px rgba(200,150,42,0.7);text-transform:uppercase;
+    }
+    
+    /* HEADER & SELECTOR */
+    .hof-header{
+      position:relative;z-index:9;flex-shrink:0;
+      display:flex;align-items:center;justify-content:space-between;
+      background:linear-gradient(90deg, #111, #222, #111);
+      border-bottom:1px solid rgba(255,255,255,0.1);
+      padding:5px 10px;
+    }
+    .hof-current-cat{
+      font-weight:700;font-size:0.8rem;color:#fff;
+      text-shadow:1px 1px 2px #000;
+    }
+    .hof-select-wrap{
+      position:relative;width:200px;
+    }
+    .hof-select{
+      width:100%;padding:4px 8px;
+      background:#1a1a1a;border:1px solid #444;
+      color:var(--gold-b);font-size:0.7rem;outline:none;cursor:pointer;
+      font-family:'Inter',sans-serif;
+    }
+    .hof-select:focus{border-color:var(--gold);}
+    
+    /* RANKING INFO ROW */
+    .rank-info-row{
+      position:relative;z-index:8;flex-shrink:0;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:8px 15px;background:rgba(20,10,0,0.6);
+      border-bottom:1px solid rgba(0,0,0,0.8);
+      font-size:0.75rem;
+    }
+    .nav-btn{
+      background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:4px;
+      color:var(--gold-b);padding:3px 8px;cursor:pointer;
+      font-size:0.7rem;font-weight:bold;
+    }
+    .nav-btn:hover{border-color:var(--gold);}
+    .nav-btn:disabled{opacity:0.3;cursor:default;}
+    .my-rank{
+      color:var(--gold-p);font-weight:600;
+    }
+    
+    /* TABLE */
+    .table-container{
+      position:relative;z-index:5;flex:1;
+      overflow-y:auto;background:rgba(0,0,0,0.4);
+    }
+    .table-container::-webkit-scrollbar{width:6px;}
+    .table-container::-webkit-scrollbar-thumb{background:#442a10;border-radius:3px;}
+    
+    .hof-table{
+      width:100%;border-collapse:collapse;
+      font-family:'Inter',sans-serif;
+    }
+    .hof-table th{
+      position:sticky;top:0;
+      background:linear-gradient(180deg,#222,#000);
+      color:#fff;text-align:left;padding:8px 10px;
+      font-size:0.75rem;font-weight:700;
+      border-bottom:2px solid #000;
+      border-right:1px solid #333;
+    }
+    .hof-table th:last-child{border-right:none;}
+    
+    .hof-table td{
+      padding:6px 10px;font-size:0.75rem;
+      border-bottom:1px solid rgba(0,0,0,0.5);
+      border-right:1px solid rgba(0,0,0,0.3);
+    }
+    .hof-table td:last-child{border-right:none;}
+    
+    /* Rows alternate colors to look like wood planks slightly */
+    .hof-table tbody tr:nth-child(odd){
+      background: linear-gradient(rgba(20,10,5,0.75), rgba(20,10,5,0.75)), url('assets/leaderboardbackground.png') center/cover;
+    }
+    .hof-table tbody tr:nth-child(even){
+      background: linear-gradient(rgba(10,5,0,0.85), rgba(10,5,0,0.85)), url('assets/leaderboardbackground.png') center/cover;
+    }
+    .hof-table tbody tr:hover{
+      background: linear-gradient(rgba(40,25,10,0.6), rgba(40,25,10,0.6)), url('assets/leaderboardbackground.png') center/cover;
+    }
+    .hof-table tbody tr.is-me{
+      background: linear-gradient(rgba(80,50,15,0.6), rgba(80,50,15,0.6)), url('assets/leaderboardbackground.png') center/cover;
+      box-shadow: inset 0 0 10px rgba(200,150,42,0.3);
+    }
+    
+    .col-rank{width:60px;text-align:center;color:var(--gold-b);font-weight:700;}
+    .col-name{color:#ddd;}
+    .col-score{text-align:right;color:var(--gold-b);}
+    
+  </style>
+</head>
+<body>
+<div class="page">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back">◀ GERİ</a>
+    <div class="page-title">ŞEREF SALONU</div>
+    <div style="width:65px;"></div>
+  </div>
+
+  <div class="hof-header">
+    <div class="hof-current-cat" id="cat-title">Tecrübe Puanı</div>
+    <div class="hof-select-wrap">
+      <select class="hof-select" id="cat-select" onchange="changeCategory()">
+        <option value="xp">Tecrübe Puanı</option>
+        <option value="ep">Elit Puan</option>
+        <option value="dmg_pve">Darbe Puanı PvE</option>
+        <option value="dmg_pvp">Darbe Puanı PvP</option>
+        <option value="kill_npc">Batırılan NPC</option>
+        <option value="kill_pvp">Batırılan Oyuncu</option>
+        <option value="dmg_amiral">Darbe Puanı Amiral</option>
+        <option value="playtime">Oyunda Geçirilen Süre</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="rank-info-row">
+    <div>
+      <button class="nav-btn" onclick="prevPage()" id="btn-prev">◀</button>
+    </div>
+    <div class="my-rank" id="my-rank-display">Sıralaman: 0</div>
+    <div>
+      <button class="nav-btn" onclick="nextPage()" id="btn-next">▶</button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="hof-table">
+      <thead>
+        <tr>
+          <th class="col-rank">Sıra</th>
+          <th class="col-name">Oyuncular</th>
+          <th class="col-score">Puan</th>
+        </tr>
+      </thead>
+      <tbody id="hof-tbody">
+        <!-- Rendered by JS -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = {
+  xp: "Tecrübe Puanı",
+  ep: "Elit Puan",
+  dmg_pve: "Darbe Puanı PvE",
+  dmg_pvp: "Darbe Puanı PvP",
+  kill_npc: "Batırılan NPC",
+  kill_pvp: "Batırılan Oyuncu",
+  dmg_amiral: "Darbe Puanı Amiral",
+  playtime: "Oyunda Geçirilen Süre"
+};
+
+const token = localStorage.getItem('sp_token');
+const API_URL = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+  ? `${window.location.origin}/api`
+  : 'http://localhost:3000/api';
+
+// State
+let leaderboardData = [];
+let myRank = 0;
+let currentCat = "xp";
+let currentPage = 1;
+const ITEMS_PER_PAGE = 30;
+
+function fmtN(n){ return Number(n).toLocaleString('tr-TR'); }
+
+function formatScore(cat, score) {
+  if(cat === 'playtime') {
+    // Treat score as minutes, format to Hours:Minutes
+    let hours = Math.floor(score / 60);
+    let mins = score % 60;
+    return `${hours}s ${mins}d`;
+  }
+  return fmtN(score);
+}
+
+async function loadLeaderboard() {
+  try {
+    const res = await fetch(`${API_URL}/player/hall-of-fame?category=${currentCat}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      leaderboardData = data.players || [];
+      myRank = data.myRank || 0;
+      renderTable();
+    } else {
+      console.error("Şeref Salonu verileri çekilemedi");
+    }
+  } catch (err) {
+    console.error("Şeref Salonu yüklenirken hata:", err);
+  }
+}
+
+function renderTable() {
+  const tbody = document.getElementById('hof-tbody');
+  
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIdx = startIdx + ITEMS_PER_PAGE;
+  const pageData = leaderboardData.slice(startIdx, endIdx);
+  
+  tbody.innerHTML = '';
+  
+  pageData.forEach(p => {
+    const tr = document.createElement('tr');
+    if(p.isMe) tr.className = 'is-me';
+    
+    tr.innerHTML = `
+      <td class="col-rank">${p.rank}</td>
+      <td class="col-name">${p.name}</td>
+      <td class="col-score">${formatScore(currentCat, p.score)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
+  // Update buttons
+  document.getElementById('btn-prev').disabled = currentPage === 1;
+  document.getElementById('btn-next').disabled = endIdx >= leaderboardData.length;
+  
+  // Update my rank
+  document.getElementById('my-rank-display').textContent = `Sıralaman: ${myRank > 0 ? fmtN(myRank) : '-'}`;
+}
+
+function changeCategory() {
+  const sel = document.getElementById('cat-select');
+  currentCat = sel.value;
+  document.getElementById('cat-title').textContent = CATEGORIES[currentCat];
+  currentPage = 1;
+  loadLeaderboard();
+}
+
+function prevPage() {
+  if(currentPage > 1) {
+    currentPage--;
+    renderTable();
+    document.querySelector('.table-container').scrollTop = 0;
+  }
+}
+
+function nextPage() {
+  if(currentPage * ITEMS_PER_PAGE < leaderboardData.length) {
+    currentPage++;
+    renderTable();
+    document.querySelector('.table-container').scrollTop = 0;
+  }
+}
+
+// Init
+loadLeaderboard();
+</script>
+</body>
+</html>

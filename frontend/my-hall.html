@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>SeaPirates — Bugünkü Rütben</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
+      --wood-d:#0f0a05;--wood-m:#1a1108;
+      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
+      --border:rgba(200,150,42,0.3);
+    }
+    html,body{width:100%;height:100dvh;overflow:hidden;background:#080502;font-family:'Inter',sans-serif;color:var(--txt);}
+    
+    .page{
+      max-width:430px;margin:0 auto;height:100dvh;
+      display:flex;flex-direction:column;position:relative;
+      background:url('assets/background/menubackground.png') center/cover no-repeat;
+    }
+    .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.85);pointer-events:none;z-index:0;}
+
+    /* TOP BAR */
+    .top-bar{
+      position:relative;z-index:10;flex-shrink:0;padding:12px 14px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid var(--border);
+      background:linear-gradient(180deg,rgba(20,10,2,0.98),rgba(10,5,0,0.9));
+    }
+    .btn-back{
+      padding:7px 11px;background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:7px;
+      font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;
+      color:var(--txt-d);text-decoration:none;
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 12px rgba(200,150,42,0.7);text-transform:uppercase;
+    }
+
+    /* HEADER */
+    .hof-header{
+      position:relative;z-index:9;flex-shrink:0;
+      display:flex;align-items:center;justify-content:flex-start;
+      background:linear-gradient(180deg, #111, #000);
+      border-bottom:2px solid #222;
+      padding:8px 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    }
+    .hof-current-cat{
+      font-weight:700;font-size:0.8rem;color:#fff;
+      text-shadow:1px 1px 2px #000;
+    }
+
+    /* SCROLLABLE CONTENT */
+    .content-area{
+      position:relative;z-index:5;flex:1;
+      overflow-y:auto;padding:15px;
+      display:flex;flex-direction:column;
+    }
+    .content-area::-webkit-scrollbar{width:4px;}
+    .content-area::-webkit-scrollbar-thumb{background:#442a10;border-radius:2px;}
+
+    /* MAIN CONTAINER matching the image border */
+    .rank-container{
+      border: 4px solid #3d4245; 
+      border-image: linear-gradient(180deg, #5a6064, #2a2e30) 1;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      margin: auto 0; /* Vertically centers the card */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+
+    /* TOP SECTION (Badge + Math) */
+    .top-section{
+      display: flex;
+      width: 100%;
+      border-bottom: 4px solid #3d4245;
+    }
+
+    .badge-area{
+      width: 55%;
+      background: url('assets/rankbackground.png') center/cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 10px;
+      border-right: 2px solid #3d4245;
+      position: relative; /* Buton yerleşimi için eklendi */
+    }
+    .badge-area img{
+      width: 100%;
+      max-width: 140px;
+      object-fit: contain;
+      z-index: 2;
+      transition: all 0.3s ease;
+    }
+    
+    /* Normal Rütbeler (4-13) */
+    .badge-area img.rank-normal {
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8));
+    }
+    
+    /* İlk 3 Rütbe (2-3) */
+    .badge-area img.rank-top3 {
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 15px rgba(200, 200, 255, 0.4));
+      transform: scale(1.05);
+    }
+    
+    /* 1. Rütbe (Kral Kuru Kafa) */
+    @keyframes pulseGold {
+      0% { filter: drop-shadow(0 5px 15px rgba(0,0,0,0.9)) drop-shadow(0 0 15px rgba(255,215,0,0.5)); transform: scale(1.1); }
+      50% { filter: drop-shadow(0 5px 15px rgba(0,0,0,0.9)) drop-shadow(0 0 35px rgba(255,215,0,0.9)); transform: scale(1.15); }
+      100% { filter: drop-shadow(0 5px 15px rgba(0,0,0,0.9)) drop-shadow(0 0 15px rgba(255,215,0,0.5)); transform: scale(1.1); }
+    }
+    .badge-area img.rank-top1 {
+      animation: pulseGold 2s infinite;
+    }
+    .test-btn{
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid var(--gold);
+      color: var(--gold-p);
+      padding: 4px 8px;
+      font-size: 0.55rem;
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+    .test-btn:hover{
+      background: rgba(200,150,42,0.3);
+    }
+
+    /* Right: Math Area */
+    .math-area{
+      width: 45%;
+      background: url('assets/ranktxtbackgroun.png') center/cover;
+      display: flex;
+      flex-direction: column;
+    }
+    .math-header{
+      padding: 12px 14px;
+      border-bottom: 2px solid rgba(100,100,100,0.5);
+      font-size: 0.85rem;
+      color: #ccc;
+      background: rgba(0,0,0,0.4);
+    }
+    .math-header span{
+      color: var(--gold-b);
+      font-weight: 700;
+    }
+    .math-body{
+      padding: 14px;
+      font-size: 0.68rem;
+      color: #a0a0a0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .math-title{
+      color: #c09440;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+    .math-row{
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .math-op{
+      width: 12px;
+      color: #a0a0a0;
+    }
+    .math-val{
+      flex: 1;
+      text-align: right;
+      color: #e0e0e0;
+      padding-right: 8px;
+      font-weight: 500;
+    }
+    .math-desc{
+      width: 90px;
+      color: #c09440;
+      line-height: 1.1;
+    }
+    .math-total{
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(200,150,42,0.3);
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      color: var(--gold-b);
+      font-size: 0.8rem;
+    }
+
+    /* BOTTOM SECTION */
+    .bottom-section{
+      display: flex;
+      flex-direction: column; 
+      /* Pürüzsüz ve karanlık bir ahşap tonu */
+      background: linear-gradient(180deg, #2a1608, #120903);
+    }
+
+    .bottom-col{
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      border-bottom: 2px solid #080402;
+      background: transparent;
+    }
+    .bottom-col:last-child{
+      border-bottom: none;
+    }
+
+    .info-card{
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(0,0,0,0.6);
+    }
+    .info-card:last-child{
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .info-title{
+      font-size: 0.75rem;
+      color: #d09a40;
+      margin-bottom: 6px;
+    }
+    .rank-target{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .target-ico img{
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+    .target-name{
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--gold-p);
+    }
+    .target-desc{
+      font-size: 0.65rem;
+      color: #aaa;
+    }
+
+    .warning-title{
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--gold-p);
+      margin-bottom: 8px;
+    }
+    .warning-text{
+      font-size: 0.68rem;
+      color: #b08d5a;
+      line-height: 1.6;
+    }
+
+  </style>
+</head>
+<body>
+<div class="page">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back">◀ GERİ</a>
+    <div class="page-title">ŞEREF SALONUM</div>
+    <div style="width:65px;"></div>
+  </div>
+
+  <div class="hof-header">
+    <div class="hof-current-cat">Bugünkü Rütben</div>
+  </div>
+
+  <div class="content-area">
+    
+    <div class="rank-container" style="display: none;" id="rank-card">
+      
+      <!-- TOP SECTION -->
+      <div class="top-section">
+        <div class="badge-area">
+          <img id="main-rank-img" class="rank-normal" src="assets/rank/rank1.png" alt="Rank Badge" onerror="this.src='assets/rank/rank1.png'">
+        </div>
+        
+        <div class="math-area">
+          <div class="math-header">
+            Sen: <span id="my-rank-name">Yükleniyor...</span>
+          </div>
+          <div class="math-body">
+            <div class="math-title">Rütbenin hesabı şöyle gerçekleşiyor:</div>
+            
+            <div class="math-row">
+              <span class="math-op"></span>
+              <span class="math-val" id="calc-dmg">0</span>
+              <span class="math-desc" id="desc-dmg">Darbe Puanı / 200Bin</span>
+            </div>
+            <div class="math-row">
+              <span class="math-op">+</span>
+              <span class="math-val" id="calc-ep">0</span>
+              <span class="math-desc" id="desc-ep">Elit Puan / 5Bin</span>
+            </div>
+            <div class="math-row">
+              <span class="math-op">+</span>
+              <span class="math-val" id="calc-xp">0</span>
+              <span class="math-desc" id="desc-xp">Tecrübe Puanı / 1500</span>
+            </div>
+            <div class="math-row">
+              <span class="math-op">+</span>
+              <span class="math-val" id="calc-lvl">0</span>
+              <span class="math-desc" id="desc-lvl">Seviye * 100</span>
+            </div>
+            <div class="math-row">
+              <span class="math-op">+</span>
+              <span class="math-val" id="calc-days">0</span>
+              <span class="math-desc" id="desc-days">Gün sayısı * 5</span>
+            </div>
+            
+            <div class="math-total">
+              <span>Toplam puan:</span>
+              <span id="calc-total">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM SECTION -->
+      <div class="bottom-section">
+        
+        <!-- Left Column -->
+        <div class="bottom-col">
+          <div class="info-card" id="card-target">
+            <div class="info-title">Bir üst seviye için</div>
+            <div class="rank-target">
+              <span class="target-ico"><img id="target-img" src="assets/rank/rank13.png" alt=""></span>
+              <span class="target-name" id="target-name">Korsan Kralı</span>
+            </div>
+            <div class="target-desc" id="target-desc">şu an 0 Rütbe Puanı'na ihtiyaç duyuyorsun</div>
+          </div>
+
+          <div class="info-card" id="card-lower">
+            <div class="info-title">Bir alttaki rütbe</div>
+            <div class="rank-target">
+              <span class="target-ico"><img id="lower-img" src="assets/rank/rank11.png" alt=""></span>
+              <span class="target-name" id="lower-name">Korsan Baronu</span>
+            </div>
+            <div class="target-desc" id="lower-desc">şu an 0 Rütbe Puanı'na sahip</div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="bottom-col">
+          <div class="warning-title">Dikkat:</div>
+          <div class="warning-text">
+            Rütbeler günde bir kere hesaplandığı için, burada gösterilen değerler tahmini değerlerdir. Gösterilen puana ulaşman rütbeyi garanti etmez! Çünkü diğer oyuncular da bu süre zarfında değişen değerlere sahip oluyorlar.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    
+    <div id="loading-el" style="text-align: center; color: var(--gold-b); font-family: 'Cinzel', serif; margin: 40px auto; font-size: 1.1rem;">
+      ⚓ Rütbe hesaplanıyor...
+    </div>
+
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('sp_token');
+const API_URL = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+  ? `${window.location.origin}/api`
+  : 'http://localhost:3000/api';
+
+function fmtN(n) { return Number(n).toLocaleString('tr-TR'); }
+
+async function loadMyRank() {
+  try {
+    const res = await fetch(`${API_URL}/player/my-rank`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const me = data.me;
+      const target = data.target;
+      const lower = data.lower;
+
+      // Card elementleri göster
+      document.getElementById('loading-el').style.display = 'none';
+      document.getElementById('rank-card').style.display = 'flex';
+
+      // Rütbe resmi ve havalı CSS animasyonu
+      const img = document.getElementById('main-rank-img');
+      img.src = `assets/rank/rank${me.rankBadge}.png`;
+      img.className = '';
+      if (me.rankBadge === 1) {
+        img.className = 'rank-top1'; // Sadece 1. rütbe (Denizlerin Hükümdarı) yanıp sönecek!
+      } else if (me.rankBadge === 2 || me.rankBadge === 3) {
+        img.className = 'rank-top3'; // 2. ve 3. rütbe hafif parlak
+      } else {
+        img.className = 'rank-normal';
+      }
+
+      // Rütbe Adı
+      document.getElementById('my-rank-name').textContent = me.rankName;
+
+      // Hesaplama Rakamları
+      document.getElementById('calc-dmg').textContent = fmtN(me.dmg_pve);
+      document.getElementById('desc-dmg').textContent = "Darbe Puanı / 200.000";
+
+      document.getElementById('calc-ep').textContent = fmtN(me.elite_points);
+      document.getElementById('desc-ep').textContent = "Elit Puan / 5.000";
+
+      document.getElementById('calc-xp').textContent = fmtN(me.xp);
+      document.getElementById('desc-xp').textContent = "Tecrübe Puanı / 1.500";
+
+      document.getElementById('calc-lvl').textContent = fmtN(me.level);
+      document.getElementById('desc-lvl').textContent = "Seviye * 100";
+
+      document.getElementById('calc-days').textContent = fmtN(me.days);
+      document.getElementById('desc-days').textContent = "Gün sayısı * 5";
+
+      document.getElementById('calc-total').textContent = fmtN(me.score);
+
+      // Bir üst rütbe kartı
+      const targetCard = document.getElementById('card-target');
+      if (target) {
+        targetCard.innerHTML = `
+          <div class="info-title">Bir üst seviye için</div>
+          <div class="rank-target">
+            <span class="target-ico"><img src="assets/rank/rank${target.rankBadge}.png" alt=""></span>
+            <span class="target-name">${target.rankName}</span>
+          </div>
+          <div class="target-desc">Bir üst rütbeye ulaşmak için <b>${fmtN(target.neededPoints)}</b> rütbe puanına daha ihtiyacın var.</div>
+        `;
+      } else {
+        targetCard.innerHTML = `
+          <div class="info-title">Tebrikler!</div>
+          <div class="target-name">👑 Zirvedesin!</div>
+          <div class="target-desc">Şu anda sunucunun en üst rütbesindesin! Liderliğini koru!</div>
+        `;
+      }
+
+      // Bir alt rütbe kartı
+      const lowerCard = document.getElementById('card-lower');
+      if (lower) {
+        lowerCard.innerHTML = `
+          <div class="info-title">Bir alttaki rütbe</div>
+          <div class="rank-target">
+            <span class="target-ico"><img src="assets/rank/rank${lower.rankBadge}.png" alt=""></span>
+            <span class="target-name">${lower.rankName}</span>
+          </div>
+          <div class="target-desc">Bir alttaki rütbeye düşmemek için aradaki fark <b>${fmtN(me.score - lower.score)}</b> rütbe puanıdır.</div>
+        `;
+      } else {
+        lowerCard.innerHTML = `
+          <div class="info-title">Bir alttaki rütbe</div>
+          <div class="rank-target">
+            <span class="target-ico"><img src="assets/rank/rank13.png" alt=""></span>
+            <span class="target-name">Kara Adamı</span>
+          </div>
+          <div class="target-desc">En alt rütbedesin, yerini korumak için puan biriktir!</div>
+        `;
+      }
+
+    } else {
+      document.getElementById('loading-el').textContent = '⚠️ Rütbe verileri sunucudan çekilemedi!';
+    }
+  } catch (err) {
+    console.error("Rütbe getirme hatası:", err);
+    document.getElementById('loading-el').textContent = '⚠️ Sunucu bağlantı hatası!';
+  }
+}
+
+// Başlat
+loadMyRank();
+</script>
+</body>
+</html>

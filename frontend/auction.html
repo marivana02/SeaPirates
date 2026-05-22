@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>SeaPirates — Açık Artırma</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
+      --wood-d:#0f0a05;--wood-m:#1a1108;
+      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
+      --red:#c0392b;
+    }
+    html,body{width:100%;height:100dvh;overflow:hidden;background:#080502;font-family:'Inter',sans-serif;color:var(--txt);}
+    .page{
+      max-width:430px;margin:0 auto;height:100dvh;
+      display:flex;flex-direction:column;position:relative;
+      background:url('assets/background/menubackground.png') center/cover no-repeat;
+    }
+    .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.72);pointer-events:none;z-index:0;}
+
+    /* TOP BAR */
+    .top-bar{
+      position:relative;z-index:10;flex-shrink:0;padding:12px 14px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid rgba(200,150,42,0.3);
+      background:linear-gradient(180deg,rgba(20,10,2,0.98),rgba(10,5,0,0.9));
+    }
+    .btn-back{
+      padding:7px 11px;background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:7px;
+      font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;
+      color:var(--txt-d);text-decoration:none;
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 12px rgba(200,150,42,0.7);text-transform:uppercase;
+    }
+    .gold-display{
+      display:flex;align-items:center;gap:5px;
+      background:rgba(0,0,0,0.4);border:1px solid rgba(200,150,42,0.3);
+      border-radius:6px;padding:5px 10px;
+    }
+    .gold-ico{font-size:0.85rem;}
+    .gold-amt{font-family:'Cinzel',serif;font-size:0.75rem;font-weight:700;color:var(--gold-b);}
+
+    /* TIMER BAR */
+    .timer-bar{
+      position:relative;z-index:8;flex-shrink:0;padding:10px 14px;
+      background:rgba(0,0,0,0.5);border-bottom:1px solid rgba(200,150,42,0.15);
+      display:flex;align-items:center;gap:12px;
+    }
+    .timer-label{font-size:0.62rem;color:var(--txt-m);text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+    .timer-val{
+      font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;
+      color:var(--gold-b);font-variant-numeric:tabular-nums;white-space:nowrap;
+    }
+    .timer-val.urgent{color:var(--red);}
+    .timer-progress{flex:1;height:5px;background:rgba(0,0,0,0.5);border-radius:3px;overflow:hidden;border:1px solid rgba(200,150,42,0.12);}
+    .timer-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold-b));transition:width 1s linear;}
+    .timer-fill.urgent{background:linear-gradient(90deg,#7a0a0a,var(--red));}
+
+    /* LIST */
+    .auction-list{
+      flex:1;position:relative;z-index:5;overflow-y:auto;padding:12px;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .auction-list::-webkit-scrollbar{width:4px;}
+    .auction-list::-webkit-scrollbar-thumb{background:#442a10;border-radius:2px;}
+
+    /* CARD */
+    .ac-card{
+      background:url('assets/leaderboardbackground.png') center/cover;
+      border:1.5px solid #4a2a0a;border-radius:10px;padding:12px;
+      display:flex;flex-direction:column;gap:10px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.6);
+    }
+    .card-top{display:flex;align-items:center;gap:12px;}
+    .ac-img{
+      width:56px;height:56px;flex-shrink:0;
+      background:rgba(0,0,0,0.35);border-radius:8px;
+      border:1px solid rgba(200,150,42,0.15);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .ac-img img{width:80%;height:80%;object-fit:contain;filter:brightness(1.2);}
+    .ac-img .ph{font-size:1.2rem;font-weight:700;color:var(--gold);opacity:0.5;}
+    .ac-info{flex:1;min-width:0;}
+    .ac-name{font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;color:var(--txt);margin-bottom:3px;}
+    .ac-desc{font-size:0.62rem;color:var(--txt-d);}
+
+    /* Highest bidder */
+    .ac-bidder{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:5px 10px;border-radius:5px;
+      background:rgba(0,0,0,0.3);border:1px solid rgba(200,150,42,0.08);
+    }
+    .ac-bidder-lbl{font-size:0.58rem;color:var(--txt-m);text-transform:uppercase;}
+    .ac-bidder-name{font-size:0.75rem;font-weight:700;color:var(--gold-p);}
+    .ac-bidder-name.nobody{color:var(--txt-m);font-style:italic;font-weight:400;}
+
+    /* Bid input row */
+    .bid-row{display:flex;gap:7px;align-items:center;}
+    .bid-input{
+      flex:1;padding:8px 10px;
+      background:rgba(0,0,0,0.4);border:1px solid rgba(200,150,42,0.25);border-radius:6px;
+      color:var(--txt);font-size:0.8rem;font-weight:700;outline:none;
+      font-family:'Inter',sans-serif;
+    }
+    .bid-input:focus{border-color:var(--gold);}
+    .bid-input::placeholder{color:var(--txt-m);font-weight:400;}
+    .btn-bid{
+      padding:8px 14px;flex-shrink:0;
+      background:linear-gradient(180deg,#c8962a,#8a651a);
+      border:1px solid #5c3518;border-radius:6px;
+      font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;
+      color:#fff;cursor:pointer;white-space:nowrap;
+      box-shadow:0 2px 5px rgba(0,0,0,0.4);transition:all 0.15s;
+    }
+    .btn-bid:hover{background:linear-gradient(180deg,#f0c040,#c8962a);}
+
+    /* Empty */
+    .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--txt-m);}
+    .empty-ico{font-size:3rem;opacity:0.15;}
+    .empty-txt{font-family:'Cinzel',serif;font-size:0.78rem;opacity:0.5;}
+
+    /* TOAST */
+    .toast{
+      position:fixed;top:14px;left:50%;
+      transform:translateX(-50%) translateY(-70px);z-index:9999;
+      padding:10px 20px;border-radius:10px;font-size:0.8rem;font-weight:600;white-space:nowrap;
+      transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.ok{background:rgba(25,70,40,0.97);border:1px solid #27ae60;color:#c8f0d8;}
+    .toast.err{background:rgba(80,20,20,0.97);border:1px solid var(--red);color:#f8d8d8;}
+    .toast.warn{background:rgba(80,50,5,0.97);border:1px solid var(--gold);color:var(--gold-p);}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="page">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back">◀ GERİ</a>
+    <div class="page-title">AÇIK ARTIRMA</div>
+    <div class="gold-display">
+      <span class="gold-ico">🪙</span>
+      <span class="gold-amt" id="gold-display">0</span>
+    </div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="timer-bar">
+    <span class="timer-label">Kalan Süre</span>
+    <span class="timer-val" id="timer-val">60:00</span>
+    <div class="timer-progress"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+  </div>
+
+  <div class="auction-list" id="auction-list"></div>
+</div>
+
+<script>
+var ITEMS = {
+  barut: { name: 'Barut x100',    desc: '+%10 saldırı hasarı. Her atışta harcanır.', img: 'assets/dükkan/barut-dükkan.png', ph: 'B' },
+  zirh:  { name: 'Zırh x100',    desc: '-%10 alınan hasar. Her atışta harcanır.',   img: 'assets/dükkan/zırh-dükkan.png',  ph: 'Z' },
+  gul2:  { name: 'Oyuk Gülle x100', desc: '+75 hasar/top.',         img: 'assets/dükkan/oyukgülle.png',  ph: 'G2' },
+  gul3:  { name: 'Patlayan Gülle x100', desc: '+130 hasar/top. 30 Elit Puan/atış.',        img: 'assets/dükkan/elitgülle.png',    ph: 'G3' },
+  top2:  { name: '55 Pounder',        desc: '185 hasar/top. Atış süresi: 3 sn.',         img: 'assets/toppp/top2.png',          ph: 'T2' },
+  top3:  { name: '60 Pounder',        desc: '260 hasar/top. Atış süresi: 2 sn.',         img: 'assets/toppp/top3.png',          ph: 'T3' }
+};
+var ROTATION = ['barut','zirh','gul2','gul3','top2','barut','zirh','gul3','gul2','top3'];
+var TUR_SURE = 3600;
+var KEY = 'sp_auc_v4';
+
+const API_URL = 'http://localhost:3000/api';
+const token = localStorage.getItem('sp_token');
+
+if (!token) {
+  window.location.href = 'index.html';
+}
+
+function nowSec(){ return Math.floor(Date.now() / 1000); }
+function fmtN(n){ return Number(n).toLocaleString('tr-TR'); }
+
+/* Oyuncu altını */
+function getPlayerGold() {
+  const p = JSON.parse(localStorage.getItem('sp_player') || '{}');
+  return p.gold || 0;
+}
+
+function updateGoldDisplay(){ 
+  document.getElementById('gold-display').textContent = fmtN(getPlayerGold()); 
+}
+
+/* Tur yönetimi */
+var tur = { bitis: 0, liste: [] };
+
+async function loadAuction() {
+  try {
+    const res = await fetch(`${API_URL}/auction`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      tur = data;
+      renderCards();
+      renderTimer();
+    } else {
+      toast('Açık artırma yüklenemedi!', 'err');
+    }
+  } catch (err) {
+    console.error(err);
+    toast('Sunucuya bağlanılamadı!', 'err');
+  }
+}
+
+function kalanSn(){ return Math.max(0, tur.bitis - nowSec()); }
+
+function fmtTime(sec){
+  if(!sec||isNaN(sec)) sec=0;
+  return Math.floor(sec/60) + ':' + (sec%60<10?'0':'') + (sec%60);
+}
+
+/* Sadece timer ve altın güncelle — inputlara dokunma */
+function renderTimer(){
+  var kalan = kalanSn();
+  var urgent = kalan < 300;
+  document.getElementById('timer-val').textContent = kalan<=0 ? 'TUR BİTTİ' : fmtTime(kalan);
+  document.getElementById('timer-val').className = 'timer-val'+(urgent?' urgent':'');
+  document.getElementById('timer-fill').style.width = Math.max(0,Math.min(100,(kalan/TUR_SURE)*100))+'%';
+  document.getElementById('timer-fill').className = 'timer-fill'+(urgent?' urgent':'');
+  updateGoldDisplay();
+  
+  if (kalan <= 0) {
+    loadAuction();
+  }
+}
+
+/* Kartları DOM'a çiz — sadece teklif sonrası veya sayfa açılışında */
+function renderCards(){
+  var list = document.getElementById('auction-list');
+  list.innerHTML = '';
+  tur.liste.forEach(function(entry, idx){
+    var item = ITEMS[entry.key];
+    if(!item) return;
+    var card = document.createElement('div');
+    card.className = 'ac-card';
+    var bidderHtml = entry.teklif_eden
+      ? '<span class="ac-bidder-name">' + entry.teklif_eden + '</span>'
+      : '<span class="ac-bidder-name nobody">Henüz teklif yok</span>';
+    card.innerHTML =
+      '<div class="card-top">' +
+        '<div class="ac-img">' +
+          '<img src="'+item.img+'" alt="" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'\'"/>' +
+          '<span class="ph" style="display:none">'+item.ph+'</span>' +
+        '</div>' +
+        '<div class="ac-info">' +
+          '<div class="ac-name">'+item.name+'</div>' +
+          '<div class="ac-desc">'+item.desc+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ac-bidder">' +
+        '<span class="ac-bidder-lbl">En Yüksek Teklif</span>' +
+        bidderHtml +
+      '</div>' +
+      '<div class="bid-row">' +
+        '<input class="bid-input" id="inp_'+idx+'" type="number" inputmode="numeric" min="1" placeholder="Teklif miktarı (Altın)"/>' +
+        '<button class="btn-bid" onclick="teklif('+idx+')">TEKLİF VER</button>' +
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+/* TEKLİF VER */
+async function teklif(idx){
+  if(kalanSn()<=0){ toast('Tur sona erdi!','err'); return; }
+
+  var entry = tur.liste[idx];
+  var inp   = document.getElementById('inp_'+idx);
+  var miktar = parseInt(inp.value);
+
+  if(!miktar || miktar < 1){
+    toast('Geçerli bir miktar gir.','err');
+    return;
+  }
+
+  const pGold = getPlayerGold();
+  if(miktar > pGold){
+    toast('Yeterli altının yok! Bakiye: '+fmtN(pGold)+' Altın','err');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/auction/bid`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ auctionId: entry.id, amount: miktar })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      toast(data.error || 'Teklif verilemedi!', 'err');
+      return;
+    }
+
+    // Oyuncu bakiyesini local cache üzerinde güncelle
+    const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
+    saved.gold = data.gold;
+    localStorage.setItem('sp_player', JSON.stringify(saved));
+    updateGoldDisplay();
+    inp.value = '';
+
+    if (data.burned) {
+      toast(data.message, 'err');
+    } else {
+      toast(data.message, 'ok');
+      await loadAuction();
+    }
+  } catch (err) {
+    console.error(err);
+    toast('Sunucuya bağlanılamadı!', 'err');
+  }
+}
+
+function toast(msg, type){
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast '+type;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.classList.remove('show'); }, 3000);
+}
+
+loadAuction();
+setInterval(renderTimer, 1000); /* Her saniye sadece timer güncellenir */
+</script>
+</body>
+</html>

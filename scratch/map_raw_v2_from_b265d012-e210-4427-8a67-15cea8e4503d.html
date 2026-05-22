@@ -1,0 +1,193 @@
+<!DOCTYPE html>\
+<html lang=\"tr\">\
+<head>\
+  <meta charset=\"UTF-8\"/>\
+  <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no\"/>\
+  <title>SeaPirates — Görevler</title>\
+  <link href=\"https://fo
+<truncated 11509 bytes>","Description":""Created a new quest.html file containing a design for the quest tracking system. It features wooden-themed UI elements, tabs for Active and Available quests, and detailed quest cards displaying lore, objectives with progress, and reward payouts."","IsArtifact":"false","Overwrite":"true","TargetFile":""c:\\Users\\marivana\\Desktop\\SeaPirate\\frontend\\quest.html""}}]}
+{"step_index":275,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:22:16Z","content":"Görev (Quest) ekranının arayüz tasarımını oyunun temasına (ahşap arka planlar, altın rengi detaylar) uygun şekilde oluşturdum ve `quest.html` dosyası olarak kaydettim. 
+
+Ayrıca `map.html` içindeki ilk "Quest" ikonunu da direkt bu yeni sayfayı açacak şekilde bağladım. 
+
+**Yeni görev ekranında şunlar var:**
+- **İki Sekme:** "Aktif Görev" (aldığın ve yapmakta olduğun) ve "Mevcut Görevler" (henüz almadığın).
+- **Görev Kartları:** Her görev için şık bir başlık, kısa bir hikaye metni, hedeflerin ilerleme durumları (örneğin: `Korsan Kalyonu Yok Et 2 / 5`) ve alınacak ödüller (ikonlarıyla birlikte).
+- **Aksiyon Butonları:** İleride veritabanı sistemini bağlayacağımız "Görevi Al" ve "Teslim Et" butonları tasarlandı.
+
+Tarayıcıda "Quest" (📜) butonuna tıklayıp yeni ekranı inceleyebilirsin! İleride arka plan mantığı kodlanırken içini veritabanı ile kolayca doldurabileceğiz."}
+{"step_index":276,"source":"USER_EXPLICIT","type":"USER_INPUT","status":"DONE","created_at":"2026-05-17T23:25:18Z","content":"<USER_REQUEST>
+şimdi senden hesaplama denge ile birlikte görev ve ödül hesaplamasını düşün bul öncelikle lvl bazlı görevler kaç adet olmalı mesela lvl için 10 sabit görev ve günlük sürekli yenilenen görevler gibi
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-05-18T02:25:18+03:00.
+
+The user's current state is as follows:
+Active Document: c:\Users\marivana\Desktop\SeaPirate\frontend\fight.html (LANGUAGE_HTML)
+Cursor is on line: 986
+Other open documents:
+- c:\Users\marivana\Desktop\SeaPirate\server\seed_db.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\frontend\menu.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\frontend\map.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\frontend\fight.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\frontend\index.html (LANGUAGE_HTML)
+No browser pages are currently open.
+</ADDITIONAL_METADATA>"}
+{"step_index":278,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:25:18Z","tool_calls":[{"name":"grep_search","args":{"MatchPerLine":"true","Query":""required_xp"","SearchPath":""c:\\Users\\marivana\\Desktop\\SeaPirate\\server\\seed_db.js"","toolAction":""Searching required_xp in seed_db.js"","toolSummary":""Search level_requirements""}}]}
+{"step_index":281,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:25:27Z","tool_calls":[{"name":"view_file","args":{"AbsolutePath":""c:\\Users\\marivana\\Desktop\\SeaPirate\\server\\seed_db.js"","EndLine":"150","StartLine":"100","toolAction":""Viewing seed_db.js around 120"","toolSummary":""View seed_db.js""}}]}
+{"step_index":284,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:25:34Z","tool_calls":[{"name":"write_to_file","args":{"ArtifactMetadata":"{"ArtifactType":"implementation_plan","RequestFeedback":true,"Summary":"Oyunun görev ve ödül denge matematiğini, seviye başına ana görev dağılımını ve günlük görev sistemini içeren detaylı tasarım dokümanı."}","CodeContent":""# SeaPirate: Görev ve Ödül Matematiksel Dengelemesi\
+\
+Oyunun sürdürülebilirliğini sağlamak, oyuncuları sadece boş NPC kesmekten (grinding) kurtarıp amaca yönelik oynamaya teşvik etmek için görev sistemi çok kritiktir. Aşağıdaki hesapla
+<truncated 4205 bytes>","Description":""Oyunun genel ilerleme mantığı, görev sayıları, ödül havuzu dağılımı ve veritabanı taslağını içeren detaylı GDD dokümanı oluşturuldu."","IsArtifact":"true","Overwrite":"false","TargetFile":""c:\\Users\\marivana\\Desktop\\SeaPirate\\quest_design_and_balance.md""}}]}
+{"step_index":286,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:26:01Z","tool_calls":[{"name":"write_to_file","args":{"ArtifactMetadata":"{"ArtifactType":"implementation_plan","RequestFeedback":true,"Summary":"Oyunun görev ve ödül denge matematiğini, seviye başına ana görev dağılımını ve günlük görev sistemini içeren detaylı tasarım dokümanı."}","CodeContent":""# SeaPirate: Görev ve Ödül Matematiksel Dengelemesi\
+\
+Oyunun sürdürülebilirliğini sağlamak, oyuncuları sadece boş NPC kesmekten (grinding) kurtarıp amaca yönelik oynamaya teşvik etmek için görev sistemi çok kritiktir. Aşağıdaki hesapla
+<truncated 4205 bytes>","Description":""Oyunun genel ilerleme mantığı, görev sayıları, ödül havuzu dağılımı ve veritabanı taslağını içeren detaylı GDD dokümanı oluşturuldu."","IsArtifact":"true","Overwrite":"false","TargetFile":""C:\\Users\\marivana\\.gemini\\antigravity\\brain\\b265d012-e210-4427-8a67-15cea8e4503d\\quest_design_and_balance.md""}}]}
+{"step_index":289,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:26:19Z","content":"Görev sistemi için oyunun dengesini, XP dağılımını ve ödül döngüsünü içeren bir hesaplama ve planlama dokümanı hazırladım.
+
+Oluşturduğum belgeye yukarıdaki "Artifact" (Görev ve Ödül Matematiksel Dengelemesi) üzerinden ulaşabilirsin.
+
+**Özetle hesaplamanın ana hatları:**
+1. **Ana Görevler (10 Adet Sabit):** Sadece haritada boş boş NPC kesmek yerine, XP'nin büyük bölümünü bu 10 göreve bağladım. Seviye atlamak için gereken 10.000 XP (örnek) bu 10 göreve zorluk derecesine göre paylaştırılıyor (500 XP, 1000 XP ve Boss için 1500 XP şeklinde). Böylece oyuncu 10 görevi bitirdiğinde tam level atlamış oluyor. Yeni levelde gereksinim ve ödüller %50 (1.5x) oranında büyüyor.
+<truncated 746 bytes>"}
+{"step_index":290,"source":"USER_EXPLICIT","type":"USER_INPUT","status":"DONE","created_at":"2026-05-17T23:30:35Z","content":"<USER_REQUEST>
+hayır lvl atlamak için gerekli xp nin tamamını görevlerden vermek saçma şimdi görevler bittikten sonrada bir miktar da kendi başına npc farmlaya devam edip xp tamamlamaya çalışmalı lvli hep görevlerden bitirmek çok hızlı olur görevlerin amacı oyuna bağlamak makul gelmesi oynaması için 
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-05-18T02:30:35+03:00.
+
+The user's current state is as follows:
+Active Document: c:\Users\marivana\Desktop\SeaPirate\frontend\fight.html (LANGUAGE_HTML)
+Cursor is on line: 986
+Other open documents:
+- c:\Users\marivana\Desktop\SeaPirate\frontend\fight.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\frontend\index.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\server\index.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\server\routes\maps.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\gdd_output.txt (LANGUAGE_PLAINTEXT)
+No browser pages are currently open.
+<truncated 23 bytes>"}
+{"step_index":292,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:30:35Z","tool_calls":[{"name":"write_to_file","args":{"ArtifactMetadata":"{"ArtifactType":"implementation_plan","RequestFeedback":true,"Summary":"Görevlerden gelen XP oranı düşürülerek, oyuncunun seviye atlamak için kendi başına NPC farmlamaya (grind yapmaya) teşvik edildiği, daha dengeli ve uzun ömürlü görev/öd
+<truncated 14 bytes>","CodeContent":""# SeaPirate: Görev, Grind ve Ödül Dengesi\
+\
+Level ilerlemesinin çok hızlı bitmemesi ve oyunun uzun ömürlü olması için oyuncunun **hem görev yapmaya hem de haritada NPC keserek farm (grind) yapmaya** teşvik edilmesi gerekir. \
+\
+Level atlamak
+<truncated 4108 bytes>","Description":""Görevlerden gelen XP oranı düşürülerek, oyuncunun seviye atlamak için kendi başına NPC farmlamaya (grind yapmaya) teşvik edildiği, daha dengeli ve uzun ömürlü görev/ödül sistemi."","IsArtifact":"true","Overwrite":"true","TargetFile":""C:\\Users\\marivana\\.gemini\\antigravity\\brain\\b265d012-e210-4427-8a67-15cea8e4503d\\quest_design_and_balance.md""}}]}
+{"step_index":295,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:30:59Z","content":"Haklısın, oyunu hemen bitirmemek ve emeğin değerini hissettirmek çok önemli. O yüzden "Artifact" dosyasındaki hesaplamaları **senin isteğine göre tamamen güncelledim.**
+
+**Yeni Sistemin Mantığı (Oyun Döngüsü - Game Loop):**
+
+1. **XP'nin İkiye Bölünmesi:** Level atlamak için gereken 10.000 XP'nin hepsini görevden vermek yerine, 10 görev toplamda sadece **~5.000 XP (%50)** veriyor. 
+2. **Görevlerin Asıl Amacı:** Görevler artık "XP kasma" aracı değil; **Elit Eşya (İnci, Barut, Zırh, Patlayan Gülle, Top)** kasma aracı! Oyuncu görevleri yaparken bu özel itemleri biriktirecek.
+3. **Farm / Grind Aşaması:** 10 Ana görevi bitirdiğinde XP'si henüz dolmamış olacak (örneğin 7.000 / 10.000 olacak). Kalan **3.000 XP** için haritada kendi başına farmlamaya (grind) devam edecek. Ve bu farmı yaparken görevlerden kazandığı elit gülleleri, barutları kullanarak çok daha hızlı ve zevkli bir farm yapacak.
+<truncated 504 bytes>"}
+{"step_index":296,"source":"USER_EXPLICIT","type":"USER_INPUT","status":"DONE","created_at":"2026-05-17T23:34:41Z","content":"<USER_REQUEST>
+hayır görevlerin amacı oyunun sürdürelibilir olması hem lvl atlamak için yardımcı olması hemde bir miktar elit öge verip motivasyon yükseltmek ama bunun dengesi çok önemli 
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-05-18T02:34:41+03:00.
+
+The user's current state is as follows:
+Active Document: c:\Users\marivana\Desktop\SeaPirate\frontend\fight.html (LANGUAGE_HTML)
+Cursor is on line: 986
+Other open documents:
+- c:\Users\marivana\Desktop\SeaPirate\frontend\fight.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\frontend\index.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\server\index.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\server\routes\maps.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\gdd_output.txt (LANGUAGE_PLAINTEXT)
+No browser pages are currently open.
+</ADDITIONAL_METADATA>"}
+{"step_index":298,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:34:41Z","tool_calls":[{"name":"replace_file_content","args":{"AllowMultiple":"false","Description":""Oyun ekonomisini sarsmayacak şekilde görev ödüllerinin \"tadımlık\" elit eşyalar ve \"yardımcı\" XP ile güncellenmiş hali. Görevlerin sürdürülebilirlik odaklı dengelemesi yapıldı."","EndLine":"64","Instruction":""Rewrite the artifact content to reflect the new philosophy: quests are helpers for leveling (30-40% of XP) and provide 'tasters' of elite items to motivate players without breaking the economy."","ReplacementContent":""# SeaPirate: Sürdürülebilir Görev ve Ödül Dengesi\
+\
+Görevlerin temel amacı oyuncunun elinden tutup ona \"her şeyi bedavaya\" vermek değil; oyuncuya oyunda bir yol haritası sunmak, **seviye atlamasına yardımcı olmak** ve **elit eşyaların g
+<truncated 3586 bytes>","StartLine":"1","TargetContent":""# SeaPirate: Görev, Grind ve Ödül Dengesi\
+\
+Level ilerlemesinin çok hızlı bitmemesi ve oyunun uzun ömürlü olması için oyuncunun **hem görev yapmaya hem de haritada NPC keserek farm (grind) yapmaya** teşvik edilmesi gerekir. \
+\
+Level atlamak
+<truncated 4106 bytes>","TargetFile":""C:\\Users\\marivana\\.gemini\\antigravity\\brain\\b265d012-e210-4427-8a67-15cea8e4503d\\quest_design_and_balance.md""}}]}
+{"step_index":302,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-17T23:35:13Z","content":"Tamam, demek istediğini çok iyi anladım. "Görevler her şeyi vermek yerine destekleyici olsun, verilen ödüller de oyun ekonomisini bozmayacak 'tadımlık' motivasyon kaynakları olsun" diyorsun.
+
+Bunu yansıtacak şekilde Artifact (Sürdürülebilir Görev ve Ödül Dengesi) dokümanını güncelledim.
+
+**Yeni Düzenlemedeki Önemli Noktalar:**
+1. **XP Katkısı Daha Az:** Görevler toplam level XP'sinin artık sadece **%30-%40'ını** karşılıyor. Kalan büyük kısım (%60-%70) tamamen oyuncunun haritadaki emeklerine, kasılmasına (grind) bırakıldı.
+2. **"Tadımlık" Elit Ödüller:** Oyuncuya "al sana 1.000 patlayan gülle" demek yerine, "10 tane barut", "150 tane elit gülle" gibi çok daha sınırlı ve mantıklı ödüller bağlandı. Bu sayede oyuncu bu itemlerin gücünü (örneğin elit güllenin ne kadar iyi vurduğunu) görecek, motive olacak ama cephanesi kısa sürede biteceği için oyunun pazarını/dükkanını kullanmaya veya altın kasmaya devam edecek.
+<truncated 499 bytes>"}
+{"step_index":303,"source":"USER_EXPLICIT","type":"USER_INPUT","status":"DONE","created_at":"2026-05-18T01:47:44Z","content":"<USER_REQUEST>
+neyse onu sonra hallederiz şuan aklıma bir fikir geldi pc açık kalsın bana bir script mi yazarsın otonom ayar mı yaparsın bir şey lazım 
+pc açık kalacak server ve veritabanı yeni bir hesabı normal oyuncu gibi oynayacak npc kesecek tamir olacak gülle alacak top alacak şekilde ve bunları yaparken  bunun kayıt altında olması lazım geçirilen süre yapılan işlemler gibi ne kdar hangi npcden kesmiş gibi detaylı log sence nasıl bir şey yapabiliriz önce konuşalım sonra 
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-05-18T04:47:44+03:00.
+
+The user's current state is as follows:
+Other open documents:
+- c:\Users\marivana\Desktop\SeaPirate\server\routes\combat.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\server\init_db.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\frontend\index.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\gdd_output.txt (LANGUAGE_PLAINTEXT)
+<truncated 139 bytes>"}
+{"step_index":307,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-18T01:47:44Z","content":"Harika bir fikir! Kendi oyunun için bir **Otonom Oyuncu (Bot / Simülasyon) Scripti** yazmak, oyunun ekonomisini (altın/inci dengesi), XP eğrisini ve sunucu performansını test etmek için yapabileceğin en iyi şeylerden biridir. 
+
+Ayrıca geçmiş konuşmalarında da otonom Seafight botları üzerine çalıştığını görüyorum, o yüzden bu mantığa (State Machine / Karar Ağacı) oldukça aşına olduğunu biliyorum.
+
+Bu sistemi tamamen senin sunucuna (Node.js API) dışarıdan istek (HTTP Request) atacak **bağımsız bir Node.js scripti** olarak yapabiliriz. Ön tarafa (tarayıcıya) hiç ihtiyacı olmaz, doğrudan API ile konuşur.
+
+İşte bu sistemi nasıl kurgulayabileceğimize dair önerim:
+
+### 1. Botun Karar Mekanizması (State Machine)
+Bot, tıpkı gerçek bir insan gibi sürekli döngüde (loop) çalışır ve her adımda bir karar verir:
+
+<truncated 2049 bytes>"}
+{"step_index":308,"source":"USER_EXPLICIT","type":"USER_INPUT","status":"DONE","created_at":"2026-05-18T01:50:30Z","content":"<USER_REQUEST>
+hayır alakası yok oyun zaten benim ben sadece verileri değerleri test etmek için istiyorum şuan 
+mesela ana sayfaya veya map ekranına köşeye bir buton eklersin oto diye ona basınca kendi kendine normal bir oyuncunun oynayacağı şekilde davranır 
+bize lazım olan bu çalışırken arkadaki loglar geçirilen toplam süre kesilen npc eğer sunucu tarafından alınan bir hata varsa onların logu gibi
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-05-18T04:50:30+03:00.
+
+The user's current state is as follows:
+Other open documents:
+- c:\Users\marivana\Desktop\SeaPirate\server\routes\combat.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\server\init_db.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\marivana\Desktop\SeaPirate\frontend\index.html (LANGUAGE_HTML)
+- c:\Users\marivana\Desktop\SeaPirate\gdd_output.txt (LANGUAGE_PLAINTEXT)
+- c:\Users\marivana\Desktop\SeaPirate\server\check_db.js (LANGUAGE_JAVASCRIPT)
+No browser pages are currently open.
+<truncated 23 bytes>"}
+{"step_index":310,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-18T01:50:30Z","tool_calls":[{"name":"view_file","args":{"AbsolutePath":""c:\\Users\\marivana\\Desktop\\SeaPirate\\frontend\\map.html"","EndLine":"950","StartLine":"850","toolAction":""Viewing map.html around 850 to 950"","toolSummary":""View map.html""}}]}
+{"step_index":313,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-18T01:50:43Z","tool_calls":[{"name":"view_file","args":{"AbsolutePath":""c:\\Users\\marivana\\Desktop\\SeaPirate\\frontend\\map.html"","EndLine":"750","StartLine":"710","toolAction":""Viewing top bar in map.html"","toolSummary":""View map top bar""}}]}
+{"step_index":316,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-18T01:50:50Z","tool_calls":[{"name":"view_file","args":{"AbsolutePath":""c:\\Users\\marivana\\Desktop\\SeaPirate\\frontend\\map.html"","EndLine":"850","StartLine":"800","toolAction":""Viewing map.html around 800"","toolSummary":""View map.html""}}]}
+{"step_index":319,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-18T01:50:56Z","tool_calls":[{"name":"multi_replace_file_content","args":{"Description":""Add an embedded auto test bot overlay directly to map.html. The bot will autonomously fetch APIs to simulate scanning, attacking, and repairing, maintaining its own statistics and log view."","Instruction":""1) Add .bot-overlay CSS. 2) Add bot-overlay HTML inside the .page container. 3) Append the JS for toggleAutoBot, runBotLoop and logging at the end of the script tag."","ReplacementChunks":"[{"AllowMultiple":false,"EndLine":709,"ReplacementContent":"    /* TOAST */\
+    .toast {\
+      position: fixed;\
+      top: 14px;\
+      left: 50%;\
+      transform: translateX(-50%) translateY(-70px);\
+      z-index: 9999;\
+      padding: 9px 18px;\
+   
+<truncated 8801 bytes>","TargetFile":""c:\\Users\\marivana\\Desktop\\SeaPirate\\frontend\\map.html""}}]}
+{"step_index":322,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-18T01:52:08Z","tool_calls":[{"name":"view_file","args":{"AbsolutePath":""c:\\Users\\marivana\\Desktop\\SeaPirate\\frontend\\map.html"","EndLine":"1460","StartLine":"1430","toolAction":""Viewing end of map.html"","toolSummary":""View map.html""}}]}
+{"step_index":325,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-18T01:52:15Z","tool_calls":[{"name":"view_file","args":{"AbsolutePath":""c:\\Users\\marivana\\Desktop\\SeaPirate\\frontend\\map.html"","EndLine":"1476","StartLine":"1460","toolAction":""Viewing the very end of map.html"","toolSummary":""View map.html""}}]}
+{"step_index":328,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-05-18T01:52:22Z","tool_calls":[{"name":"replace_file_content","args":{"AllowMultiple":"false","Description":""Added the auto test bot JS logic that autonomously interacts with player/combat APIs."","EndLine":"1476","Instruction":""Append the bot logic script before the closing script tag"","ReplacementContent":""      // Her 4 saniyede bir şans denesin, %45 ihtimalle spawnlasın\
+      setInterval(spawn, 4000);\
+      setTimeout(spawn, 500);\
+    })();\
+\
+    /* ── OTO TEST BOTU ── */\
+    let botState = false;\
+    let botLoopId = null;\
+    let botTime
+<truncated 4823 bytes>","StartLine":"1469","TargetContent":""      // Her 4 saniyede bir şans denesin, %45 ihtimalle spawnlasın\
+      setInterval(spawn, 4000);\
+      setTimeout(spawn, 500);\
+    })();\
+  </script>\
+</body>\
+\
+</html>

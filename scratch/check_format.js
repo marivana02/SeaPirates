@@ -1,0 +1,10 @@
+const fs = require('fs');
+const filePath = 'C:\\Users\\marivana\\Desktop\\SeaPirate\\scratch\\map_write_step_230_from_b2c549c5-289a-486a-a54a-5bab50598cb7.html';
+const content = fs.readFileSync(filePath, 'utf8');
+console.log(`Content length: ${content.length}`);
+console.log("First 300 chars:");
+console.log(content.substring(0, 300));
+console.log("Starts with quote?", content.startsWith('"'));
+console.log("Ends with quote?", content.endsWith('"'));
+console.log("Trimmed ends with quote?", content.trim().endsWith('"'));
+console.log("Last 20 chars:", JSON.stringify(content.substring(content.length - 20)));

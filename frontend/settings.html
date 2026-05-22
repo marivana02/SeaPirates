@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>SeaPirates — Ayarlar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
+      --wood-d:#1a0e05;--wood-m:#2d1a08;--wood-plank:#5c3518;
+      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
+      --red:#c0392b;--red-b:#e74c3c;
+      --green:#27ae60;--green-b:#2ecc71;
+    }
+    html,body{
+      width:100%;height:100dvh;overflow:hidden;
+      background:#0d0702;
+      font-family:'Inter',sans-serif;
+      color:var(--txt);
+    }
+    /* PAGE */
+    .page{
+      max-width:430px;margin:0 auto;
+      height:100dvh;
+      display:flex;flex-direction:column;
+      position:relative;
+      background: url('assets/background/menubackground.png') center center / cover no-repeat;
+    }
+    .page::before {
+      content:'';position:absolute;inset:0;
+      background:rgba(0,0,0,0.65);
+      pointer-events:none;z-index:0;
+    }
+
+    /* TOP BAR */
+    .top-bar{
+      position:relative;z-index:10;
+      padding:14px;
+      display:flex;align-items:center;
+      justify-content:space-between;
+      flex-shrink:0;
+      border-bottom:1px solid rgba(200,150,42,0.3);
+      background:linear-gradient(180deg, rgba(20,10,2,0.95), rgba(10,5,0,0.85));
+    }
+    .btn-back{
+      padding:8px 12px;
+      background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:7px;
+      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;
+      color:var(--txt-d);letter-spacing:0.04em;
+      cursor:pointer;text-align:center;text-decoration:none;
+      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1.1rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 10px rgba(200,150,42,0.6);
+      text-transform:uppercase;
+    }
+
+    /* SCROLL WRAPPER */
+    .content-wrap{
+      flex:1;
+      position:relative;z-index:5;
+      padding:20px 15px;
+      overflow-y:auto;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+    }
+
+    /* PROFILE CARD */
+    .profile-card{
+      background: url('assets/leaderboardbackground.png') center/cover;
+      border: 2px solid #6a4218;
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+    }
+    .profile-pic-container {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      border: 2px solid var(--gold);
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .profile-pic {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scale(1.1);
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .profile-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      color: var(--gold-b);
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+    .profile-date {
+      font-size: 0.75rem;
+      color: var(--txt-d);
+    }
+
+    /* PREMIUM BOX CONTAINER */
+    .settings-box {
+      background: rgba(20,10,3,0.85);
+      border: 1px solid #5a3c1a;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .box-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gold-p);
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(200,150,42,0.25);
+      padding-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    /* USERNAME FORM */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .input-label {
+      font-size: 0.75rem;
+      color: var(--txt-d);
+      font-weight: 500;
+    }
+    .text-input {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #7a4a18;
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--txt);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .text-input:focus {
+      border-color: var(--gold);
+    }
+    .btn-submit {
+      padding: 12px;
+      background: linear-gradient(180deg, var(--green-b), var(--green));
+      border: 1px solid #1e7e34;
+      border-radius: 6px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      transition: transform 0.1s, box-shadow 0.2s;
+      outline: none;
+    }
+    .btn-submit:active {
+      transform: translateY(1px);
+    }
+    .btn-submit:hover {
+      box-shadow: 0 0 10px rgba(39, 174, 96, 0.4);
+    }
+    .info-note {
+      font-size: 0.7rem;
+      color: #a4b0be;
+      line-height: 1.4;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    /* SETTINGS ROW */
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+    .row-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-width: 70%;
+    }
+    .row-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--txt);
+    }
+    .row-desc {
+      font-size: 0.7rem;
+      color: #a4b0be;
+    }
+
+    /* PREMIUM SWITCH / TOGGLE */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #2c1a0c;
+      border: 1px solid #5a3c1a;
+      transition: .3s;
+      border-radius: 24px;
+    }
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--txt-d);
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #5c3518;
+      border-color: var(--gold);
+    }
+    input:checked + .slider::before {
+      transform: translateX(22px);
+      background-color: var(--gold-b);
+    }
+
+    /* TOAST */
+    .toast{
+      position:fixed;top:14px;left:50%;
+      transform:translateX(-50%) translateY(-70px);
+      z-index:9999;padding:9px 18px;border-radius:10px;
+      font-size:0.8rem;font-weight:500;white-space:nowrap;
+      transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      max-width:90vw;text-align:center;
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.ok{background:rgba(25,70,40,0.95);border:1px solid #27ae60;color:#c8f0d8;}
+    .toast.err{background:rgba(120,30,20,0.95);border:1px solid #c0392b;color:#fcdbd9;}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="page">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back">◀ MENÜYE DÖN</a>
+    <div class="page-title">AYARLAR</div>
+    <div style="width:85px;"></div>
+  </div>
+
+  <!-- CONTENT WRAPPER -->
+  <div class="content-wrap">
+
+    <!-- PROFILE CONTAINER -->
+    <div class="profile-card">
+      <div class="profile-pic-container">
+        <img class="profile-pic" id="p-ship-img" src="assets/default/images/3.png" alt="Gemi Resmi"/>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name" id="p-username">Yükleniyor...</div>
+        <div class="profile-date" id="p-reg-date">Kayıt Tarihi: Yükleniyor...</div>
+      </div>
+    </div>
+
+    <!-- GENERAL SETTINGS -->
+    <div class="settings-box">
+      <div class="box-title">Genel Ayarlar</div>
+      
+      <!-- SOUND SETTING -->
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-title">🔊 Ses Efektleri</div>
+          <div class="row-desc">Top atışları, patlamalar ve ortam sesini açar/kapatır.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="cfg-sound" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- GRAPHICS SETTING -->
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-title">⚡ Grafik Modu (Performans)</div>
+          <div class="row-desc">Kapatıldığında dövüş ekranındaki arka plan kuş ve balık animasyonlarını gizler.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="cfg-graphics" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ACCOUNT SETTINGS -->
+    <div class="settings-box">
+      <div class="box-title">Hesap Ayarları</div>
+      
+      <!-- CHANGE USERNAME -->
+      <div class="form-group">
+        <label class="input-label" for="username-input">Yeni Kullanıcı Adı</label>
+        <input class="text-input" type="text" id="username-input" placeholder="Yeni adınızı girin..." minlength="3" maxlength="30">
+        <button class="btn-submit" id="btn-change-username">KULLANICI ADINI DEĞİŞTİR</button>
+      </div>
+
+      <div class="info-note">
+        <span>⚠️</span>
+        <span>Kullanıcı adınızı güvenlik ve sunucu bütünlüğü nedeniyle <strong>haftada sadece 1 kez</strong> değiştirebilirsiniz.</span>
+      </div>
+    </div>
+
+    <!-- LOGOUT BOX -->
+    <div class="settings-box" style="margin-bottom: 20px;">
+      <div class="box-title" style="color: var(--red-b); border-color: rgba(192, 57, 43, 0.3);">Oturum Yönetimi</div>
+      <button class="btn-submit" id="btn-logout" style="background: linear-gradient(180deg, var(--red-b), var(--red)); border-color: #7f0800;">⚓ OTURUMU KAPAT</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const API_URL = 'http://localhost:3000/api/player';
+  const token = localStorage.getItem('sp_token');
+  if (!token) window.location.href = 'index.html';
+
+  // UI Elements
+  const pUsername = document.getElementById('p-username');
+  const pRegDate = document.getElementById('p-reg-date');
+  const pShipImg = document.getElementById('p-ship-img');
+  const usernameInput = document.getElementById('username-input');
+  const btnChangeUsername = document.getElementById('btn-change-username');
+  const btnLogout = document.getElementById('btn-logout');
+  const cfgSound = document.getElementById('cfg-sound');
+  const cfgGraphics = document.getElementById('cfg-graphics');
+
+  // Load Initial Settings from LocalStorage
+  cfgSound.checked = localStorage.getItem('sp_setting_sound') !== 'false';
+  cfgGraphics.checked = localStorage.getItem('sp_setting_graphics') !== 'false';
+
+  // Toggle Events
+  cfgSound.addEventListener('change', function() {
+    localStorage.setItem('sp_setting_sound', this.checked ? 'true' : 'false');
+    toastMsg('Ses ayarları güncellendi!', false);
+  });
+
+  cfgGraphics.addEventListener('change', function() {
+    localStorage.setItem('sp_setting_graphics', this.checked ? 'true' : 'false');
+    toastMsg('Grafik ayarları güncellendi!', false);
+  });
+
+  // Fetch Player Data
+  async function fetchProfile() {
+    try {
+      const res = await fetch(`${API_URL}/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        pUsername.textContent = data.username;
+        usernameInput.value = data.username;
+
+        // Kayıt Tarihi Formatlama (DD.MM.YYYY)
+        if (data.created_at) {
+          const date = new Date(data.created_at);
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          pRegDate.textContent = `Kayıt Tarihi: ${day}.${month}.${year}`;
+        } else {
+          pRegDate.textContent = 'Kayıt Tarihi: Bilinmiyor';
+        }
+
+        // Profil Resmi (Aktif Gemisi)
+        if (data.ship_level >= 1) {
+          pShipImg.src = 'assets/elitship/default/3.png';
+        } else {
+          pShipImg.src = 'assets/default/images/3.png';
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // Change Username Action
+  btnChangeUsername.addEventListener('click', async () => {
+    const newName = usernameInput.value.trim();
+    if (newName.length < 3 || newName.length > 30) {
+      toastMsg('Kullanıcı adı 3 ila 30 karakter arasında olmalıdır.', true);
+      return;
+    }
+
+    try {
+      btnChangeUsername.disabled = true;
+      const res = await fetch(`${API_URL}/settings/change-username`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newUsername: newName })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toastMsg(data.message, false);
+        fetchProfile(); // Kartı güncelle
+      } else {
+        toastMsg(data.error || 'İşlem başarısız oldu.', true);
+      }
+    } catch (e) {
+      toastMsg('Sunucuya bağlanılamadı.', true);
+    } finally {
+      btnChangeUsername.disabled = false;
+    }
+  });
+
+  // Logout Action
+  btnLogout.addEventListener('click', () => {
+    localStorage.removeItem('sp_token');
+    localStorage.removeItem('sp_player');
+    localStorage.removeItem('sp_remember_me');
+    sessionStorage.removeItem('sp_session_active');
+    toastMsg('⚓ Oturum başarıyla kapatıldı! Yönlendiriliyorsunuz...', false);
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 1500);
+  });
+
+  // Toast Function
+  function toastMsg(msg, isErr) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; 
+    el.className = 'toast ' + (isErr ? 'err' : 'ok');
+    el.getBoundingClientRect(); 
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  // Load profile on start
+  fetchProfile();
+</script>
+</body>
+</html>
