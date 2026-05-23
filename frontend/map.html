@@ -7,6 +7,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -127,6 +128,7 @@
       margin-top: 15px;
     }
     .action-card {
+      position: relative;
       background: url('assets/leaderboardbackground.png') center/cover;
       border: 1.5px solid #6a4218;
       border-radius: 8px;
@@ -180,6 +182,16 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
+    }
+
+    .island-bg {
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.6;
+      image-rendering: auto;
+      filter: drop-shadow(0 0 30px rgba(0,0,0,0.6));
+      display: none;
     }
 
     .ambient-ship {
@@ -244,6 +256,10 @@
     .btn-npc-ara:disabled {
       filter: grayscale(0.8) brightness(0.6);
       cursor: not-allowed;
+    }
+    .btn-npc-ara.searching {
+      font-size: 0.85rem;
+      padding: 12px 36px;
     }
 
     /* DIRECT IN-FLOW NPC INFO PANEL */
@@ -356,6 +372,30 @@
       filter: brightness(1.1);
     }
 
+    .loot-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3.5px;
+    }
+    .loot-icon {
+      width: 12.5px;
+      height: 12.5px;
+      object-fit: contain;
+    }
+    .loot-val {
+      font-size: 0.68rem;
+      margin: 0;
+    }
+    .loot-val.gold {
+      color: var(--gold-b);
+    }
+    .loot-val.pearl {
+      color: var(--pearl);
+    }
+    .loot-star {
+      font-size: 0.65rem;
+    }
+
     /* UNIFIED BOTTOM DASHBOARD PANEL */
     .dashboard-panel {
       position: relative;
@@ -430,9 +470,18 @@
     }
     .hp-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #c8962a 0%, #f0c040 100%);
+      background: linear-gradient(90deg, #4caf50 0%, #66bb6a 100%);
       width: 0%;
-      transition: width 0.3s ease;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+    .hp-bar-fill.medium {
+      background: linear-gradient(90deg, #ff9800 0%, #ffb74d 100%);
+    }
+    .hp-bar-fill.low {
+      background: linear-gradient(90deg, #ff5722 0%, #ff8a65 100%);
+    }
+    .hp-bar-fill.critical {
+      background: linear-gradient(90deg, #f44336 0%, #ef5350 100%);
     }
     .hp-bar-text {
       position: absolute;
@@ -576,6 +625,17 @@
       border-color: var(--gold);
       color: var(--gold-b);
     }
+    .stack-btn:disabled {
+      border-color: #4a2a10;
+      color: #666;
+      cursor: not-allowed;
+      opacity: 0.5;
+      box-shadow: none;
+    }
+    .stack-btn:disabled:hover {
+      border-color: #4a2a10;
+      color: #666;
+    }
 
     /* TOAST */
     .toast-container {
@@ -623,78 +683,143 @@
     }
 
     .boss-modal-content {
-      background: linear-gradient(135deg, rgba(20, 10, 10, 0.95), rgba(40, 15, 15, 0.95));
-      border: 2px solid rgba(220, 53, 69, 0.4);
-      box-shadow: 0 0 30px rgba(220, 53, 69, 0.3);
-      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(26, 14, 5, 0.98), rgba(10, 5, 2, 0.98));
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 40px rgba(200, 150, 42, 0.25), 0 0 80px rgba(0, 0, 0, 0.8);
+      border-radius: 14px;
       width: 95%;
       max-width: 440px;
-      padding: 22px;
+      padding: 24px 20px 20px;
       position: relative;
       text-align: center;
-      color: #f8f9fa;
+      color: var(--txt);
       transform: scale(0.9);
       animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
+    .boss-modal-content::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border: 1px solid rgba(200, 150, 42, 0.15);
+      border-radius: 11px;
+      pointer-events: none;
+    }
+
     .boss-modal-close {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      background: none;
-      border: none;
-      color: #aaa;
-      font-size: 1.5rem;
+      top: 12px;
+      right: 14px;
+      background: linear-gradient(180deg, #3d2108, #1e0e03);
+      border: 1px solid var(--gold);
+      color: var(--gold-p);
+      font-size: 1.1rem;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+      line-height: 1;
     }
 
     .boss-modal-close:hover {
-      color: #fff;
+      border-color: var(--gold-b);
+      color: var(--gold-b);
     }
 
     .boss-modal-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #dc3545;
-      text-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
-      margin-bottom: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--gold-b);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 15px rgba(200,150,42,0.4);
+      margin-bottom: 4px;
+      letter-spacing: 0.08em;
+    }
+
+    .boss-modal-subtitle {
+      font-size: 0.65rem;
+      color: var(--txt-d);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+      font-weight: 600;
     }
 
     .boss-modal-info {
-      font-size: 0.75rem;
-      color: #ffc107;
-      background: rgba(255, 193, 7, 0.1);
-      border: 1px solid rgba(255, 193, 7, 0.2);
-      border-radius: 6px;
-      padding: 8px;
-      margin-bottom: 20px;
+      font-size: 0.72rem;
+      color: var(--txt);
+      background: url('assets/leaderboardbackground.png') center/cover;
+      border: 1px solid rgba(200, 150, 42, 0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .boss-modal-info::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 6, 2, 0.7);
+      border-radius: 7px;
+      pointer-events: none;
+    }
+
+    .boss-modal-info > * {
+      position: relative;
+      z-index: 1;
     }
 
     .boss-section-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold-p);
       text-align: left;
-      margin-bottom: 8px;
-      border-left: 3px solid #dc3545;
-      padding-left: 8px;
+      margin-bottom: 6px;
+      border-left: 2px solid var(--gold);
+      padding-left: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     .boss-ranking-list {
-      background: rgba(0, 0, 0, 0.3);
+      background: url('assets/leaderboardbackground.png') center/cover;
+      border: 1px solid rgba(200, 150, 42, 0.2);
       border-radius: 8px;
-      padding: 8px 12px;
-      margin-bottom: 20px;
-      font-size: 0.72rem;
+      padding: 6px 12px;
+      margin-bottom: 16px;
+      font-size: 0.7rem;
       text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .boss-ranking-list::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 4, 1, 0.6);
+      border-radius: 7px;
+      pointer-events: none;
+    }
+
+    .boss-ranking-list > * {
+      position: relative;
+      z-index: 1;
     }
 
     .boss-ranking-item {
       display: flex;
       justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(200, 150, 42, 0.1);
     }
 
     .boss-ranking-item:last-child {
@@ -706,65 +831,119 @@
       margin-right: 6px;
     }
 
-    .boss-rank-1 { color: #ffd700; }
+    .boss-rank-1 { color: var(--gold-b); }
     .boss-rank-2 { color: #c0c0c0; }
     .boss-rank-3 { color: #cd7f32; }
 
     .boss-rewards-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 22px;
+      gap: 6px;
+      margin-bottom: 16px;
     }
 
     .boss-reward-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 6px;
-      padding: 8px;
+      background: url('assets/leaderboardbackground.png') center/cover;
+      border: 1px solid rgba(200, 150, 42, 0.2);
+      border-radius: 8px;
+      padding: 10px 6px;
       text-align: center;
+      position: relative;
+    }
+
+    .boss-reward-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 5, 2, 0.5);
+      border-radius: 7px;
+      pointer-events: none;
+    }
+
+    .boss-reward-card > * {
+      position: relative;
+      z-index: 1;
     }
 
     .boss-reward-rank {
-      font-size: 0.62rem;
-      color: #aaa;
-      margin-bottom: 4px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--txt-d);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .boss-reward-val {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 600;
-      color: #fff;
+      color: var(--txt);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 2px;
     }
 
-    .boss-reward-img {
-      width: 12px;
-      height: 12px;
-      object-fit: contain;
+    .boss-reward-pearl {
+      color: var(--pearl);
+      font-weight: 700;
+    }
+
+    .boss-reward-gold {
+      color: var(--gold-b);
+      font-weight: 700;
+    }
+
+    .boss-reward-sub {
+      font-size: 0.5rem;
+      color: var(--txt-m);
     }
 
     .btn-boss-saldır {
-      background: linear-gradient(180deg, #e43f5a, #b01a33);
-      color: #fff;
-      border: 1px solid #ff4b5c;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      padding: 10px 0;
+      background: linear-gradient(180deg, var(--gold) 0%, #8a5e14 100%);
+      color: #1c1005;
+      border: 2px solid var(--gold-p);
+      border-radius: 40px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      font-weight: 900;
+      padding: 11px 0;
       width: 100%;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
-      transition: all 0.2s ease;
+      letter-spacing: 0.08em;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+      transition: filter 0.2s, transform 0.1s;
     }
 
     .btn-boss-saldır:hover {
-      background: linear-gradient(180deg, #ff4b5c, #e43f5a);
-      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
-      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .btn-boss-saldır:active {
+      transform: scale(0.96);
+    }
+
+    .btn-boss-saldır:disabled {
+      filter: grayscale(0.8) brightness(0.6);
+      cursor: not-allowed;
+    }
+
+    .boss-ranking-empty {
+      text-align: center;
+      color: var(--txt-d);
+      padding: 14px;
+      font-size: 0.7rem;
+    }
+
+    .boss-my-dmg {
+      color: var(--gold-b);
+      font-weight: 700;
+    }
+
+    .boss-attack-done {
+      color: #e74c3c;
     }
 
     @keyframes fadeIn {
@@ -784,11 +963,11 @@
     
     <!-- TOP HEADER: DUAL NAVIGATION BAR -->
     <div class="top-header">
-      <button class="nav-arrow-btn" id="btn-prev-map">◀ MAP —</button>
+      <button class="nav-arrow-btn" id="btn-prev-map">◀</button>
       <div class="map-title-box">
         <div class="map-coordinate-title" id="lbl-current-map">1-1</div>
       </div>
-      <button class="nav-arrow-btn" id="btn-next-map">MAP — ▶</button>
+      <button class="nav-arrow-btn" id="btn-next-map">▶</button>
     </div>
 
     <!-- SUBHEADER ACTION CARDS -->
@@ -798,7 +977,7 @@
         <span class="action-card-lbl">Quest</span>
       </a>
       <a href="tower.html" class="action-card">
-        <span class="action-card-icon">🗼</span>
+        <img src="assets/tower/low1.png" class="action-card-icon" style="width:1.5rem;height:1.5rem;object-fit:contain;" />
         <span class="action-card-lbl">Daily Tower</span>
       </a>
       <a href="#" class="action-card" id="btn-weekly-boss-trigger">
@@ -813,6 +992,8 @@
 
     <!-- CENTER SEA AREA -->
     <div class="center-sea">
+
+      <img id="island-bg" class="island-bg" src="" />
 
       <!-- SEARCH BUTTON AND DIRECT PANEL HOLDER -->
       <div class="btn-search-holder">
@@ -897,9 +1078,9 @@
 
         <!-- Navigation column stack -->
         <div class="nav-actions-stack">
-          <button class="stack-btn" onclick="window.location.href='home.html'">🏠 Liman</button>
+          <button class="stack-btn" onclick="goTo('home.html')">🏠 Liman</button>
           <button class="stack-btn" id="btn-tamir">🔨 Tamir</button>
-          <button class="stack-btn" onclick="window.location.href='equipment.html'">⚔️ Ekipman</button>
+          <button class="stack-btn" onclick="goTo('equipment.html')">⚔️ Ekipman</button>
         </div>
       </div>
     </div>
@@ -907,48 +1088,49 @@
   </div>
 
   <audio id="audio-sea" src="assets/sounds/1_ambient.mp3" loop></audio>
-  <audio id="audio-repair" src="assets/sounds/repair1.mp3" loop></audio>
+  <audio id="audio-repair" src="assets/sounds/repair1.mp3"></audio>
 
   <!-- WEEKLY BOSS MODAL -->
   <div class="boss-modal-overlay" id="boss-modal">
     <div class="boss-modal-content">
-      <button class="boss-modal-close" id="btn-close-boss-modal">&times;</button>
-      <div class="boss-modal-title">EFSANEVİ LEVİATHAN</div>
+      <button class="boss-modal-close" id="btn-close-boss-modal">✕</button>
+      <div class="boss-modal-title">☠️ LEVİATHAN</div>
+      <div class="boss-modal-subtitle">⚓ Haftalık Amiral Avı</div>
       <div class="boss-modal-info" id="boss-modal-status-info">
         ⚠️ Günlük 1 defa saldırılabilir. Yükleniyor...
       </div>
 
-      <div class="boss-section-title">En Yüksek Hasar Sıralaması</div>
-      <div class="boss-ranking-list" id="boss-ranking-list" style="max-height:220px; overflow-y:auto;">
-        <div style="text-align:center; color:#aaa; padding:12px; font-size:0.72rem;">⏳ Sıralama yükleniyor...</div>
+      <div class="boss-section-title">🏴‍☠️ En Yüksek Hasar Sıralaması</div>
+      <div class="boss-ranking-list" id="boss-ranking-list">
+        <div style="text-align:center; color:var(--txt-d); padding:12px; font-size:0.7rem;">⏳ Sıralama yükleniyor...</div>
       </div>
 
-      <div class="boss-section-title">Sıralama Ödülleri</div>
+      <div class="boss-section-title">💰 Sıralama Ödülleri</div>
       <div class="boss-rewards-grid">
         <div class="boss-reward-card">
-          <div class="boss-reward-rank" style="color:#ffd700;">1. Sıra</div>
+          <div class="boss-reward-rank">1. Sıra</div>
           <div class="boss-reward-val">
-            <img src="assets/pearl.png" class="boss-reward-img" /> 50.000
-            <span style="font-size:0.55rem; color:#aaa;">+250k Patlayan</span>
+            <span class="boss-reward-pearl">50.000 💎</span>
+            <span class="boss-reward-gold">+250k 🪙</span>
           </div>
         </div>
         <div class="boss-reward-card">
-          <div class="boss-reward-rank" style="color:#c0c0c0;">2. Sıra</div>
+          <div class="boss-reward-rank">2. Sıra</div>
           <div class="boss-reward-val">
-            <img src="assets/pearl.png" class="boss-reward-img" /> 25.000
-            <span style="font-size:0.55rem; color:#aaa;">+100k Patlayan</span>
+            <span class="boss-reward-pearl">25.000 💎</span>
+            <span class="boss-reward-gold">+100k 🪙</span>
           </div>
         </div>
         <div class="boss-reward-card">
-          <div class="boss-reward-rank" style="color:#cd7f32;">3. Sıra</div>
+          <div class="boss-reward-rank">3. Sıra</div>
           <div class="boss-reward-val">
-            <img src="assets/pearl.png" class="boss-reward-img" /> 10.000
-            <span style="font-size:0.55rem; color:#aaa;">+50k Patlayan</span>
+            <span class="boss-reward-pearl">10.000 💎</span>
+            <span class="boss-reward-gold">+50k 🪙</span>
           </div>
         </div>
       </div>
 
-      <button class="btn-boss-saldır" id="btn-boss-saldır-real">SALDIR ⚔️</button>
+      <button class="btn-boss-saldır" id="btn-boss-saldır-real">🔥 SALDIR</button>
     </div>
   </div>
 
@@ -956,88 +1138,88 @@
     const OFFLINE_NPCS = {
       1: {
         npcs: {
-          blackpearl: { name: "Blackpearl", hp: 6000, damage: 90, gold: 180, pearl: 0, xp: 35 },
-          rackham: { name: "Rackham", hp: 12000, damage: 150, gold: 320, pearl: 0, xp: 65 },
-          calicosJack: { name: "Calicos Jack", hp: 25000, damage: 250, gold: 550, pearl: 0, xp: 120 }
+          blackpearl: { name: "Blackpearl", hp: 6000, damage: 90, gold: 180, pearl: 0, tier: 1, xp: 35 },
+          rackham: { name: "Rackham", hp: 12000, damage: 150, gold: 320, pearl: 0, tier: 1, xp: 65 },
+          calicosJack: { name: "Calicos Jack", hp: 25000, damage: 250, gold: 550, pearl: 0, tier: 1, xp: 120 }
         },
-        boss: { name: "Admiral Jack", hp: 150000, damage: 300, gold: 0, pearl: 180, xp: 3500, img: "assets/npcc/map1/calicosJack.swf/images/amiraljack.png", isAdmiral: true }
+        boss: { name: "Admiral Jack", hp: 150000, damage: 300, gold: 0, pearl: 180, xp: 3500, tier: 3, img: "assets/npcc/map1/calicosJack.swf/images/amiraljack.png", isAdmiral: true }
       },
       2: {
         npcs: {
-          wild13: { name: "Wild 13", hp: 12000, damage: 160, gold: 280, pearl: 0, xp: 55 },
-          "red korsar": { name: "Red Korsar", hp: 22000, damage: 260, gold: 500, pearl: 0, xp: 100 },
-          ratpack: { name: "Ratpack", hp: 45000, damage: 400, gold: 850, pearl: 0, xp: 185 }
+          wild13: { name: "Wild 13", hp: 12000, damage: 160, gold: 280, pearl: 0, tier: 1, xp: 55 },
+          "red korsar": { name: "Red Korsar", hp: 22000, damage: 260, gold: 500, pearl: 0, tier: 1, xp: 100 },
+          ratpack: { name: "Ratpack", hp: 45000, damage: 400, gold: 850, pearl: 0, tier: 1, xp: 185 }
         },
-        boss: { name: "Admiral Ratpack", hp: 280000, damage: 450, gold: 0, pearl: 320, xp: 5500, img: "assets/npcc/map2/ratpack.swf/images/amiralratpack.png", isAdmiral: true }
+        boss: { name: "Admiral Ratpack", hp: 280000, damage: 450, gold: 0, pearl: 320, xp: 5500, tier: 3, img: "assets/npcc/map2/ratpack.swf/images/amiralratpack.png", isAdmiral: true }
       },
       3: {
         npcs: {
-          sinclaresmen: { name: "Sinclares Men", hp: 20000, damage: 250, gold: 400, pearl: 0, xp: 80 },
-          tortugagang: { name: "Tortuga Gang", hp: 38000, damage: 420, gold: 720, pearl: 0, xp: 145 },
-          losrenegados: { name: "Los Renegados", hp: 80000, damage: 600, gold: 1200, pearl: 0, xp: 260 }
+          sinclaresmen: { name: "Sinclares Men", hp: 20000, damage: 250, gold: 400, pearl: 0, tier: 1, xp: 80 },
+          tortugagang: { name: "Tortuga Gang", hp: 38000, damage: 420, gold: 720, pearl: 0, tier: 1, xp: 145 },
+          losrenegados: { name: "Los Renegados", hp: 80000, damage: 600, gold: 1200, pearl: 0, tier: 1, xp: 260 }
         },
-        boss: { name: "Admiral Renegado", hp: 450000, damage: 650, gold: 0, pearl: 520, xp: 8500, img: "assets/npcc/map3/losrenegados.swf/images/amiralrenegados.png", isAdmiral: true }
+        boss: { name: "Admiral Renegado", hp: 450000, damage: 650, gold: 0, pearl: 520, xp: 8500, tier: 3, img: "assets/npcc/map3/losrenegados.swf/images/amiralrenegados.png", isAdmiral: true }
       },
       4: {
         npcs: {
-          ratpack: { name: "Ratpack", hp: 32000, damage: 360, gold: 620, pearl: 0, xp: 120 },
-          sinclaresmen: { name: "Sinclares Men", hp: 60000, damage: 620, gold: 1100, pearl: 0, xp: 220 },
-          calocosmen: { name: "Calocosmen", hp: 120000, damage: 900, gold: 0, pearl: 55, xp: 380 }
+          ratpack: { name: "Ratpack", hp: 32000, damage: 360, gold: 620, pearl: 0, tier: 1, xp: 120 },
+          sinclaresmen: { name: "Sinclares Men", hp: 60000, damage: 620, gold: 1100, pearl: 0, tier: 1, xp: 220 },
+          calocosmen: { name: "Calocosmen", hp: 120000, damage: 900, gold: 0, pearl: 55, tier: 1, xp: 380 }
         },
-        boss: { name: "Admiral Calico", hp: 750000, damage: 900, gold: 0, pearl: 1260, xp: 13000, img: "assets/npcc/map4/calocosmen.swf/images/amiralcalcos.png", isAdmiral: true }
+        boss: { name: "Admiral Calico", hp: 750000, damage: 900, gold: 0, pearl: 1260, xp: 13000, tier: 3, img: "assets/npcc/map4/calocosmen.swf/images/amiralcalcos.png", isAdmiral: true }
       },
       5: {
         npcs: {
-          wild13: { name: "Wild 13", hp: 45000, damage: 500, gold: 920, pearl: 0, xp: 180 },
-          losrenegados: { name: "Los Renegados", hp: 90000, damage: 800, gold: 1650, pearl: 0, xp: 330 },
-          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 180000, damage: 1200, gold: 0, pearl: 85, xp: 560 }
+          wild13: { name: "Wild 13", hp: 45000, damage: 500, gold: 920, pearl: 0, tier: 1, xp: 180 },
+          losrenegados: { name: "Los Renegados", hp: 90000, damage: 800, gold: 1650, pearl: 0, tier: 1, xp: 330 },
+          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 180000, damage: 1200, gold: 0, pearl: 85, tier: 1, xp: 560 }
         },
-        boss: { name: "Admiral Morgan", hp: 1100000, damage: 1350, gold: 0, pearl: 2140, xp: 20000, img: "assets/npcc/map5/morgansbuccaneers.swf/images/amiralmorgan.png", isAdmiral: true }
+        boss: { name: "Admiral Morgan", hp: 1100000, damage: 1350, gold: 0, pearl: 2140, xp: 20000, tier: 3, img: "assets/npcc/map5/morgansbuccaneers.swf/images/amiralmorgan.png", isAdmiral: true }
       },
       6: {
         npcs: {
-          tortugagang: { name: "Tortuga Gang", hp: 60000, damage: 650, gold: 1150, pearl: 0, xp: 225 },
-          calocosmen: { name: "Calocosmen", hp: 110000, damage: 1000, gold: 2050, pearl: 0, xp: 415 },
-          sinclaresmen: { name: "Sinclares Men", hp: 220000, damage: 1500, gold: 0, pearl: 110, xp: 700 }
+          tortugagang: { name: "Tortuga Gang", hp: 60000, damage: 650, gold: 1150, pearl: 0, tier: 1, xp: 225 },
+          calocosmen: { name: "Calocosmen", hp: 110000, damage: 1000, gold: 2050, pearl: 0, tier: 1, xp: 415 },
+          sinclaresmen: { name: "Sinclares Men", hp: 220000, damage: 1500, gold: 0, pearl: 110, tier: 1, xp: 700 }
         },
-        boss: { name: "Admiral Sinclare", hp: 1600000, damage: 1800, gold: 0, pearl: 3010, xp: 28000, img: "assets/npcc/map6/sinclaresmen.swf/images/amiralsiclares.png", isAdmiral: true }
+        boss: { name: "Admiral Sinclare", hp: 1600000, damage: 1800, gold: 0, pearl: 3010, xp: 28000, tier: 3, img: "assets/npcc/map6/sinclaresmen.swf/images/amiralsiclares.png", isAdmiral: true }
       },
       7: {
         npcs: {
-          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 80000, damage: 850, gold: 1600, pearl: 0, xp: 310 },
-          sinclaresmen: { name: "Sinclares Men", hp: 150000, damage: 1300, gold: 2850, pearl: 0, xp: 580 },
-          flyingdutchman: { name: "Flyingdutchman", hp: 300000, damage: 1900, gold: 0, pearl: 155, xp: 980 }
+          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 80000, damage: 850, gold: 1600, pearl: 0, tier: 1, xp: 310 },
+          sinclaresmen: { name: "Sinclares Men", hp: 150000, damage: 1300, gold: 2850, pearl: 0, tier: 1, xp: 580 },
+          flyingdutchman: { name: "Flyingdutchman", hp: 300000, damage: 1900, gold: 0, pearl: 155, tier: 1, xp: 980 }
         },
-        boss: { name: "Admiral Dutchman", hp: 2200000, damage: 2200, gold: 0, pearl: 4560, xp: 40000, img: "assets/npcc/map7/flyingdutchman.swf/images/amiralflying.png", isAdmiral: true }
+        boss: { name: "Admiral Dutchman", hp: 2200000, damage: 2200, gold: 0, pearl: 4560, xp: 40000, tier: 3, img: "assets/npcc/map7/flyingdutchman.swf/images/amiralflying.png", isAdmiral: true }
       },
       8: {
         npcs: {
-          kiliwallis: { name: "Kiliwallis", hp: 100000, damage: 1050, gold: 2000, pearl: 0, xp: 390 },
-          flyingdutchman: { name: "Flyingdutchman", hp: 190000, damage: 1650, gold: 3600, pearl: 0, xp: 720 },
-          kilimatu: { name: "Kilimatu", hp: 380000, damage: 2400, gold: 0, pearl: 195, xp: 1220 }
+          kiliwallis: { name: "Kiliwallis", hp: 100000, damage: 1050, gold: 2000, pearl: 0, tier: 1, xp: 390 },
+          flyingdutchman: { name: "Flyingdutchman", hp: 190000, damage: 1650, gold: 3600, pearl: 0, tier: 1, xp: 720 },
+          kilimatu: { name: "Kilimatu", hp: 380000, damage: 2400, gold: 0, pearl: 195, tier: 1, xp: 1220 }
         },
-        boss: { name: "Admiral Kilimatu", hp: 2800000, damage: 2900, gold: 0, pearl: 6430, xp: 55000, img: "assets/npcc/map8/kilimatu.swf/images/amiralkilimatu.png", isAdmiral: true }
+        boss: { name: "Admiral Kilimatu", hp: 2800000, damage: 2900, gold: 0, pearl: 6430, xp: 55000, tier: 3, img: "assets/npcc/map8/kilimatu.swf/images/amiralkilimatu.png", isAdmiral: true }
       },
       9: {
         npcs: {
-          kokelua: { name: "Kokelua", hp: 120000, damage: 1300, gold: 2450, pearl: 0, xp: 475 },
-          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 230000, damage: 2100, gold: 4350, pearl: 0, xp: 870 },
-          kiribati: { name: "Kiribati", hp: 460000, damage: 3000, gold: 0, pearl: 235, xp: 1480 }
+          kokelua: { name: "Kokelua", hp: 120000, damage: 1300, gold: 2450, pearl: 0, tier: 1, xp: 475 },
+          morgansbuccaneers: { name: "Morgansbuccaneers", hp: 230000, damage: 2100, gold: 4350, pearl: 0, tier: 1, xp: 870 },
+          kiribati: { name: "Kiribati", hp: 460000, damage: 3000, gold: 0, pearl: 235, tier: 1, xp: 1480 }
         },
-        boss: { name: "Admiral Kiribati", hp: 3300000, damage: 3600, gold: 0, pearl: 8860, xp: 72000, img: "assets/npcc/map9/kiribati.swf/images/amiralkiribati.png", isAdmiral: true }
+        boss: { name: "Admiral Kiribati", hp: 3300000, damage: 3600, gold: 0, pearl: 8860, xp: 72000, tier: 3, img: "assets/npcc/map9/kiribati.swf/images/amiralkiribati.png", isAdmiral: true }
       },
       10: {
         npcs: {
-          kilimatu: { name: "Kilimatu", hp: 150000, damage: 1750, gold: 3000, pearl: 0, xp: 580 },
-          kiribati: { name: "Kiribati", hp: 280000, damage: 2700, gold: 5300, pearl: 0, xp: 1060 },
-          flyingdutchman: { name: "Flyingdutchman", hp: 560000, damage: 3900, gold: 0, pearl: 285, xp: 1800 }
+          kilimatu: { name: "Kilimatu", hp: 150000, damage: 1750, gold: 3000, pearl: 0, tier: 1, xp: 580 },
+          kiribati: { name: "Kiribati", hp: 280000, damage: 2700, gold: 5300, pearl: 0, tier: 1, xp: 1060 },
+          flyingdutchman: { name: "Flyingdutchman", hp: 560000, damage: 3900, gold: 0, pearl: 285, tier: 1, xp: 1800 }
         },
-        boss: { name: "Admiral Dutchman", hp: 4000000, damage: 4500, gold: 0, pearl: 13950, xp: 110000, img: "assets/npcc/map10/flyingdutchman.swf/images/amiralflying.png", isAdmiral: true }
+        boss: { name: "Admiral Dutchman", hp: 4000000, damage: 4500, gold: 0, pearl: 13950, xp: 110000, tier: 3, img: "assets/npcc/map10/flyingdutchman.swf/images/amiralflying.png", isAdmiral: true }
       }
     };
 
     // State variables
-    var player = { level: 1, gold: 0, pearl: 0, elite_points: 0, xp: 0, hp: 10000, max_hp: 10000, username: "Korsan", rankBadge: 13, rankName: "Kara Korsan" };
+    var player = { level: 1, gold: 0, pearl: 0, elite_points: 0, tier: 1, xp: 0, hp: 10000, max_hp: 10000, username: "Korsan", rankBadge: 13, rankName: "Kara Korsan" };
     var currentMapLevel = 1;
     var currentMapSub = 1;
     var mapNpcs = {};
@@ -1127,7 +1309,7 @@
         btnPrev.style.visibility = 'visible';
         btnPrev.innerHTML = `◀ MAP ${prev.level}-${prev.sub}`;
         btnPrev.className = 'nav-arrow-btn';
-        btnPrev.onclick = () => doChangeMap(prev.level, prev.sub);
+        btnPrev.onclick = () => doChangeMap(prev.level, prev.sub, btnPrev);
       } else {
         btnPrev.style.visibility = 'hidden';
       }
@@ -1145,7 +1327,7 @@
         } else {
           btnNext.innerHTML = `MAP ${next.level}-${next.sub} ▶`;
           btnNext.className = 'nav-arrow-btn';
-          btnNext.onclick = () => doChangeMap(next.level, next.sub);
+          btnNext.onclick = () => doChangeMap(next.level, next.sub, btnNext);
         }
       } else {
         btnNext.style.visibility = 'hidden';
@@ -1153,14 +1335,22 @@
     }
 
     // Call map change API with 5 seconds lock
-    async function doChangeMap(targetLevel, targetSub) {
+    async function doChangeMap(targetLevel, targetSub, btn) {
       if (uiLocked) return;
       if (isRepairing) stopRepair();
 
       setUiLocked(true);
-      toast("🗺️ Yelkenler fora! Yeni sulara seyir alınıyor... (5 sn)");
+
+      let countdown = 5;
+      const origText = btn.innerHTML;
+      btn.innerHTML = `⏳ ${countdown}`;
+      const countInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) btn.innerHTML = `⏳ ${countdown}`;
+      }, 1000);
 
       setTimeout(async () => {
+        clearInterval(countInterval);
         const token = localStorage.getItem('sp_token');
         try {
           const res = await fetch('/api/maps/change', {
@@ -1178,10 +1368,12 @@
             localStorage.setItem('sp_current_map', currentMapLevel);
             npcInfoPanel.style.display = 'none';
             foundNpc = null;
+            setupIsland(currentMapLevel);
             await fetchMapNpcs();
             updateMapNavigationButtons();
           } else {
             toast(d.error || "Harita geçişi başarısız!", 3000);
+            updateMapNavigationButtons();
           }
         } catch(e) {
           console.error("Change map failed, running fallback", e);
@@ -1190,6 +1382,7 @@
           localStorage.setItem('sp_current_map', currentMapLevel);
           npcInfoPanel.style.display = 'none';
           foundNpc = null;
+          setupIsland(currentMapLevel);
           updateMapNavigationButtons();
         } finally {
           setUiLocked(false);
@@ -1202,7 +1395,7 @@
       document.getElementById('p-pearl').innerText = fmt(player.pearl);
       document.getElementById('p-xp').innerText = fmt(player.xp);
       document.getElementById('p-elp').innerText = fmt(player.elite_points || player.elp || 0);
-      document.getElementById('p-name').innerText = player.username || "Korsan";
+      document.getElementById('p-name').innerText = player.display_name || player.username || "Korsan";
       
       // Rank emblem
       const badgeId = player.rankBadge || 13;
@@ -1219,8 +1412,20 @@
 
       // HP Bar
       const pct = Math.max(0, Math.min(100, (player.hp / player.max_hp) * 100));
-      document.getElementById('p-hp-bar').style.width = pct + '%';
+      const hpBar = document.getElementById('p-hp-bar');
+      hpBar.style.width = pct + '%';
       document.getElementById('p-hp-text').innerText = `${fmt(player.hp)} / ${fmt(player.max_hp)} HP`;
+
+      // HP bar color based on percentage
+      hpBar.className = 'hp-bar-fill'; // Reset to default (green)
+      if (pct <= 25) {
+        hpBar.classList.add('critical'); // Red
+      } else if (pct <= 50) {
+        hpBar.classList.add('low'); // Orange-red
+      } else if (pct <= 75) {
+        hpBar.classList.add('medium'); // Orange
+      }
+      // > 75% stays green (default)
 
       // XP Progress Bar
       const xpNext = player.xpNext || 8000;
@@ -1228,6 +1433,55 @@
       const xpPct = Math.max(0, Math.min(100, (player.xp / xpNext) * 100));
       document.getElementById('p-lvl-fill').style.width = xpPct + '%';
       document.getElementById('p-lvl-pct').innerText = `${fmt(player.xp)} / ${fmt(xpNext)}`;
+
+      updateRepairButton();
+    }
+
+    function updateRepairButton() {
+      const btn = document.getElementById('btn-tamir');
+      if (!btn) return;
+      const full = player.hp >= player.max_hp;
+      btn.disabled = full;
+      if (full) {
+        btn.innerHTML = "✅ Tamir";
+      } else if (!isRepairing) {
+        btn.innerHTML = "🔨 Tamir";
+      }
+    }
+
+    function setupIsland(mapLvl) {
+      const island = document.getElementById('island-bg');
+      if (!island) return;
+      
+      const islandFiles = {
+        1: { src: 'assets/island/images/1_tile_57.png', bottom: '10px', left: '-15px', w: '120px' },
+        2: { src: 'assets/island/images/2_tile_56.png', bottom: '10px', right: '-20px', w: '130px' },
+        3: { src: 'assets/island/images/3_tile_55.png', bottom: '40px', left: '-20px', w: '130px' },
+        4: { src: 'assets/island/images/4_tile_54.png', bottom: '10px', right: '-20px', w: '140px' },
+        5: { src: 'assets/island/images/5_tile_53.png', bottom: '10px', right: '-25px', w: '150px' },
+        6: { src: 'assets/island/images/6_tile_52.png', bottom: '10px', left: '-15px', w: '120px' },
+        7: { src: 'assets/island/images/images/1_tile_51.png', bottom: '20px', right: '-20px', w: '130px' },
+        8: { src: 'assets/island/images/images/2_tile_50.png', bottom: '10px', left: '-20px', w: '140px' },
+        9: { src: 'assets/island/images/images/3_tile_49.png', bottom: '10px', right: '-20px', w: '130px' },
+        10: { src: 'assets/island/images/images/4_tile_48.png', bottom: '10px', left: '-20px', w: '140px' }
+      };
+      
+      const cfg = islandFiles[mapLvl];
+      if (cfg) {
+        island.src = cfg.src;
+        island.style.display = 'block';
+        island.style.width = cfg.w;
+        island.style.top = 'auto';
+        island.style.bottom = 'auto';
+        island.style.left = 'auto';
+        island.style.right = 'auto';
+        if (cfg.top) island.style.top = cfg.top;
+        if (cfg.bottom) island.style.bottom = cfg.bottom;
+        if (cfg.left) island.style.left = cfg.left;
+        if (cfg.right) island.style.right = cfg.right;
+      } else {
+        island.style.display = 'none';
+      }
     }
 
     // Fetch active NPCs for the current map
@@ -1259,13 +1513,6 @@
         const d = await res.json();
         if (d.success) {
           player = d.player;
-          // Set map values from the db position
-          const mapRes = await fetch('/api/maps', { 
-            headers: { 'Authorization': `Bearer ${token}` } 
-          });
-          const mData = await mapRes.json();
-          currentMapLevel = mData.currentMapLevel || 1;
-          currentMapSub = mData.currentMapSub || 1;
         }
       } catch(e) {
         console.error("Player loading failed, loading mock fallback", e);
@@ -1276,7 +1523,7 @@
           gold: savedPlayer.gold || 450000,
           pearl: savedPlayer.pearl || 1400,
           elite_points: savedPlayer.elite_points || 4501908,
-          xp: savedPlayer.xp || 4620,
+          tier: 1, xp: savedPlayer.xp || 4620,
           xpNext: savedPlayer.xpNext || 8000,
           hp: savedPlayer.hp || 5800,
           max_hp: savedPlayer.max_hp || 14500,
@@ -1284,7 +1531,23 @@
           vip_until: savedPlayer.vip_until || null
         };
       }
+
+      // Fetch map position separately so a failure here doesn't lose player data
+      try {
+        const mapRes = await fetch('/api/maps', { 
+          headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        const mData = await mapRes.json();
+        currentMapLevel = mData.currentMapLevel || 1;
+        currentMapSub = mData.currentMapSub || 1;
+      } catch(e) {
+        console.error("Map loading failed, using saved/default", e);
+        currentMapLevel = parseInt(localStorage.getItem('sp_current_map')) || 1;
+        currentMapSub = currentMapLevel <= 4 ? 1 : 1;
+      }
+
       drawStats();
+      setupIsland(currentMapLevel);
       localStorage.setItem('sp_current_map', currentMapLevel);
       await fetchMapNpcs();
       updateMapNavigationButtons();
@@ -1298,7 +1561,8 @@
     }
 
     // "NPC ARA" click handler (3-second delay, locks UI, picks NPC)
-    btnSearch.addEventListener('click', () => {
+    if (!btnSearch) console.error('btn-search element not found');
+    else btnSearch.addEventListener('click', () => {
       if (uiLocked) return;
       if (isRepairing) stopRepair();
 
@@ -1309,10 +1573,17 @@
       }
 
       setUiLocked(true);
-      btnSearch.innerText = "🔍 ARAŞTIRILIYOR... (3 sn)";
-      toast("🔍 Sular gözleniyor, canavarlar aranıyor...");
+      btnSearch.classList.add('searching');
+      let countdown = 3;
+      btnSearch.innerText = `🔍 ARANIYOR (${countdown})`;
+
+      const countInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) btnSearch.innerText = `🔍 ARANIYOR (${countdown})`;
+      }, 1000);
 
       setTimeout(() => {
+        clearInterval(countInterval);
         const roll = Math.random() * 100;
         let selectedNpc = null;
         let frontKey = '';
@@ -1335,6 +1606,7 @@
 
         if (!selectedNpc) {
           btnSearch.innerText = "NPC ARA";
+          btnSearch.classList.remove('searching');
           setUiLocked(false);
           return;
         }
@@ -1349,6 +1621,7 @@
           xp: selectedNpc.xp || 0,
           isBoss: !!selectedNpc.isAdmiral,
           frontKey: frontKey,
+          tier: selectedNpc.tier || (selectedNpc.isAdmiral ? 3 : 1),
           img: selectedNpc.isAdmiral ? selectedNpc.img : `assets/npcc/map${currentMapLevel}/${frontKey}.swf/images/7.png`
         };
 
@@ -1363,19 +1636,20 @@
         const lootBox = document.getElementById('npc-panel-loot-box');
         lootBox.innerHTML = '';
         if (foundNpc.gold > 0) {
-          lootBox.innerHTML += `<div style="display:inline-flex; align-items:center; gap:3.5px;"><img src="assets/gold.png" style="width:12.5px; height:12.5px; object-fit:contain;" /> <span class="npc-stat-val" style="color:var(--gold-b); font-size:0.68rem; margin:0;">${fmt(foundNpc.gold)}</span></div>`;
+          lootBox.innerHTML += `<div class="loot-item"><img src="assets/gold.png" class="loot-icon" /> <span class="loot-val gold">${fmt(foundNpc.gold)}</span></div>`;
         }
         if (foundNpc.pearl > 0) {
-          lootBox.innerHTML += `<div style="display:inline-flex; align-items:center; gap:3.5px;"><img src="assets/pearl.png" style="width:12.5px; height:12.5px; object-fit:contain;" /> <span class="npc-stat-val" style="color:var(--pearl); font-size:0.68rem; margin:0;">${fmt(foundNpc.pearl)}</span></div>`;
+          lootBox.innerHTML += `<div class="loot-item"><img src="assets/pearl.png" class="loot-icon" /> <span class="loot-val pearl">${fmt(foundNpc.pearl)}</span></div>`;
         }
         if (foundNpc.xp > 0) {
-          lootBox.innerHTML += `<div style="display:inline-flex; align-items:center; gap:3.5px;"><span style="font-size:0.65rem;">⭐</span> <span class="npc-stat-val" style="color:var(--txt); font-size:0.68rem; margin:0;">${fmt(foundNpc.xp)} XP</span></div>`;
+          lootBox.innerHTML += `<div class="loot-item"><span class="loot-star">⭐</span> <span class="loot-val">${fmt(foundNpc.xp)} XP</span></div>`;
         }
         if (lootBox.innerHTML === '') lootBox.innerText = 'Yok';
 
         npcInfoPanel.style.display = 'flex';
         
         btnSearch.innerText = "NPC ARA";
+        btnSearch.classList.remove('searching');
         setUiLocked(false);
 
         const audio = document.getElementById('audio-sea');
@@ -1386,7 +1660,8 @@
     });
 
     // Start normal NPC battle
-    document.getElementById('btn-saldır-trigger').addEventListener('click', () => {
+    const btnSal = document.getElementById('btn-saldır-trigger');
+    if (btnSal) btnSal.addEventListener('click', () => {
       if (!foundNpc) return;
       if (isRepairing) stopRepair();
       
@@ -1399,9 +1674,9 @@
       localStorage.setItem('sp_current_target_gold', foundNpc.gold);
       localStorage.setItem('sp_current_target_pearl', foundNpc.pearl);
       localStorage.setItem('sp_current_target_xp', foundNpc.xp);
-      localStorage.setItem('sp_current_target_tier', foundNpc.isBoss ? 3 : 1);
+      localStorage.setItem('sp_current_target_tier', foundNpc.tier);
 
-      window.location.href = `fight.html?npcId=${foundNpc.id}&map=${currentMapLevel}&submap=${currentMapSub}`;
+      goTo(`fight.html?npcId=${foundNpc.id}&map=${currentMapLevel}&submap=${currentMapSub}`);
     });
 
     // Weekly Boss Modal Triggers
@@ -1412,7 +1687,7 @@
       const infoEl = document.getElementById('boss-modal-status-info');
       const atkBtn = document.getElementById('btn-boss-saldır-real');
       
-      listEl.innerHTML = '<div style="text-align:center; color:#aaa; padding:12px; font-size:0.72rem;">⏳ Sıralama yükleniyor...</div>';
+      listEl.innerHTML = '<div class="boss-ranking-empty">⏳ Sıralama yükleniyor...</div>';
       
       const token = localStorage.getItem('sp_token');
       try {
@@ -1426,39 +1701,35 @@
         const countdown = data.countdown || '?';
         const myDmg = data.weeklyDamage || 0;
         
-        let statusHtml = `⚠️ Günlük 1 defa saldırılabilir. Sıfırlanma: <b>${countdown}</b>`;
+        let statusHtml = `⚔️ Günlük <b>1 defa</b> saldırılabilir.<br>🔄 Sıfırlanma: <b>${countdown}</b>`;
         if (myDmg > 0) {
-          statusHtml += `<br>Senin hasarın: <b style="color:#ff6b6b;">${fmt(myDmg)} Dmg</b>`;
+          statusHtml += `<br>🎯 Senin hasarın: <b class="boss-my-dmg">${fmt(myDmg)}</b>`;
         }
         if (!canAttack) {
-          statusHtml += `<br><span style="color:#dc3545;">❌ Bugün zaten saldırdınız!</span>`;
+          statusHtml += `<br><span class="boss-attack-done">❌ Bugün zaten saldırdın!</span>`;
         }
         infoEl.innerHTML = statusHtml;
         
         // Update attack button
         if (!canAttack) {
           atkBtn.disabled = true;
-          atkBtn.style.opacity = '0.5';
-          atkBtn.style.cursor = 'not-allowed';
-          atkBtn.innerText = '❌ BUGÜN SALDIRILDI';
+          atkBtn.innerText = '❌ SALDIRILDI';
         } else {
           atkBtn.disabled = false;
-          atkBtn.style.opacity = '1';
-          atkBtn.style.cursor = 'pointer';
-          atkBtn.innerText = 'SALDIR ⚔️';
+          atkBtn.innerText = '🔥 SALDIR';
         }
         
         // Render leaderboard
         const lb = data.leaderboard || [];
         if (lb.length === 0) {
-          listEl.innerHTML = '<div style="text-align:center; color:#888; padding:14px; font-size:0.72rem;">Bu hafta henüz kimse saldırmadı.</div>';
+          listEl.innerHTML = '<div class="boss-ranking-empty">Bu hafta henüz kimse saldırmadı.</div>';
         } else {
           let html = '';
           lb.forEach((entry, idx) => {
             const rank = idx + 1;
             let rankClass = '';
-            let dmgColor = '#ccc';
-            if (rank === 1) { rankClass = 'boss-rank-1'; dmgColor = '#ffd700'; }
+            let dmgColor = 'var(--txt)';
+            if (rank === 1) { rankClass = 'boss-rank-1'; dmgColor = 'var(--gold-b)'; }
             else if (rank === 2) { rankClass = 'boss-rank-2'; dmgColor = '#c0c0c0'; }
             else if (rank === 3) { rankClass = 'boss-rank-3'; dmgColor = '#cd7f32'; }
             
@@ -1467,19 +1738,20 @@
             
             html += `<div class="boss-ranking-item">
               <div><span class="boss-rank-badge ${rankClass}">${rank}.</span> ${username}</div>
-              <div style="color: ${dmgColor}; font-weight: 600;">${fmt(dmg)} Dmg</div>
+              <div style="color: ${dmgColor}; font-weight: 600;">${fmt(dmg)}</div>
             </div>`;
           });
           listEl.innerHTML = html;
         }
       } catch(e) {
         console.error('Boss leaderboard fetch failed:', e);
-        infoEl.innerHTML = '⚠️ Günlük 1 defa saldırılabilir. <span style="color:#dc3545;">Bağlantı hatası!</span>';
-        listEl.innerHTML = '<div style="text-align:center; color:#dc3545; padding:14px; font-size:0.72rem;">Sıralama yüklenemedi. Sunucu çevrimdışı olabilir.</div>';
+        infoEl.innerHTML = '⚠️ Sunucuya bağlanılamadı!';
+        listEl.innerHTML = '<div class="boss-ranking-empty" style="color:var(--gold);">Sıralama yüklenemedi.</div>';
       }
     }
     
-    document.getElementById('btn-weekly-boss-trigger').addEventListener('click', (e) => {
+    const btnBossTrigger = document.getElementById('btn-weekly-boss-trigger');
+    if (btnBossTrigger) btnBossTrigger.addEventListener('click', (e) => {
       e.preventDefault();
       if (uiLocked) return;
       if (isRepairing) stopRepair();
@@ -1487,66 +1759,83 @@
       loadBossLeaderboard();
     });
 
-    document.getElementById('btn-close-boss-modal').addEventListener('click', () => {
+    const btnCloseBoss = document.getElementById('btn-close-boss-modal');
+    if (btnCloseBoss) btnCloseBoss.addEventListener('click', () => {
       bossModal.style.display = 'none';
     });
 
-    document.getElementById('btn-boss-saldır-real').addEventListener('click', () => {
-      if (document.getElementById('btn-boss-saldır-real').disabled) return;
+    const btnBossSal = document.getElementById('btn-boss-saldır-real');
+    if (btnBossSal) btnBossSal.addEventListener('click', () => {
+      if (btnBossSal.disabled) return;
       bossModal.style.display = 'none';
-      toast("⚔️ Efsanevi Leviathan'ın inine giriliyor...");
       localStorage.setItem('sp_combat_is_weekly_boss', 'true');
       setTimeout(() => {
-        window.location.href = 'fight.html';
+        goTo('fight.html');
       }, 800);
     });
 
     // Repair action functions with ticking / sounds / GDD alignment
+    var repairCooldown = null;
+
     function stopRepair() {
       if (!isRepairing) return;
       clearInterval(repairInterval);
       repairInterval = null;
       isRepairing = false;
 
-      const btn = document.getElementById('btn-tamir');
-      if (btn) btn.innerHTML = "🔨 Tamir";
-
       const audRepair = document.getElementById('audio-repair');
       if (audRepair) {
         audRepair.pause();
         audRepair.currentTime = 0;
       }
-      toast("🔨 Tamir durduruldu.");
+      updateRepairButton();
+
+      // 5 saniye cooldown — exploit önleme
+      clearInterval(repairCooldown);
+      const btn = document.getElementById('btn-tamir');
+      if (btn) { btn.disabled = true; btn.innerHTML = "⏳ Tamir (5s)"; }
+      let cd = 5;
+      repairCooldown = setInterval(() => {
+        cd--;
+        if (cd <= 0) {
+          clearInterval(repairCooldown);
+          repairCooldown = null;
+          updateRepairButton();
+        } else {
+          const b = document.getElementById('btn-tamir');
+          if (b) b.innerHTML = `⏳ Tamir (${cd}s)`;
+        }
+      }, 1000);
     }
 
     async function startRepair() {
       if (uiLocked) return;
-      if (player.hp >= player.max_hp) {
-        toast("✅ Gemi zaten tam tamirli!");
-        return;
-      }
+      if (player.hp >= player.max_hp) return;
+      if (isRepairing) return;
 
       isRepairing = true;
       const btn = document.getElementById('btn-tamir');
       if (btn) btn.innerHTML = "🔧 Durdur";
-      toast("🔧 Gemi tamiri başladı...");
-
-      const audRepair = document.getElementById('audio-repair');
-      if (audRepair) {
-        audRepair.volume = 0.25;
-        audRepair.play().catch(e => {});
-      }
 
       await doRepairStep();
       
       if (isRepairing && player.hp < player.max_hp) {
         repairInterval = setInterval(async () => {
           await doRepairStep();
-        }, 5000);
+        }, 3000);
       }
     }
 
     async function doRepairStep() {
+      if (!isRepairing) return;
+
+      const audRepair = document.getElementById('audio-repair');
+      if (audRepair) {
+        audRepair.currentTime = 0;
+        audRepair.volume = 0.25;
+        audRepair.play().catch(e => {});
+      }
+
       const token = localStorage.getItem('sp_token');
       try {
         const res = await fetch('/api/player/repair', { 
@@ -1554,6 +1843,7 @@
           headers: { 'Authorization': `Bearer ${token}` } 
         });
         const d = await res.json();
+        if (!isRepairing) return;
         if (d.hp !== undefined) {
           player.hp = d.hp;
           player.max_hp = d.max_hp;
@@ -1566,43 +1856,21 @@
             const btn = document.getElementById('btn-tamir');
             if (btn) btn.innerHTML = "🔨 Tamir";
 
-            const audRepair = document.getElementById('audio-repair');
-            if (audRepair) {
-              audRepair.pause();
-              audRepair.currentTime = 0;
-            }
-            toast("✅ Gemi tamamen tamir edildi.");
-          } else {
-            toast(`🔧 Kalafat yapılıyor... (${fmt(d.hp)} / ${fmt(d.max_hp)} HP)`);
+            if (audRepair) audRepair.pause();
           }
         } else {
           stopRepair();
           toast("❌ Tamir başarısız!");
         }
       } catch(e) {
-        player.hp = Math.min(player.max_hp, player.hp + Math.floor(player.max_hp * 0.05));
-        drawStats();
-        if (player.hp >= player.max_hp) {
-          clearInterval(repairInterval);
-          repairInterval = null;
-          isRepairing = false;
-          
-          const btn = document.getElementById('btn-tamir');
-          if (btn) btn.innerHTML = "🔨 Tamir";
-
-          const audRepair = document.getElementById('audio-repair');
-          if (audRepair) {
-            audRepair.pause();
-            audRepair.currentTime = 0;
-          }
-          toast("✅ Gemi tamamen tamir edildi.");
-        } else {
-          toast(`🔧 Kalafat yapılıyor (Yerel)... (${fmt(player.hp)} / ${fmt(player.max_hp)} HP)`);
-        }
+        stopRepair();
+        toast("❌ Sunucuya bağlanılamadı, tamir yapılamadı!");
       }
     }
 
-    document.getElementById('btn-tamir').addEventListener('click', () => {
+    const btnTamir = document.getElementById('btn-tamir');
+    if (btnTamir) btnTamir.addEventListener('click', () => {
+      if (btnTamir.disabled || repairCooldown) return;
       if (isRepairing) {
         stopRepair();
       } else {
@@ -1611,20 +1879,10 @@
     });
 
     // Check last battle results
-    const lastBattle = localStorage.getItem('sp_lastBattle');
-    if (lastBattle) {
-      try {
-        const data = JSON.parse(lastBattle);
-        if (data.win) {
-          let text = `✓ Zafer! +${fmt(data.gold)}🪙 +${fmt(data.xp)}⭐`;
-          if (data.pearl > 0) text += ` +${fmt(data.pearl)}💎`;
-          toast(text, 3500);
-        } else {
-          toast("💀 Filo imha oldu, savaşı kaybettin!", 3000);
-        }
-      } catch (e) {}
-      localStorage.removeItem('sp_lastBattle');
-    }
+    localStorage.removeItem('sp_lastBattle');
+
+    // Clean up stale combat state from previous sessions
+    ['sp_current_target_name','sp_current_target_img','sp_current_target_hp','sp_current_target_maxHp','sp_current_target_dmg','sp_current_target_gold','sp_current_target_pearl','sp_current_target_xp','sp_current_target_tier','sp_combat_is_weekly_boss'].forEach(k => localStorage.removeItem(k));
 
     loadData();
   </script>
@@ -1715,5 +1973,6 @@
       setTimeout(spawn, 500);
     })();
   </script>
+  <script src="transition.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ const pool = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 const gameData = require('../config/gameData');
 const QUESTS = require('../config/questsData');
+const { getCurrentEvent } = require('./events');
 
 // Basit RAM tabanlı aktif savaş yönetimi
 const activeFights = {};
@@ -60,7 +61,7 @@ router.get('/boss/status', authMiddleware, async (req, res) => {
         
         // 2. Liderlik tablosunu çek (Sadece bu haftanın hasarı olanlar)
         const leaderboardRes = await pool.query(
-            `SELECT username, weekly_boss_damage 
+            `SELECT COALESCE(display_name, username) AS username, weekly_boss_damage 
              FROM players 
              WHERE weekly_boss_week = $1 AND weekly_boss_damage > 0 
              ORDER BY weekly_boss_damage DESC`,
@@ -94,7 +95,7 @@ router.post('/start', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
 
   try {
-    const pRes = await pool.query('SELECT hp, max_hp, level, username, ship_level FROM players WHERE id = $1', [playerId]);
+    const pRes = await pool.query('SELECT hp, max_hp, level, username, display_name, ship_level FROM players WHERE id = $1', [playerId]);
     if (pRes.rows.length === 0) return res.status(404).json({ error: 'Oyuncu bulunamadı' });
 
     let playerHp = pRes.rows[0].hp;
@@ -136,27 +137,27 @@ router.post('/start', authMiddleware, async (req, res) => {
       let calculatedTowerId = 1;
 
       if (towerLvl <= 25) {
-        name = `Liman Karakolu (Lvl ${towerLvl})`;
+        name = `Tower (Lvl ${towerLvl})`;
         fullImg = 'assets/tower/low1.png';
         damagedImg = 'assets/tower/low2.png';
         calculatedTowerId = 1;
       } else if (towerLvl <= 50) {
-        name = `Korsan Sığınağı (Lvl ${towerLvl})`;
+        name = `Tower (Lvl ${towerLvl})`;
         fullImg = 'assets/tower/low3.png';
         damagedImg = 'assets/tower/low4.png';
         calculatedTowerId = 2;
       } else if (towerLvl <= 75) {
-        name = `Deniz Muhafızı (Lvl ${towerLvl})`;
+        name = `Tower (Lvl ${towerLvl})`;
         fullImg = 'assets/tower/middle1.png';
         damagedImg = 'assets/tower/middle2.png';
         calculatedTowerId = 3;
       } else if (towerLvl <= 100) {
-        name = `Hisar Kalesi (Lvl ${towerLvl})`;
+        name = `Tower (Lvl ${towerLvl})`;
         fullImg = 'assets/tower/middle3.png';
         damagedImg = 'assets/tower/middle4.png';
         calculatedTowerId = 4;
       } else {
-        name = `Kraliyet Tabyası (Lvl ${towerLvl})`;
+        name = `Tower (Lvl ${towerLvl})`;
         fullImg = 'assets/tower/hard1.png';
         damagedImg = 'assets/tower/hard2.png';
         calculatedTowerId = 5;
@@ -279,7 +280,7 @@ router.post('/start', authMiddleware, async (req, res) => {
          VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (map_level, player_id) 
          DO UPDATE SET current_hp = $5, max_hp = $6, last_active = CURRENT_TIMESTAMP`,
-        [fightMapLvl, playerId, pInfo.username, pInfo.ship_level, playerHp, pInfo.max_hp]
+        [fightMapLvl, playerId, pInfo.display_name || pInfo.username, pInfo.ship_level, playerHp, pInfo.max_hp]
       );
 
       // Initialize/fetch shared boss HP from npc3_kill_counter
@@ -348,7 +349,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
 
   try {
     // 1. Topları getir (geminin slot limiti ile kısıtla)
-    const playerDbRes = await pool.query('SELECT username, ship_level, max_hp, hp FROM players WHERE id = $1', [playerId]);
+    const playerDbRes = await pool.query('SELECT username, display_name, ship_level, max_hp, hp FROM players WHERE id = $1', [playerId]);
     const pDbInfo = playerDbRes.rows[0];
     const shipLevel = pDbInfo?.ship_level || 0;
     const activeShip = gameData.SHIPS.find(s => s.level === shipLevel) || gameData.SHIPS[0];
@@ -433,10 +434,17 @@ router.post('/attack', authMiddleware, async (req, res) => {
         }
     }
 
+    // Etkinlik çarpanı: Hasar (sadece patlayan gülle ile)
+    const ev = await getCurrentEvent();
+    if (ev.type === 'damage' && ammoId == 3) {
+      finalDamage = Math.floor(finalDamage * ev.mult);
+    }
+
     // ELP ekle
     let gainedElp = 0;
     if (givesElp && actualCannonsFired > 0) {
         gainedElp = actualCannonsFired;
+        if (ev.type === 'elp_reward') gainedElp *= ev.mult;
         await pool.query('UPDATE players SET elite_points = elite_points + $1 WHERE id = $2', [gainedElp, playerId]);
     }
 
@@ -454,7 +462,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
              VALUES ($1, $2, $3, $4, $5, $6, $7)
              ON CONFLICT (map_level, player_id) 
              DO UPDATE SET damage_dealt = admiral_damage.damage_dealt + $5`,
-            [fight.mapLevel, playerId, pDbInfo.username, pDbInfo.ship_level, playerDamage, fight.playerHp, fight.playerMaxHp]
+            [fight.mapLevel, playerId, pDbInfo.display_name || pDbInfo.username, pDbInfo.ship_level, playerDamage, fight.playerHp, fight.playerMaxHp]
         );
 
         // Ortak amiral canını veritabanından çek ve düş
@@ -560,6 +568,14 @@ router.post('/attack', authMiddleware, async (req, res) => {
             console.error('VIP check error in combat:', vipErr);
         }
 
+        const ev = await getCurrentEvent();
+        const evMult = ev.type === 'npc_reward' ? ev.mult : 1;
+
+        // Gold, pearl, xp çarpan (vipMult SQL içinde $6 olarak uygulanacak)
+        const rewGold = Math.floor((npcObj.gold || 0) * evMult);
+        const rewPearl = Math.floor((npcObj.pearl || 0) * evMult);
+        const rewXp = Math.floor((npcObj.xp || 0) * evMult);
+
         // Ödülleri ver + İstatistikleri arttır
         if (npcObj.isTower) {
             await pool.query(
@@ -571,7 +587,23 @@ router.post('/attack', authMiddleware, async (req, res) => {
                 [npcObj.pearl || 0, fight.playerHp, playerId, vipMult]
             );
         } else if (fight.isAdmiral) {
-            // Admiral ise tüm katılanlara paylaştır
+            // Admiral için oyuncunun hasarına göre ödül hesapla
+            let admRewardPearl = 0, admRewardXp = 0;
+            try {
+                const bRes = await pool.query('SELECT hp, pearl, xp FROM bosses WHERE map_level = $1 LIMIT 1', [fight.mapLevel]);
+                if (bRes.rows.length > 0) {
+                    const b = bRes.rows[0];
+                    const bossMaxHp = parseInt(b.hp) || 150000;
+                    const totalPearls = parseInt(b.pearl) || 15000;
+                    const totalXp = parseInt(b.xp) || 1000;
+                    const admDmgRes = await pool.query('SELECT damage_dealt FROM admiral_damage WHERE map_level = $1 AND player_id = $2', [fight.mapLevel, playerId]);
+                    const playerAdmDmg = admDmgRes.rows.length > 0 ? parseInt(admDmgRes.rows[0].damage_dealt) : playerDamage;
+                    const pct = Math.min(1.0, playerAdmDmg / bossMaxHp);
+                    admRewardPearl = Math.floor(totalPearls * pct);
+                    admRewardXp = Math.floor(totalXp * pct);
+                }
+            } catch (e) { console.error('Admiral reward calc error:', e); }
+
             await pool.query(
                 `UPDATE players 
                  SET dmg_amiral = dmg_amiral + $1
@@ -579,6 +611,9 @@ router.post('/attack', authMiddleware, async (req, res) => {
                 [playerDamage, playerId]
             );
             await distributeAdmiralRewards(fight.mapLevel);
+            npcObj.gold = 0;
+            npcObj.pearl = admRewardPearl;
+            npcObj.xp = admRewardXp;
         } else if (isBoss) {
             await pool.query(
                 `UPDATE players 
@@ -587,7 +622,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
                      xp = xp + $3,
                      dmg_amiral = dmg_amiral + $4
                  WHERE id = $5`,
-                [npcObj.gold || 0, npcObj.pearl || 0, npcObj.xp || 0, playerDamage, playerId, vipMult]
+                [rewGold, rewPearl, rewXp, playerDamage, playerId, vipMult]
             );
         } else {
             await pool.query(
@@ -598,7 +633,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
                      dmg_pve = dmg_pve + $4,
                      kill_npc = kill_npc + 1
                  WHERE id = $5`,
-                [npcObj.gold || 0, npcObj.pearl || 0, npcObj.xp || 0, playerDamage, playerId, vipMult]
+                [rewGold, rewPearl, rewXp, playerDamage, playerId, vipMult]
             );
 
             // Standart NPC batırılınca sayaç artır ve spawn kontrolü yap
@@ -672,7 +707,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
         delete activeFights[playerId];
         return res.json({
             state: 'won', npcHp: 0, playerHp: fight.playerHp, playerDamage, npcDamage: 0,
-            rewards: { gold: fight.isAdmiral ? 0 : (npcObj.gold || 0), xp: 0, pearl: fight.isAdmiral ? 0 : (npcObj.pearl || 0), elp: gainedElp },
+            rewards: { gold: rewGold, xp: rewXp, pearl: rewPearl, elp: gainedElp },
             consumed: { ammo: actualCannonsFired, barut: useBarut ? 1 : 0, zirh: useZirh ? 1 : 0 },
             leveledUp,
             newLevel,
@@ -681,7 +716,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
     }
 
     // Oyuncu veya diğeri hasar alır (Admiral rastgele hedef belirler)
-    let targetHitUsername = pDbInfo.username;
+    let targetHitUsername = pDbInfo.display_name || pDbInfo.username;
     let targetHitId = playerId;
     let actualNpcDamage = npcDamage;
 
@@ -829,78 +864,13 @@ router.get('/admiral-status', authMiddleware, async (req, res) => {
         let bossHp = parseInt(bcRes.rows[0].boss_current_hp);
         const bossMaxHp = parseInt(bcRes.rows[0].boss_max_hp);
 
-        // ── BOT ATTACK & RETALIATION SIMULATION STEP ──
-        if (bossHp > 0 && Math.random() < 0.35) {
-            const BOTS = [
-                { username: 'Kaptan_Barbarossa', ship_level: 15, max_hp: 85000 },
-                { username: 'Kara_Sakal', ship_level: 19, max_hp: 110000 },
-                { username: 'Kaptan_Gaga', ship_level: 8, max_hp: 45000 },
-                { username: 'Deniz_Eşkıyası', ship_level: 12, max_hp: 65000 }
-            ];
-            
-            const botIdx = Math.floor(Math.random() * BOTS.length);
-            const bot = BOTS[botIdx];
-            const botId = -100 - botIdx; // Negative ID to avoid clash
-            
-            const botDmg = 450 + Math.floor(Math.random() * 550);
-            bossHp = Math.max(0, bossHp - botDmg);
+        // ── BOT SALDIRISI KALDIRILDI (mock yapay oyuncular) ──
 
-            // Update boss shared HP in DB
-            await pool.query(
-                'UPDATE npc3_kill_counter SET boss_current_hp = $1 WHERE map_level = $2',
-                [bossHp, mapLevel]
-            );
-
-            // Register/Update bot in admiral_damage
-            await pool.query(
-                `INSERT INTO admiral_damage (map_level, player_id, username, ship_level, damage_dealt, current_hp, max_hp)
-                 VALUES ($1, $2, $3, $4, $5, $6, $6)
-                 ON CONFLICT (map_level, player_id)
-                 DO UPDATE SET damage_dealt = admiral_damage.damage_dealt + $5`,
-                [mapLevel, botId, bot.username, bot.ship_level, botDmg, bot.max_hp]
-            );
-
-            // Simulate Admiral retaliation against a random participant who is alive
-            const partRes = await pool.query(
-                'SELECT player_id, username, current_hp FROM admiral_damage WHERE map_level = $1 AND current_hp > 0',
-                [mapLevel]
-            );
-            if (partRes.rows.length > 0) {
-                const targetRow = partRes.rows[Math.floor(Math.random() * partRes.rows.length)];
-                const targetId = parseInt(targetRow.player_id);
-                
-                // Admiral deals random damage
-                const admDmg = 200 + Math.floor(Math.random() * 300);
-                
-                await pool.query(
-                    'UPDATE admiral_damage SET current_hp = GREATEST(0, current_hp - $1) WHERE map_level = $2 AND player_id = $3',
-                    [admDmg, mapLevel, targetId]
-                );
-
-                if (targetId > 0) {
-                    // Update actual player's HP in database
-                    await pool.query(
-                        'UPDATE players SET hp = GREATEST(0, hp - $1) WHERE id = $2',
-                        [admDmg, targetId]
-                    );
-                    // Update player's active fight state if active
-                    if (activeFights[targetId]) {
-                        activeFights[targetId].playerHp = Math.max(0, activeFights[targetId].playerHp - admDmg);
-                    }
-                }
-            }
-
-            // Distribute rewards if boss dies during bot attack
-            if (bossHp <= 0) {
-                await distributeAdmiralRewards(mapLevel);
-            }
-        }
-
-        // Fetch active damage list
+        // Fetch active damage list (only real players, no bots)
         const dmgRes = await pool.query(
             `SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp 
              FROM admiral_damage 
-             WHERE map_level = $1 
+             WHERE map_level = $1 AND player_id > 0
              ORDER BY damage_dealt DESC`,
             [mapLevel]
         );

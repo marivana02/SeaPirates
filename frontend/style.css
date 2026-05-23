@@ -4,6 +4,10 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* ---- Page Transitions ---- */
+body { animation: pageFadeIn 0.2s ease-out; }
+@keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
 /* ---- CSS Variables ---- */
 :root {
   /* Colors */

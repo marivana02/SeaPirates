@@ -30,9 +30,9 @@ router.post('/register', registerRateLimiter, async (req, res) => {
     // Oyuncuyu kaydet
     const result = await pool.query(
       `INSERT INTO players 
-        (username, email, password, gold, pearl, xp, level, elite_points, ship_level)
-       VALUES ($1, $2, $3, 5000, 0, 0, 1, 0, 0)
-       RETURNING id, username, email, gold, pearl, xp, level, elite_points, ship_level`,
+        (username, display_name, email, password, gold, pearl, xp, level, elite_points, ship_level)
+       VALUES ($1, $1, $2, $3, 5000, 0, 0, 1, 0, 0)
+       RETURNING id, username, display_name, email, gold, pearl, xp, level, elite_points, ship_level`,
       [username, email, hashedPassword]
     );
 
@@ -63,6 +63,12 @@ router.post('/login', loginRateLimiter, async (req, res) => {
       'SELECT * FROM players WHERE username = $1',
       [username]
     );
+
+    // display_name boşsa (eski kayıt) username ile doldur
+    if (result.rows.length > 0 && !result.rows[0].display_name) {
+      await pool.query('UPDATE players SET display_name = username WHERE id = $1', [result.rows[0].id]);
+      result.rows[0].display_name = result.rows[0].username;
+    }
 
     if (result.rows.length === 0) {
       recordFailedLogin(ip);

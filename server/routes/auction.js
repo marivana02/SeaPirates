@@ -4,19 +4,19 @@ const pool = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 
 const TUR_SURE = 3600; // 1 saat
-const ROTATION = ['barut','zirh','gul2','gul3','top2','barut','zirh','gul3','gul2','top3'];
+const ROTATION = ['barut','zirh','gul3','top2','elit_kiris','gemi1'];
 
 const ITEMS_INFO = {
-  barut: { name: 'Barut x100',          type: 'sarf',   qty: 100 },
-  zirh:  { name: 'Zırh x100',           type: 'sarf',   qty: 100 },
-  gul2:  { name: 'Oyuk Gülle x100',      type: 'gulle',  qty: 100 },
-  gul3:  { name: 'Patlayan Gülle x100',  type: 'gulle',  qty: 100 },
-  top2:  { name: '55 Pounder',          type: 'top',    qty: 1 },
-  top3:  { name: '60 Pounder',          type: 'top',    qty: 1 }
+  barut:      { name: 'Barut x100',          type: 'sarf',   qty: 100 },
+  zirh:       { name: 'Zırh x100',           type: 'sarf',   qty: 100 },
+  gul3:       { name: 'Patlayan Gülle x100', type: 'gulle',  qty: 100 },
+  top2:       { name: '55 Pounder',          type: 'top',    qty: 1 },
+  elit_kiris: { name: 'Elit Kiriş',          type: 'plank',  qty: 1 },
+  gemi1:      { name: 'Elit I Gemi',         type: 'ship',   qty: 1 }
 };
 
 // Açık artırmaları kontrol et, süresi bitenleri sonuçlandır ve yeni tur başlat
-async function getOrUpdateAuctionRound() {
+async function getOrUpdateAuctionRound(playerId) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -58,7 +58,7 @@ async function getOrUpdateAuctionRound() {
           );
         } 
         else if (info.type === 'gulle') {
-          const ammoType = key === 'gul2' ? 2 : 3; // gul2 -> Oyuk, gul3 -> Patlayan
+          const ammoType = 3; // gul3 -> Patlayan Gülle
           await client.query(
             `INSERT INTO player_ammo (player_id, ammo_type, quantity)
              VALUES ($1, $2, $3)
@@ -67,12 +67,26 @@ async function getOrUpdateAuctionRound() {
           );
         } 
         else if (info.type === 'top') {
-          const cannonType = key === 'top2' ? 2 : 3; // top2 -> 55, top3 -> 60
+          const cannonType = 2;
           await client.query(
             `INSERT INTO player_cannons (player_id, cannon_type, quantity)
              VALUES ($1, $2, $3)
              ON CONFLICT (player_id, cannon_type) DO UPDATE SET quantity = player_cannons.quantity + EXCLUDED.quantity`,
             [winnerId, cannonType, info.qty]
+          );
+        }
+        else if (info.type === 'plank') {
+          await client.query(
+            `INSERT INTO player_planks (player_id, plank_type, quantity)
+             VALUES ($1, 'elit', $2)
+             ON CONFLICT (player_id, plank_type) DO UPDATE SET quantity = player_planks.quantity + EXCLUDED.quantity`,
+            [winnerId, info.qty]
+          );
+        }
+        else if (info.type === 'ship') {
+          await client.query(
+            `UPDATE players SET ship_level = GREATEST(ship_level, 1), max_hp = 25000 WHERE id = $1 AND ship_level < 1`,
+            [winnerId]
           );
         }
       }
@@ -85,7 +99,26 @@ async function getOrUpdateAuctionRound() {
     const expiresAt = new Date(Date.now() + TUR_SURE * 1000);
     const newItems = [];
 
+    // Oyuncunun sahip olduğu eşyaları kontrol et
+    let ownedSarf = {};
+    let ownedAmmo = {};
+    let shipLevel = 0;
+
+    if (playerId) {
+      const sfRes = await client.query('SELECT item_type FROM player_items WHERE player_id = $1 AND quantity > 0', [playerId]);
+      for (const r of sfRes.rows) ownedSarf[r.item_type] = true;
+
+      const amRes = await client.query('SELECT ammo_type FROM player_ammo WHERE player_id = $1 AND quantity > 0', [playerId]);
+      for (const r of amRes.rows) ownedAmmo[r.ammo_type] = true;
+
+      const shRes = await client.query('SELECT ship_level FROM players WHERE id = $1', [playerId]);
+      if (shRes.rows.length > 0) shipLevel = shRes.rows[0].ship_level;
+    }
+
     for (const key of ROTATION) {
+      // Sadece Elit I Gemi için sahiplik filtresi
+      if (key === 'gemi1' && playerId && shipLevel >= 1) continue;
+
       const res = await client.query(
         `INSERT INTO auctions (item_type, quantity, currency, starting_price, current_price, expires_at)
          VALUES ($1, $2, 'gold', 0, 0, $3)
@@ -109,16 +142,16 @@ async function getOrUpdateAuctionRound() {
 // GET AUCTIONS
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const list = await getOrUpdateAuctionRound();
+    const list = await getOrUpdateAuctionRound(req.player.id);
     
     // Her kalemin en yüksek teklif verenin kullanıcı adını çekelim
     const formattedList = [];
     for (const item of list) {
       let bidderUsername = null;
       if (item.highest_bidder_id) {
-        const uRes = await pool.query('SELECT username FROM players WHERE id = $1', [item.highest_bidder_id]);
+        const uRes = await pool.query('SELECT username, display_name FROM players WHERE id = $1', [item.highest_bidder_id]);
         if (uRes.rows.length > 0) {
-          bidderUsername = uRes.rows[0].username;
+          bidderUsername = uRes.rows[0].display_name || uRes.rows[0].username;
         }
       }
       
@@ -133,6 +166,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
     res.json({
       bitis: Math.floor(new Date(list[0].expires_at).getTime() / 1000),
+      serverNow: Math.floor(Date.now() / 1000),
       liste: formattedList
     });
 

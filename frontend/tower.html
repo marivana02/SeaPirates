@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
   <title>SeaPirate — Günlük Kule</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     /* Premium Styling using Gold and Wood themes */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,16 +16,25 @@
     }
     html, body {
       width: 100%; height: 100dvh; overflow: hidden;
-      background: #071428 url('assets/sea.png') repeat;
-      background-size: 200px auto;
+      background: #050a10;
       font-family: 'Inter', sans-serif;
       color: var(--txt); user-select: none;
     }
     .page {
       max-width: 430px; margin: 0 auto; height: 100dvh;
       display: flex; flex-direction: column; position: relative;
-      background: rgba(0, 0, 0, 0.55);
+      background: url('assets/sea.png') repeat;
+      background-size: 200px auto;
+      border-left: 2px solid var(--gold);
+      border-right: 2px solid var(--gold);
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.95);
     }
+    .page::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0,0,0,0.4);
+      pointer-events: none; z-index: 0;
+    }
+    .page > * { position: relative; z-index: 1; }
     .header {
       position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between;
       padding: 14px 16px; background: linear-gradient(180deg, rgba(5,2,0,0.9) 0%, transparent 100%);
@@ -127,14 +137,14 @@
   <script>
     const API_URL = 'http://localhost:3000/api';
     const token = localStorage.getItem('sp_token');
-    if (!token) window.location.href = 'index.html';
+    if (!token) goTo('index.html');
 
     const TOWERS = {
-      1: { id: 1, name: 'Liman Karakolu', lvl: 1, diff: 'KOLAY', cls: 'diff-low', hp: 25000, dmg: 600, pearl: 300, img: 'assets/tower/low1.png' },
-      2: { id: 2, name: 'Korsan Sığınağı', lvl: 2, diff: 'KOLAY', cls: 'diff-low', hp: 55000, dmg: 1300, pearl: 700, img: 'assets/tower/low3.png' },
-      3: { id: 3, name: 'Deniz Muhafızı', lvl: 3, diff: 'ORTA', cls: 'diff-mid', hp: 110000, dmg: 2500, pearl: 1500, img: 'assets/tower/middle1.png' },
-      4: { id: 4, name: 'Hisar Kalesi', lvl: 4, diff: 'ORTA', cls: 'diff-mid', hp: 220000, dmg: 4800, pearl: 3200, img: 'assets/tower/middle3.png' },
-      5: { id: 5, name: 'Kraliyet Tabyası', lvl: 5, diff: 'ZOR', cls: 'diff-hard', hp: 450000, dmg: 8500, pearl: 7000, img: 'assets/tower/hard1.png' }
+      1: { id: 1, lvl: 1, diff: 'KOLAY', cls: 'diff-low', hp: 25000, dmg: 600, pearl: 300, img: 'assets/tower/low1.png' },
+      2: { id: 2, lvl: 2, diff: 'KOLAY', cls: 'diff-low', hp: 55000, dmg: 1300, pearl: 700, img: 'assets/tower/low3.png' },
+      3: { id: 3, lvl: 3, diff: 'ORTA', cls: 'diff-mid', hp: 110000, dmg: 2500, pearl: 1500, img: 'assets/tower/middle1.png' },
+      4: { id: 4, lvl: 4, diff: 'ORTA', cls: 'diff-mid', hp: 220000, dmg: 4800, pearl: 3200, img: 'assets/tower/middle3.png' },
+      5: { id: 5, lvl: 5, diff: 'ZOR', cls: 'diff-hard', hp: 450000, dmg: 8500, pearl: 7000, img: 'assets/tower/hard1.png' }
     };
 
     function fmt(n) { return Number(n).toLocaleString('tr-TR'); }
@@ -159,40 +169,22 @@
           if (lastDate === todayDate) dailyLocked = true;
         }
 
-        let name = '';
-        let diff = '';
-        let cls = '';
-        let img = '';
+        let img = 'assets/tower/low1.png';
         let calculatedTowerId = 1;
 
         if (towerLvl <= 25) {
-          name = 'Liman Karakolu';
-          diff = 'KOLAY';
-          cls = 'diff-low';
           img = 'assets/tower/low1.png';
           calculatedTowerId = 1;
         } else if (towerLvl <= 50) {
-          name = 'Korsan Sığınağı';
-          diff = 'KOLAY';
-          cls = 'diff-low';
           img = 'assets/tower/low3.png';
           calculatedTowerId = 2;
         } else if (towerLvl <= 75) {
-          name = 'Deniz Muhafızı';
-          diff = 'ORTA';
-          cls = 'diff-mid';
           img = 'assets/tower/middle1.png';
           calculatedTowerId = 3;
         } else if (towerLvl <= 100) {
-          name = 'Hisar Kalesi';
-          diff = 'ORTA';
-          cls = 'diff-mid';
           img = 'assets/tower/middle3.png';
           calculatedTowerId = 4;
         } else {
-          name = 'Kraliyet Tabyası';
-          diff = 'ZOR';
-          cls = 'diff-hard';
           img = 'assets/tower/hard1.png';
           calculatedTowerId = 5;
         }
@@ -218,10 +210,10 @@
 
         container.innerHTML = `
           <div class="tower-card ${disableBtn ? 'locked' : ''}">
-            <div class="t-name">${name} (Lvl ${towerLvl})</div>
+            <div class="t-name">Tower (Lvl ${towerLvl})</div>
             
             <div class="t-icon-wrap">
-              <img src="${img}" alt="${name}" />
+              <img src="${img}" alt="Tower" />
             </div>
             
             <div class="t-stats">
@@ -245,10 +237,11 @@
     function attackTower(id) {
       localStorage.setItem('sp_combat_is_tower', 'true');
       localStorage.setItem('sp_combat_tower_id', id);
-      window.location.href = 'fight.html';
+      goTo('fight.html');
     }
 
     init();
   </script>
+  <script src="transition.js"></script>
 </body>
 </html>

@@ -8,6 +8,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     *,
     *::before,
@@ -627,6 +628,145 @@
       border: 1px solid #e05a3a;
       color: #ffd0c0;
     }
+
+    /* ── MAĞAZA MODAL (VIP / STARTER ortak) ── */
+    .magaza-overlay {
+      position: fixed; inset: 0;
+      z-index: 900;
+      background: rgba(5,2,0,0.88);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .magaza-overlay.show { display: flex; animation: fadeIn 0.3s; }
+
+    .magaza-modal {
+      background: url('assets/leaderboardbackground.png') center/cover;
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      width: 92%;
+      max-width: 380px;
+      max-height: 90dvh;
+      overflow-y: auto;
+      padding: 20px 16px 16px;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.85), 0 0 60px rgba(200,150,42,0.12);
+    }
+    .magaza-modal::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(10,5,2,0.7);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+    .magaza-modal > * { position: relative; z-index: 1; }
+
+    .magaza-close {
+      position: absolute; top: 8px; right: 10px;
+      background: none; border: none;
+      color: var(--txt-d); font-size: 1.3rem;
+      cursor: pointer; z-index: 2;
+      line-height: 1;
+    }
+    .magaza-close:hover { color: var(--txt); }
+
+    .magaza-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem; font-weight: 900;
+      color: var(--gold-b);
+      text-align: center;
+      margin-bottom: 2px;
+      text-shadow: 0 0 20px rgba(240,192,64,0.3);
+    }
+    .magaza-sub {
+      font-size: 0.7rem; color: var(--txt-d);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .magaza-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .magaza-card {
+      background: rgba(0,0,0,0.35);
+      border: 1.5px solid rgba(200,150,42,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color 0.2s;
+    }
+    .magaza-card:hover { border-color: rgba(200,150,42,0.5); }
+
+    .magaza-card-info { display: flex; flex-direction: column; gap: 2px; }
+    .magaza-card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem; font-weight: 700;
+      color: var(--gold-p);
+    }
+    .magaza-card-dur {
+      font-size: 0.65rem; color: var(--txt-d);
+    }
+
+    .magaza-card-price {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem; font-weight: 900;
+      color: #4ade80;
+      white-space: nowrap;
+    }
+    .magaza-card-btn {
+      background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+      border: 2px solid #86efac;
+      border-radius: 20px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem; font-weight: 900;
+      color: #052e16;
+      padding: 6px 16px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: filter 0.2s;
+      margin-left: 8px;
+    }
+    .magaza-card-btn:hover { filter: brightness(1.15); }
+    .magaza-card-btn:active { transform: scale(0.96); }
+
+    .magaza-perks {
+      margin-top: 14px;
+      border-top: 1px solid rgba(200,150,42,0.15);
+      padding-top: 12px;
+    }
+    .magaza-perks-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem; font-weight: 700;
+      color: var(--txt-d);
+      margin-bottom: 8px;
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+    .magaza-perk {
+      font-size: 0.65rem; color: var(--txt);
+      padding: 3px 0;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .magaza-perk::before { content: '✨'; font-size: 0.7rem; }
+
+    .top-bar-left {
+      display: flex;
+      gap: 8px;
+    }
+    .top-bar-right {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 </head>
 
@@ -636,10 +776,18 @@
 
     <!-- TOP BAR -->
     <div class="top-bar">
-      <a class="shop-btn" href="#" onclick="toast2('🛍️ Paket dükkanı yakında!','ok');return false;">
-        <span class="shop-btn-icon">🛍️</span>
-        <span class="shop-btn-lbl">Paketler</span>
-      </a>
+      <div class="top-bar-left">
+        <a class="shop-btn" href="#" id="btn-starter-home">
+          <span class="shop-btn-icon">🚀</span>
+          <span class="shop-btn-lbl">Starter</span>
+        </a>
+      </div>
+      <div class="top-bar-right">
+        <a class="shop-btn" href="#" id="btn-vip-home">
+          <span class="shop-btn-icon">👑</span>
+          <span class="shop-btn-lbl">VIP</span>
+        </a>
+      </div>
     </div>
 
     <!-- LEADERBOARD -->
@@ -690,14 +838,110 @@
           </div>
         </div>
         <div class="p-actions">
-          <button class="act-btn" onclick="window.location.href='menu.html'">☰ Menü</button>
-          <button class="act-btn" onclick="toast2('🎉 Etkinlikler yakında!','ok')">🎉 Etkinlik</button>
-          <button class="act-btn primary" onclick="window.location.href='map.html'">▶ OYNA</button>
+          <button class="act-btn" onclick="goTo('menu.html')">☰ Menü</button>
+          <button class="act-btn" onclick="goTo('events.html')">🎉 Etkinlik</button>
+          <button class="act-btn primary" onclick="goTo('map.html')">▶ OYNA</button>
         </div>
       </div>
     </div>
 
   </div>
+
+  <!-- VIP MODAL -->
+  <div class="magaza-overlay" id="vip-modal-home">
+    <div class="magaza-modal">
+      <button class="magaza-close" id="btn-close-vip-home">✕</button>
+      <div class="magaza-title">👑 VIP PAKETLER</div>
+      <div class="magaza-sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
+      <div class="magaza-cards">
+        <div class="magaza-card">
+          <div class="magaza-card-info">
+            <span class="magaza-card-name">7 Gün VIP</span>
+            <span class="magaza-card-dur">7 gün VIP ayrıcalıkları</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="magaza-card-price">49 ₺</span>
+            <button class="magaza-card-btn" data-plan="7" data-type="vip">Satın Al</button>
+          </div>
+        </div>
+        <div class="magaza-card">
+          <div class="magaza-card-info">
+            <span class="magaza-card-name">1 Ay VIP</span>
+            <span class="magaza-card-dur">30 gün VIP ayrıcalıkları (en popüler)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="magaza-card-price">129 ₺</span>
+            <button class="magaza-card-btn" data-plan="30" data-type="vip">Satın Al</button>
+          </div>
+        </div>
+        <div class="magaza-card">
+          <div class="magaza-card-info">
+            <span class="magaza-card-name">3 Ay VIP</span>
+            <span class="magaza-card-dur">90 gün VIP ayrıcalıkları (en iyi değer)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="magaza-card-price">299 ₺</span>
+            <button class="magaza-card-btn" data-plan="90" data-type="vip">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <div class="magaza-perks">
+        <div class="magaza-perks-title">VIP AYRICALIKLARI</div>
+        <div class="magaza-perk">Tamirde her 3sn'de +1000 can yenileme</div>
+        <div class="magaza-perk">Savaş ödüllerinde %10 bonus</div>
+        <div class="magaza-perk">Özel VIP etiket ve görünüm</div>
+        <div class="magaza-perk">Daha hızlı gemi tamiri</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STARTER MODAL -->
+  <div class="magaza-overlay" id="starter-modal-home">
+    <div class="magaza-modal">
+      <button class="magaza-close" id="btn-close-starter-home">✕</button>
+      <div class="magaza-title">🚀 STARTER PAKETİ</div>
+      <div class="magaza-sub">Yeni korsanlar için tek seferlik fırsat!</div>
+      <div class="magaza-cards">
+        <div class="magaza-card">
+          <div class="magaza-card-info">
+            <span class="magaza-card-name">Başlangıç Paketi</span>
+            <span class="magaza-card-dur">500 💎 + 50.000 🪙 + 2x XP Bonus</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="magaza-card-price">29 ₺</span>
+            <button class="magaza-card-btn" data-plan="starter" data-type="starter">Satın Al</button>
+          </div>
+        </div>
+        <div class="magaza-card">
+          <div class="magaza-card-info">
+            <span class="magaza-card-name">Korsan Destek Paketi</span>
+            <span class="magaza-card-dur">1.200 💎 + 150.000 🪙 + 3x XP Bonus</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="magaza-card-price">79 ₺</span>
+            <button class="magaza-card-btn" data-plan="korsan" data-type="starter">Satın Al</button>
+          </div>
+        </div>
+        <div class="magaza-card">
+          <div class="magaza-card-info">
+            <span class="magaza-card-name">Kaptan Paketi</span>
+            <span class="magaza-card-dur">3.000 💎 + 500.000 🪙 + 5x XP Bonus</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="magaza-card-price">199 ₺</span>
+            <button class="magaza-card-btn" data-plan="kaptan" data-type="starter">Satın Al</button>
+          </div>
+        </div>
+      </div>
+      <div class="magaza-perks">
+        <div class="magaza-perks-title">📦 PAKET İÇERİĞİ</div>
+        <div class="magaza-perk">Anında hesabınıza yüklenir</div>
+        <div class="magaza-perk">Tek seferlik satın alım</div>
+        <div class="magaza-perk">Hesap sıfırlanmaz, kalıcıdır</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const API_URL = 'http://localhost:3000/api/player';
     // Session/Beni Hatırla doğrulaması
@@ -712,7 +956,7 @@
     const token = localStorage.getItem('sp_token');
 
     if (!token) {
-      window.location.href = 'index.html';
+      goTo('index.html');
     } else if (!isRemembered) {
       // Oturum aktifliğini koru
       sessionStorage.setItem('sp_session_active', 'true');
@@ -739,7 +983,7 @@
         });
         if (!res.ok) {
           localStorage.removeItem('sp_token');
-          window.location.href = 'index.html';
+          goTo('index.html');
           return null;
         }
         const data = await res.json();
@@ -767,7 +1011,7 @@
       if (!playerData) return;
 
       // Render Player Info Panel
-      document.getElementById('p-name').textContent = playerData.username || 'Kaptan';
+      document.getElementById('p-name').textContent = playerData.display_name || playerData.username || 'Kaptan';
       document.getElementById('p-pearl').textContent = fmt(playerData.pearl || 0);
       document.getElementById('p-gold').textContent = fmt(playerData.gold || 0);
       document.getElementById('p-xp').textContent = fmt(playerData.xp || 0);
@@ -795,7 +1039,7 @@
       let html = '';
       lbData.forEach((row, i) => {
         const rank = i + 1;
-        const isMe = row.username === playerData.username;
+        const isMe = row.username === (playerData.display_name || playerData.username);
         const badge = row.rankBadge || 13;
         const rbClass = badge === 1 ? 'r1' : (badge === 2 || badge === 3) ? 'r2-3' : badge <= 10 ? 'r4-10' : 'r-low';
 
@@ -811,14 +1055,14 @@
     </div>`;
       });
 
-      const inList = lbData.some(r => r.username === playerData.username);
+      const inList = lbData.some(r => r.username === (playerData.display_name || playerData.username));
       if (!inList) {
         const badge = playerData.rankBadge || 13;
         const rbClass = badge === 1 ? 'r1' : (badge === 2 || badge === 3) ? 'r2-3' : badge <= 10 ? 'r4-10' : 'r-low';
         html += `<div class="lb-sep">· · ·</div>
     <div class="lb-row me">
       <div class="sira">—</div>
-      <span class="nick">${esc(playerData.username)}</span>
+      <span class="nick">${esc(playerData.display_name || playerData.username)}</span>
       <div class="rutbe-col">
         <span class="rutbe-puan">${fmt(playerData.score || 0)}</span>
       </div>
@@ -830,6 +1074,34 @@
 
       body.innerHTML = html;
     }
+
+    // MODAL AÇ/KAPA
+    function modalGoster(id) { document.getElementById(id).classList.add('show'); }
+    function modalGizle(id) { document.getElementById(id).classList.remove('show'); }
+
+    const vipBtn = document.getElementById('btn-vip-home');
+    const vipModal = document.getElementById('vip-modal-home');
+    const vipClose = document.getElementById('btn-close-vip-home');
+    if (vipBtn) vipBtn.addEventListener('click', (e) => { e.preventDefault(); modalGoster('vip-modal-home'); });
+    if (vipClose) vipClose.addEventListener('click', () => modalGizle('vip-modal-home'));
+    if (vipModal) vipModal.addEventListener('click', (e) => { if (e.target === vipModal) modalGizle('vip-modal-home'); });
+
+    const starterBtn = document.getElementById('btn-starter-home');
+    const starterModal = document.getElementById('starter-modal-home');
+    const starterClose = document.getElementById('btn-close-starter-home');
+    if (starterBtn) starterBtn.addEventListener('click', (e) => { e.preventDefault(); modalGoster('starter-modal-home'); });
+    if (starterClose) starterClose.addEventListener('click', () => modalGizle('starter-modal-home'));
+    if (starterModal) starterModal.addEventListener('click', (e) => { if (e.target === starterModal) modalGizle('starter-modal-home'); });
+
+    // SATIN AL BUTONLARI (placeholder — ödeme entegrasyonu sonra)
+    document.querySelectorAll('.magaza-card-btn').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const plan = this.dataset.plan;
+        const type = this.dataset.type;
+        toast2(`🔒 ${type === 'vip' ? 'VIP' : 'Starter'} "${plan}" paketi seçildi. Ödeme sistemi yakında!`, 'ok', 3000);
+      });
+    });
 
     // 60 saniyede bir playtime (oyun süresi) arttırmak için sunucuyu pingle
     setInterval(async () => {
@@ -845,6 +1117,7 @@
 
     init();
   </script>
+  <script src="transition.js"></script>
 </body>
 
 </html>

@@ -8,6 +8,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     *,
     *::before,
@@ -21,6 +22,7 @@
       --gold: #c8962a;
       --gold-b: #f0c040;
       --gold-p: #fde68a;
+      --pearl: #a8edea;
       --wood-d: #1a0e05;
       --wood-m: #2d1a08;
       --txt: #f5e6c8;
@@ -371,7 +373,7 @@
     .dmg-val {
       font-family: 'Cinzel', serif;
       font-weight: 900;
-      font-size: 1.35rem;
+      font-size: 1.2rem;
       text-shadow: 0 2px 8px #000, 0 0 10px rgba(0, 0, 0, 0.8);
     }
 
@@ -510,6 +512,7 @@
       justify-content: center;
       background: rgba(5, 2, 0, 0.92);
       backdrop-filter: blur(14px);
+      padding: 24px;
     }
 
     .outcome.show {
@@ -518,57 +521,136 @@
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0
-      }
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
 
-      to {
-        opacity: 1
-      }
+    .outcome-box {
+      background: url('assets/leaderboardbackground.png') center/cover;
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      padding: 28px 24px 24px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 60px rgba(200,150,42,0.15);
+    }
+
+    .outcome-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 5, 2, 0.7);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+
+    .outcome-box > * {
+      position: relative;
+      z-index: 1;
     }
 
     .outcome-title {
       font-family: 'Cinzel', serif;
-      font-size: 2.2rem;
+      font-size: 1.6rem;
       font-weight: 900;
-      margin-bottom: 12px;
+      margin-bottom: 4px;
       letter-spacing: 0.05em;
       text-align: center;
-      line-height: 1.2;
+    }
+
+    .outcome-title.win {
+      color: var(--gold-b);
+      text-shadow: 0 0 30px rgba(241, 196, 15, 0.5);
+    }
+
+    .outcome-title.loss {
+      color: #e74c3c;
+      text-shadow: 0 0 30px rgba(231, 76, 60, 0.5);
+    }
+
+    .outcome-sub {
+      font-size: 0.7rem;
+      color: var(--txt-d);
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
     .outcome-rewards {
-      font-family: 'Inter', sans-serif;
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #ffd700;
-      text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-      margin-bottom: 35px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .outcome-reward-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(200, 150, 42, 0.15);
+      border-radius: 8px;
+    }
+
+    .outcome-reward-row img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+
+    .outcome-reward-row span {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .outcome-reward-row .r-gold { color: var(--gold-b); }
+    .outcome-reward-row .r-pearl { color: var(--pearl); }
+    .outcome-reward-row .r-xp { color: var(--txt); }
+
+    .outcome-lvlup {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold-p);
+      background: rgba(200, 150, 42, 0.1);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 6px 12px;
+      margin-top: 4px;
       text-align: center;
-      line-height: 1.6;
     }
 
-    .win {
-      color: #f1c40f;
-      text-shadow: 0 0 40px rgba(241, 196, 15, 0.7);
-    }
-
-    .loss {
-      color: #e74c3c;
-      text-shadow: 0 0 40px rgba(231, 76, 60, 0.7);
+    .outcome-empty {
+      font-size: 0.85rem;
+      color: var(--txt-d);
+      padding: 8px 0;
     }
 
     .btn-return {
-      padding: 14px 36px;
-      background: linear-gradient(180deg, #c8962a, #8a5a10);
+      padding: 12px 32px;
+      background: linear-gradient(180deg, var(--gold) 0%, #8a5e14 100%);
       border: 2px solid var(--gold-p);
-      border-radius: 10px;
+      border-radius: 40px;
       font-family: 'Cinzel', serif;
-      font-size: 1rem;
+      font-size: 0.85rem;
       font-weight: 900;
-      color: #1a0e05;
+      color: #1c1005;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.08em;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+      transition: filter 0.2s, transform 0.1s;
+    }
+
+    .btn-return:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-return:active {
+      transform: scale(0.96);
     }
 
     /* Dynamic Island Background */
@@ -668,9 +750,12 @@
     <div class="ammo-bar" id="ammo-bar"></div>
 
     <div class="outcome" id="outcome">
-      <div class="outcome-title" id="outcome-title">—</div>
-      <div class="outcome-rewards" id="outcome-rewards"></div>
-      <button class="btn-return" onclick="handleReturn()">Geri Dön</button>
+      <div class="outcome-box">
+        <div class="outcome-title" id="outcome-title">—</div>
+        <div class="outcome-sub" id="outcome-sub"></div>
+        <div class="outcome-rewards" id="outcome-rewards"></div>
+        <button class="btn-return" onclick="handleReturn()">Geri Dön</button>
+      </div>
     </div>
   </div>
 
@@ -679,14 +764,11 @@
        SES / AMBIENT SİSTEMİ
     ══════════════════════════════════════════════ */
     const sounds = {
-      ambient: new Audio('assets/sounds/1_ambient.mp3'),
       firePlayer: new Audio('assets/sounds/cannonfire1.mp3'),
       fireNpc: new Audio('assets/sounds/cannonfire2.mp3'),
       explosion: new Audio('assets/sounds/explosion.mp3')
     };
 
-    sounds.ambient.loop = true;
-    sounds.ambient.volume = 0.15;
     sounds.firePlayer.volume = 0.35;
     sounds.fireNpc.volume = 0.35;
     sounds.explosion.volume = 0.45;
@@ -696,22 +778,10 @@
       try {
         const audio = sounds[name];
         if (!audio) return;
-        const clone = audio.cloneNode(); // Üst üste atışların ve patlamaların çakışmaması için klonla
-        clone.volume = audio.volume;
-        clone.play().catch(e => {});
+        audio.currentTime = 0;
+        audio.play().catch(e => {});
       } catch(e) {}
     }
-
-    function startAmbient() {
-      if (localStorage.getItem('sp_setting_sound') === 'false') return;
-      sounds.ambient.play().catch(e => {
-        document.addEventListener('click', () => {
-          if (localStorage.getItem('sp_setting_sound') === 'false') return;
-          sounds.ambient.play().catch(err => {});
-        }, { once: true });
-      });
-    }
-    startAmbient();
 
     /* ══════════════════════════════════════════════
        GÜLLE ANİMASYON SİSTEMİ
@@ -1031,11 +1101,11 @@
     const isTowerMode = localStorage.getItem('sp_combat_is_tower') === 'true';
     const towerId = parseInt(localStorage.getItem('sp_combat_tower_id')) || 1;
     const TOWERS_LOAD = {
-      1: { name: 'Liman Karakolu (Lvl 1)', img: 'assets/tower/low1.png', damaged: 'assets/tower/low2.png' },
-      2: { name: 'Korsan Sığınağı (Lvl 2)', img: 'assets/tower/low3.png', damaged: 'assets/tower/low4.png' },
-      3: { name: 'Deniz Muhafızı (Lvl 3)', img: 'assets/tower/middle1.png', damaged: 'assets/tower/middle2.png' },
-      4: { name: 'Hisar Kalesi (Lvl 4)', img: 'assets/tower/middle3.png', damaged: 'assets/tower/middle4.png' },
-      5: { name: 'Kraliyet Tabyası (Lvl 5)', img: 'assets/tower/hard1.png', damaged: 'assets/tower/hard2.png' }
+       1: { name: 'Tower (Lvl 1)', img: 'assets/tower/low1.png', damaged: 'assets/tower/low2.png' },
+       2: { name: 'Tower (Lvl 2)', img: 'assets/tower/low3.png', damaged: 'assets/tower/low4.png' },
+       3: { name: 'Tower (Lvl 3)', img: 'assets/tower/middle1.png', damaged: 'assets/tower/middle2.png' },
+       4: { name: 'Tower (Lvl 4)', img: 'assets/tower/middle3.png', damaged: 'assets/tower/middle4.png' },
+       5: { name: 'Tower (Lvl 5)', img: 'assets/tower/hard1.png', damaged: 'assets/tower/hard2.png' }
     };
     const tInit = TOWERS_LOAD[towerId] || TOWERS_LOAD[1];
 
@@ -1114,7 +1184,7 @@
         });
         if (res.ok) {
           const data = await res.json();
-          player.name = data.username;
+          player.name = data.display_name || data.username;
           document.getElementById('player-name').textContent = player.name;
           document.getElementById('player-pid').textContent = `#ID:${data.id}`;
           
@@ -1253,8 +1323,8 @@
       el.className = 'dmg-static';
       el.style.left = (nr.left - pr.left + nr.width * 0.5) + 'px';
       el.style.top = (nr.top - pr.top - 18) + 'px';
-      el.innerHTML = `<span class="dmg-val" style="color:${color}">${fmt(amount)}</span>`
-        + (icon ? `<span class="dmg-icon">${icon}</span>` : '');
+      el.innerHTML = (icon ? `<span class="dmg-icon">${icon}</span>` : '')
+        + `<span class="dmg-val" style="color:${color}">${fmt(amount)}</span>`;
       parent.appendChild(el);
       setTimeout(() => el.remove(), 1600);
     }
@@ -1367,7 +1437,7 @@
     /* Combat API */
     const API_URL = 'http://localhost:3000/api/combat';
     const token = localStorage.getItem('sp_token');
-    if (!token) window.location.href = 'index.html';
+    if (!token) goTo('index.html');
 
     let attackInterval;
     let admiralStatusInterval = null;
@@ -1613,7 +1683,7 @@
           }
         } else {
           alert(data.error);
-          window.location.href = isTower ? 'tower.html' : 'map.html';
+          goTo(isTower ? 'tower.html' : 'map.html');
         }
       } catch (e) { console.error(e); }
     }
@@ -1624,7 +1694,7 @@
       localStorage.removeItem('sp_combat_tower_id');
       localStorage.removeItem('sp_combat_is_weekly_boss');
       localStorage.removeItem('sp_boss_dmg_dealt');
-      window.location.href = isTower ? 'tower.html' : 'map.html';
+      goTo(isTower ? 'tower.html' : 'map.html');
     }
 
     async function doAttack() {
@@ -1754,36 +1824,58 @@
         clearInterval(admiralStatusInterval);
         admiralStatusInterval = null;
       }
-      const t = document.getElementById('outcome-title');
-      const r = document.getElementById('outcome-rewards');
-      
+
+      if (player) {
+        const existing = JSON.parse(localStorage.getItem('sp_player') || '{}');
+        existing.hp = player.hp;
+        existing.max_hp = player.maxHp || existing.max_hp;
+        if (newLevel) existing.level = newLevel;
+        localStorage.setItem('sp_player', JSON.stringify(existing));
+      }
+
+      const rw = rewards || {};
+      const titleEl = document.getElementById('outcome-title');
+      const subEl = document.getElementById('outcome-sub');
+      const rewardsEl = document.getElementById('outcome-rewards');
+
       const isWeeklyBoss = localStorage.getItem('sp_combat_is_weekly_boss') === 'true';
       const isTower = localStorage.getItem('sp_combat_is_tower') === 'true';
-      
+      const isAdmiral = npc.name && npc.name.includes('Admiral');
+
+      let titleText, subText;
+
       if (isWeeklyBoss) {
-        t.textContent = 'MÜCADELE BİTTİ!';
-        t.className = 'outcome-title win';
-        const bossDmg = Number(localStorage.getItem('sp_boss_dmg_dealt') || 0);
-        r.innerHTML = `<span style="color:#ffd700; font-size:1.3rem;">Bu Savaştaki Hasarınız:<br><strong style="font-size:1.8rem; color:#ff4757; display:block; margin-top:8px;">${bossDmg.toLocaleString('tr-TR')}</strong></span>`;
+        titleText = 'MÜCADELE BİTTİ';
+        subText = 'Haftalık Amiral Avı';
       } else if (won) {
-        const lvlLine = leveledUp ? `<br><span style="font-size:1rem;color:#f1c40f;font-weight:700;">🎉 SEVİYE ATLADI! → ${newLevel} LVL</span>` : '';
-        const isAdmiral = npc.name && npc.name.includes('Admiral');
-        
-        if (isTower) {
-          t.textContent = 'KULE YIKILDI!';
-          r.innerHTML = `<span style="color:#fde68a;">+${(rewards.pearl || 0).toLocaleString('tr-TR')} İnci</span>${lvlLine}`;
-        } else if (isAdmiral) {
-          t.textContent = 'AMİRAL BATIRILDI!';
-          r.innerHTML = `<span style="color:#fde68a; font-size:1rem;">Ödüller vurduğunuz hasara göre hesabınıza aktarıldı!</span>${lvlLine}`;
-        } else {
-          t.textContent = 'ZAFER!';
-          r.innerHTML = `<span style="color:#fde68a;">+${(rewards.gold || 0).toLocaleString('tr-TR')} Altın, +${(rewards.xp || 0).toLocaleString('tr-TR')} XP${rewards.pearl > 0 ? ', +' + rewards.pearl.toLocaleString('tr-TR') + ' İnci' : ''}</span>${lvlLine}`;
-        }
-        t.className = 'outcome-title win';
+        if (isTower) { titleText = 'KULE YIKILDI'; subText = 'Daily Tower'; }
+        else if (isAdmiral) { titleText = 'AMİRAL BATIRILDI'; subText = 'Ödüller hasara göre aktarıldı'; }
+        else { titleText = 'ZAFER'; subText = npc.name || ''; }
       } else {
-        t.textContent = 'MAĞLUBİYET';
-        t.className = 'outcome-title loss';
-        r.innerHTML = '<span style="color:#e74c3c;">Geminiz battı!</span>';
+        titleText = 'MAĞLUBİYET';
+        subText = 'Geminiz battı!';
+      }
+
+      titleEl.textContent = titleText;
+      titleEl.className = won ? 'outcome-title win' : 'outcome-title loss';
+      subEl.textContent = subText;
+
+      if (!won) {
+        rewardsEl.innerHTML = '';
+      } else {
+        let html = '<div style="font-size:1.2rem;color:var(--gold-p);margin-bottom:10px;">ÖDÜLLER</div>';
+        if (isWeeklyBoss) {
+          const bossDmg = Number(localStorage.getItem('sp_boss_dmg_dealt') || 0);
+          html += '<div class="outcome-reward-row"><span style="font-weight:700;color:#ff6b6b;">' + bossDmg.toLocaleString('tr-TR') + ' Hasar</span></div>';
+        } else {
+          const hasAny = rw.gold > 0 || rw.pearl > 0 || rw.xp > 0;
+          if (!hasAny) html += '<div class="outcome-empty">Ödül yok</div>';
+          if (rw.gold > 0) html += '<div class="outcome-reward-row"><img src="assets/gold.png" /><span class="r-gold">+' + fmt(rw.gold) + '</span></div>';
+          if (rw.pearl > 0) html += '<div class="outcome-reward-row"><img src="assets/pearl.png" /><span class="r-pearl">+' + fmt(rw.pearl) + '</span></div>';
+          if (rw.xp > 0) html += '<div class="outcome-reward-row"><span style="font-size:1.1rem;">⭐</span><span class="r-xp">+' + fmt(rw.xp) + ' XP</span></div>';
+        }
+        if (leveledUp) html += '<div class="outcome-lvlup">🎉 SEVİYE ATLADI! → ' + newLevel + ' LVL</div>';
+        rewardsEl.innerHTML = html;
       }
       setTimeout(() => document.getElementById('outcome').classList.add('show'), 900);
     }
@@ -1903,6 +1995,7 @@
     })();
   </script>
 
+  <script src="transition.js"></script>
 </body>
 
 </html>

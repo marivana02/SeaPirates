@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>SeaPirate — Etkinlik</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gld:#7a5a28;--gld-b:#9a7a38;--gld-p:#b89a48;
+      --bg:#080503;
+      --txt:#b8a888;--txt-d:#8a7a5a;--txt-m:#5a4a2a;
+    }
+    html,body{
+      width:100%;height:100dvh;overflow:hidden;
+      background:var(--bg);font-family:'Inter',sans-serif;color:var(--txt);user-select:none;
+    }
+    .page{
+      max-width:430px;margin:0 auto;height:100dvh;
+      display:flex;flex-direction:column;
+      background:radial-gradient(ellipse 120% 60% at 50% 30%,#120a04 0%,#080503 70%);
+      border-left:2px solid #1a1008;border-right:2px solid #1a1008;
+      box-shadow:0 0 40px rgba(0,0,0,0.95);
+    }
+    .page::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 200px 250px at 75% 5%,rgba(60,30,15,0.10) 0%,transparent 100%);
+      pointer-events:none;z-index:0;
+    }
+    .page>*{position:relative;z-index:1}
+    .header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 14px 10px;
+      background:linear-gradient(180deg,rgba(15,8,4,0.95) 0%,transparent 100%);
+      border-bottom:1px solid rgba(40,25,12,0.25);flex-shrink:0;
+    }
+    .back-btn{
+      display:inline-flex;align-items:center;gap:4px;padding:6px 10px;
+      background:linear-gradient(180deg,#2a1808,#100804);
+      border:1px solid var(--gld);border-radius:4px;
+      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;
+      color:var(--gld-p);cursor:pointer;text-decoration:none;
+    }
+    .title-wrap{
+      font-family:'Cinzel',serif;font-size:0.85rem;font-weight:900;
+      color:var(--gld-p);letter-spacing:0.15em;text-shadow:0 1px 3px rgba(0,0,0,0.8);
+    }
+    .card{
+      flex:1;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;text-align:center;
+      margin:16px 16px 8px;
+      background:linear-gradient(180deg,rgba(20,12,6,0.7) 0%,rgba(10,5,2,0.5) 100%);
+      border:1px solid rgba(70,50,25,0.3);border-radius:8px;
+      padding:20px;
+      box-shadow:inset 0 1px 0 rgba(180,160,120,0.03),0 4px 20px rgba(0,0,0,0.4);
+    }
+    .card.special{border-color:rgba(90,40,25,0.35)}
+    .card-icon{font-size:4.2rem;line-height:1;margin-bottom:10px}
+    .card-name{font-family:'Cinzel',serif;font-size:1.4rem;font-weight:900;color:var(--gld-p);margin-bottom:6px}
+    .card-desc{font-size:0.72rem;color:var(--txt-d);line-height:1.5;margin-bottom:16px;max-width:260px}
+    .card-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      border:1px solid var(--gld);border-radius:14px;
+      padding:5px 16px;background:rgba(80,50,20,0.15);
+      font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;color:var(--gld-p);
+    }
+    .card-badge span{font-size:1rem}
+    .card-tag{
+      font-size:0.5rem;color:var(--txt-m);margin-top:10px;
+      text-transform:uppercase;letter-spacing:0.1em;
+    }
+    .card-tag.aktif{color:var(--gld-p);font-weight:600}
+    .bar{
+      flex-shrink:0;margin:4px 16px 14px;
+      background:rgba(8,5,2,0.5);border-radius:6px;
+      padding:10px 14px;border:1px solid rgba(50,30,15,0.15);
+      display:grid;grid-template-columns:1fr 1px 1fr;gap:12px;align-items:center;
+    }
+    .bar-div{width:1px;height:28px;background:rgba(80,60,30,0.2)}
+    .bar-left{text-align:left}
+    .bar-right{text-align:right}
+    .bar-lbl{font-size:0.48rem;color:var(--txt-m);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px}
+    .bar-timer{
+      font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;color:var(--gld-p);
+    }
+    .bar-timer.urgent{color:#b04838}
+    .bar-next{font-size:0.7rem;color:var(--txt-d)}
+    .bar-next span{font-size:0.9rem}
+    .ld{display:flex;align-items:center;justify-content:center;flex:1;font-size:0.75rem;color:var(--txt-m)}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <a href="home.html" class="back-btn">◀ GERİ</a>
+      <div class="title-wrap">EMİR VAR!</div>
+      <div style="width:46px"></div>
+    </div>
+    <div class="card" id="card">
+      <div class="ld">Yükleniyor...</div>
+    </div>
+    <div class="bar" id="bar"></div>
+  </div>
+  <script>
+    var API='http://localhost:3000/api';
+    var token=localStorage.getItem('sp_token');
+    if(!token)goTo('home.html');
+    var ROTATION=[
+      {name:'2x NPC Ödül',icon:'💰',desc:'Altın, inci ve XP 2 kat'},
+      {name:'2x ELP Ödül',icon:'⭐',desc:'Elit Puan 2 kat'},
+      {name:'2x Hasar',icon:'⚔️',desc:'Patlayan Gülle hasarı 2 kat'}
+    ];
+    var ev=null;
+    function fmtHMS(s){if(!s||isNaN(s)||s<=0)return'00:00:00';var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+((s%60)<10?'0':'')+(s%60)}
+    function rotIdx(){var d=new Date();var s=new Date(d.getFullYear(),d.getMonth(),d.getDate());return Math.floor(s.getTime()/86400000)%3}
+    function dayN(o){var n=['Pzr','Pzt','Sal','Çar','Per','Cum','Cmt'];var d=new Date();d.setDate(d.getDate()+o);return n[d.getDay()]}
+    async function loadEv(){
+      try{
+        var r=await fetch(API+'/events',{headers:{'Authorization':'Bearer '+token}});
+        if(!r.ok)throw Error();ev=await r.json();render();
+      }catch(e){document.getElementById('card').innerHTML='<div class="ld">Bağlantı hatası</div>'}
+    }
+    function render(){
+      if(!ev)return;
+      var sp=!ev.is_auto;
+      var d=document.getElementById('card');
+      var ti=rotIdx();
+      d.className='card'+(sp?' special':'');
+      d.innerHTML=
+        '<div class="card-icon">'+ev.icon+'</div>'+
+        '<div class="card-name">'+ev.name+'</div>'+
+        '<div class="card-desc">'+ev.desc+'</div>'+
+        '<div class="card-badge"><span>×</span>'+ev.mult+'</div>'+
+        '<div class="card-tag '+(sp?'':'aktif')+'">'+(sp?'ÖZEL ETKİNLİK':'AKTİF ETKİNLİK')+'</div>';
+      var rt=ROTATION[ti];
+      var nx=ev.next;
+      var u=ev.remaining<3600;
+      document.getElementById('bar').innerHTML=
+        '<div class="bar-left"><div class="bar-lbl">'+(sp?'BİTİŞE':'KALAN')+'</div><div class="bar-timer'+(u?' urgent':'')+'" id="tmr">'+fmtHMS(ev.remaining)+'</div></div>'+
+        '<div class="bar-div"></div>'+
+        '<div class="bar-right"><div class="bar-lbl">SIRADA</div><div class="bar-next"><span>'+nx.icon+'</span> '+nx.name+'</div></div>';
+    }
+    function tick(){
+      if(!ev)return;ev.remaining--;
+      var e=document.getElementById('tmr');
+      if(e){var u=ev.remaining<3600;e.textContent=fmtHMS(Math.max(0,ev.remaining));e.className='bar-timer'+(u?' urgent':'');if(ev.remaining<=0)loadEv()}
+    }
+    loadEv();
+    setInterval(tick,1000);
+  </script>
+  <script src="transition.js"></script>
+</body>
+</html>

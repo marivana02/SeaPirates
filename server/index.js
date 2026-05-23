@@ -13,6 +13,19 @@ const shipsRoutes = require('./routes/ships');
 const auctionRoutes = require('./routes/auction');
 const mapRoutes = require('./routes/maps');
 const questsRoutes = require('./routes/quests');
+const eventRoutes = require('./routes/events');
+const pool = require('./config/db');
+
+// Otomatik migration: display_name kolonu yoksa ekle
+(async () => {
+  try {
+    await pool.query(`ALTER TABLE players ADD COLUMN IF NOT EXISTS display_name VARCHAR(50) DEFAULT ''`);
+    await pool.query(`UPDATE players SET display_name = username WHERE display_name IS NULL OR display_name = ''`);
+    console.log('✓ display_name kolonu kontrol edildi.');
+  } catch (err) {
+    console.error('display_name migration hatası:', err.message);
+  }
+})();
 
 const app = express();
 
@@ -51,6 +64,7 @@ app.use('/api/ships', shipsRoutes);
 app.use('/api/auction', auctionRoutes);
 app.use('/api/maps', mapRoutes);
 app.use('/api/quests', questsRoutes);
+app.use('/api/events', eventRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'SeaPirates API çalışıyor!' });

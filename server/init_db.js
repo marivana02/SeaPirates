@@ -7,6 +7,7 @@ const createTables = `
 CREATE TABLE IF NOT EXISTS players (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
+    display_name VARCHAR(50) DEFAULT '',
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     gold BIGINT DEFAULT 5000,
@@ -191,6 +192,20 @@ CREATE TABLE IF NOT EXISTS auctions (
     current_price INT NOT NULL,
     highest_bidder_id INT REFERENCES players(id) ON DELETE SET NULL,
     expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Etkinlikler tablosu
+CREATE TABLE IF NOT EXISTS events (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    icon VARCHAR(20) DEFAULT '🎉',
+    type VARCHAR(30) NOT NULL,       -- 'npc_reward', 'elp_reward', 'damage', 'none'
+    mult NUMERIC(4,1) DEFAULT 2.0,
+    start_at TIMESTAMP NOT NULL,
+    end_at TIMESTAMP NOT NULL,
+    is_auto BOOLEAN DEFAULT FALSE,   -- TRUE = sabit rotasyon, FALSE = özel etkinlik
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

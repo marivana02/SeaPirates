@@ -4,7 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>SeaPirates — Açık Artırma</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -165,14 +166,13 @@
 
 <script>
 var ITEMS = {
-  barut: { name: 'Barut x100',    desc: '+%10 saldırı hasarı. Her atışta harcanır.', img: 'assets/dükkan/barut-dükkan.png', ph: 'B' },
-  zirh:  { name: 'Zırh x100',    desc: '-%10 alınan hasar. Her atışta harcanır.',   img: 'assets/dükkan/zırh-dükkan.png',  ph: 'Z' },
-  gul2:  { name: 'Oyuk Gülle x100', desc: '+75 hasar/top.',         img: 'assets/dükkan/oyukgülle.png',  ph: 'G2' },
-  gul3:  { name: 'Patlayan Gülle x100', desc: '+130 hasar/top. 30 Elit Puan/atış.',        img: 'assets/dükkan/elitgülle.png',    ph: 'G3' },
-  top2:  { name: '55 Pounder',        desc: '185 hasar/top. Atış süresi: 3 sn.',         img: 'assets/toppp/top2.png',          ph: 'T2' },
-  top3:  { name: '60 Pounder',        desc: '260 hasar/top. Atış süresi: 2 sn.',         img: 'assets/toppp/top3.png',          ph: 'T3' }
+  barut:      { name: 'Barut x100',          desc: '+%10 saldırı hasarı. Her atışta harcanır.',       img: 'assets/dükkan/barut-dükkan.png',  ph: 'B' },
+  zirh:       { name: 'Zırh x100',           desc: '-%10 alınan hasar. Her atışta harcanır.',         img: 'assets/dükkan/zırh-dükkan.png',   ph: 'Z' },
+  gul3:       { name: 'Patlayan Gülle x100', desc: '+130 hasar/top. 30 Elit Puan/atış.', img: 'assets/dükkan/elitgülle.png',    ph: 'G3' },
+  top2:       { name: '55 Pounder',          desc: '185 hasar/top. Atış süresi: 3 sn.',   img: 'assets/toppp/top2.png',           ph: 'T2' },
+  elit_kiris: { name: 'Elit Kiriş',          desc: '+1.200 HP bonus. Düşük kırılma şansı.',           img: 'assets/dükkan/elitkiriş.png',    ph: 'EK' },
+  gemi1:      { name: 'Elit I Gemi',         desc: '25.000 HP, 30 top/10 kiriş kapasitesi.',          img: 'assets/dükkan/elit gemi 1.png',  ph: 'G1' }
 };
-var ROTATION = ['barut','zirh','gul2','gul3','top2','barut','zirh','gul3','gul2','top3'];
 var TUR_SURE = 3600;
 var KEY = 'sp_auc_v4';
 
@@ -180,9 +180,10 @@ const API_URL = 'http://localhost:3000/api';
 const token = localStorage.getItem('sp_token');
 
 if (!token) {
-  window.location.href = 'index.html';
+  goTo('index.html');
 }
 
+var timeOffset = 0;
 function nowSec(){ return Math.floor(Date.now() / 1000); }
 function fmtN(n){ return Number(n).toLocaleString('tr-TR'); }
 
@@ -207,6 +208,7 @@ async function loadAuction() {
     if (res.ok) {
       const data = await res.json();
       tur = data;
+      timeOffset = data.serverNow - nowSec();
       renderCards();
       renderTimer();
     } else {
@@ -218,7 +220,7 @@ async function loadAuction() {
   }
 }
 
-function kalanSn(){ return Math.max(0, tur.bitis - nowSec()); }
+function kalanSn(){ return Math.max(0, tur.bitis - (nowSec() + timeOffset)); }
 
 function fmtTime(sec){
   if(!sec||isNaN(sec)) sec=0;
@@ -340,5 +342,6 @@ function toast(msg, type){
 loadAuction();
 setInterval(renderTimer, 1000); /* Her saniye sadece timer güncellenir */
 </script>
+  <script src="transition.js"></script>
 </body>
 </html>

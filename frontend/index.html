@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>SeaPirates — Giriş</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -479,7 +480,7 @@
       const token = localStorage.getItem('sp_token');
       if (token) {
         // Token varsa direkt home.html'e git
-        location.href = 'home.html';
+        goTo('home.html');
         return;
       }
       
@@ -557,7 +558,7 @@
       
       setLoading('login-btn',true);
       try {
-        const res = await fetch('http://localhost:3000/api/auth/login', {
+        const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
@@ -578,8 +579,8 @@
             sessionStorage.setItem('sp_session_active', 'true');
           }
           localStorage.setItem('sp_player', JSON.stringify(data.player));
-          toast('⚓ Hoş geldin '+data.player.username+'! Yükleniyor...','ok',2000);
-          setTimeout(()=>location.href='home.html',2000);
+          toast('⚓ Hoş geldin '+(data.player.display_name || data.player.username)+'! Yükleniyor...','ok',2000);
+          setTimeout(()=>goTo('home.html'),2000);
         }
       } catch (err) {
         toast('Sunucuya bağlanılamadı!', 'err');
@@ -605,7 +606,7 @@
 
       setLoading('reg-btn',true);
       try {
-        const res = await fetch('http://localhost:3000/api/auth/register', {
+        const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, email, password })
@@ -619,8 +620,8 @@
           localStorage.setItem('sp_token', data.token);
           localStorage.setItem('sp_remember_me', 'true');
           localStorage.setItem('sp_player', JSON.stringify(data.player));
-          toast('⚔ Kaptan '+data.player.username+' denizlere hoş geldin!','ok',2500);
-          setTimeout(()=>location.href='home.html',2000);
+          toast('⚔ Kaptan '+(data.player.display_name || data.player.username)+' denizlere hoş geldin!','ok',2500);
+          setTimeout(()=>goTo('home.html'),2000);
         }
       } catch (err) {
         toast('Sunucuya bağlanılamadı!', 'err');
@@ -680,5 +681,6 @@
       }
     });
   </script>
+  <script src="transition.js"></script>
 </body>
 </html>

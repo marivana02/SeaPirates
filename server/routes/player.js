@@ -6,7 +6,7 @@ const authMiddleware = require('../middleware/auth');
 // Helper to calculate all player ranks based on GDD formula
 async function calculateAllPlayerRanks(pool) {
   const result = await pool.query(
-    `SELECT id, username, xp, elite_points, dmg_pve, level, created_at FROM players`
+    `SELECT id, username, display_name, xp, elite_points, dmg_pve, level, created_at FROM players`
   );
 
   const rankNames = {
@@ -36,7 +36,8 @@ async function calculateAllPlayerRanks(pool) {
 
     return {
       id: p.id,
-      username: p.username,
+      username: p.display_name || p.username,
+      login_username: p.username,
       xp: parseInt(p.xp),
       elite_points: parseInt(p.elite_points),
       dmg_pve: parseInt(p.dmg_pve),
@@ -106,7 +107,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     // 1. Kule Tablosu/Gereksinimi Kolonu ekle
 
     const result = await pool.query(
-      `SELECT id, username, email, gold, pearl, xp, level, 
+      `SELECT id, username, display_name, email, gold, pearl, xp, level, 
               elite_points, ship_level, hp, max_hp, vip_until, created_at, last_tower_attack, tower_level
        FROM players WHERE id = $1`,
       [req.player.id]
@@ -193,15 +194,59 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-// Tamir — her 5sn'de frontend çağırır, max_hp'nin %2'sini ekler
-router.post('/repair', authMiddleware, async (req, res) => {
+// Basit panel verisi (map.html için)
+router.get('/panel', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `UPDATE players
-       SET hp = LEAST(max_hp, hp + FLOOR(max_hp * 0.05))
-       WHERE id = $1
-       RETURNING hp, max_hp`,
+      'SELECT id, username, display_name, gold, pearl, xp, level, elite_points, ship_level, hp, max_hp, vip_until, tower_level FROM players WHERE id = $1',
       [req.player.id]
+    );
+    if (result.rows.length === 0) return res.json({ success: false });
+    const p = result.rows[0];
+    const isVip = p.vip_until && new Date(p.vip_until) > new Date();
+    const nextLvlRes = await pool.query('SELECT required_xp FROM level_requirements WHERE level = $1', [parseInt(p.level) + 1]);
+    const xpNext = nextLvlRes.rows.length > 0 ? parseInt(nextLvlRes.rows[0].required_xp) : 999999999;
+    const allRanks = await calculateAllPlayerRanks(pool);
+    const myRankInfo = allRanks.find(r => r.id === req.player.id) || { rankBadge: 13, rankName: 'Kara Adamı', score: 0 };
+    res.json({
+      success: true,
+      player: {
+        username: p.username,
+        display_name: p.display_name || p.username,
+        gold: parseInt(p.gold),
+        pearl: parseInt(p.pearl),
+        xp: parseInt(p.xp),
+        level: parseInt(p.level),
+        elite_points: parseInt(p.elite_points),
+        hp: parseInt(p.hp),
+        max_hp: parseInt(p.max_hp),
+        tower_level: parseInt(p.tower_level) || 1,
+        xpNext,
+        vip_until: isVip ? p.vip_until : null,
+        rankBadge: myRankInfo.rankBadge,
+        rankName: myRankInfo.rankName,
+        score: myRankInfo.score
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false });
+  }
+});
+
+// Tamir — 3sn'de bir 200 can (VIP 1000)
+router.post('/repair', authMiddleware, async (req, res) => {
+  try {
+    const vipRes = await pool.query('SELECT vip_until FROM players WHERE id = $1', [req.player.id]);
+    const isVip = vipRes.rows.length > 0 && vipRes.rows[0].vip_until && new Date(vipRes.rows[0].vip_until) > new Date();
+    const healAmount = isVip ? 1000 : 200;
+
+    const result = await pool.query(
+      `UPDATE players
+       SET hp = LEAST(max_hp, hp + $1)
+       WHERE id = $2
+       RETURNING hp, max_hp`,
+      [healAmount, req.player.id]
     );
 
     if (result.rows.length === 0) {
@@ -223,6 +268,7 @@ router.get('/leaderboard', async (req, res) => {
     const top100 = allRanks.slice(0, 100).map(r => ({
       id: r.id,
       username: r.username,
+      display_name: r.username,
       level: r.level,
       elite_points: r.elite_points,
       score: r.score,
@@ -252,7 +298,7 @@ router.get('/hall-of-fame', authMiddleware, async (req, res) => {
 
   try {
     const listRes = await pool.query(
-      `SELECT id, username, ${column} AS score,
+      `SELECT id, username, COALESCE(display_name, username) AS display_name, ${column} AS score,
               ROW_NUMBER() OVER (ORDER BY ${column} DESC, id ASC) as rank
        FROM players
        ORDER BY score DESC, id ASC`
@@ -266,7 +312,7 @@ router.get('/hall-of-fame', authMiddleware, async (req, res) => {
 
     const players = listRes.rows.map(row => ({
       rank: parseInt(row.rank),
-      name: row.username,
+      name: row.display_name || row.username,
       score: parseInt(row.score),
       isMe: row.id === playerId,
       rankBadge: rankMap[row.id] ? rankMap[row.id].badge : 13,
@@ -361,18 +407,16 @@ router.get('/my-rank', authMiddleware, async (req, res) => {
 
 // Kullanıcı adı değiştirme — Haftada 1 kez sınırı
 router.post('/settings/change-username', authMiddleware, async (req, res) => {
-  const { newUsername } = req.body;
+  const { newDisplayName } = req.body;
   const playerId = req.player.id;
 
-  if (!newUsername || newUsername.trim().length < 3 || newUsername.trim().length > 30) {
-    return res.status(400).json({ error: 'Kullanıcı adı en az 3, en fazla 30 karakter olmalıdır.' });
+  if (!newDisplayName || newDisplayName.trim().length < 3 || newDisplayName.trim().length > 30) {
+    return res.status(400).json({ error: 'Görünen ad en az 3, en fazla 30 karakter olmalıdır.' });
   }
 
   try {
-    // Sütunun varlığını doğrula / ekle (on-the-fly migration)
-
     // Oyuncunun son isim değiştirme tarihini al
-    const pRes = await pool.query('SELECT username, last_username_change FROM players WHERE id = $1', [playerId]);
+    const pRes = await pool.query('SELECT display_name, last_username_change FROM players WHERE id = $1', [playerId]);
     if (pRes.rows.length === 0) return res.status(404).json({ error: 'Oyuncu bulunamadı.' });
 
     const player = pRes.rows[0];
@@ -383,25 +427,25 @@ router.post('/settings/change-username', authMiddleware, async (req, res) => {
       const diffDays = diffMs / (1000 * 60 * 60 * 24);
       if (diffDays < 7) {
         const remainingDays = Math.ceil(7 - diffDays);
-        return res.status(400).json({ error: `Kullanıcı adınızı haftada sadece 1 kez değiştirebilirsiniz. Kalan süre: ${remainingDays} gün.` });
+        return res.status(400).json({ error: `Görünen adınızı haftada sadece 1 kez değiştirebilirsiniz. Kalan süre: ${remainingDays} gün.` });
       }
     }
 
     // Benzersizlik doğrulaması
-    const uniqueRes = await pool.query('SELECT id FROM players WHERE username = $1 AND id <> $2', [newUsername.trim(), playerId]);
+    const uniqueRes = await pool.query('SELECT id FROM players WHERE display_name = $1 AND id <> $2', [newDisplayName.trim(), playerId]);
     if (uniqueRes.rows.length > 0) {
-      return res.status(400).json({ error: 'Bu kullanıcı adı zaten başka bir oyuncu tarafından kullanılıyor.' });
+      return res.status(400).json({ error: 'Bu görünen ad zaten başka bir oyuncu tarafından kullanılıyor.' });
     }
 
     // Güncelle
     await pool.query(
-      'UPDATE players SET username = $1, last_username_change = CURRENT_TIMESTAMP WHERE id = $2',
-      [newUsername.trim(), playerId]
+      'UPDATE players SET display_name = $1, last_username_change = CURRENT_TIMESTAMP WHERE id = $2',
+      [newDisplayName.trim(), playerId]
     );
 
-    res.json({ message: 'Kullanıcı adınız başarıyla değiştirildi!', username: newUsername.trim() });
+    res.json({ message: 'Görünen adınız başarıyla değiştirildi!', display_name: newDisplayName.trim() });
   } catch (err) {
-    console.error("Kullanıcı Adı Değiştirme Hatası:", err);
+    console.error("Görünen Ad Değiştirme Hatası:", err);
     res.status(500).json({ error: 'Sunucu hatası' });
   }
 });
@@ -677,33 +721,79 @@ router.post('/daily-reward/claim', authMiddleware, async (req, res) => {
     let items = [];
     let rewardsList = [];
 
-    // Normal Ödül Tanımları
+    // Normal Ödül Tanımları — 30 Gün (kademeli artış)
     const normalRewards = {
-      1: { gold: 500, name: '500 Altın' },
-      2: { pearl: 20, name: '20 İnci' },
-      3: { ammo: { type: 2, qty: 200 }, name: '200 Oyuk Gülle' },
-      4: { gold: 1200, name: '1.200 Altın' },
-      5: { pearl: 50, name: '50 İnci' },
-      6: { items: [{ type: 'barut', qty: 3 }, { type: 'zirh', qty: 3 }], name: '3x Barut & Zırh' },
-      7: { pearl: 80, ammo: { type: 3, qty: 80 }, name: '80 İnci & 80 Patlayan Gülle' }
+      1:  { gold: 1000, name: '1.000 Altın' },
+      2:  { pearl: 100, name: '100 İnci' },
+      3:  { ammo: { type: 2, qty: 500 }, name: '500 Oyuk Gülle' },
+      4:  { gold: 2000, name: '2.000 Altın' },
+      5:  { pearl: 200, name: '200 İnci ⭐' },
+      6:  { items: [{ type: 'barut', qty: 10 }], name: '10x Barut' },
+      7:  { ammo: { type: 2, qty: 800 }, name: '800 Oyuk Gülle' },
+      8:  { gold: 3000, name: '3.000 Altın' },
+      9:  { pearl: 150, name: '150 İnci' },
+      10: { pearl: 300, ammo: { type: 3, qty: 50 }, name: '300 İnci & 50 Patlayan ⭐' },
+      11: { gold: 5000, name: '5.000 Altın' },
+      12: { items: [{ type: 'zirh', qty: 15 }], name: '15x Zırh' },
+      13: { ammo: { type: 2, qty: 1200 }, name: '1.200 Oyuk Gülle' },
+      14: { pearl: 200, name: '200 İnci' },
+      15: { pearl: 500, ammo: { type: 3, qty: 100 }, name: '500 İnci & 100 Patlayan ⭐' },
+      16: { gold: 8000, name: '8.000 Altın' },
+      17: { items: [{ type: 'barut', qty: 20 }, { type: 'zirh', qty: 20 }], name: '20x Barut & Zırh' },
+      18: { ammo: { type: 2, qty: 1800 }, name: '1.800 Oyuk Gülle' },
+      19: { pearl: 300, name: '300 İnci' },
+      20: { pearl: 800, ammo: { type: 3, qty: 200 }, name: '800 İnci & 200 Patlayan ⭐' },
+      21: { gold: 12000, name: '12.000 Altın' },
+      22: { ammo: { type: 3, qty: 250 }, name: '250 Patlayan Gülle' },
+      23: { ammo: { type: 2, qty: 2500 }, name: '2.500 Oyuk Gülle' },
+      24: { pearl: 400, name: '400 İnci' },
+      25: { pearl: 1000, ammo: { type: 3, qty: 300 }, name: '1.000 İnci & 300 Patlayan ⭐' },
+      26: { gold: 18000, name: '18.000 Altın' },
+      27: { items: [{ type: 'barut', qty: 30 }, { type: 'zirh', qty: 30 }], name: '30x Barut & Zırh' },
+      28: { ammo: { type: 2, qty: 3500 }, name: '3.500 Oyuk Gülle' },
+      29: { pearl: 500, name: '500 İnci' },
+      30: { pearl: 2000, ammo: { type: 3, qty: 500 }, name: '2.000 İnci & 500 Patlayan 👑' }
     };
 
-    // VIP Ödül Tanımları
+    // VIP Ödül Tanımları — 30 Gün (normalin ~3 katı)
     const vipRewards = {
-      1: { gold: 2000, name: '2.000 Altın (VIP)' },
-      2: { pearl: 80, name: '80 İnci (VIP)' },
-      3: { ammo: { type: 2, qty: 800 }, name: '800 Oyuk Gülle (VIP)' },
-      4: { gold: 5000, name: '5.000 Altın (VIP)' },
-      5: { pearl: 200, name: '200 İnci (VIP)' },
-      6: { items: [{ type: 'barut', qty: 12 }, { type: 'zirh', qty: 12 }], name: '12x Barut & Zırh (VIP)' },
-      7: { pearl: 320, ammo: { type: 3, qty: 320 }, name: '320 İnci & 320 Patlayan Gülle (VIP)' }
+      1:  { gold: 3000, name: '3.000 Altın (VIP)' },
+      2:  { pearl: 300, name: '300 İnci (VIP)' },
+      3:  { ammo: { type: 2, qty: 1500 }, name: '1.500 Oyuk Gülle (VIP)' },
+      4:  { gold: 6000, name: '6.000 Altın (VIP)' },
+      5:  { pearl: 600, name: '600 İnci ⭐ (VIP)' },
+      6:  { items: [{ type: 'barut', qty: 30 }], name: '30x Barut (VIP)' },
+      7:  { ammo: { type: 2, qty: 2400 }, name: '2.400 Oyuk Gülle (VIP)' },
+      8:  { gold: 9000, name: '9.000 Altın (VIP)' },
+      9:  { pearl: 450, name: '450 İnci (VIP)' },
+      10: { pearl: 900, ammo: { type: 3, qty: 150 }, name: '900 İnci & 150 Patlayan ⭐ (VIP)' },
+      11: { gold: 15000, name: '15.000 Altın (VIP)' },
+      12: { items: [{ type: 'zirh', qty: 45 }], name: '45x Zırh (VIP)' },
+      13: { ammo: { type: 2, qty: 3600 }, name: '3.600 Oyuk Gülle (VIP)' },
+      14: { pearl: 600, name: '600 İnci (VIP)' },
+      15: { pearl: 1500, ammo: { type: 3, qty: 300 }, name: '1.500 İnci & 300 Patlayan ⭐ (VIP)' },
+      16: { gold: 24000, name: '24.000 Altın (VIP)' },
+      17: { items: [{ type: 'barut', qty: 60 }, { type: 'zirh', qty: 60 }], name: '60x Barut & Zırh (VIP)' },
+      18: { ammo: { type: 2, qty: 5400 }, name: '5.400 Oyuk Gülle (VIP)' },
+      19: { pearl: 900, name: '900 İnci (VIP)' },
+      20: { pearl: 2400, ammo: { type: 3, qty: 600 }, name: '2.400 İnci & 600 Patlayan ⭐ (VIP)' },
+      21: { gold: 36000, name: '36.000 Altın (VIP)' },
+      22: { ammo: { type: 3, qty: 750 }, name: '750 Patlayan Gülle (VIP)' },
+      23: { ammo: { type: 2, qty: 7500 }, name: '7.500 Oyuk Gülle (VIP)' },
+      24: { pearl: 1200, name: '1.200 İnci (VIP)' },
+      25: { pearl: 3000, ammo: { type: 3, qty: 900 }, name: '3.000 İnci & 900 Patlayan ⭐ (VIP)' },
+      26: { gold: 54000, name: '54.000 Altın (VIP)' },
+      27: { items: [{ type: 'barut', qty: 90 }, { type: 'zirh', qty: 90 }], name: '90x Barut & Zırh (VIP)' },
+      28: { ammo: { type: 2, qty: 10500 }, name: '10.500 Oyuk Gülle (VIP)' },
+      29: { pearl: 1500, name: '1.500 İnci (VIP)' },
+      30: { pearl: 6000, ammo: { type: 3, qty: 1500 }, name: '6.000 İnci & 1.500 Patlayan 👑 (VIP)' }
     };
 
     let newStreak = streak;
 
     if (claimNormalAction) {
       newStreak = streak + 1;
-      if (newStreak > 7) {
+      if (newStreak > 30) {
         newStreak = 1;
       }
       const r = normalRewards[newStreak];
@@ -716,7 +806,7 @@ router.post('/daily-reward/claim', authMiddleware, async (req, res) => {
 
     if (claimVipAction) {
       const vipDay = claimNormalAction ? newStreak : streak;
-      if (vipDay >= 1 && vipDay <= 7) {
+      if (vipDay >= 1 && vipDay <= 30) {
         const r = vipRewards[vipDay];
         if (r.gold) goldReward += r.gold;
         if (r.pearl) pearlReward += r.pearl;

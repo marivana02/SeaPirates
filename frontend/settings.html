@@ -4,7 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>SeaPirates — Ayarlar</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -339,7 +340,7 @@
 
       <div class="info-note">
         <span>⚠️</span>
-        <span>Kullanıcı adınızı güvenlik ve sunucu bütünlüğü nedeniyle <strong>haftada sadece 1 kez</strong> değiştirebilirsiniz.</span>
+        <span>Kullanıcı adınızı haftada sadece 1 kez değiştirebilirsiniz.</span>
       </div>
     </div>
 
@@ -356,7 +357,7 @@
 <script>
   const API_URL = 'http://localhost:3000/api/player';
   const token = localStorage.getItem('sp_token');
-  if (!token) window.location.href = 'index.html';
+  if (!token) goTo('index.html');
 
   // UI Elements
   const pUsername = document.getElementById('p-username');
@@ -391,8 +392,8 @@
       });
       const data = await res.json();
       if (res.ok) {
-        pUsername.textContent = data.username;
-        usernameInput.value = data.username;
+        pUsername.textContent = data.display_name || data.username;
+        usernameInput.value = data.display_name || data.username;
 
         // Kayıt Tarihi Formatlama (DD.MM.YYYY)
         if (data.created_at) {
@@ -433,7 +434,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ newUsername: newName })
+        body: JSON.stringify({ newDisplayName: newName })
       });
       const data = await res.json();
       if (res.ok) {
@@ -457,7 +458,7 @@
     sessionStorage.removeItem('sp_session_active');
     toastMsg('⚓ Oturum başarıyla kapatıldı! Yönlendiriliyorsunuz...', false);
     setTimeout(() => {
-      window.location.href = 'index.html';
+      goTo('index.html');
     }, 1500);
   });
 
@@ -474,5 +475,6 @@
   // Load profile on start
   fetchProfile();
 </script>
+  <script src="transition.js"></script>
 </body>
 </html>

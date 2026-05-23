@@ -8,6 +8,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     *,
     *::before,
@@ -495,7 +496,7 @@
     const token = localStorage.getItem('sp_token');
 
     if (!token) {
-      window.location.href = 'index.html';
+      goTo('index.html');
     }
 
     let player = {};
@@ -525,7 +526,7 @@
         if (res.ok) {
           const data = await res.json();
           player = {
-            name: data.username,
+            name: data.display_name || data.username,
             level: data.level,
             xp: data.xp,
             xpNext: data.xpNext,
@@ -749,6 +750,7 @@
     // İlk Yükleme
     fetchPlayerData();
   </script>
+  <script src="transition.js"></script>
 </body>
 
 </html>

@@ -4,27 +4,33 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>SeaPirates — Günlük Giriş Ödülü</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
     :root {
-      --gold: #c8962a;
-      --gold-b: #f0c040;
-      --gold-p: #fde68a;
-      --wood-d: #1a0e05;
-      --wood-m: #2d1a08;
-      --wood-plank: #5c3518;
-      --txt: #f5e6c8;
-      --txt-d: #b8956a;
-      --txt-m: #7a5a38;
-      --red: #c0392b;
-      --red-b: #e74c3c;
+      --rust: #6b2a0a;
+      --rust-l: #8b4a1a;
+      --gold-d: #7a5f0a;
+      --gold: #b8860b;
+      --gold-b: #c8962a;
+      --gold-p: #d4a84b;
+      --wood-bg: #0d0804;
+      --wood-d: #1a0e07;
+      --wood-m: #2d1a0c;
+      --wood-plank: #4a2a12;
+      --wood-border: #5a3a1a;
+      --txt: #d4c5a9;
+      --txt-d: #a0886a;
+      --txt-m: #6a5038;
+      --crimson: #5c1010;
+      --crimson-d: #3a0808;
     }
 
     html,body{
       width:100%;height:100dvh;overflow:hidden;
-      background:#0a0806;font-family:'Inter',sans-serif;
+      background:#080604;font-family:'Inter',sans-serif;
       color:var(--txt);
     }
 
@@ -34,529 +40,303 @@
       position:relative;
       background: url('assets/background/menubackground.png') center center / cover no-repeat;
     }
-    .page::before {
+    .page::before{
       content:'';position:absolute;inset:0;
-      background:rgba(0,0,0,0.65);
+      background:rgba(0,0,0,0.7);
       pointer-events:none;z-index:0;
     }
 
     .top-bar{
       position:relative;z-index:10;
-      padding:14px;
+      padding:10px 12px;
       display:flex;align-items:center;
       justify-content:space-between;
       flex-shrink:0;
-      border-bottom:1px solid rgba(200,150,42,0.3);
-      background:linear-gradient(180deg, rgba(20,10,2,0.95), rgba(10,5,0,0.85));
+      border-bottom:1px solid rgba(184,134,11,0.25);
+      background:linear-gradient(180deg, rgba(13,8,4,0.96), rgba(8,4,2,0.88));
     }
     .btn-back{
-      padding:8px 12px;
+      padding:5px 9px;
       background:linear-gradient(180deg,#3d2108,#1e0e03);
-      border:1px solid #7a4a18;border-radius:7px;
-      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;
+      border:1px solid #6a3a12;border-radius:5px;
+      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;
       color:var(--txt-d);letter-spacing:0.04em;
       cursor:pointer;text-align:center;text-decoration:none;
-      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+      box-shadow:0 2px 5px rgba(0,0,0,0.5);
     }
     .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
     .page-title{
-      font-family:'Cinzel',serif;font-weight:900;font-size:1.05rem;
-      letter-spacing:0.1em;color:var(--gold-b);
-      text-shadow:0 0 10px rgba(200,150,42,0.6);
+      font-family:'Cinzel',serif;font-weight:900;font-size:0.85rem;
+      letter-spacing:0.08em;color:var(--gold-b);
+      text-shadow:0 0 8px rgba(184,134,11,0.4);
       text-transform:uppercase;
     }
 
     .body{
       position:relative;z-index:5;
       flex:1;display:flex;flex-direction:column;
-      padding:12px;gap:10px;overflow-y:auto;
-      scrollbar-width: thin;
-      scrollbar-color: #5c3518 transparent;
-      background: rgba(10, 5, 2, 0.45);
+      padding:8px 10px;gap:6px;overflow:hidden;
+      background:rgba(8,4,2,0.5);
     }
 
-    .body::-webkit-scrollbar {
-      width: 4px;
-    }
-    .body::-webkit-scrollbar-thumb {
-      background: #5c3518;
-      border-radius: 2px;
-    }
-
-    /* INFO STATS */
     .info-row{
       flex-shrink:0;
-      display:flex;
-      gap:8px;
+      display:flex;gap:5px;
     }
     .info-box{
-      flex:1;
-      text-align:center;
-      border-radius:8px;
-      background: rgba(12, 6, 3, 0.85);
-      border: 1px solid #5a3a15;
-      padding: 6px 4px;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+      flex:1;text-align:center;
+      border-radius:5px;
+      background:rgba(10,5,2,0.88);
+      border:1px solid #4a2a12;
+      padding:4px 2px;
+      box-shadow:inset 0 0 5px rgba(0,0,0,0.8);
     }
-    .info-box.vip-status-box {
-      border-color: #c8962a;
-      background: rgba(66, 8, 8, 0.7);
+    .info-box.vip-box{
+      border-color:var(--gold-d);
+      background:rgba(60,10,10,0.7);
     }
-    .info-box.vip-status-box .l {
-      color: #f0c040;
-    }
-    .info-box.vip-status-box .v {
-      color: #ffd700;
-    }
+    .info-box.vip-box .l{color:var(--gold);}
+    .info-box.vip-box .v{color:#ffd700;}
     .info-box .l{
-      font-size:0.58rem;
-      color:var(--txt-d);
-      text-transform:uppercase;
-      letter-spacing:0.07em;
-      font-weight:600;
+      font-size:0.5rem;color:var(--txt-d);
+      text-transform:uppercase;letter-spacing:0.06em;font-weight:600;
     }
     .info-box .v{
       font-family:'Cinzel',serif;
-      font-size:0.8rem;
-      font-weight:900;
-      color:var(--gold-b);
-      margin-top:2px;
-      text-shadow: 0 0 8px rgba(240,192,64,0.3);
+      font-size:0.65rem;font-weight:900;
+      color:var(--gold-b);margin-top:1px;
+      text-shadow:0 0 5px rgba(200,150,42,0.3);
     }
-    .info-box .v span{
-      font-size:0.6rem;
-      color:var(--txt-m);
-      font-family:'Inter',sans-serif;
-      font-weight:400;
-    }
+    .info-box .v span{font-size:0.48rem;color:var(--txt-m);font-weight:400;font-family:'Inter',sans-serif;}
 
-    /* PROGRESS BAR */
     .prog-wrap{
       flex-shrink:0;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      border-radius:8px;
-      padding:6px 10px;
-      background: rgba(12, 6, 3, 0.7);
-      border: 1px solid rgba(90, 58, 21, 0.4);
+      display:flex;align-items:center;gap:5px;
+      border-radius:5px;padding:4px 7px;
+      background:rgba(10,5,2,0.75);
+      border:1px solid rgba(74,42,18,0.4);
     }
     .prog-lbl{
-      font-family:'Cinzel',serif;
-      font-size:0.6rem;
-      font-weight:700;
-      color:var(--txt-d);
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      flex-shrink:0;
+      font-family:'Cinzel',serif;font-size:0.48rem;font-weight:700;
+      color:var(--txt-d);letter-spacing:0.06em;text-transform:uppercase;flex-shrink:0;
     }
     .prog-track{
-      flex:1;
-      height:6px;
-      border-radius:3px;
-      background:rgba(0,0,0,0.6);
-      border: 1px solid #5a3a15;
-      overflow:hidden;
+      flex:1;height:4px;border-radius:2px;
+      background:rgba(0,0,0,0.6);border:1px solid #4a2a12;overflow:hidden;
     }
     .prog-fill{
-      height:100%;
-      border-radius:3px;
-      background:linear-gradient(90deg, #c8962a, #ffd700);
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+      height:100%;border-radius:2px;
+      background:linear-gradient(90deg,#8b7000,#c8962a);
+      box-shadow:0 0 5px rgba(200,150,42,0.4);
       transition:width 0.4s ease;
     }
     .prog-num{
-      font-family:'Cinzel',serif;
-      font-size:0.7rem;
-      font-weight:900;
-      color:var(--gold-b);
+      font-family:'Cinzel',serif;font-size:0.55rem;font-weight:900;
+      color:var(--gold-b);flex-shrink:0;
+    }
+
+    .cabinet-wrap{
+      flex:1;display:flex;flex-direction:column;
+      padding:8px;
+      border-radius:7px;
+      background:rgba(10,5,2,0.9);
+      border:2px solid #5a3a1a;
+      box-shadow:0 8px 18px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.8);
+      overflow:hidden;
+      min-height:0;
+    }
+
+    .cabinet-header{
       flex-shrink:0;
+      display:grid;grid-template-columns:1fr 1fr;gap:6px;
+      margin-bottom:6px;
+      text-align:center;
+    }
+    .header-col{
+      font-family:'Cinzel',serif;font-size:0.65rem;font-weight:900;
+      padding:5px;border-radius:4px;
+      letter-spacing:0.05em;
+      text-shadow:0 1px 2px #000;
+    }
+    .normal-title{
+      background:rgba(74,42,18,0.3);
+      border:1px solid rgba(166,124,70,0.25);
+      color:var(--txt-d);
+    }
+    .vip-title{
+      background:linear-gradient(90deg,rgba(60,10,10,0.4),rgba(139,74,26,0.15));
+      border:1px solid rgba(139,74,26,0.35);
+      color:var(--gold-p);
     }
 
-    /* CABINET WRAP (WOODEN CABINET STRUCTURE) */
-    .cabinet-wrap {
-      flex: 1;
-      padding: 10px;
-      border-radius: 12px;
-      background: rgba(12, 6, 3, 0.85);
-      border: 3px solid #7c4e20;
-      box-shadow: 
-        0 12px 28px rgba(0,0,0,0.95),
-        inset 0 0 20px rgba(0,0,0,0.9);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .cabinet-header {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 8px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-    .header-col {
-      font-family: 'Cinzel', serif;
-      font-size: 0.65rem;
-      font-weight: 900;
-      padding: 5px;
-      border-radius: 6px;
-      letter-spacing: 0.05em;
-      text-shadow: 0 1px 2px #000;
-    }
-    .normal-title {
-      background: rgba(92, 53, 24, 0.3);
-      border: 1px solid rgba(166, 124, 70, 0.3);
-      color: var(--txt-d);
-    }
-    .vip-title {
-      background: linear-gradient(90deg, rgba(92, 24, 24, 0.4), rgba(200, 150, 42, 0.2));
-      border: 1px solid rgba(200, 150, 42, 0.4);
-      color: #fde68a;
-      box-shadow: 0 0 8px rgba(200, 150, 42, 0.15);
-    }
-
-    /* GRID LAYOUT */
     .grid-wrap{
-      flex:1;
+      flex:1;overflow-y:auto;overflow-x:hidden;
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:8px;
+      gap:6px;
+      align-content:start;
+      padding:2px;
+      scrollbar-width:thin;
+      scrollbar-color:#3a2010 transparent;
+    }
+    .grid-wrap::-webkit-scrollbar{width:3px;}
+    .grid-wrap::-webkit-scrollbar-thumb{background:#3a2010;border-radius:2px;}
+
+    .day-row{
+      display:contents;
     }
 
-    /* CARD DESIGN */
     .day-card{
-      position: relative;
-      border-radius:8px;
-      padding:10px 8px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:space-between;
-      gap:5px;
-      text-align:center;
-      transition:all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
-      /* High-contrast wooden plank gradient */
-      background: linear-gradient(135deg, #2b1a0d 0%, #150c05 100%);
-      border:2px solid #a67c46;
-      box-shadow:0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.8);
+      position:relative;
+      border-radius:6px;
+      padding:8px 5px;
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+      transition:all 0.18s ease;
+      background:linear-gradient(145deg,#1a0e07,#0f0804);
+      border:1.5px solid #4a2a12;
+      box-shadow:0 2px 5px rgba(0,0,0,0.6), inset 0 0 4px rgba(0,0,0,0.5);
+      cursor:default;
+      min-height:88px;
     }
     .day-card::before{
       content:'';position:absolute;inset:0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%);
-      border-radius:6px;
-      z-index: 0;
-      pointer-events: none;
+      background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,rgba(0,0,0,0) 100%);
+      border-radius:4px;z-index:0;pointer-events:none;
+    }
+    .day-card>*{position:relative;z-index:1;}
+
+    .day-card.milestone{
+      border-color:var(--gold-d);
+      background:linear-gradient(145deg,#2a1a08,#150c04);
+      box-shadow:0 2px 6px rgba(184,134,11,0.12), inset 0 0 6px rgba(0,0,0,0.5);
     }
 
-    /* VIP CARD COLOR SYSTEM (Deep Crimson & Amber Gold) */
-    .day-card.vip {
-      background: linear-gradient(135deg, #420808 0%, #1c0303 100%);
-      border-color: #c8962a;
-      box-shadow:0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(200, 150, 42, 0.15);
+    .day-card.vip{
+      background:linear-gradient(145deg,#2a0808,#120303);
+      border-color:#4a1212;
+    }
+    .day-card.vip.milestone{
+      border-color:#8b4a1a;
+      background:linear-gradient(145deg,#3a0c0c,#1a0404);
     }
 
-    /* CARD STATE: AVAILABLE */
-    .day-card.avail{
-      border-color:#ffd700;
-      background: linear-gradient(135deg, #4d3019 0%, #2b1a0d 100%);
-      cursor:pointer;
-      animation: cardPulse 2s ease-in-out infinite;
-    }
-    .day-card.vip.avail {
-      border-color: #ffd700;
-      background: linear-gradient(135deg, #5c0c0c 0%, #2e0505 100%);
-      animation: vipCardPulse 2s ease-in-out infinite;
-    }
-    .day-card.avail::before{
-      background: linear-gradient(180deg, rgba(255,215,0,0.15) 0%, rgba(0,0,0,0) 100%);
-    }
-    .day-card.avail:hover{
-      transform:translateY(-2px);
-      border-color:#fff;
-      box-shadow:0 6px 18px rgba(255,215,0,0.3), inset 0 0 10px rgba(0,0,0,0.5);
-    }
-    .day-card.vip.avail:hover {
-      box-shadow:0 6px 18px rgba(200, 150, 42, 0.5), 0 0 10px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(0,0,0,0.5);
-    }
-
-    /* CARD STATE: CLAIMED (DONE) */
     .day-card.done{
-      opacity:0.5;
-      border-color: #3b220b;
-      background: linear-gradient(135deg, #180f08 0%, #0d0602 100%);
-      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
-      filter: grayscale(0.2);
+      opacity:0.4;
+      border-color:#2a1a0a;
+      background:linear-gradient(145deg,#0f0804,#080402);
+      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);
+      filter:grayscale(0.3);
     }
-    .day-card.vip.done {
-      border-color: #4a1212;
-      background: linear-gradient(135deg, #1f0404 0%, #0d0101 100%);
-      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
+    .day-card.done::before{background:rgba(0,0,0,0.4);}
+
+    .day-card.avail{
+      border-color:var(--gold);
+      background:linear-gradient(145deg,#2a1a06,#1a0e04);
+      cursor:pointer;
+      animation:cardPulse 2s ease-in-out infinite;
     }
-    .day-card.done::before{
-      background:rgba(0,0,0,0.5);
+    .day-card.vip.avail{
+      border-color:#8b4a1a;
+      background:linear-gradient(145deg,#3a0a06,#1a0402);
+      animation:vipPulse 2s ease-in-out infinite;
     }
 
-    /* CARD STATE: LOCKED (WAIT) */
     .day-card.wait{
-      opacity:0.5;
-      border-color: #3b220b;
-      background: linear-gradient(135deg, #180f08 0%, #0d0602 100%);
-      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
+      opacity:0.35;
+      border-color:#2a1a0a;
+      background:linear-gradient(145deg,#0f0804,#080402);
+      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);
     }
-    .day-card.vip.wait {
-      border-color: #4a1212;
-      background: linear-gradient(135deg, #1f0404 0%, #0d0101 100%);
-      box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
-    }
-    .day-card.wait::before{
-      background:rgba(0,0,0,0.65);
-    }
+    .day-card.wait::before{background:rgba(0,0,0,0.5);}
 
-    .day-header {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      width: 100%;
-    }
     .day-num{
-      font-family:'Cinzel',serif;
-      font-size:0.65rem;
-      font-weight:900;
-      color: #e0d0b8;
-      background: rgba(12, 6, 3, 0.85);
-      border: 1px solid #7a5a38;
-      border-radius: 4px;
-      width: 18px;
-      height: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-shadow: 0 1px 2px #000;
+      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:900;
+      color:var(--txt-d);flex-shrink:0;
+      background:rgba(0,0,0,0.45);border-radius:3px;
+      padding:1px 6px;min-width:20px;text-align:center;
+      border:1px solid #3a2010;
+      line-height:1.4;
     }
-    .day-card.vip .day-num {
-      border-color: #c8962a;
-      color: #fde68a;
+    .day-card.vip .day-num{border-color:#4a1212;color:#c08060;}
+    .day-card.milestone .day-num{border-color:var(--gold-d);color:var(--gold-p);}
+    .day-card.avail .day-num{color:var(--gold-b);border-color:var(--gold);}
+    .day-card.done .day-num{color:#6a5a4a;}
+
+    .day-rwd-img{
+      width:30px;height:30px;flex-shrink:0;
+      object-fit:contain;
+      filter:drop-shadow(0 1px 3px rgba(0,0,0,0.85));
     }
-    .day-card.avail .day-num{
-      color:#ffd700;
-      border-color:var(--gold-b);
-      box-shadow: 0 0 5px rgba(255,215,0,0.3);
+    .day-card.milestone .day-rwd-img{width:32px;height:32px;}
+
+    .day-rwd-imgs{
+      display:flex;align-items:center;justify-content:center;gap:3px;flex-shrink:0;
     }
-    
-    .day-lbl{
-      font-family:'Cinzel',serif;
-      font-size:0.5rem;
-      font-weight:600;
-      color:#ece4d4;
-      text-transform:uppercase;
-      letter-spacing:0.06em;
-      text-shadow: 0 1px 2px #000;
+    .day-rwd-imgs .day-rwd-img{width:24px;height:24px;}
+
+    .day-rwd-text{
+      font-size:0.65rem;font-weight:700;
+      color:#f0e0c0;line-height:1.25;
+      text-shadow:0 1px 3px #000;
+      text-align:center;
+      width:100%;
+      word-break:break-word;
     }
-    .day-card.vip .day-lbl {
-      color: #fde68a;
+    .day-card.done .day-rwd-text{color:#8a7a6a;}
+    .day-card.milestone .day-rwd-text{color:#ffd700;}
+    .day-card.vip.milestone .day-rwd-text{color:#e8a860;}
+
+    .day-check{
+      flex-shrink:0;width:14px;text-align:center;
+      font-size:0.55rem;
     }
-    .day-card.avail .day-lbl{
-      color: var(--gold-p);
+    .day-check.claimed{color:#5a8a5a;}
+    .day-check.locked{color:#4a3a2a;}
+    .day-card.avail .day-check{color:var(--gold);}
+    .day-card.milestone .day-check.avail{color:var(--gold-b);}
+
+    .claim-overlay{
+      position:absolute;inset:0;z-index:3;
+      background:rgba(0,0,0,0.5);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;transition:opacity 0.15s ease;border-radius:4px;
+    }
+    .day-card.avail:hover .claim-overlay{opacity:1;}
+    .claim-btn{
+      padding:3px 10px;
+      border:1px solid var(--gold);
+      color:#fff;font-family:'Cinzel',serif;
+      font-size:0.55rem;font-weight:700;
+      letter-spacing:0.04em;border-radius:3px;
+      cursor:pointer;
+      background:rgba(30,15,5,0.9);
+      box-shadow:0 2px 4px rgba(0,0,0,0.5);
+      text-shadow:0 1px 1px #000;
+    }
+    .day-card.vip.avail .claim-btn{border-color:#8b4a1a;background:rgba(40,8,8,0.9);}
+
+    @keyframes cardPulse{
+      0%{box-shadow:0 0 4px rgba(184,134,11,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold);}
+      50%{box-shadow:0 0 10px rgba(184,134,11,0.3),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold-b);}
+      100%{box-shadow:0 0 4px rgba(184,134,11,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold);}
+    }
+    @keyframes vipPulse{
+      0%{box-shadow:0 0 4px rgba(139,74,26,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:#5a1a12;}
+      50%{box-shadow:0 0 10px rgba(139,74,26,0.35),inset 0 0 4px rgba(0,0,0,0.5);border-color:#8b4a1a;}
+      100%{box-shadow:0 0 4px rgba(139,74,26,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:#5a1a12;}
     }
 
-    /* REWARD CONTAINER */
-    .day-rwd-container {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      flex: 1;
-      width: 100%;
-      min-height: 40px;
+    .toast{
+      position:fixed;top:10px;left:50%;
+      transform:translateX(-50%) translateY(-60px);
+      z-index:9999;padding:7px 14px;border-radius:7px;
+      font-size:0.65rem;font-weight:500;white-space:nowrap;
+      transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      max-width:90vw;text-align:center;pointer-events:none;
     }
-
-    .day-rwd-img-wrap {
-      position: relative;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 2px;
-    }
-    .day-rwd-img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85));
-      transition: transform 0.2s ease;
-    }
-    .day-card.avail:hover .day-rwd-img {
-      transform: scale(1.1);
-    }
-
-    .day-rwd-text {
-      font-size: 0.62rem;
-      font-weight: 700;
-      color: #ffd0c0;
-      text-shadow: 0 1px 2px #000;
-      white-space: nowrap;
-    }
-    .day-card.vip .day-rwd-text {
-      color: #fde68a;
-    }
-    .day-card.done .day-rwd-text {
-      color: #a0a0a0;
-    }
-    .day-card.avail .day-rwd-text {
-      color: #fff;
-    }
-
-    /* BADGE OVERLAYS */
-    .day-badge {
-      position: absolute;
-      bottom: 4px;
-      right: 4px;
-      z-index: 2;
-      width: 16px;
-      height: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-    }
-    .day-badge.claimed {
-      background: #27ae60;
-      color: #fff;
-      font-size: 0.6rem;
-      font-weight: 900;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    }
-    .day-badge.locked {
-      background: #2c3e50;
-      color: #bdc3c7;
-      font-size: 0.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    }
-    .day-badge.locked-vip {
-      background: #5c0c0c;
-      color: #fde68a;
-      font-size: 0.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    }
-
-    /* DOUBLE IMAGES DISPLAY FOR DAY 7 */
-    .day-card.double-reward-card .day-rwd-container {
-      flex-direction: row;
-      justify-content: center;
-      gap: 4px;
-      min-height: auto;
-      flex-wrap: wrap;
-    }
-    .day-card.double-reward-card .day-rwd-img-wrap {
-      width: 26px;
-      height: 26px;
-      margin-bottom: 0;
-    }
-
-    /* CLAIM BUTTON OVERLAY FOR ACTIVE CARD */
-    .claim-action-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      background: rgba(0, 0, 0, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.22s ease;
-      border-radius: 6px;
-    }
-    .day-card.avail:hover .claim-action-overlay {
-      opacity: 1;
-    }
-    .claim-action-btn {
-      padding: 4px 10px;
-      background: url('assets/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
-      border: 1px solid #27ae60;
-      color: #fff;
-      font-family: 'Cinzel', serif;
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      border-radius: 4px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
-      text-shadow: 0 1px 1px #000;
-      cursor: pointer;
-    }
-
-    /* PULSE KEYFRAMES */
-    @keyframes cardPulse {
-      0% {
-        box-shadow: 0 0 8px rgba(240, 192, 64, 0.15), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
-        border-color: var(--gold-b);
-      }
-      50% {
-        box-shadow: 0 0 18px rgba(240, 192, 64, 0.4), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
-        border-color: #ffd700;
-      }
-      100% {
-        box-shadow: 0 0 8px rgba(240, 192, 64, 0.15), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
-        border-color: var(--gold-b);
-      }
-    }
-
-    @keyframes vipCardPulse {
-      0% {
-        box-shadow: 0 0 8px rgba(200, 150, 42, 0.2), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
-        border-color: #c8962a;
-      }
-      50% {
-        box-shadow: 0 0 18px rgba(200, 150, 42, 0.55), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
-        border-color: #ffd700;
-      }
-      100% {
-        box-shadow: 0 0 8px rgba(200, 150, 42, 0.2), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
-        border-color: #c8962a;
-      }
-    }
-
-    /* TOAST STYLE */
-    .toast {
-      position: fixed;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-70px);
-      z-index: 9999;
-      padding: 9px 18px;
-      border-radius: 10px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      white-space: nowrap;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      max-width: 90vw;
-      text-align: center;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .toast.ok {
-      background: rgba(25, 70, 40, 0.95);
-      border: 1px solid #27ae60;
-      color: #c8f0d8;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-    }
-
-    .toast.err {
-      background: rgba(80, 20, 10, 0.95);
-      border: 1px solid #e05a3a;
-      color: #ffd0c0;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-    }
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.ok{background:rgba(20,50,30,0.95);border:1px solid #2a7a4a;color:#b0e0c0;}
+    .toast.err{background:rgba(60,15,8,0.95);border:1px solid #8b3a2a;color:#e0b0a0;}
   </style>
 </head>
 <body>
@@ -564,11 +344,10 @@
 <div class="page">
   <div class="top-bar">
     <a href="menu.html" class="btn-back">◀ MENÜ</a>
-    <div class="page-title">GÜNLÜK GİRİŞ ÖDÜLÜ</div>
-    <div style="width:58px;"></div>
+    <div class="page-title">GÜNLÜK GİRİŞ</div>
+    <div style="width:50px;"></div>
   </div>
   <div class="body">
-    <!-- STATS -->
     <div class="info-row">
       <div class="info-box">
         <div class="l">Seri</div>
@@ -578,32 +357,26 @@
         <div class="l">Kalan Süre</div>
         <div class="v" id="timer-val">—</div>
       </div>
-      <div class="info-box vip-status-box" id="vip-box">
-        <div class="l">VIP Durumu</div>
+      <div class="info-box vip-box" id="vip-box">
+        <div class="l">VIP</div>
         <div class="v" id="vip-val">AKTİF DEĞİL</div>
       </div>
     </div>
 
-    <!-- PROGRESS -->
     <div class="prog-wrap">
-      <span class="prog-lbl">Seri İlerlemesi</span>
+      <span class="prog-lbl">İlerleme</span>
       <div class="prog-track">
         <div class="prog-fill" id="prog-fill" style="width:0%"></div>
       </div>
-      <span class="prog-num" id="prog-num">0/7</span>
+      <span class="prog-num" id="prog-num">0/30</span>
     </div>
 
-    <!-- WOODEN CABINET CONTAINER -->
     <div class="cabinet-wrap">
-      <!-- CABINET HEADERS -->
       <div class="cabinet-header">
         <div class="header-col normal-title">NORMAL ÖDÜL</div>
-        <div class="header-col vip-title">👑 VIP ÖDÜLÜ</div>
+        <div class="header-col vip-title">VIP ÖDÜLÜ</div>
       </div>
-      <!-- GRID FOR 7 DAYS (Normal & VIP alternated) -->
-      <div class="grid-wrap" id="grid-wrap">
-        <!-- Generated by JavaScript -->
-      </div>
+      <div class="grid-wrap" id="grid-wrap"></div>
     </div>
   </div>
 </div>
@@ -611,31 +384,83 @@
 <script>
   const API_URL = 'http://localhost:3000/api/player';
   const token = localStorage.getItem('sp_token');
+  if (!token) goTo('index.html');
 
-  if (!token) {
-    window.location.href = 'index.html';
-  }
+  const MILESTONES = [5, 10, 15, 20, 25, 30];
 
-  // Normal Ödüller
-  const D_normal = [
-    { n: 1, text: '10.000 Altın', img: 'assets/gold.png' },
-    { n: 2, text: '250 İnci', img: 'assets/pearl.png' },
-    { n: 3, text: '1.000 Oyuk', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
-    { n: 4, text: '25.000 Altın', img: 'assets/gold.png' },
-    { n: 5, text: '500 İnci', img: 'assets/pearl.png' },
-    { n: 6, text: '15x Barut & Zırh', img: 'assets/ikon/images/1_powdericon_bmpref0.png' },
-    { n: 7, text: '1.000 İnci + 1K Patlayan', img: 'assets/pearl.png', doubleImg: 'assets/ikon/images/11_ammoskull_bmpref0.png', x: true }
+  const ICONS = {
+    gold: 'assets/gold.png',
+    pearl: 'assets/pearl.png',
+    oyuk: 'assets/dükkan/oyukgülle.png',
+    patlayan: 'assets/dükkan/elitgülle.png',
+    barut: 'assets/dükkan/barut-dükkan.png',
+    zirh: 'assets/dükkan/zırh-dükkan.png'
+  };
+
+  const D_NORMAL = [
+    { d:1,  imgs:[ICONS.gold], txt:'1.000 Altın' },
+    { d:2,  imgs:[ICONS.pearl], txt:'100 İnci' },
+    { d:3,  imgs:[ICONS.oyuk], txt:'500 Oyuk' },
+    { d:4,  imgs:[ICONS.gold], txt:'2.000 Altın' },
+    { d:5,  imgs:[ICONS.pearl], txt:'200 İnci ★' },
+    { d:6,  imgs:[ICONS.barut], txt:'10x Barut' },
+    { d:7,  imgs:[ICONS.oyuk], txt:'800 Oyuk' },
+    { d:8,  imgs:[ICONS.gold], txt:'3.000 Altın' },
+    { d:9,  imgs:[ICONS.pearl], txt:'150 İnci' },
+    { d:10, imgs:[ICONS.pearl,ICONS.patlayan], txt:'300 İnci + 50 Patlayan ★' },
+    { d:11, imgs:[ICONS.gold], txt:'5.000 Altın' },
+    { d:12, imgs:[ICONS.zirh], txt:'15x Zırh' },
+    { d:13, imgs:[ICONS.oyuk], txt:'1.200 Oyuk' },
+    { d:14, imgs:[ICONS.pearl], txt:'200 İnci' },
+    { d:15, imgs:[ICONS.pearl,ICONS.patlayan], txt:'500 İnci + 100 Patlayan ★' },
+    { d:16, imgs:[ICONS.gold], txt:'8.000 Altın' },
+    { d:17, imgs:[ICONS.barut,ICONS.zirh], txt:'20x Barut & Zırh' },
+    { d:18, imgs:[ICONS.oyuk], txt:'1.800 Oyuk' },
+    { d:19, imgs:[ICONS.pearl], txt:'300 İnci' },
+    { d:20, imgs:[ICONS.pearl,ICONS.patlayan], txt:'800 İnci + 200 Patlayan ★' },
+    { d:21, imgs:[ICONS.gold], txt:'12.000 Altın' },
+    { d:22, imgs:[ICONS.patlayan], txt:'250 Patlayan' },
+    { d:23, imgs:[ICONS.oyuk], txt:'2.500 Oyuk' },
+    { d:24, imgs:[ICONS.pearl], txt:'400 İnci' },
+    { d:25, imgs:[ICONS.pearl,ICONS.patlayan], txt:'1.000 İnci + 300 Patlayan ★' },
+    { d:26, imgs:[ICONS.gold], txt:'18.000 Altın' },
+    { d:27, imgs:[ICONS.barut,ICONS.zirh], txt:'30x Barut & Zırh' },
+    { d:28, imgs:[ICONS.oyuk], txt:'3.500 Oyuk' },
+    { d:29, imgs:[ICONS.pearl], txt:'500 İnci' },
+    { d:30, imgs:[ICONS.pearl,ICONS.patlayan], txt:'2.000 İnci + 500 Patlayan 👑' }
   ];
 
-  // VIP Ödülleri
-  const D_vip = [
-    { n: 1, text: '50.000 Altın', img: 'assets/gold.png' },
-    { n: 2, text: '1.000 İnci', img: 'assets/pearl.png' },
-    { n: 3, text: '5.000 Oyuk', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
-    { n: 4, text: '100.000 Altın', img: 'assets/gold.png' },
-    { n: 5, text: '2.000 İnci', img: 'assets/pearl.png' },
-    { n: 6, text: '50x Barut & Zırh', img: 'assets/ikon/images/1_powdericon_bmpref0.png' },
-    { n: 7, text: '5.000 İnci + 5K Patlayan', img: 'assets/pearl.png', doubleImg: 'assets/ikon/images/11_ammoskull_bmpref0.png', x: true }
+  const D_VIP = [
+    { d:1,  imgs:[ICONS.gold], txt:'3.000 Altın' },
+    { d:2,  imgs:[ICONS.pearl], txt:'300 İnci' },
+    { d:3,  imgs:[ICONS.oyuk], txt:'1.500 Oyuk' },
+    { d:4,  imgs:[ICONS.gold], txt:'6.000 Altın' },
+    { d:5,  imgs:[ICONS.pearl], txt:'600 İnci ★' },
+    { d:6,  imgs:[ICONS.barut], txt:'30x Barut' },
+    { d:7,  imgs:[ICONS.oyuk], txt:'2.400 Oyuk' },
+    { d:8,  imgs:[ICONS.gold], txt:'9.000 Altın' },
+    { d:9,  imgs:[ICONS.pearl], txt:'450 İnci' },
+    { d:10, imgs:[ICONS.pearl,ICONS.patlayan], txt:'900 İnci + 150 Patlayan ★' },
+    { d:11, imgs:[ICONS.gold], txt:'15.000 Altın' },
+    { d:12, imgs:[ICONS.zirh], txt:'45x Zırh' },
+    { d:13, imgs:[ICONS.oyuk], txt:'3.600 Oyuk' },
+    { d:14, imgs:[ICONS.pearl], txt:'600 İnci' },
+    { d:15, imgs:[ICONS.pearl,ICONS.patlayan], txt:'1.500 İnci + 300 Patlayan ★' },
+    { d:16, imgs:[ICONS.gold], txt:'24.000 Altın' },
+    { d:17, imgs:[ICONS.barut,ICONS.zirh], txt:'60x Barut & Zırh' },
+    { d:18, imgs:[ICONS.oyuk], txt:'5.400 Oyuk' },
+    { d:19, imgs:[ICONS.pearl], txt:'900 İnci' },
+    { d:20, imgs:[ICONS.pearl,ICONS.patlayan], txt:'2.400 İnci + 600 Patlayan ★' },
+    { d:21, imgs:[ICONS.gold], txt:'36.000 Altın' },
+    { d:22, imgs:[ICONS.patlayan], txt:'750 Patlayan' },
+    { d:23, imgs:[ICONS.oyuk], txt:'7.500 Oyuk' },
+    { d:24, imgs:[ICONS.pearl], txt:'1.200 İnci' },
+    { d:25, imgs:[ICONS.pearl,ICONS.patlayan], txt:'3.000 İnci + 900 Patlayan ★' },
+    { d:26, imgs:[ICONS.gold], txt:'54.000 Altın' },
+    { d:27, imgs:[ICONS.barut,ICONS.zirh], txt:'90x Barut & Zırh' },
+    { d:28, imgs:[ICONS.oyuk], txt:'10.500 Oyuk' },
+    { d:29, imgs:[ICONS.pearl], txt:'1.500 İnci' },
+    { d:30, imgs:[ICONS.pearl,ICONS.patlayan], txt:'6.000 İnci + 1.500 Patlayan 👑' }
   ];
 
   let streak = 0;
@@ -645,10 +470,10 @@
   let canClaimNormal = false;
   let canClaimVip = false;
 
-  function toast2(msg, type = 'ok') {
+  function toast(msg, type) {
     const el = document.getElementById('toast');
     el.textContent = msg;
-    el.className = 'toast ' + type;
+    el.className = 'toast ' + (type || 'ok');
     el.getBoundingClientRect();
     el.classList.add('show');
     setTimeout(() => el.classList.remove('show'), 3000);
@@ -657,10 +482,8 @@
   function isToday(ts) {
     if (!ts) return false;
     const d = new Date(ts);
-    const today = new Date();
-    return d.getDate() === today.getDate() &&
-           d.getMonth() === today.getMonth() &&
-           d.getFullYear() === today.getFullYear();
+    const t = new Date();
+    return d.getDate() === t.getDate() && d.getMonth() === t.getMonth() && d.getFullYear() === t.getFullYear();
   }
 
   async function fetchStatus() {
@@ -669,197 +492,133 @@
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
-        streak = data.streak;
-        lastClaim = data.lastClaim ? new Date(data.lastClaim).getTime() : null;
-        lastVipClaim = data.lastVipClaim ? new Date(data.lastVipClaim).getTime() : null;
-        isVip = data.isVip;
-        canClaimNormal = data.canClaimNormal;
-        canClaimVip = data.canClaimVip;
+        const d = await res.json();
+        streak = d.streak;
+        lastClaim = d.lastClaim ? new Date(d.lastClaim).getTime() : null;
+        lastVipClaim = d.lastVipClaim ? new Date(d.lastVipClaim).getTime() : null;
+        isVip = d.isVip;
+        canClaimNormal = d.canClaimNormal;
+        canClaimVip = d.canClaimVip;
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e) { console.error(e); }
+  }
+
+  function dayState(dayNum) {
+    if (dayNum <= streak) return 'claimed';
+    if (dayNum === streak + 1 && canClaimNormal) return 'available-normal';
+    return 'locked';
+  }
+
+  function vipState(dayNum) {
+    if (!isVip) return 'locked';
+    if (dayNum < streak) return 'claimed';
+    if (dayNum === streak) {
+      const normToday = lastClaim && isToday(lastClaim);
+      const vipToday = lastVipClaim && isToday(lastVipClaim);
+      if (normToday && !vipToday && canClaimVip) return 'available-vip';
+      if (normToday && vipToday) return 'claimed';
+      if (normToday && !canClaimVip) return 'locked';
+      return 'locked';
     }
+    if (dayNum === streak + 1 && canClaimNormal && canClaimVip) return 'available-vip';
+    return 'locked';
   }
 
   function renderGrid() {
     const g = document.getElementById('grid-wrap');
     g.innerHTML = '';
 
-    // Update VIP Status Panel display
-    const vipValEl = document.getElementById('vip-val');
-    const vipBoxEl = document.getElementById('vip-box');
-    if (isVip) {
-      vipValEl.textContent = 'AKTİF 👑';
-      vipBoxEl.style.borderColor = '#c8962a';
-      vipBoxEl.style.background = 'rgba(66, 8, 8, 0.7)';
-      vipValEl.style.color = '#ffd700';
-    } else {
-      vipValEl.textContent = 'AKTİF DEĞİL';
-      vipBoxEl.style.borderColor = '#5a3a15';
-      vipBoxEl.style.background = 'rgba(12, 6, 3, 0.85)';
-      vipValEl.style.color = '#7a5a38';
+    document.getElementById('vip-val').textContent = isVip ? 'AKTİF' : 'AKTİF DEĞİL';
+    document.getElementById('vip-val').style.color = isVip ? '#ffd700' : '#6a5038';
+    document.getElementById('vip-box').style.borderColor = isVip ? '#8b4a1a' : '#4a2a12';
+    document.getElementById('vip-box').style.background = isVip ? 'rgba(60,10,10,0.7)' : 'rgba(10,5,2,0.88)';
+
+    for (let i = 0; i < 30; i++) {
+      const n = D_NORMAL[i];
+      const v = D_VIP[i];
+      const dayNum = i + 1;
+      const isMs = MILESTONES.includes(dayNum);
+
+      // Normal card
+      const ns = dayState(dayNum);
+      const nCard = document.createElement('div');
+      nCard.className = 'day-card';
+      if (isMs) nCard.classList.add('milestone');
+      if (ns === 'claimed') nCard.classList.add('done');
+      else if (ns === 'available-normal') nCard.classList.add('avail');
+      else nCard.classList.add('wait');
+      renderCardInner(nCard, n, dayNum, isMs, ns);
+      if (ns === 'available-normal') {
+        nCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">AL</button></div>';
+        nCard.onclick = () => claimReward('normal');
+      }
+      g.appendChild(nCard);
+
+      // VIP card
+      const vs = vipState(dayNum);
+      const vCard = document.createElement('div');
+      vCard.className = 'day-card vip';
+      if (isMs) vCard.classList.add('milestone');
+      if (vs === 'claimed') vCard.classList.add('done');
+      else if (vs === 'available-vip') vCard.classList.add('avail');
+      else vCard.classList.add('wait');
+      renderCardInner(vCard, v, dayNum, isMs, vs);
+      if (vs === 'available-vip') {
+        vCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">AL</button></div>';
+        vCard.onclick = () => claimReward('vip');
+      }
+      g.appendChild(vCard);
     }
 
-    // Generate normal and vip cards side-by-side for each of the 7 days
-    for (let dayNum = 1; dayNum <= 7; dayNum++) {
-      const norm = D_normal[dayNum - 1];
-      const vip = D_vip[dayNum - 1];
-
-      // ── NORMAL CARD LOGIC ──
-      const normalClaimed = dayNum <= streak;
-      const normalAvailable = (dayNum === streak + 1) && canClaimNormal;
-      const normalLocked = !normalClaimed && !normalAvailable;
-
-      const normCard = document.createElement('div');
-      normCard.className = 'day-card normal';
-      if (norm.x) normCard.classList.add('double-reward-card');
-
-      if (normalClaimed) normCard.classList.add('done');
-      else if (normalAvailable) normCard.classList.add('avail');
-      else normCard.classList.add('wait');
-
-      let normImgHTML = '';
-      if (norm.x) {
-        normImgHTML = `
-          <div class="day-rwd-img-wrap"><img src="${norm.img}" class="day-rwd-img" alt="Pearl"></div>
-          <div class="day-rwd-img-wrap"><img src="${norm.doubleImg}" class="day-rwd-img" alt="Explosive"></div>
-        `;
-      } else {
-        normImgHTML = `<div class="day-rwd-img-wrap"><img src="${norm.img}" class="day-rwd-img" alt="Reward"></div>`;
-      }
-
-      let normBadgeHTML = '';
-      if (normalClaimed) normBadgeHTML = `<div class="day-badge claimed">✓</div>`;
-      else if (normalLocked) normBadgeHTML = `<div class="day-badge locked">🔒</div>`;
-
-      normCard.innerHTML = `
-        <div class="day-header">
-          <div class="day-num">${norm.n}</div>
-          <div class="day-lbl">${norm.x ? '★ BÜYÜK' : 'GÜN ' + norm.n}</div>
-        </div>
-        <div class="day-rwd-container">
-          ${normImgHTML}
-          <div class="day-rwd-text">${norm.text}</div>
-        </div>
-        ${normBadgeHTML}
-      `;
-
-      if (normalAvailable) {
-        normCard.innerHTML += `
-          <div class="claim-action-overlay">
-            <button class="claim-action-btn">AL</button>
-          </div>
-        `;
-        normCard.onclick = () => claimReward('normal');
-      }
-
-      // ── VIP CARD LOGIC ──
-      let vipClaimed = false;
-      let vipAvailable = false;
-      let vipLocked = false;
-
-      if (dayNum < streak) {
-        vipClaimed = true;
-      } else if (dayNum === streak) {
-        const claimedNormalToday = (lastClaim && isToday(lastClaim));
-        if (claimedNormalToday) {
-          const claimedVipToday = (lastVipClaim && isToday(lastVipClaim));
-          if (claimedVipToday) {
-            vipClaimed = true;
-          } else {
-            if (isVip) vipAvailable = true;
-            else vipLocked = true;
-          }
-        } else {
-          vipLocked = true;
-        }
-      } else if (dayNum === streak + 1) {
-        if (canClaimNormal) {
-          if (isVip) vipAvailable = true;
-          else vipLocked = true;
-        } else {
-          vipLocked = true;
-        }
-      } else {
-        vipLocked = true;
-      }
-
-      const vipCard = document.createElement('div');
-      vipCard.className = 'day-card vip';
-      if (vip.x) vipCard.classList.add('double-reward-card');
-
-      if (vipClaimed) vipCard.classList.add('done');
-      else if (vipAvailable) vipCard.classList.add('avail');
-      else vipCard.classList.add('wait');
-
-      let vipImgHTML = '';
-      if (vip.x) {
-        vipImgHTML = `
-          <div class="day-rwd-img-wrap"><img src="${vip.img}" class="day-rwd-img" alt="Pearl"></div>
-          <div class="day-rwd-img-wrap"><img src="${vip.doubleImg}" class="day-rwd-img" alt="Explosive"></div>
-        `;
-      } else {
-        vipImgHTML = `<div class="day-rwd-img-wrap"><img src="${vip.img}" class="day-rwd-img" alt="Reward"></div>`;
-      }
-
-      let vipBadgeHTML = '';
-      if (vipClaimed) vipBadgeHTML = `<div class="day-badge claimed">✓</div>`;
-      else if (vipAvailable) vipBadgeHTML = `<div class="day-badge claimed" style="background:#c8962a">👑</div>`;
-      else vipBadgeHTML = `<div class="day-badge locked-vip">🔒</div>`;
-
-      vipCard.innerHTML = `
-        <div class="day-header">
-          <div class="day-num">${vip.n}</div>
-          <div class="day-lbl">👑 VIP ${vip.n}</div>
-        </div>
-        <div class="day-rwd-container">
-          ${vipImgHTML}
-          <div class="day-rwd-text">${vip.text}</div>
-        </div>
-        ${vipBadgeHTML}
-      `;
-
-      if (vipAvailable) {
-        vipCard.innerHTML += `
-          <div class="claim-action-overlay">
-            <button class="claim-action-btn" style="border-color:#c8962a">AL</button>
-          </div>
-        `;
-        vipCard.onclick = () => claimReward('vip');
-      }
-
-      g.appendChild(normCard);
-      g.appendChild(vipCard);
-    }
-
-    // Update Progress Info
-    const fillPct = (streak / 7) * 100;
-    document.getElementById('prog-fill').style.width = fillPct + '%';
-    document.getElementById('prog-num').textContent = streak + '/7';
+    const pct = Math.min((streak / 30) * 100, 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-num').textContent = streak + '/30';
     document.getElementById('streak-val').innerHTML = streak + ' <span>gün</span>';
+
+    // Scroll to first available
+    setTimeout(() => {
+      const avail = g.querySelector('.avail');
+      if (avail) avail.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 200);
+  }
+
+  function renderCardInner(card, r, dayNum, isMs, state) {
+    const imgsHTML = r.imgs.length === 1
+      ? `<img src="${r.imgs[0]}" class="day-rwd-img">`
+      : `<div class="day-rwd-imgs">${r.imgs.map(s => `<img src="${s}" class="day-rwd-img">`).join('')}</div>`;
+
+    let badge = '';
+    if (state === 'claimed') badge = '<span class="day-check claimed">✓</span>';
+    else if (state === 'available-normal' || state === 'available-vip') badge = '<span class="day-check" style="color:var(--gold)">⚡</span>';
+    else badge = '<span class="day-check locked">🔒</span>';
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-shrink:0;">
+        <div class="day-num">${dayNum}</div>
+        ${badge}
+      </div>
+      ${imgsHTML}
+      <div class="day-rwd-text">${r.txt}</div>
+    `;
   }
 
   async function claimReward(type) {
     try {
       const res = await fetch(`${API_URL}/daily-reward/claim`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ type })
       });
       const data = await res.json();
       if (res.ok) {
-        toast2(data.message, 'ok');
+        toast(data.message, 'ok');
         await init();
       } else {
-        toast2(data.error || 'Ödül alınamadı!', 'err');
+        toast(data.error || 'Ödül alınamadı!', 'err');
       }
     } catch (e) {
       console.error(e);
-      toast2('Sunucu hatası!', 'err');
+      toast('Sunucu hatası!', 'err');
     }
   }
 
@@ -872,22 +631,18 @@
       document.getElementById('timer-val').textContent = 'HAZIR';
       return;
     }
-
-    const nextClaimTime = lastClaim + 24 * 60 * 60 * 1000;
-    const diff = nextClaimTime - Date.now();
-
+    const next = lastClaim + 86400000;
+    const diff = next - Date.now();
     if (diff <= 0) {
       canClaimNormal = true;
       document.getElementById('timer-val').textContent = 'HAZIR';
       renderGrid();
       return;
     }
-
-    const hrs = String(Math.floor(diff / 3600000)).padStart(2, '0');
-    const mins = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-    const secs = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-
-    document.getElementById('timer-val').textContent = `${hrs}:${mins}:${secs}`;
+    const h = String(Math.floor(diff / 3600000)).padStart(2,'0');
+    const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+    document.getElementById('timer-val').textContent = `${h}:${m}:${s}`;
   }
 
   async function init() {
@@ -899,5 +654,6 @@
   init();
   setInterval(updateTimer, 1000);
 </script>
+<script src="transition.js"></script>
 </body>
 </html>
