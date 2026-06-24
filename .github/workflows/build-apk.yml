@@ -42,7 +42,7 @@ jobs:
           node -e "
             const fs = require('fs');
             const cfg = JSON.parse(fs.readFileSync('capacitor.config.json', 'utf8'));
-            cfg.server.url = '${{ secrets.VPS_URL || github.event.inputs.server_url }}';
+            cfg.server.url = '${{ secrets.SERVER || github.event.inputs.server_url }}';
             cfg.appId = 'com.seapirates.app';
             cfg.appName = 'SeaPirates';
             fs.writeFileSync('capacitor.config.json', JSON.stringify(cfg, null, 2));
