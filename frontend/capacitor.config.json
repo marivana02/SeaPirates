@@ -1,0 +1,10 @@
+{
+  "appId": "com.seapirates.app",
+  "appName": "SeaPirates",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "hostname": "seapirates.com",
+    "url": "https://VPS_SUNUCU_BURAYA"
+  }
+}
