@@ -48,6 +48,8 @@ jobs:
             const fs = require('fs');
             const cfg = JSON.parse(fs.readFileSync('capacitor.config.json', 'utf8'));
             cfg.server.url = '$URL';
+            cfg.server.androidScheme = 'http';
+            cfg.server.cleartext = true;
             cfg.appId = 'com.seapirates.app';
             cfg.appName = 'SeaPirates';
             fs.writeFileSync('capacitor.config.json', JSON.stringify(cfg, null, 2));
