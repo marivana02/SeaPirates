@@ -28,17 +28,10 @@ jobs:
 
       - name: Setup Android SDK
         run: |
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          cd /tmp
-          curl -sSL -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -q cmdline-tools.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools/latest
-          mv cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
-          rm -rf cmdline-tools cmdline-tools.zip
-          export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_HOME=/usr/local/lib/android/sdk
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "platform-tools" 2>&1
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" 2>&1
 
       - name: Install Capacitor
         run: |
@@ -74,8 +67,6 @@ jobs:
 
       - name: Build APK
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls -la $ANDROID_HOME 2>/dev/null || echo "ANDROID_HOME not found"
           cd frontend/android
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace 2>&1
