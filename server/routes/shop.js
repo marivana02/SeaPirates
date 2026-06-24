@@ -3,19 +3,20 @@ const router = express.Router();
 const pool = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 
-// Dükkan Katalogu
+// Shop Catalog
 const SHOP_ITEMS = {
   1:  { type: 'top',    name: '30 Pounder',             price: 10000, currency: 'gold',  qty: 1 },
   2:  { type: 'top',    name: '55 Pounder',             price: 2000,  currency: 'pearl', qty: 1 },
   3:  { type: 'top',    name: '60 Pounder',             price: 6000,  currency: 'pearl', qty: 1 },
-  10: { type: 'gulle',  name: 'Misket Gülle (x100)',    price: 4000,  currency: 'gold',  qty: 100 },
-  11: { type: 'gulle',  name: 'Oyuk Gülle (x100)',      price: 8000,  currency: 'gold',  qty: 100 },
-  12: { type: 'gulle',  name: 'Patlayan Gülle (x100)',  price: 400,   currency: 'pearl', qty: 100 },
-  20: { type: 'direk',  name: 'Tahta Kiriş',            price: 35000, currency: 'gold',  qty: 1 },
-  21: { type: 'direk',  name: 'Elit Kiriş',             price: 1200,  currency: 'pearl', qty: 1 },
-  30: { type: 'sarf',   name: 'Barut (x100)',           price: 120,   currency: 'pearl', qty: 100 },
-  31: { type: 'sarf',   name: 'Zırh (x100)',            price: 120,   currency: 'pearl', qty: 100 },
-  40: { type: 'gemi',   name: 'Elit Gemi I',            price: 10000, currency: 'pearl', qty: 1 }
+  10: { type: 'gulle',  name: 'Grapeshot (x100)',       price: 4000,  currency: 'gold',  qty: 100 },
+  11: { type: 'gulle',  name: 'Hollow Shot (x100)',     price: 8000,  currency: 'gold',  qty: 100 },
+  12: { type: 'gulle',  name: 'Explosive Shot (x100)',  price: 400,   currency: 'pearl', qty: 100 },
+  20: { type: 'direk',  name: 'Wooden Beam',            price: 35000, currency: 'gold',  qty: 1 },
+  21: { type: 'direk',  name: 'Elite Beam',             price: 1200,  currency: 'pearl', qty: 1 },
+  30: { type: 'sarf',   name: 'Gunpowder (x100)',       price: 120,   currency: 'pearl', qty: 100 },
+  31: { type: 'sarf',   name: 'Armor (x100)',           price: 120,   currency: 'pearl', qty: 100 },
+  40: { type: 'gemi',   name: 'Elite Ship I',           price: 10000, currency: 'pearl', qty: 1 },
+  41: { type: 'tasarim', name: 'Crystal Queen',         price: 5000,  currency: 'pearl', qty: 1 }
 };
 
 // SATIN AL
@@ -26,101 +27,135 @@ router.post('/buy', authMiddleware, async (req, res) => {
 
   const item = SHOP_ITEMS[itemId];
   if (!item) {
-    return res.status(400).json({ error: 'Geçersiz ürün ID\'si' });
+    return res.status(400).json({ error: 'Invalid item ID' });
   }
 
-  if (isNaN(qty) || qty < 1) {
-    return res.status(400).json({ error: 'Geçersiz miktar' });
+  if (isNaN(qty) || qty < 1 || qty > 999999) {
+    return res.status(400).json({ error: 'Invalid quantity' });
   }
 
   const totalCost = item.price * qty;
+  if (!isFinite(totalCost) || totalCost < 0) {
+    return res.status(400).json({ error: 'Invalid quantity' });
+  }
 
+  let client;
   try {
-    // Oyuncu bakiyesini kontrol et
-    const pRes = await pool.query('SELECT gold, pearl, level, elite_points, ship_level FROM players WHERE id = $1', [playerId]);
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    const pRes = await client.query('SELECT gold, pearl, level, elite_points, ship_level, has_elite_ship FROM players WHERE id = $1 FOR UPDATE', [playerId]);
     if (pRes.rows.length === 0) {
-      return res.status(404).json({ error: 'Oyuncu bulunamadı' });
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Player not found' });
     }
 
     const player = pRes.rows[0];
     const currentBalance = item.currency === 'gold' ? player.gold : player.pearl;
 
     if (currentBalance < totalCost) {
-      return res.status(400).json({ error: `Yetersiz bakiye! Gereken: ${totalCost} ${item.currency === 'gold' ? 'Altın' : 'İnci'}` });
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Insufficient balance! Required: ${totalCost} ${item.currency === 'gold' ? 'Gold' : 'Pearl'}` });
     }
 
-    // Gemi seviyesi özel kontrolü
     if (item.type === 'gemi') {
-      if (player.ship_level >= 1) {
-        return res.status(400).json({ error: 'Zaten en az Elit Gemi I veya daha üstüne sahipsiniz.' });
+      if (qty > 1) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Ship cannot be purchased more than once.' });
+      }
+      if (player.has_elite_ship) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'You already own an elite ship.' });
       }
     }
 
-    // Bakiyeyi düşür
     if (item.currency === 'gold') {
-      await pool.query('UPDATE players SET gold = gold - $1 WHERE id = $2', [totalCost, playerId]);
+      await client.query('UPDATE players SET gold = gold - $1 WHERE id = $2', [totalCost, playerId]);
     } else {
-      await pool.query('UPDATE players SET pearl = pearl - $1 WHERE id = $2', [totalCost, playerId]);
+      await client.query('UPDATE players SET pearl = pearl - $1 WHERE id = $2', [totalCost, playerId]);
     }
 
-    // Envantere ekle
     const addedQty = item.qty * qty;
 
     if (item.type === 'top') {
-      const exists = await pool.query('SELECT id, quantity FROM player_cannons WHERE player_id = $1 AND cannon_type = $2', [playerId, itemId]);
+      const exists = await client.query('SELECT id FROM player_cannons WHERE player_id = $1 AND cannon_type = $2', [playerId, itemId]);
       if (exists.rows.length > 0) {
-        await pool.query('UPDATE player_cannons SET quantity = quantity + $1 WHERE id = $2', [addedQty, exists.rows[0].id]);
+        await client.query('UPDATE player_cannons SET quantity = quantity + $1 WHERE id = $2', [addedQty, exists.rows[0].id]);
       } else {
-        await pool.query('INSERT INTO player_cannons (player_id, cannon_type, quantity) VALUES ($1, $2, $3)', [playerId, itemId, addedQty]);
+        await client.query('INSERT INTO player_cannons (player_id, cannon_type, quantity) VALUES ($1, $2, $3)', [playerId, itemId, addedQty]);
       }
-    } 
+    }
     else if (item.type === 'gulle') {
-      // 10 -> Misket (1), 11 -> Oyuk (2), 12 -> Patlayan (3)
       const ammoType = itemId === 10 ? 1 : itemId === 11 ? 2 : 3;
-      const exists = await pool.query('SELECT id, quantity FROM player_ammo WHERE player_id = $1 AND ammo_type = $2', [playerId, ammoType]);
+      const exists = await client.query('SELECT id FROM player_ammo WHERE player_id = $1 AND ammo_type = $2', [playerId, ammoType]);
       if (exists.rows.length > 0) {
-        await pool.query('UPDATE player_ammo SET quantity = quantity + $1 WHERE id = $2', [addedQty, exists.rows[0].id]);
+        await client.query('UPDATE player_ammo SET quantity = quantity + $1 WHERE id = $2', [addedQty, exists.rows[0].id]);
       } else {
-        await pool.query('INSERT INTO player_ammo (player_id, ammo_type, quantity) VALUES ($1, $2, $3)', [playerId, ammoType, addedQty]);
+        await client.query('INSERT INTO player_ammo (player_id, ammo_type, quantity) VALUES ($1, $2, $3)', [playerId, ammoType, addedQty]);
       }
-    } 
+    }
     else if (item.type === 'direk') {
       const plankType = itemId === 20 ? 'tahta' : 'elit';
-      const exists = await pool.query('SELECT id, quantity FROM player_planks WHERE player_id = $1 AND plank_type = $2', [playerId, plankType]);
+      const exists = await client.query('SELECT id FROM player_planks WHERE player_id = $1 AND plank_type = $2', [playerId, plankType]);
       if (exists.rows.length > 0) {
-        await pool.query('UPDATE player_planks SET quantity = quantity + $1 WHERE id = $2', [addedQty, exists.rows[0].id]);
+        await client.query('UPDATE player_planks SET quantity = quantity + $1 WHERE id = $2', [addedQty, exists.rows[0].id]);
       } else {
-        await pool.query('INSERT INTO player_planks (player_id, plank_type, quantity) VALUES ($1, $2, $3)', [playerId, plankType, addedQty]);
+        await client.query('INSERT INTO player_planks (player_id, plank_type, quantity) VALUES ($1, $2, $3)', [playerId, plankType, addedQty]);
       }
-    } 
+    }
     else if (item.type === 'sarf') {
       const itemType = itemId === 30 ? 'barut' : 'zirh';
-      const exists = await pool.query('SELECT id, quantity FROM player_items WHERE player_id = $1 AND item_type = $2', [playerId, itemType]);
+      const exists = await client.query('SELECT id FROM player_items WHERE player_id = $1 AND item_type = $2', [playerId, itemType]);
       if (exists.rows.length > 0) {
-        await pool.query('UPDATE player_items SET quantity = quantity + $1 WHERE id = $2', [addedQty, exists.rows[0].id]);
+        await client.query('UPDATE player_items SET quantity = quantity + $1 WHERE id = $2', [addedQty, exists.rows[0].id]);
       } else {
-        await pool.query('INSERT INTO player_items (player_id, item_type, quantity) VALUES ($1, $2, $3)', [playerId, itemType, addedQty]);
+        await client.query('INSERT INTO player_items (player_id, item_type, quantity) VALUES ($1, $2, $3)', [playerId, itemType, addedQty]);
       }
-    } 
+    }
     else if (item.type === 'gemi') {
-      // Elit Gemi I'e yükselt
-      await pool.query('UPDATE players SET ship_level = 1 WHERE id = $1', [playerId]);
+      await client.query('UPDATE players SET has_elite_ship = true WHERE id = $1', [playerId]);
+    }
+    else if (item.type === 'tasarim') {
+      if (qty > 1) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Design cannot be purchased more than once.' });
+      }
+      const designKey = 'kristal_queen';
+      const exists = await client.query('SELECT id FROM player_designs WHERE player_id = $1 AND design_key = $2', [playerId, designKey]);
+      if (exists.rows.length > 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'You already own this design!' });
+      }
+      await client.query('INSERT INTO player_designs (player_id, design_key) VALUES ($1, $2)', [playerId, designKey]);
     }
 
-    // Güncel bakiye bilgisini getir
-    const updatedRes = await pool.query('SELECT gold, pearl, ship_level FROM players WHERE id = $1', [playerId]);
+    let ownedDesigns = [];
+    if (item.type === 'tasarim') {
+      const dRes = await client.query('SELECT design_key FROM player_designs WHERE player_id = $1', [playerId]);
+      ownedDesigns = dRes.rows.map(r => r.design_key);
+    }
+
+    const updatedRes = await client.query('SELECT gold, pearl, ship_level, has_elite_ship FROM players WHERE id = $1', [playerId]);
     const updatedPlayer = updatedRes.rows[0];
 
-    res.json({
-      message: `"${item.name}" x${qty} başarıyla satın alındı!`,
+    await client.query('COMMIT');
+
+    const resp = {
+      message: `Successfully purchased "${item.name}" x${qty}!`,
       gold: updatedPlayer.gold,
       pearl: updatedPlayer.pearl,
-      ship_level: updatedPlayer.ship_level
-    });
+      ship_level: updatedPlayer.ship_level,
+      has_elite_ship: updatedPlayer.has_elite_ship
+    };
+    if (item.type === 'tasarim') resp.ownedDesigns = ownedDesigns;
+    res.json(resp);
 
   } catch (err) {
+    if (client) await client.query('ROLLBACK').catch(e => {});
     console.error(err);
-    res.status(500).json({ error: 'Sunucu hatası' });
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (client) client.release();
   }
 });
 

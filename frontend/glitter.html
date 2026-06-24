@@ -1,14 +1,20 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>SeaPirates — Pırıltı Denizi</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
+  <title>SeaPirates — Glitter Sea</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
+  <script src="effects/clouds.js?v=1"></script>
+  <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
   <style>
     *,
     *::before,
@@ -19,17 +25,6 @@
     }
 
     :root {
-      --gold: #c8962a;
-      --gold-b: #f0c040;
-      --gold-p: #fde68a;
-      --wood-d: #1a0e05;
-      --wood-m: #2d1a08;
-      --wood-plank: #5c3518;
-      --txt: #f5e6c8;
-      --txt-d: #b8956a;
-      --txt-m: #7a5a38;
-      --red: #c0392b;
-      --red-b: #e74c3c;
       --hp-green: #27ae60;
     }
 
@@ -44,7 +39,6 @@
       user-select: none;
     }
 
-    /* ── PAGE LAYOUT ── */
     .page {
       max-width: 430px;
       margin: 0 auto;
@@ -52,11 +46,13 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      background: url('assets/sea.png') repeat;
+      background: url('assets/ui/sea.png') repeat;
       background-size: 200px auto;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
     }
 
-    /* ── HEADER ── */
     .glitter-header {
       position: relative;
       z-index: 10;
@@ -95,9 +91,28 @@
       color: var(--gold-b);
       text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(200, 150, 42, 0.35);
       letter-spacing: 0.08em;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
-    /* ── SEA AREA ── */
+    .glitter-limit-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 90px;
+    }
+    .glitter-limit-lbl {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--txt-d);
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+
     .sea-area {
       flex: 1;
       position: relative;
@@ -111,7 +126,6 @@
       pointer-events: none;
     }
 
-    /* Pırıltı ve Ödül CSS */
     .glitter-item {
       position: absolute;
       width: 42px;
@@ -136,57 +150,6 @@
       opacity: 0;
     }
 
-    /* Glitter Bottom Rewards Panel */
-    .glitter-panel {
-      flex-shrink: 0;
-      margin: 0 10px 6px;
-      background: rgba(15, 8, 3, 0.85);
-      backdrop-filter: blur(4px);
-      border: 1px solid #7a4a18;
-      border-radius: 8px;
-      padding: 7px 12px;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.75);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 9;
-      font-size: 0.72rem;
-      color: var(--txt-d);
-      position: relative;
-    }
-    .glitter-panel-title {
-      font-family: 'Cinzel', serif;
-      font-weight: 700;
-      color: var(--gold-p);
-      letter-spacing: 0.05em;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .glitter-rewards-list {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--txt);
-      font-weight: 600;
-    }
-    .glitter-reward-item {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .glitter-reward-item img {
-      width: 14px;
-      height: 14px;
-      object-fit: contain;
-    }
-    .glitter-empty-txt {
-      font-style: italic;
-      color: var(--txt-m);
-      font-size: 0.65rem;
-    }
-
-    /* Float Up Animation */
     @keyframes floatUp {
       0% {
         transform: translate(-50%, -50%) translateY(0);
@@ -198,7 +161,6 @@
       }
     }
 
-    /* ── PLAYER PANEL (Bottom) ── */
     .player-panel {
       flex-shrink: 0;
       margin: 0 10px 10px;
@@ -211,6 +173,48 @@
       overflow: hidden;
       position: relative;
       z-index: 5;
+    }
+
+    .p-rewards {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid rgba(200, 150, 42, 0.12);
+      min-height: 32px;
+      font-size: 0.72rem;
+    }
+    .p-rewards-title {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      color: var(--gold-p);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .p-rewards-list {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--txt);
+      font-weight: 600;
+    }
+    .p-reward-item {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .p-reward-item img {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+    }
+    .p-reward-empty {
+      font-style: italic;
+      color: var(--txt-m);
+      font-size: 0.65rem;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .pinfo-top {
@@ -338,10 +342,12 @@
       font-size: 0.82rem;
       font-weight: 700;
       color: var(--txt);
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .s-val.gc { color: var(--gold-b); }
     .s-val.pc { color: #b8f0e8; }
-    
+
     .s-key {
       font-size: 0.6rem;
       color: var(--txt-m);
@@ -377,6 +383,17 @@
       background: linear-gradient(90deg, #154360, #2980b9);
       transition: width .5s ease;
     }
+    .lvl-track .xp-lbl {
+      position: absolute;
+      left: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      z-index: 1;
+      pointer-events: none;
+    }
     .lvl-pct {
       position: absolute;
       inset: 0;
@@ -390,65 +407,56 @@
       white-space: nowrap;
     }
 
-    /* TOAST */
-    .toast {
-      position: fixed;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-70px);
-      z-index: 9999;
-      padding: 9px 18px;
-      border-radius: 10px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      white-space: nowrap;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      max-width: 90vw;
-      text-align: center;
+    .vip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
     }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast.ok {
-      background: rgba(25, 70, 40, 0.95);
-      border: 1px solid #27ae60;
-      color: #c8f0d8;
+    .vip-badge.on {
+      background: linear-gradient(135deg, #b8860b, #f0c040);
+      color: #1a0e05;
+      box-shadow: 0 1px 8px rgba(200, 150, 42, 0.5);
     }
-    .toast.err {
-      background: rgba(80, 20, 10, 0.95);
-      border: 1px solid #e05a3a;
-      color: #ffd0c0;
+    .vip-badge.off {
+      background: rgba(20, 10, 2, 0.7);
+      border: 1px solid #5c3518;
+      color: var(--txt-m);
     }
+
   </style>
 </head>
 
 <body>
-  <div class="toast" id="toast"></div>
 
   <div class="page">
-    <!-- GLITTER HEADER -->
     <div class="glitter-header">
       <a href="map.html" class="back-btn">
-        <img src="assets/ikon/images/195_ico_safehaven.png" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;filter:brightness(1.1);" />
-        HARİTAYA DÖN
+        <img src="assets/ui/ikon/images/195_ico_safehaven.png" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;filter:brightness(1.1);" />
+        <span data-i18n="glitter_back" data-i18n-text>BACK TO MAP</span>
       </a>
-      <div class="title-wrap">PIRILTI</div>
-      <div style="width:90px;"></div> <!-- Dengelemek için boşluk -->
+      <div class="title-wrap" data-i18n="glitter_title">GLITTER</div>
+      <div class="glitter-limit-wrap">
+        <span class="glitter-limit-lbl" id="glitter-limit-lbl">0/0</span>
+      </div>
     </div>
 
-    <!-- SEA AREA -->
     <div class="sea-area">
       <div class="sea-water-effect"></div>
     </div>
 
-    <!-- GLITTER REWARDS PANEL -->
-    <div class="glitter-panel" id="glitter-panel">
-      <div class="glitter-panel-title">✨ Ödül:</div>
-      <div class="glitter-rewards-list" id="glitter-rewards-list">
-        <span class="glitter-empty-txt">Denizden pırıltı toplayarak ödüller kazanın!</span>
-      </div>
-    </div>
-
-    <!-- PLAYER PANEL -->
     <div class="player-panel">
+      <div class="p-rewards">
+        <span class="p-rewards-title" data-i18n="glitter_reward">✨ Reward:</span>
+        <div class="p-rewards-list" id="p-rewards-list">
+          <span class="p-reward-empty" data-i18n="glitter_empty">Collect glitter from the sea to earn rewards!</span>
+        </div>
+      </div>
       <div class="pinfo-top">
         <div class="p-rank-icon" id="p-rank-icon">☠</div>
         <div class="p-name-wrap">
@@ -464,16 +472,16 @@
       <div class="pinfo-body">
         <div class="p-stats">
           <div class="s-row">
-            <span class="s-icon"><img src="assets/pearl.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+            <span class="s-icon"><img src="assets/ui/pearl.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
             <span class="s-val pc" id="p-pearl">0</span>
           </div>
           <div class="s-row">
-            <span class="s-icon"><img src="assets/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+            <span class="s-icon"><img src="assets/ui/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
             <span class="s-val gc" id="p-gold">0</span>
           </div>
-          <div class="s-row">
-            <span class="s-key">XP:</span>
-            <span class="s-val" id="p-xp">0</span>
+          <div class="s-row" style="padding-top:2px;">
+            <span class="s-icon" style="visibility:hidden;"><img src="assets/ui/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+            <span class="vip-badge off" id="vip-badge" data-i18n="vip_status_off">Not VIP</span>
           </div>
           <div class="s-row">
             <span class="s-key">ELP:</span>
@@ -482,6 +490,7 @@
           <div class="lvl-row">
             <span class="lvl-lbl" id="p-lvl">1 LVL</span>
             <div class="lvl-track">
+              <span class="xp-lbl">XP</span>
               <div class="lvl-fill" id="p-lvl-fill" style="width:0%"></div>
               <span class="lvl-pct" id="p-lvl-pct">0 / 0</span>
             </div>
@@ -492,7 +501,7 @@
   </div>
 
   <script>
-    const API_URL = 'http://localhost:3000/api';
+    const API_URL = window.location.origin + '/api';
     const token = localStorage.getItem('sp_token');
 
     if (!token) {
@@ -501,7 +510,16 @@
 
     let player = {};
 
-    function fmt(n) { return Number(n).toLocaleString('tr-TR'); }
+    function ammoLabel(type) {
+      const map = {
+        1: t('ammo_name_grapeshot'),
+        2: t('ammo_name_hollow'),
+        3: t('ammo_name_explosive')
+      };
+      return map[type] || 'Ammo';
+    }
+
+    function fmt(n) { return Number(n).toLocaleString('en-US'); }
 
     function hpColor(pct) {
       if (pct > 60) return 'linear-gradient(90deg,#1a7a2e,#27ae60,#2ecc71)';
@@ -510,12 +528,47 @@
       return 'linear-gradient(90deg,#7a0a0a,#c0392b,#e74c3c)';
     }
 
-    // Modernize edilmiş toast bildirimleri
     function toast2(msg, type = 'ok') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show ' + type;
-      setTimeout(() => { t.className = 'toast'; }, 3000);
+      window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
+    }
+
+    // ── Mouse tracking for anti-bot ──
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let accumulatedMouseDelta = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      if (lastMouseX === 0 && lastMouseY === 0) {
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        return;
+      }
+      const dx = e.clientX - lastMouseX;
+      const dy = e.clientY - lastMouseY;
+      accumulatedMouseDelta += Math.sqrt(dx * dx + dy * dy);
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      const t = e.touches[0];
+      if (!t) return;
+      if (lastMouseX === 0 && lastMouseY === 0) {
+        lastMouseX = t.clientX;
+        lastMouseY = t.clientY;
+        return;
+      }
+      const dx = t.clientX - lastMouseX;
+      const dy = t.clientY - lastMouseY;
+      accumulatedMouseDelta += Math.sqrt(dx * dx + dy * dy);
+      lastMouseX = t.clientX;
+      lastMouseY = t.clientY;
+    });
+
+    function getAndResetMouseDelta() {
+      const val = accumulatedMouseDelta;
+      accumulatedMouseDelta = 0;
+      return Math.round(val);
     }
 
     async function fetchPlayerData() {
@@ -536,9 +589,27 @@
             hp: data.hp,
             hpMax: data.max_hp,
             rankBadge: data.rankBadge,
-            rankName: data.rankName
+            rankName: data.rankName,
+            rankKey: data.rankKey,
+            vip_until: data.vip_until
           };
           initPlayerUI();
+          fetchGlitterLimit();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function fetchGlitterLimit() {
+      try {
+        const res = await fetch(`${API_URL}/player/glitter/status`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const lbl = document.getElementById('glitter-limit-lbl');
+          if (lbl) lbl.textContent = `${data.remaining}/${data.limit}`;
         }
       } catch (e) {
         console.error(e);
@@ -550,15 +621,27 @@
 
       const rankIconEl = document.getElementById('p-rank-icon');
       if (rankIconEl) {
-        rankIconEl.innerHTML = `<img src="assets/rank/rank${player.rankBadge || 13}.png" style="width: 100%; height: 100%; object-fit: contain;" alt="${player.rankName || 'Kara Adamı'}" title="${player.rankName || 'Kara Adamı'}">`;
+        const rankLabel = t(player.rankKey || 'rank_13');
+        rankIconEl.innerHTML = `<img src="assets/ui/rank/rank${player.rankBadge || 13}.png" style="width: 100%; height: 100%; object-fit: contain;" alt="${rankLabel}" title="${rankLabel}">`;
       }
 
       document.getElementById('p-pearl').textContent = fmt(player.pearl);
       document.getElementById('p-gold').textContent = fmt(player.gold);
-      document.getElementById('p-xp').textContent = fmt(player.xp);
       document.getElementById('p-elp').textContent = fmt(player.elp);
-      document.getElementById('p-lvl').textContent = player.level + ' LVL';
+      document.getElementById('p-lvl').textContent = t('level_label',{val:player.level});
       document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);
+
+      const vipB = document.getElementById('vip-badge');
+      if (vipB) {
+        if (player.vip_until) {
+          vipB.className = 'vip-badge on';
+          const daysLeft = Math.ceil((new Date(player.vip_until) - new Date()) / 86400000);
+          vipB.textContent = daysLeft > 0 ? `👑 VIP \u00b7 ${daysLeft}` : '👑 VIP';
+        } else {
+          vipB.className = 'vip-badge off';
+          vipB.textContent = t('daily_vip_not_active');
+        }
+      }
 
       const xpPct = Math.min(100, (player.xp / player.xpNext) * 100);
       document.getElementById('p-lvl-fill').style.width = xpPct + '%';
@@ -576,25 +659,24 @@
       player.xp = data.xp;
       player.level = data.level;
       player.xpNext = data.xpNext;
-      
+
       document.getElementById('p-gold').textContent = fmt(player.gold);
       document.getElementById('p-pearl').textContent = fmt(player.pearl);
-      document.getElementById('p-xp').textContent = fmt(player.xp);
-      document.getElementById('p-lvl').textContent = player.level + ' LVL';
+      document.getElementById('p-lvl').textContent = t('level_label',{val:player.level});
       document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);
 
       const xpPct = Math.min(100, (player.xp / player.xpNext) * 100);
       document.getElementById('p-lvl-fill').style.width = xpPct + '%';
     }
 
-    // PIRILTI SPARK ENGINE
+    // ── GLITTER SPARK ENGINE ──
     (function() {
       const seaArea = document.querySelector('.sea-area');
-      const maxGlitters = 4;
+      const maxGlitters = 3;
       let activeGlitters = [];
 
       function startGlitterLoop() {
-        const interval = Math.random() * 1500 + 2000; // 2000ms - 3500ms
+        const interval = Math.random() * 1500 + 2000;
         setTimeout(() => {
           if (activeGlitters.length < maxGlitters) {
             spawnGlitter();
@@ -606,30 +688,30 @@
       function spawnGlitter() {
         const div = document.createElement('div');
         div.className = 'glitter-item';
-        
-        const leftPercent = Math.random() * 80 + 10; // %10 - %90 arası
-        const topPercent = Math.random() * 60 + 20;  // %20 - %80 arası
-        
+
+        const leftPercent = Math.random() * 80 + 10;
+        const topPercent = Math.random() * 60 + 20;
+
         div.style.left = `${leftPercent}%`;
         div.style.top = `${topPercent}%`;
-        
+
         const img = document.createElement('img');
         div.appendChild(img);
         seaArea.appendChild(div);
         activeGlitters.push(div);
 
         let frame = 1;
-        img.src = `assets/pırıltı/${frame}.png`;
+        img.src = `assets/effects/glitter/${frame}.png`;
         const animInterval = setInterval(() => {
           frame++;
           if (frame > 22) frame = 1;
-          img.src = `assets/pırıltı/${frame}.png`;
+          img.src = `assets/effects/glitter/${frame}.png`;
         }, 80);
 
         const selfDestruct = setTimeout(() => {
           clearInterval(animInterval);
           removeGlitter(div);
-        }, 15000);
+        }, 3000);
 
         div.onclick = async (e) => {
           e.stopPropagation();
@@ -637,25 +719,34 @@
           clearInterval(animInterval);
           div.classList.add('collecting');
 
+          const mouseDelta = getAndResetMouseDelta();
+          const rect = div.getBoundingClientRect();
+          const clickX = Math.round(rect.left + rect.width / 2);
+          const clickY = Math.round(rect.top + rect.height / 2);
+
           try {
             const res = await fetch(`${API_URL}/player/glitter/collect`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-              }
+              },
+              body: JSON.stringify({ clickX, clickY, mouseDelta })
             });
             const data = await res.json();
             if (res.ok) {
               renderGlitterRewards(data.rewards);
               createFloatText(data.rewards, div.offsetLeft, div.offsetTop);
               updatePlayerUI(data.player);
-              
-              if (data.leveledUp) {
-                toast2(`🎉 SEVİYE ATLADIN! → ${data.newLevel} LVL`, 'ok');
+              if (data.glitterRemaining !== undefined) {
+                const lbl = document.getElementById('glitter-limit-lbl');
+                if (lbl) lbl.textContent = `${data.glitterRemaining}/60`;
               }
-            } else {
-              toast2(data.error || 'Pırıltı toplanamadı.', 'err');
+              if (data.leveledUp) {
+                toast2(`🎉 LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');
+              }
+            } else if (data.error !== 'err_glitter_too_fast' && data.error !== 'err_glitter_hourly_limit') {
+              toast2(data.error || t('glitter_collect_fail'), 'err');
             }
           } catch (err) {
             console.error(err);
@@ -670,7 +761,6 @@
         if (el.parentNode) el.parentNode.removeChild(el);
       }
 
-      // Sadece kazanılan tekil ödülü yüzen metin olarak gösterme
       function createFloatText(rewards, x, y) {
         const tag = document.createElement('div');
         tag.style.cssText = `
@@ -691,66 +781,61 @@
           align-items: center;
           animation: floatUp 1.3s ease-out forwards;
         `;
-        
+
         let html = '';
         if (rewards.gold > 0) {
-          html = `<div style="display: flex; align-items: center; gap: 4px;"><img src="assets/gold.png" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle;"> +${fmt(rewards.gold)} Altın</div>`;
+          html = `<div style="display: flex; align-items: center; gap: 4px;"><img src="assets/ui/gold.png" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle;"> +${fmt(rewards.gold)} Gold</div>`;
         } else if (rewards.pearl > 0) {
-          html = `<div style="display: flex; align-items: center; gap: 4px; color:#b8f0e8;"><img src="assets/pearl.png" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle;"> +${fmt(rewards.pearl)} İnci</div>`;
+          html = `<div style="display: flex; align-items: center; gap: 4px; color:#b8f0e8;"><img src="assets/ui/pearl.png" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle;"> +${fmt(rewards.pearl)} Pearl</div>`;
         } else if (rewards.xp > 0) {
           html = `<div style="color:#a4b0be;">+${fmt(rewards.xp)} XP</div>`;
         } else if (rewards.ammo) {
-          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">💣 +${rewards.ammo.qty} ${rewards.ammo.name}</div>`;
+          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">💣 +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;
         }
-        
+
         tag.innerHTML = html;
         seaArea.appendChild(tag);
-        
+
         setTimeout(() => tag.remove(), 1300);
       }
 
-      // Sadece kazanılan tekil ödülü alt ödül panelinde render etme
       function renderGlitterRewards(rewards) {
-        const list = document.getElementById('glitter-rewards-list');
+        const list = document.getElementById('p-rewards-list');
         let html = '';
-        
+
         if (rewards.gold > 0) {
           html = `
-            <span class="glitter-reward-item" style="color:var(--gold-b);">
-              <img src="assets/gold.png" alt="Altın"> +${fmt(rewards.gold)}
+            <span class="p-reward-item" style="color:var(--gold-b);">
+              <img src="assets/ui/gold.png" alt="Gold"> +${fmt(rewards.gold)}
             </span>
           `;
         } else if (rewards.pearl > 0) {
           html = `
-            <span class="glitter-reward-item" style="color:#b8f0e8;">
-              <img src="assets/pearl.png" alt="İnci"> +${fmt(rewards.pearl)}
+            <span class="p-reward-item" style="color:#b8f0e8;">
+              <img src="assets/ui/pearl.png" alt="Pearl"> +${fmt(rewards.pearl)}
             </span>
           `;
         } else if (rewards.xp > 0) {
           html = `
-            <span class="glitter-reward-item" style="color:#a4b0be;">
+            <span class="p-reward-item" style="color:#a4b0be;">
               +${fmt(rewards.xp)} XP
             </span>
           `;
         } else if (rewards.ammo) {
           html = `
-            <span class="glitter-reward-item" style="color:#3498db;">
-              💣 +${rewards.ammo.qty} ${rewards.ammo.name}
+            <span class="p-reward-item" style="color:#3498db;">
+              💣 +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}
             </span>
           `;
         }
-        
+
         list.innerHTML = html;
       }
 
-      // Başlat
       startGlitterLoop();
     })();
 
-    // İlk Yükleme
     fetchPlayerData();
-  </script>
-  <script src="transition.js"></script>
+</script>
 </body>
-
 </html>

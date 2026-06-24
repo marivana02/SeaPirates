@@ -2,11 +2,123 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>SeaPirates — Giriş</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <title>SeaPirates — Login</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d0702">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script>
+const API = (() => {
+  const BASE = window.location.origin + '/api';
+  function getToken() { return localStorage.getItem('sp_token'); }
+  function getHeaders(extra = {}) {
+    const headers = { 'Content-Type': 'application/json', ...extra };
+    const token = getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return headers;
+  }
+  function handleError(res) {
+    if (res.status === 401 || res.status === 403) {
+      if (getToken()) {
+        localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player'); localStorage.removeItem('sp_remember_me'); sessionStorage.removeItem('sp_session_active');
+        window.goTo('index.html'); return null;
+      }
+    }
+    return res;
+  }
+  async function request(method, path, body = null) {
+    const url = BASE + path;
+    const options = { method, headers: getHeaders() };
+    if (body !== null) options.body = JSON.stringify(body);
+    try {
+      const res = await fetch(url, options);
+      if (!handleError(res)) return null;
+      const data = await res.json();
+      if (!res.ok) throw new APIError(data.error || 'Request failed', res.status, data);
+      return data;
+    } catch (err) {
+      if (err instanceof APIError) throw err;
+      throw new APIError('Network error - ' + err.message, 0);
+    }
+  }
+  class APIError extends Error {
+    constructor(message, status, data = null) { super(message); this.name = 'APIError'; this.status = status; this.data = data; }
+  }
+  return {
+    get(path) { return request('GET', path); },
+    post(path, body) { return request('POST', path, body); },
+    put(path, body) { return request('PUT', path, body); },
+    del(path) { return request('DELETE', path); },
+    getToken, isAuthenticated() { return !!getToken(); }, APIError
+  };
+})();
+window.API = API;
+  </script>
+  <script>
+const Auth = (() => {
+  const TOKEN_KEY = 'sp_token', PLAYER_KEY = 'sp_player', REMEMBER_KEY = 'sp_remember_me', SESSION_KEY = 'sp_session_active';
+  return {
+    getToken() { return localStorage.getItem(TOKEN_KEY); },
+    getPlayer() {
+      const raw = localStorage.getItem(PLAYER_KEY);
+      try { return raw ? JSON.parse(raw) : null; } catch { return null; }
+    },
+    setPlayer(data) {
+      if (data) localStorage.setItem(PLAYER_KEY, JSON.stringify(data));
+      else localStorage.removeItem(PLAYER_KEY);
+    },
+    isLoggedIn() {
+      const token = this.getToken();
+      if (!token) return false;
+      const remember = localStorage.getItem(REMEMBER_KEY);
+      const session = sessionStorage.getItem(SESSION_KEY);
+      if (!remember && !session) { this.logout(); return false; }
+      return true;
+    },
+    login(token, player, remember = false) {
+      localStorage.setItem(TOKEN_KEY, token); this.setPlayer(player);
+      if (remember) { localStorage.setItem(REMEMBER_KEY, 'true'); sessionStorage.removeItem(SESSION_KEY); }
+      else { sessionStorage.setItem(SESSION_KEY, 'true'); localStorage.removeItem(REMEMBER_KEY); }
+    },
+    logout() {
+      localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(PLAYER_KEY);
+      localStorage.removeItem(REMEMBER_KEY); sessionStorage.removeItem(SESSION_KEY);
+    },
+    redirectToLogin() { this.logout(); window.goTo('index.html'); }
+  };
+})();
+  </script>
+  <script>
+window.t = window.t || function(key, vars) {
+  var texts = {
+    login_welcome: '⚓ Hoş geldin Kaptan!', register_welcome: '⚔ Hoş geldin Kaptan!',
+    connection_failed: 'Bağlantı hatası', btn_login: '⚓ Denize Açıl',
+    login_title: '⚓ Giriş Yap', register_title: '⚔ Kayıt Ol',
+    username_label: 'Kullanıcı adı', password_label: 'Şifre',
+    strength_weak: 'Zayıf', strength_medium: 'Orta', strength_good: 'İyi', strength_strong: 'Güçlü',
+    reg_error_username: '3–20 karakter, harf/rakam/_ kullanın.',
+    modal_close: 'Tamam', error: 'Hata',
+    ban_notification_title: 'Hesabınız banlanmış!', ban_reason_label: 'Sebep:',
+    ban_expires_label: 'Bitiş:', ban_permanent_label: 'Kalıcı ban',
+    ban_date_label: 'Tarih:',
+    forgot_error_nouser: 'Kullanıcı adı girin.', forgot_success: 'Şifre sıfırlama maili gönderildi.',
+    modal_terms_title: '⚓ KULLANIM ŞARTLARI', modal_privacy_title: '🔒 GİZLİLİK POLİTİKASI'
+  };
+  var msg = texts[key] || key;
+  if (vars && vars.name) msg = msg.replace('{name}', vars.name);
+  return msg;
+};
+  </script>
+  <script>
+window.goTo = window.goTo || function(url) { if (url && url !== '#') window.location.href = url; };
+window.showAlert = window.showAlert || function(msg) { alert(msg); };
+  </script>
+  <script src="js/lang.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -14,9 +126,7 @@
       --wood-dark:   #1a0e05;
       --wood-mid:    #2d1a08;
       --wood-warm:   #3d2410;
-      --wood-plank:  #5c3518;
       --wood-light:  #7a4a22;
-      --gold:        #c8962a;
       --gold-bright: #f0c040;
       --gold-pale:   #fde68a;
       --rope:        #8b6340;
@@ -66,7 +176,7 @@
       min-height:100dvh;
       display:flex;flex-direction:column;
       align-items:center;
-      padding:0 20px 40px;
+      padding:0 20px calc(40px + env(safe-area-inset-bottom, 0px));
     }
 
     /* ── LOGO ── */
@@ -83,31 +193,71 @@
     /* ── BOARD (main card) ── */
     .board{
       width:100%;
-      background:
-        linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);
-      border:2px solid var(--wood-plank);
-      border-radius:var(--r-lg);
+      background: linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);
+      background-clip: padding-box;
+      border: 24px solid transparent;
+      border-radius: var(--r-lg);
       box-shadow:
         var(--shadow),
         inset 0 1px 0 rgba(200,150,42,0.15),
         inset 0 -1px 0 rgba(0,0,0,0.5);
-      overflow:hidden;
       position:relative;
+      overflow:visible;
+    }
+    /* premium wood border frame */
+    .board::before{
+      content: "";
+      position: absolute;
+      inset: -24px;
+      pointer-events: none;
+      z-index: 5;
+      background-image: 
+        url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),
+        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),
+        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),
+        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),
+        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),
+        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),
+        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),
+        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');
+      background-position:
+        top left,
+        top right,
+        bottom left,
+        bottom right,
+        top left,
+        bottom left,
+        top left,
+        top right;
+      background-size:
+        110px 110px,
+        110px 110px,
+        110px 110px,
+        110px 110px,
+        100% 24px,
+        100% 24px,
+        24px 100%,
+        24px 100%;
+      background-repeat:
+        no-repeat,
+        no-repeat,
+        no-repeat,
+        no-repeat,
+        repeat-x,
+        repeat-x,
+        repeat-y,
+        repeat-y;
     }
     /* plank lines on card */
-    .board::before{
+    .board::after{
       content:'';position:absolute;inset:0;
       background:repeating-linear-gradient(
         180deg,
         transparent 0px,transparent 38px,
         rgba(0,0,0,0.22) 38px,rgba(0,0,0,0.22) 40px
       );
-      pointer-events:none;border-radius:var(--r-lg);
-    }
-    /* top gold bar */
-    .board::after{
-      content:'';position:absolute;top:0;left:0;right:0;height:3px;
-      background:linear-gradient(90deg,transparent,var(--gold),var(--gold-bright),var(--gold),transparent);
+      pointer-events:none;z-index:1;
+      border-radius:var(--r-lg);
     }
 
     /* ── TABS ── */
@@ -235,18 +385,6 @@
     .nail.tl{top:10px;left:10px;} .nail.tr{top:10px;right:10px;}
     .nail.bl{bottom:10px;left:10px;} .nail.br{bottom:10px;right:10px;}
 
-    /* ── TOAST ── */
-    .toast{
-      position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-80px);
-      z-index:9999;padding:11px 20px;border-radius:var(--r-md);
-      font-size:0.85rem;font-weight:500;white-space:nowrap;
-      transition:transform 0.32s cubic-bezier(0.34,1.56,0.64,1);
-      max-width:90vw;text-align:center;
-    }
-    .toast.show{transform:translateX(-50%) translateY(0);}
-    .toast.ok{background:rgba(30,80,50,0.95);border:1px solid #4caf7a;color:#c8f0d8;}
-    .toast.err{background:rgba(80,20,10,0.95);border:1px solid #e05a3a;color:#ffd0c0;}
-
     /* ── BOTTOM LINK ── */
     .bottom-note{
       margin-top:16px;text-align:center;font-size:0.75rem;color:var(--text-muted);
@@ -332,6 +470,27 @@
       letter-spacing: 0.05em;
       transition: all 0.2s;
     }
+    .form-msg {
+      text-align: center;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      margin: 6px 0;
+      border-radius: var(--r-sm);
+      display: none;
+    }
+    .form-msg.show {
+      display: block;
+    }
+    .form-msg.err {
+      background: rgba(200, 50, 30, 0.2);
+      border: 1px solid #c0392b;
+      color: #ffb0a0;
+    }
+    .form-msg.ok {
+      background: rgba(40, 120, 60, 0.2);
+      border: 1px solid #27ae60;
+      color: #b0e0c0;
+    }
     .modal-close-btn:hover {
       background: var(--wood-light);
       border-color: var(--gold);
@@ -341,13 +500,12 @@
 </head>
 <body>
   <div class="page-bg"></div>
-  <div class="toast" id="toast"></div>
 
   <div class="frame">
 
     <!-- LOGO -->
     <div class="logo-wrap">
-      <img src="assets/login.png" alt="SeaPirates" id="logo-img"/>
+      <img src="assets/ui/login.png" alt="SeaPirates" id="logo-img"/>
     </div>
 
     <!-- BOARD CARD -->
@@ -361,8 +519,8 @@
 
       <!-- TABS -->
       <div class="tabs">
-        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">⚓ Giriş Yap</button>
-        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">⚔ Kayıt Ol</button>
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')"><span data-i18n="login_title" data-i18n-text>⚓ Giriş Yap</span></button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')"><span data-i18n="register_title" data-i18n-text>⚔ Kayıt Ol</span></button>
       </div>
 
       <!-- LOGIN PANEL -->
@@ -370,26 +528,28 @@
 
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="l-user" placeholder="Kullanıcı adı" autocomplete="username" autocapitalize="none" spellcheck="false"/>
+          <input type="text" id="l-user" placeholder="Kullanıcı adı" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false"/>
         </div>
-        <span class="err" id="l-user-err">Kullanıcı adı gerekli.</span>
+        <span class="err" id="l-user-err" data-i18n="login_error_fields">Kullanıcı adı gerekli.</span>
 
         <div class="field">
           <span class="field-icon">🔒</span>
-          <input type="password" id="l-pass" placeholder="Şifre" autocomplete="current-password"/>
+          <input type="password" id="l-pass" placeholder="Şifre" data-i18n-placeholder="password_label" autocomplete="current-password"/>
         </div>
-        <span class="err" id="l-pass-err">Şifre gerekli.</span>
+        <span class="err" id="l-pass-err" data-i18n="login_error_fields">Şifre gerekli.</span>
 
         <div class="meta-row">
           <label class="remember">
             <input type="checkbox" id="remember"/>
-            <span>Beni hatırla</span>
+            <span data-i18n="remember_me" data-i18n-text>Beni hatırla</span>
           </label>
-          <a href="#" class="forgot" onclick="forgotPass(event)">Şifremi unuttum</a>
+          <a href="#" class="forgot" onclick="forgotPass(event)"><span data-i18n="forgot_password" data-i18n-text>Şifremi unuttum</span></a>
         </div>
 
+        <div class="form-msg" id="l-msg"></div>
+
         <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
-          <span class="btn-txt">⚓ &nbsp;Denize Açıl</span>
+          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>⚓ &nbsp;Denize Açıl</span></span>
           <div class="spinner"></div>
         </button>
 
@@ -400,21 +560,21 @@
 
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="r-user" placeholder="Kullanıcı adı (3–20 karakter)" autocomplete="username" autocapitalize="none" maxlength="20" oninput="liveValidUser(this)"/>
+          <input type="text" id="r-user" placeholder="Kullanıcı adı (3–20 karakter)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" maxlength="20" oninput="liveValidUser(this)"/>
         </div>
-        <span class="err" id="r-user-err">3–20 karakter, harf/rakam/_ kullanın.</span>
+        <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 karakter, harf/rakam/_ kullanın.</span>
 
         <div class="field">
           <span class="field-icon">📧</span>
-          <input type="email" id="r-email" placeholder="E-posta adresi" autocomplete="email"/>
+          <input type="email" id="r-email" placeholder="E-posta adresi" data-i18n-placeholder="email_placeholder" autocomplete="email"/>
         </div>
-        <span class="err" id="r-email-err">Geçerli bir e-posta giriniz.</span>
+        <span class="err" id="r-email-err" data-i18n="reg_error_email">Geçerli bir e-posta giriniz.</span>
 
         <div class="field">
           <span class="field-icon">🔒</span>
-          <input type="password" id="r-pass" placeholder="Şifre (min. 6 karakter)" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+          <input type="password" id="r-pass" placeholder="Şifre (min. 6 karakter)" data-i18n-placeholder="password_placeholder" autocomplete="new-password" oninput="checkStrength(this.value)"/>
         </div>
-        <span class="err" id="r-pass-err">Şifre en az 6 karakter olmalı.</span>
+        <span class="err" id="r-pass-err" data-i18n="reg_error_password">Şifre en az 6 karakter olmalı.</span>
 
         <div class="strength" id="strength">
           <div class="s-bars">
@@ -426,18 +586,20 @@
 
         <div class="field">
           <span class="field-icon">🔐</span>
-          <input type="password" id="r-pass2" placeholder="Şifreyi tekrar gir" autocomplete="new-password"/>
+          <input type="password" id="r-pass2" placeholder="Şifreyi tekrar gir" data-i18n-placeholder="repassword_placeholder" autocomplete="new-password"/>
         </div>
-        <span class="err" id="r-pass2-err">Şifreler eşleşmiyor.</span>
+        <span class="err" id="r-pass2-err" data-i18n="reg_error_pass2">Şifreler eşleşmiyor.</span>
 
         <label class="terms">
           <input type="checkbox" id="terms"/>
-          <span><a href="#" onclick="openModal('terms'); return false;">Kullanım şartlarını</a> kabul ediyorum.</span>
+          <span><a href="#" onclick="openModal('terms'); return false;"><span data-i18n="terms_link" data-i18n-text>Kullanım şartlarını</span></a> <span data-i18n="accept_terms" data-i18n-text>kabul ediyorum.</span></span>
         </label>
-        <span class="err" id="terms-err">Şartları kabul etmelisiniz.</span>
+        <span class="err" id="terms-err" data-i18n="reg_error_terms">Şartları kabul etmelisiniz.</span>
+
+        <div class="form-msg" id="r-msg"></div>
 
         <button class="btn btn-primary" id="reg-btn" onclick="doRegister()">
-          <span class="btn-txt">⚔ &nbsp;Korsan Ol</span>
+          <span class="btn-txt"><span data-i18n="btn_register" data-i18n-text>⚔ &nbsp;Korsan Ol</span></span>
           <div class="spinner"></div>
         </button>
 
@@ -445,8 +607,8 @@
     </div>
 
     <div class="bottom-note">
-      <a href="#" onclick="openModal('privacy'); return false;">Gizlilik Politikası</a> &nbsp;·&nbsp;
-      <a href="#" onclick="openModal('terms'); return false;">Kullanım Şartları</a><br/>
+      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Gizlilik Politikası</span></a> &nbsp;·&nbsp;
+      <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Kullanım Şartları</span></a><br/>
       <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
     </div>
 
@@ -459,7 +621,7 @@
       <div class="modal-body" id="modal-body">
         <!-- Dinamik içerik buraya yüklenecek -->
       </div>
-      <button class="modal-close-btn" onclick="closeModal()">Tamam</button>
+      <button class="modal-close-btn" onclick="closeModal()"><span data-i18n="modal_close" data-i18n-text>Tamam</span></button>
     </div>
   </div>
 
@@ -501,12 +663,17 @@
       clearErrs();
     }
 
-    /* ── TOAST ── */
-    function toast(msg,type='ok',ms=2800){
-      const el=document.getElementById('toast');
-      el.textContent=msg; el.className='toast '+type;
-      el.getBoundingClientRect(); el.classList.add('show');
-      setTimeout(()=>el.classList.remove('show'),ms);
+    /* ── MESAJ ── */
+    function showFormMsg(msg, type) {
+      const activePanel = document.querySelector('.panel.active');
+      if (!activePanel) return;
+      const el = activePanel.querySelector('.form-msg');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'form-msg show ' + type;
+    }
+    function clearFormMsg() {
+      document.querySelectorAll('.form-msg').forEach(e => { e.className = 'form-msg'; e.textContent = ''; });
     }
 
     /* ── ERRORS ── */
@@ -517,7 +684,7 @@
     /* ── LIVE USERNAME VALIDATE ── */
     function liveValidUser(el){
       const v=el.value.trim();
-      if(v&&!/^[a-zA-Z0-9_]{3,20}$/.test(v)) showErr('r-user-err','3–20 karakter, harf/rakam/_ kullanın.');
+      if(v&&!/^[a-zA-Z0-9_]{3,20}$/.test(v)) showErr('r-user-err', t('reg_error_username'));
       else hideErr('r-user-err');
     }
 
@@ -534,7 +701,7 @@
       if(/[A-Z]/.test(v)&&/[a-z]/.test(v))sc++;
       if(/[0-9]/.test(v)||/[^a-zA-Z0-9]/.test(v))sc++;
       const cls=sc<=1?'weak':sc<=2?'mid':'strong';
-      const txt=sc<=1?'Zayıf':sc<=2?'Orta':sc===3?'İyi':'Güçlü';
+      const txt=sc<=1?t('strength_weak'):sc<=2?t('strength_medium'):sc===3?t('strength_good'):t('strength_strong');
       bars.forEach((b,i)=>{b.className='s-bar';if(i<sc)b.classList.add(cls);});
       lbl.className='s-txt '+cls; lbl.textContent=txt;
     }
@@ -548,42 +715,38 @@
     /* ── LOGIN ── */
     async function doLogin(){
       clearErrs();
+      clearFormMsg();
       const username=document.getElementById('l-user').value.trim();
       const password=document.getElementById('l-pass').value;
       const remember=document.getElementById('remember').checked;
-      let ok=true;
-      if(!username){showErr('l-user-err');ok=false;}
-      if(!password){showErr('l-pass-err');ok=false;}
-      if(!ok)return;
-      
+      if(!username){showErr('l-user-err');return;}
+      if(!password){showErr('l-pass-err');return;}
       setLoading('login-btn',true);
       try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        
-        if (!res.ok) {
-          toast(data.error || 'Giriş başarısız', 'err');
-        } else {
-          // Token ve kullanıcı bilgisini checkbox'a göre kaydet
-          localStorage.setItem('sp_token', data.token);
-          if (remember) {
-            localStorage.setItem('sp_remember_me', 'true');
-            localStorage.setItem('sp_remembered_username', username);
-          } else {
-            localStorage.setItem('sp_remember_me', 'false');
-            localStorage.removeItem('sp_remembered_username');
-            sessionStorage.setItem('sp_session_active', 'true');
-          }
-          localStorage.setItem('sp_player', JSON.stringify(data.player));
-          toast('⚓ Hoş geldin '+(data.player.display_name || data.player.username)+'! Yükleniyor...','ok',2000);
-          setTimeout(()=>goTo('home.html'),2000);
-        }
+        const data = await API.post('/auth/login', { username, password });
+        Auth.login(data.token, data.player, remember);
+        if (remember) localStorage.setItem('sp_remembered_username', username);
+        showFormMsg(t('login_welcome', { name: data.player.display_name || data.player.username }), 'ok');
+        setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {
-        toast('Sunucuya bağlanılamadı!', 'err');
+        if (err.status === 403 && err.message === 'err_account_banned' && err.data) {
+          const d = err.data;
+          let banMsg = '🚫 ' + t('ban_notification_title');
+          if (d.ban_reason) banMsg += '\n📝 ' + t('ban_reason_label') + ' ' + d.ban_reason;
+          if (d.ban_expires_at) {
+            const expires = new Date(d.ban_expires_at);
+            banMsg += '\n⏳ ' + t('ban_expires_label') + ' ' + expires.toLocaleDateString() + ' ' + expires.toLocaleTimeString();
+          } else {
+            banMsg += '\n⏳ ' + t('ban_permanent_label');
+          }
+          if (d.banned_at) {
+            const banned = new Date(d.banned_at);
+            banMsg += '\n📅 ' + t('ban_date_label') + ' ' + banned.toLocaleDateString() + ' ' + banned.toLocaleTimeString();
+          }
+          showFormMsg(banMsg, 'err');
+        } else {
+          showFormMsg(err.message || t('connection_failed'), 'err');
+        }
       }
       setLoading('login-btn',false);
     }
@@ -591,6 +754,7 @@
     /* ── REGISTER ── */
     async function doRegister(){
       clearErrs();
+      clearFormMsg();
       const username=document.getElementById('r-user').value.trim();
       const email=document.getElementById('r-email').value.trim();
       const password=document.getElementById('r-pass').value;
@@ -606,25 +770,12 @@
 
       setLoading('reg-btn',true);
       try {
-        const res = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, email, password })
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          toast(data.error || 'Kayıt başarısız', 'err');
-        } else {
-          // Yeni kayıtta da varsayılan olarak oturum bilgisini sakla (Beni Hatırla açık varsayıyoruz)
-          localStorage.setItem('sp_token', data.token);
-          localStorage.setItem('sp_remember_me', 'true');
-          localStorage.setItem('sp_player', JSON.stringify(data.player));
-          toast('⚔ Kaptan '+(data.player.display_name || data.player.username)+' denizlere hoş geldin!','ok',2500);
-          setTimeout(()=>goTo('home.html'),2000);
-        }
+        const data = await API.post('/auth/register', { username, email, password });
+        Auth.login(data.token, data.player, true);
+        showFormMsg(t('register_welcome', { name: data.player.display_name || data.player.username }), 'ok');
+        setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {
-        toast('Sunucuya bağlanılamadı!', 'err');
+        showFormMsg(err.message || t('connection_failed'), 'err');
       }
       setLoading('reg-btn',false);
     }
@@ -633,8 +784,8 @@
     function forgotPass(e){
       e.preventDefault();
       const u=document.getElementById('l-user').value.trim();
-      if(!u){toast('Önce kullanıcı adını gir.','err');return;}
-      toast('📧 Şifre sıfırlama bağlantısı gönderildi.','ok');
+      if(!u){showFormMsg(t('forgot_error_nouser'),'err');return;}
+      showFormMsg(t('forgot_success'),'ok');
     }
 
     /* ── MODAL TERMS & PRIVACY ── */
@@ -645,7 +796,7 @@
       if (!modal) return;
 
       if (type === 'terms') {
-        title.innerHTML = '⚓ KULLANIM ŞARTLARI';
+        title.innerHTML = t('modal_terms_title');
         body.innerHTML = `
           <p><strong>1. Kabul Edilme Şartları:</strong> SeaPirates web tabanlı bir clicker-RPG oyunudur. Bu oyuna üye olarak tüm kuralları ve şartları peşinen kabul etmiş sayılırsınız.</p>
           <p><strong>2. Hesap Güvenliği:</strong> Hesabınızın şifresini korumak sizin sorumluluğunuzdadır. Üçüncü şahıslarla şifre paylaşımı yasaktır.</p>
@@ -654,7 +805,7 @@
           <p><strong>5. Yaş Sınırı:</strong> Oyunu oynamak için en az 13 yaşında olmanız gerekmektedir.</p>
         `;
       } else {
-        title.innerHTML = '🛡️ GİZLİLİK POLİTİKASI';
+        title.innerHTML = t('modal_privacy_title');
         body.innerHTML = `
           <p><strong>1. Toplanan Veriler:</strong> Kayıt sırasında sağladığınız kullanıcı adı, e-posta adresi ve şifre (güvenli bir şekilde şifrelenmiş olarak) sunucumuzda saklanır.</p>
           <p><strong>2. Verilerin Kullanımı:</strong> Bilgileriniz yalnızca oyuna giriş yapabilmeniz ve ilerlemenizi kaydedebilmeniz amacıyla kullanılır.</p>
@@ -673,6 +824,15 @@
     /* ── UTIL ── */
     function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
+    /* Service Worker Registration for PWA */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js?v=1')
+          .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+          .catch(err => console.error('Service Worker registration failed:', err));
+      });
+    }
+
     /* Enter key */
     document.addEventListener('keydown',e=>{
       if(e.key==='Enter'){
@@ -681,6 +841,5 @@
       }
     });
   </script>
-  <script src="transition.js"></script>
 </body>
 </html>

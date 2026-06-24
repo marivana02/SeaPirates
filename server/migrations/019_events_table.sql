@@ -1,0 +1,16 @@
+-- Up
+CREATE TABLE IF NOT EXISTS events (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    icon VARCHAR(20) DEFAULT '🎉',
+    type VARCHAR(30) NOT NULL,
+    mult NUMERIC(4,1) DEFAULT 2.0,
+    start_at TIMESTAMP NOT NULL,
+    end_at TIMESTAMP NOT NULL,
+    is_auto BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Down
+DROP TABLE IF EXISTS events;

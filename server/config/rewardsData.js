@@ -1,0 +1,93 @@
+const DAILY_REWARDS = {
+  1:  { gold: 2000, name: '2,000 Gold' },
+  2:  { pearl: 100, name: '100 Pearl' },
+  3:  { ammo: { type: 2, qty: 1000 }, name: '1,000 Hollow' },
+  4:  { gold: 5000, name: '5,000 Gold' },
+  5:  { pearl: 200, name: '200 Pearl ⭐' },
+  6:  { items: [{ type: 'barut', qty: 100 }], name: '100x Gunpowder' },
+  7:  { ammo: { type: 2, qty: 2000 }, name: '2,000 Hollow' },
+  8:  { gold: 8000, name: '8,000 Gold' },
+  9:  { pearl: 200, name: '200 Pearl' },
+  10: { pearl: 500, ammo: { type: 3, qty: 200 }, name: '500 Pearl & 200 Explosive ⭐' },
+  11: { gold: 10000, name: '10,000 Gold' },
+  12: { items: [{ type: 'zirh', qty: 15 }], name: '15x Armor' },
+  13: { ammo: { type: 2, qty: 3000 }, name: '3,000 Hollow' },
+  14: { pearl: 300, name: '300 Pearl' },
+  15: { pearl: 800, ammo: { type: 3, qty: 300 }, name: '800 Pearl & 300 Explosive ⭐' },
+  16: { gold: 20000, name: '20,000 Gold' },
+  17: { items: [{ type: 'barut', qty: 100 }, { type: 'zirh', qty: 15 }], name: '100x Gunpowder & Armor' },
+  18: { ammo: { type: 2, qty: 4000 }, name: '4,000 Hollow' },
+  19: { pearl: 500, name: '500 Pearl' },
+  20: { pearl: 1000, ammo: { type: 3, qty: 400 }, name: '1,000 Pearl & 400 Explosive ⭐' },
+  21: { gold: 25000, name: '25,000 Gold' },
+  22: { ammo: { type: 3, qty: 500 }, name: '500 Explosive' },
+  23: { ammo: { type: 2, qty: 5000 }, name: '5,000 Hollow' },
+  24: { pearl: 600, name: '600 Pearl' },
+  25: { pearl: 1500, ammo: { type: 3, qty: 600 }, name: '1,500 Pearl & 600 Explosive ⭐' },
+  26: { gold: 35000, name: '35,000 Gold' },
+  27: { items: [{ type: 'barut', qty: 100 }, { type: 'zirh', qty: 30 }], name: '100x Gunpowder & Armor' },
+  28: { ammo: { type: 2, qty: 7000 }, name: '7,000 Hollow' },
+  29: { pearl: 800, name: '800 Pearl' },
+  30: { pearl: 3000, ammo: { type: 3, qty: 1000 }, name: '3,000 Pearl & 1,000 Explosive 👑' }
+};
+
+const VIP_DAILY_REWARDS = {
+  1:  { gold: 8000, name: '8,000 Gold (VIP)' },
+  2:  { pearl: 400, name: '400 Pearl (VIP)' },
+  3:  { ammo: { type: 3, qty: 500 }, name: '500 Explosive (VIP)' },
+  4:  { gold: 20000, name: '20,000 Gold (VIP)' },
+  5:  { pearl: 800, name: '800 Pearl ⭐ (VIP)' },
+  6:  { items: [{ type: 'barut', qty: 300 }], name: '300x Gunpowder (VIP)' },
+  7:  { ammo: { type: 3, qty: 1000 }, name: '1,000 Explosive (VIP)' },
+  8:  { gold: 32000, name: '32,000 Gold (VIP)' },
+  9:  { pearl: 800, name: '800 Pearl (VIP)' },
+  10: { pearl: 2000, ammo: { type: 3, qty: 1000 }, name: '2,000 Pearl & 1,000 Explosive ⭐ (VIP)' },
+  11: { gold: 40000, name: '40,000 Gold (VIP)' },
+  12: { items: [{ type: 'zirh', qty: 60 }], name: '60x Armor (VIP)' },
+  13: { ammo: { type: 3, qty: 1500 }, name: '1,500 Explosive (VIP)' },
+  14: { pearl: 1200, name: '1,200 Pearl (VIP)' },
+  15: { pearl: 3200, ammo: { type: 3, qty: 1800 }, name: '3,200 Pearl & 1,800 Explosive ⭐ (VIP)' },
+  16: { gold: 80000, name: '80,000 Gold (VIP)' },
+  17: { items: [{ type: 'barut', qty: 300 }, { type: 'zirh', qty: 60 }], name: '300x Gunpowder & 60x Armor (VIP)' },
+  18: { ammo: { type: 3, qty: 2000 }, name: '2,000 Explosive (VIP)' },
+  19: { pearl: 2000, name: '2,000 Pearl (VIP)' },
+  20: { pearl: 4000, ammo: { type: 3, qty: 2000 }, name: '4,000 Pearl & 2,000 Explosive ⭐ (VIP)' },
+  21: { gold: 100000, name: '100,000 Gold (VIP)' },
+  22: { ammo: { type: 3, qty: 2000 }, name: '2,000 Explosive (VIP)' },
+  23: { ammo: { type: 3, qty: 2500 }, name: '2,500 Explosive (VIP)' },
+  24: { pearl: 2400, name: '2,400 Pearl (VIP)' },
+  25: { pearl: 6000, ammo: { type: 3, qty: 3000 }, name: '6,000 Pearl & 3,000 Explosive ⭐ (VIP)' },
+  26: { gold: 140000, name: '140,000 Gold (VIP)' },
+  27: { items: [{ type: 'barut', qty: 300 }, { type: 'zirh', qty: 120 }], name: '300x Gunpowder & 120x Armor (VIP)' },
+  28: { ammo: { type: 3, qty: 3500 }, name: '3,500 Explosive (VIP)' },
+  29: { pearl: 3200, name: '3,200 Pearl (VIP)' },
+  30: { pearl: 12000, ammo: { type: 3, qty: 4000 }, name: '12,000 Pearl & 4,000 Explosive 👑 (VIP)' }
+};
+
+const LEVEL_REWARDS = {
+  1:  { gold: 20000, name: '20,000 Gold' },
+  2:  { pearl: 500, name: '500 Pearl' },
+   3:  { ammo: { type: 2, qty: 5000 }, name: '5,000 Hollow' },
+  4:  { gold: 50000, name: '50,000 Gold' },
+  5:  { pearl: 1000, name: '1,000 Pearl' },
+   6:  { items: [{ type: 'barut', qty: 100 }], name: '100x Gunpowder' },
+   7:  { ammo: { type: 3, qty: 3000 }, name: '3,000 Explosive' },
+  8:  { gold: 100000, name: '100,000 Gold' },
+  9:  { pearl: 2000, name: '2,000 Pearl' },
+  10: { pearl: 3000, ammo: { type: 3, qty: 2000 }, name: '3,000 Pearl & 2,000 Explosive' }
+};
+
+const VIP_LEVEL_REWARDS = {
+  1:  { gold: 60000, name: '60,000 Gold (VIP)' },
+  2:  { pearl: 1500, name: '1,500 Pearl (VIP)' },
+   3:  { ammo: { type: 2, qty: 15000 }, name: '15,000 Hollow (VIP)' },
+  4:  { gold: 150000, name: '150,000 Gold (VIP)' },
+  5:  { pearl: 3000, name: '3,000 Pearl (VIP)' },
+   6:  { items: [{ type: 'barut', qty: 1000 }], name: '1,000x Gunpowder (VIP)' },
+   7:  { ammo: { type: 3, qty: 10000 }, name: '10,000 Explosive (VIP)' },
+  8:  { gold: 300000, name: '300,000 Gold (VIP)' },
+  9:  { pearl: 6000, name: '6,000 Pearl (VIP)' },
+  10: { pearl: 9000, ammo: { type: 3, qty: 6000 }, name: '9,000 Pearl & 6,000 Explosive (VIP)' }
+};
+
+module.exports = { DAILY_REWARDS, VIP_DAILY_REWARDS, LEVEL_REWARDS, VIP_LEVEL_REWARDS };

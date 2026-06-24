@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>SeaPirates — Şeref Salonu</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <title>SeaPirates — Hall of Fame</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
-      --wood-d:#0f0a05;--wood-m:#1a1108;
-      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
-      --red:#c0392b;--border:rgba(200,150,42,0.3);
+      --border:rgba(200,150,42,0.3);
     }
     html,body{width:100%;height:100dvh;overflow:hidden;background:#080502;font-family:'Inter',sans-serif;color:var(--txt);}
     
     .page{
-      max-width:430px;margin:0 auto;height:100dvh;
+      max-width:430px;margin:0 auto;height:100dvh;padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;
       display:flex;flex-direction:column;position:relative;
-      background:url('assets/background/menubackground.png') center/cover no-repeat;
+      background:url('assets/ui/background/menubackground.png') center/cover no-repeat;
     }
     .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.72);pointer-events:none;z-index:0;}
 
@@ -89,7 +90,7 @@
     /* TABLE */
     .table-container{
       position:relative;z-index:5;flex:1;
-      overflow-y:auto;background:rgba(0,0,0,0.4);
+      overflow-y:auto;overflow-x:auto;background:rgba(0,0,0,0.4);
     }
     .table-container::-webkit-scrollbar{width:6px;}
     .table-container::-webkit-scrollbar-thumb{background:#442a10;border-radius:3px;}
@@ -97,6 +98,7 @@
     .hof-table{
       width:100%;border-collapse:collapse;
       font-family:'Inter',sans-serif;
+      table-layout:fixed;
     }
     .hof-table th{
       position:sticky;top:0;
@@ -117,22 +119,35 @@
     
     /* Rows alternate colors to look like wood planks slightly */
     .hof-table tbody tr:nth-child(odd){
-      background: linear-gradient(rgba(20,10,5,0.75), rgba(20,10,5,0.75)), url('assets/leaderboardbackground.png') center/cover;
+      background: linear-gradient(rgba(20,10,5,0.75), rgba(20,10,5,0.75)), url('assets/ui/leaderboardbackground.png') center/cover;
     }
     .hof-table tbody tr:nth-child(even){
-      background: linear-gradient(rgba(10,5,0,0.85), rgba(10,5,0,0.85)), url('assets/leaderboardbackground.png') center/cover;
+      background: linear-gradient(rgba(10,5,0,0.85), rgba(10,5,0,0.85)), url('assets/ui/leaderboardbackground.png') center/cover;
     }
     .hof-table tbody tr:hover{
-      background: linear-gradient(rgba(40,25,10,0.6), rgba(40,25,10,0.6)), url('assets/leaderboardbackground.png') center/cover;
+      background: linear-gradient(rgba(40,25,10,0.6), rgba(40,25,10,0.6)), url('assets/ui/leaderboardbackground.png') center/cover;
     }
     .hof-table tbody tr.is-me{
-      background: linear-gradient(rgba(80,50,15,0.6), rgba(80,50,15,0.6)), url('assets/leaderboardbackground.png') center/cover;
+      background: linear-gradient(rgba(80,50,15,0.6), rgba(80,50,15,0.6)), url('assets/ui/leaderboardbackground.png') center/cover;
       box-shadow: inset 0 0 10px rgba(200,150,42,0.3);
+    }
+    .hof-table tbody tr.is-me .col-name{
+      color:#fff;font-weight:700;
+    }
+    .hof-table tbody tr.is-me .col-score{
+      color:#fff;font-weight:700;
+    }
+    .hof-table tbody tr.is-me:hover{
+      background: linear-gradient(rgba(100,60,20,0.7), rgba(100,60,20,0.7)), url('assets/ui/leaderboardbackground.png') center/cover;
+    }
+    .hof-table tbody tr.is-me:hover .col-name,
+    .hof-table tbody tr.is-me:hover .col-score{
+      text-shadow:0 0 8px rgba(200,150,42,0.7);
     }
     
     .col-rank{width:60px;text-align:center;color:var(--gold-b);font-weight:700;}
-    .col-name{color:#ddd;}
-    .col-score{text-align:right;color:var(--gold-b);}
+    .col-name{color:#ddd;overflow-wrap:break-word;word-break:break-word;}
+    .col-score{text-align:right;color:var(--gold-b);width:90px;}
     
   </style>
 </head>
@@ -140,23 +155,24 @@
 <div class="page">
   <!-- TOP BAR -->
   <div class="top-bar">
-    <a href="menu.html" class="btn-back">◀ GERİ</a>
-    <div class="page-title">ŞEREF SALONU</div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
+    <div class="page-title"><span data-i18n="hof_title" data-i18n-text>HALL OF FAME</span></div>
     <div style="width:65px;"></div>
   </div>
 
   <div class="hof-header">
-    <div class="hof-current-cat" id="cat-title">Tecrübe Puanı</div>
+    <div class="hof-current-cat" id="cat-title" data-i18n="hof_cat_xp">Experience Points</div>
     <div class="hof-select-wrap">
       <select class="hof-select" id="cat-select" onchange="changeCategory()">
-        <option value="xp">Tecrübe Puanı</option>
-        <option value="ep">Elit Puan</option>
-        <option value="dmg_pve">Darbe Puanı PvE</option>
-        <option value="dmg_pvp">Darbe Puanı PvP</option>
-        <option value="kill_npc">Batırılan NPC</option>
-        <option value="kill_pvp">Batırılan Oyuncu</option>
-        <option value="dmg_amiral">Darbe Puanı Amiral</option>
-        <option value="playtime">Oyunda Geçirilen Süre</option>
+        <option value="xp" data-i18n="hof_cat_xp">Experience Points</option>
+        <option value="ep" data-i18n="hof_cat_ep">Elite Points</option>
+        <option value="dmg_pve" data-i18n="hof_cat_dmg_pve">Damage Score PvE</option>
+        <option value="dmg_pvp" data-i18n="hof_cat_dmg_pvp">Damage Score PvP</option>
+        <option value="kill_npc" data-i18n="hof_cat_kill_npc">NPCs Sunk</option>
+        <option value="kill_pvp" data-i18n="hof_cat_kill_pvp">Players Sunk</option>
+        <option value="dmg_amiral" data-i18n="hof_cat_dmg_amiral">Admiral Damage</option>
+        <option value="playtime" data-i18n="hof_cat_playtime">Playtime</option>
+        <option value="pvp_points" data-i18n="hof_cat_pvp_points">Battle Points</option>
       </select>
     </div>
   </div>
@@ -165,7 +181,7 @@
     <div>
       <button class="nav-btn" onclick="prevPage()" id="btn-prev">◀</button>
     </div>
-    <div class="my-rank" id="my-rank-display">Sıralaman: 0</div>
+    <div class="my-rank" id="my-rank-display"><span data-i18n="hof_my_rank">My Rank:</span> 0</div>
     <div>
       <button class="nav-btn" onclick="nextPage()" id="btn-next">▶</button>
     </div>
@@ -175,9 +191,9 @@
     <table class="hof-table">
       <thead>
         <tr>
-          <th class="col-rank">Sıra</th>
-          <th class="col-name">Oyuncular</th>
-          <th class="col-score">Puan</th>
+          <th class="col-rank" data-i18n="hof_rank_header">Rank</th>
+          <th class="col-name" data-i18n="hof_players_header">Players</th>
+          <th class="col-score" data-i18n="hof_score_header">Score</th>
         </tr>
       </thead>
       <tbody id="hof-tbody">
@@ -188,21 +204,10 @@
 </div>
 
 <script>
-const CATEGORIES = {
-  xp: "Tecrübe Puanı",
-  ep: "Elit Puan",
-  dmg_pve: "Darbe Puanı PvE",
-  dmg_pvp: "Darbe Puanı PvP",
-  kill_npc: "Batırılan NPC",
-  kill_pvp: "Batırılan Oyuncu",
-  dmg_amiral: "Darbe Puanı Amiral",
-  playtime: "Oyunda Geçirilen Süre"
-};
+const CATEGORY_KEYS = ['xp','ep','dmg_pve','dmg_pvp','kill_npc','kill_pvp','dmg_amiral','playtime','pvp_points'];
 
 const token = localStorage.getItem('sp_token');
-const API_URL = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
-  ? `${window.location.origin}/api`
-  : 'http://localhost:3000/api';
+const API_URL = window.location.origin + '/api';
 
 // State
 let leaderboardData = [];
@@ -211,14 +216,14 @@ let currentCat = "xp";
 let currentPage = 1;
 const ITEMS_PER_PAGE = 30;
 
-function fmtN(n){ return Number(n).toLocaleString('tr-TR'); }
+function fmtN(n){ return Number(n).toLocaleString('en-US'); }
 
 function formatScore(cat, score) {
   if(cat === 'playtime') {
     // Treat score as minutes, format to Hours:Minutes
     let hours = Math.floor(score / 60);
     let mins = score % 60;
-    return `${hours}s ${mins}d`;
+    return `${hours}h ${mins}m`;
   }
   return fmtN(score);
 }
@@ -236,10 +241,10 @@ async function loadLeaderboard() {
       myRank = data.myRank || 0;
       renderTable();
     } else {
-      console.error("Şeref Salonu verileri çekilemedi");
+      console.error("Hall of Fame data could not be fetched");
     }
   } catch (err) {
-    console.error("Şeref Salonu yüklenirken hata:", err);
+    console.error("Hall of Fame load error:", err);
   }
 }
 
@@ -269,13 +274,13 @@ function renderTable() {
   document.getElementById('btn-next').disabled = endIdx >= leaderboardData.length;
   
   // Update my rank
-  document.getElementById('my-rank-display').textContent = `Sıralaman: ${myRank > 0 ? fmtN(myRank) : '-'}`;
+  document.getElementById('my-rank-display').textContent = t('hof_my_rank') + ' ' + (myRank > 0 ? fmtN(myRank) : '-');
 }
 
 function changeCategory() {
   const sel = document.getElementById('cat-select');
   currentCat = sel.value;
-  document.getElementById('cat-title').textContent = CATEGORIES[currentCat];
+  document.getElementById('cat-title').textContent = t('hof_cat_' + currentCat);
   currentPage = 1;
   loadLeaderboard();
 }
@@ -299,6 +304,5 @@ function nextPage() {
 // Init
 loadLeaderboard();
 </script>
-  <script src="transition.js"></script>
 </body>
 </html>

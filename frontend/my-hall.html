@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>SeaPirates — Bugünkü Rütben</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <title>SeaPirates — Today's Rank</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
-      --wood-d:#0f0a05;--wood-m:#1a1108;
-      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
       --border:rgba(200,150,42,0.3);
     }
     html,body{width:100%;height:100dvh;overflow:hidden;background:#080502;font-family:'Inter',sans-serif;color:var(--txt);}
     
     .page{
-      max-width:430px;margin:0 auto;height:100dvh;
+      max-width:430px;margin:0 auto;height:100dvh;padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;
       display:flex;flex-direction:column;position:relative;
-      background:url('assets/background/menubackground.png') center/cover no-repeat;
+      background:url('assets/ui/background/menubackground.png') center/cover no-repeat;
     }
     .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.85);pointer-events:none;z-index:0;}
 
@@ -86,7 +87,7 @@
 
     .badge-area{
       width: 55%;
-      background: url('assets/rankbackground.png') center/cover;
+      background: url('assets/ui/rankbackground.png') center/cover;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -143,64 +144,61 @@
     /* Right: Math Area */
     .math-area{
       width: 45%;
-      background: url('assets/ranktxtbackgroun.png') center/cover;
+      background: url('assets/ui/ranktxtbackgroun.png') center/cover;
       display: flex;
       flex-direction: column;
-    }
-    .math-header{
-      padding: 12px 14px;
-      border-bottom: 2px solid rgba(100,100,100,0.5);
-      font-size: 0.85rem;
-      color: #ccc;
-      background: rgba(0,0,0,0.4);
+      min-width:0;
     }
     .math-header span{
       color: var(--gold-b);
       font-weight: 700;
     }
     .math-body{
-      padding: 14px;
-      font-size: 0.68rem;
-      color: #a0a0a0;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      flex:1;
+      display: flex;flex-direction:column;justify-content:center;
+      padding: 8px 14px;
+      color: #d0c8b8;
     }
     .math-title{
-      color: #c09440;
-      margin-bottom: 10px;
-      font-style: italic;
+      color: var(--gold-b);
+      margin-bottom: 6px;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 0.6rem;
+      letter-spacing: 0.03em;
     }
     .math-row{
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 0 6px;
+      margin-bottom: 1px;
     }
     .math-op{
-      width: 12px;
-      color: #a0a0a0;
+      color: var(--gold);font-weight:700;text-align:center;
+      font-size:0.55rem;grid-column:1;grid-row:1;
     }
     .math-val{
-      flex: 1;
-      text-align: right;
-      color: #e0e0e0;
-      padding-right: 8px;
-      font-weight: 500;
+      text-align:left;color:#fff;font-weight:600;
+      font-family:'Inter',sans-serif;white-space:nowrap;
+      font-size:0.65rem;grid-column:2;grid-row:1;
     }
     .math-desc{
-      width: 90px;
-      color: #c09440;
-      line-height: 1.1;
+      color: #6a4a28;line-height:1.1;
+      font-size:0.4rem;grid-column:2;grid-row:2;
+      overflow-wrap:break-word;word-break:break-word;
     }
     .math-total{
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed rgba(200,150,42,0.3);
-      display: flex;
-      justify-content: space-between;
-      font-weight: 700;
-      color: var(--gold-b);
+      margin-top: 6px;padding-top: 8px;
+      border-top: 1px solid rgba(200,150,42,0.35);
+      display: flex;align-items:center;gap: 6px;
+      font-weight: 700;color: var(--gold-b);
+      font-size: 0.65rem;font-family: 'Cinzel', serif;
+    }
+    .math-total span:first-child{
+      overflow-wrap:break-word;word-break:break-word;
+    }
+    .math-total span:last-child{
+      flex-shrink: 0;margin-left:auto;
       font-size: 0.8rem;
     }
 
@@ -243,20 +241,24 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 5px;
+      min-width:0;
     }
     .target-ico img{
       width: 24px;
       height: 24px;
       object-fit: contain;
+      flex-shrink:0;
     }
     .target-name{
       font-weight: 700;
       font-size: 0.85rem;
       color: var(--gold-p);
+      min-width:0;overflow-wrap:break-word;word-break:break-word;
     }
     .target-desc{
       font-size: 0.65rem;
       color: #aaa;
+      overflow-wrap:break-word;word-break:break-word;
     }
 
     .warning-title{
@@ -269,21 +271,30 @@
       font-size: 0.68rem;
       color: #b08d5a;
       line-height: 1.6;
+      overflow-wrap:break-word;word-break:break-word;
     }
 
+    .math-header{
+      padding: 12px 14px;
+      border-bottom: 2px solid rgba(100,100,100,0.5);
+      font-size: 0.85rem;
+      color: #e0d5c0;
+      background: rgba(0,0,0,0.4);
+      overflow-wrap:break-word;word-break:break-word;
+    }
   </style>
 </head>
 <body>
 <div class="page">
   <!-- TOP BAR -->
   <div class="top-bar">
-    <a href="menu.html" class="btn-back">◀ GERİ</a>
-    <div class="page-title">ŞEREF SALONUM</div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
+    <div class="page-title"><span data-i18n="page_my_hall" data-i18n-text>MY HALL</span></div>
     <div style="width:65px;"></div>
   </div>
 
   <div class="hof-header">
-    <div class="hof-current-cat">Bugünkü Rütben</div>
+    <div class="hof-current-cat" data-i18n="hall_today_rank">Today's Rank</div>
   </div>
 
   <div class="content-area">
@@ -293,44 +304,44 @@
       <!-- TOP SECTION -->
       <div class="top-section">
         <div class="badge-area">
-          <img id="main-rank-img" class="rank-normal" src="assets/rank/rank1.png" alt="Rank Badge" onerror="this.src='assets/rank/rank1.png'">
+          <img id="main-rank-img" class="rank-normal" src="assets/ui/rank/rank1.png" alt="Rank Badge" onerror="this.style.display='none'">
         </div>
         
         <div class="math-area">
           <div class="math-header">
-            Sen: <span id="my-rank-name">Yükleniyor...</span>
+            <span data-i18n="hall_you">You</span>: <span id="my-rank-name">Loading...</span>
           </div>
           <div class="math-body">
-            <div class="math-title">Rütbenin hesabı şöyle gerçekleşiyor:</div>
+            <div class="math-title" data-i18n="hall_calculated_as">Your rank is calculated as follows:</div>
             
             <div class="math-row">
-              <span class="math-op"></span>
+              <span class="math-op">∑</span>
               <span class="math-val" id="calc-dmg">0</span>
-              <span class="math-desc" id="desc-dmg">Darbe Puanı / 200Bin</span>
+              <span class="math-desc" id="desc-dmg">Damage</span>
             </div>
             <div class="math-row">
               <span class="math-op">+</span>
               <span class="math-val" id="calc-ep">0</span>
-              <span class="math-desc" id="desc-ep">Elit Puan / 5Bin</span>
+              <span class="math-desc" id="desc-ep">Elite</span>
             </div>
             <div class="math-row">
               <span class="math-op">+</span>
               <span class="math-val" id="calc-xp">0</span>
-              <span class="math-desc" id="desc-xp">Tecrübe Puanı / 1500</span>
+              <span class="math-desc" id="desc-xp">Experience</span>
             </div>
             <div class="math-row">
               <span class="math-op">+</span>
               <span class="math-val" id="calc-lvl">0</span>
-              <span class="math-desc" id="desc-lvl">Seviye * 100</span>
+              <span class="math-desc" id="desc-lvl">Level</span>
             </div>
             <div class="math-row">
               <span class="math-op">+</span>
               <span class="math-val" id="calc-days">0</span>
-              <span class="math-desc" id="desc-days">Gün sayısı * 5</span>
+              <span class="math-desc" id="desc-days">Days</span>
             </div>
             
             <div class="math-total">
-              <span>Toplam puan:</span>
+              <span data-i18n="hall_total_score">Total score:</span>
               <span id="calc-total">0</span>
             </div>
           </div>
@@ -343,29 +354,29 @@
         <!-- Left Column -->
         <div class="bottom-col">
           <div class="info-card" id="card-target">
-            <div class="info-title">Bir üst seviye için</div>
+            <div class="info-title" data-i18n="hall_next_rank">For the next rank</div>
             <div class="rank-target">
-              <span class="target-ico"><img id="target-img" src="assets/rank/rank13.png" alt=""></span>
-              <span class="target-name" id="target-name">Korsan Kralı</span>
+              <span class="target-ico"><img id="target-img" src="assets/ui/rank/rank13.png" alt=""></span>
+              <span class="target-name" id="target-name">Pirate King</span>
             </div>
-            <div class="target-desc" id="target-desc">şu an 0 Rütbe Puanı'na ihtiyaç duyuyorsun</div>
+            <div class="target-desc" id="target-desc">needs 0 Rank Points</div>
           </div>
 
           <div class="info-card" id="card-lower">
-            <div class="info-title">Bir alttaki rütbe</div>
+            <div class="info-title" data-i18n="hall_one_below">One rank below</div>
             <div class="rank-target">
-              <span class="target-ico"><img id="lower-img" src="assets/rank/rank11.png" alt=""></span>
+              <span class="target-ico"><img id="lower-img" src="assets/ui/rank/rank11.png" alt=""></span>
               <span class="target-name" id="lower-name">Korsan Baronu</span>
             </div>
-            <div class="target-desc" id="lower-desc">şu an 0 Rütbe Puanı'na sahip</div>
+            <div class="target-desc" id="lower-desc">has 0 Rank Points</div>
           </div>
         </div>
 
         <!-- Right Column -->
         <div class="bottom-col">
-          <div class="warning-title">Dikkat:</div>
-          <div class="warning-text">
-            Rütbeler günde bir kere hesaplandığı için, burada gösterilen değerler tahmini değerlerdir. Gösterilen puana ulaşman rütbeyi garanti etmez! Çünkü diğer oyuncular da bu süre zarfında değişen değerlere sahip oluyorlar.
+          <div class="warning-title" data-i18n="hall_note">Note:</div>
+          <div class="warning-text" data-i18n="hall_note_text">
+            Ranks are calculated in real-time. The points and ranking shown here are live data. Reaching the displayed score does not guarantee the rank! Because other players are also earning points simultaneously.
           </div>
         </div>
 
@@ -374,7 +385,7 @@
     </div>
     
     <div id="loading-el" style="text-align: center; color: var(--gold-b); font-family: 'Cinzel', serif; margin: 40px auto; font-size: 1.1rem;">
-      ⚓ Rütbe hesaplanıyor...
+      <span data-i18n="hall_calculating">⚓ Calculating rank...</span>
     </div>
 
   </div>
@@ -382,11 +393,22 @@
 
 <script>
 const token = localStorage.getItem('sp_token');
-const API_URL = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
-  ? `${window.location.origin}/api`
-  : 'http://localhost:3000/api';
+const API_URL = window.location.origin + '/api';
 
-function fmtN(n) { return Number(n).toLocaleString('tr-TR'); }
+function fmtN(n) { return Number(n).toLocaleString('en-US'); }
+
+function setFitText(el, text) {
+  el.textContent = text;
+  el.style.fontSize = '0.85rem';
+  if (el.scrollWidth <= el.clientWidth) return;
+  let size = 0.8;
+  const step = 0.03;
+  const minSize = 0.48;
+  while (size >= minSize && el.scrollWidth > el.clientWidth) {
+    el.style.fontSize = size + 'rem';
+    size -= step;
+  }
+}
 
 async function loadMyRank() {
   try {
@@ -408,7 +430,7 @@ async function loadMyRank() {
 
       // Rütbe resmi ve havalı CSS animasyonu
       const img = document.getElementById('main-rank-img');
-      img.src = `assets/rank/rank${me.rankBadge}.png`;
+      img.src = `assets/ui/rank/rank${me.rankBadge}.png`;
       img.className = '';
       if (me.rankBadge === 1) {
         img.className = 'rank-top1'; // Sadece 1. rütbe (Denizlerin Hükümdarı) yanıp sönecek!
@@ -418,24 +440,24 @@ async function loadMyRank() {
         img.className = 'rank-normal';
       }
 
-      // Rütbe Adı
-      document.getElementById('my-rank-name').textContent = me.rankName;
+      // Rütbe Adı (dil desteği ile)
+      document.getElementById('my-rank-name').textContent = t(me.rankKey || 'rank_13');
 
-      // Hesaplama Rakamları
-      document.getElementById('calc-dmg').textContent = fmtN(me.dmg_pve);
-      document.getElementById('desc-dmg').textContent = "Darbe Puanı / 200.000";
+      // Hesaplama Rakamları (auto-shrink ile)
+      setFitText(document.getElementById('calc-dmg'), fmtN(me.dmg_pve));
+      setFitText(document.getElementById('desc-dmg'), '(DMG / 200.000)');
 
-      document.getElementById('calc-ep').textContent = fmtN(me.elite_points);
-      document.getElementById('desc-ep').textContent = "Elit Puan / 5.000";
+      setFitText(document.getElementById('calc-ep'), fmtN(me.elite_points));
+      setFitText(document.getElementById('desc-ep'), '(EP / 5.000)');
 
-      document.getElementById('calc-xp').textContent = fmtN(me.xp);
-      document.getElementById('desc-xp').textContent = "Tecrübe Puanı / 1.500";
+      setFitText(document.getElementById('calc-xp'), fmtN(me.xp));
+      setFitText(document.getElementById('desc-xp'), '(XP / 1.500)');
 
-      document.getElementById('calc-lvl').textContent = fmtN(me.level);
-      document.getElementById('desc-lvl').textContent = "Seviye * 100";
+      setFitText(document.getElementById('calc-lvl'), fmtN(me.level));
+      setFitText(document.getElementById('desc-lvl'), '(LVL × 100)');
 
-      document.getElementById('calc-days').textContent = fmtN(me.days);
-      document.getElementById('desc-days').textContent = "Gün sayısı * 5";
+      setFitText(document.getElementById('calc-days'), fmtN(me.days));
+      setFitText(document.getElementById('desc-days'), '(DAY × 5)');
 
       document.getElementById('calc-total').textContent = fmtN(me.score);
 
@@ -443,18 +465,18 @@ async function loadMyRank() {
       const targetCard = document.getElementById('card-target');
       if (target) {
         targetCard.innerHTML = `
-          <div class="info-title">Bir üst seviye için</div>
+          <div class="info-title">${t('hall_next_rank')}</div>
           <div class="rank-target">
-            <span class="target-ico"><img src="assets/rank/rank${target.rankBadge}.png" alt=""></span>
-            <span class="target-name">${target.rankName}</span>
+            <span class="target-ico"><img src="assets/ui/rank/rank${target.rankBadge}.png" alt=""></span>
+            <span class="target-name">${t(target.rankKey || 'rank_13')}</span>
           </div>
-          <div class="target-desc">Bir üst rütbeye ulaşmak için <b>${fmtN(target.neededPoints)}</b> rütbe puanına daha ihtiyacın var.</div>
+          <div class="target-desc">${t('hall_next_rank_desc', {val: fmtN(target.neededPoints)})}</div>
         `;
       } else {
         targetCard.innerHTML = `
-          <div class="info-title">Tebrikler!</div>
-          <div class="target-name">👑 Zirvedesin!</div>
-          <div class="target-desc">Şu anda sunucunun en üst rütbesindesin! Liderliğini koru!</div>
+          <div class="info-title">${t('hall_congrats')}</div>
+          <div class="target-name">${t('hall_top_rank')}</div>
+          <div class="target-desc">${t('hall_keep_lead')}</div>
         `;
       }
 
@@ -462,36 +484,35 @@ async function loadMyRank() {
       const lowerCard = document.getElementById('card-lower');
       if (lower) {
         lowerCard.innerHTML = `
-          <div class="info-title">Bir alttaki rütbe</div>
+          <div class="info-title">${t('hall_one_below')}</div>
           <div class="rank-target">
-            <span class="target-ico"><img src="assets/rank/rank${lower.rankBadge}.png" alt=""></span>
-            <span class="target-name">${lower.rankName}</span>
+            <span class="target-ico"><img src="assets/ui/rank/rank${lower.rankBadge}.png" alt=""></span>
+            <span class="target-name">${t(lower.rankKey || 'rank_13')}</span>
           </div>
-          <div class="target-desc">Bir alttaki rütbeye düşmemek için aradaki fark <b>${fmtN(me.score - lower.score)}</b> rütbe puanıdır.</div>
+          <div class="target-desc">${t('hall_one_below_desc', {val: fmtN(me.score - lower.score)})}</div>
         `;
       } else {
         lowerCard.innerHTML = `
-          <div class="info-title">Bir alttaki rütbe</div>
+          <div class="info-title">${t('hall_one_below')}</div>
           <div class="rank-target">
-            <span class="target-ico"><img src="assets/rank/rank13.png" alt=""></span>
-            <span class="target-name">Kara Adamı</span>
+            <span class="target-ico"><img src="assets/ui/rank/rank13.png" alt=""></span>
+            <span class="target-name">${t('rank_13')}</span>
           </div>
-          <div class="target-desc">En alt rütbedesin, yerini korumak için puan biriktir!</div>
+          <div class="target-desc">${t('hall_lowest_rank')}</div>
         `;
       }
 
     } else {
-      document.getElementById('loading-el').textContent = '⚠️ Rütbe verileri sunucudan çekilemedi!';
+      document.getElementById('loading-el').textContent = t('hall_fetch_error');
     }
   } catch (err) {
-    console.error("Rütbe getirme hatası:", err);
-    document.getElementById('loading-el').textContent = '⚠️ Sunucu bağlantı hatası!';
+    console.error("Rank fetch error:", err);
+    document.getElementById('loading-el').textContent = t('hall_connection_error');
   }
 }
 
-// Başlat
+  // Start
 loadMyRank();
 </script>
-  <script src="transition.js"></script>
 </body>
 </html>

@@ -3,12 +3,16 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
   <title>SeaPirates — Menü</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
     *,
     *::before,
@@ -50,7 +54,10 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      background: url('assets/background/menubackground.png') center center / cover no-repeat;
+      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
     }
 
     .page::before {
@@ -121,7 +128,9 @@
       margin: 0 auto;
       width: 100%;
       max-width: 400px;
+      scrollbar-width:thin;scrollbar-color:transparent transparent;
     }
+    .menu-wrap::-webkit-scrollbar{width:0;}
 
     /* MENU BUTTON (WOODEN PLANK STYLE) */
     .menu-btn {
@@ -131,7 +140,7 @@
       align-items: center;
       justify-content: center;
       padding: 18px 20px;
-      background: url('assets/leaderboardbackground.png') center/cover;
+      background: url('assets/ui/leaderboardbackground.png') center/cover;
       border: 2px solid #6a4218;
       border-radius: 12px;
       text-decoration: none;
@@ -162,100 +171,80 @@
       position: relative;
       z-index: 1;
       font-family: 'Cinzel', serif;
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       font-weight: 700;
       color: var(--txt);
       text-transform: uppercase;
       letter-spacing: 0.1em;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
       text-align: center;
+      overflow-wrap:break-word;word-break:break-word;
+      line-height:1.3;
     }
 
     .menu-btn:hover .menu-lbl {
       color: var(--gold-p);
     }
 
-    /* TOAST */
-    .toast {
-      position: fixed;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-70px);
-      z-index: 9999;
-      padding: 9px 18px;
-      border-radius: 10px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      white-space: nowrap;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      max-width: 90vw;
-      text-align: center;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .toast.ok {
-      background: rgba(25, 70, 40, 0.95);
-      border: 1px solid #27ae60;
-      color: #c8f0d8;
-    }
   </style>
 </head>
 
 <body>
-  <div class="toast" id="toast"></div>
+  
   <div class="page">
 
     <!-- TOP BAR -->
     <div class="top-bar">
-      <a href="home.html" class="btn-back">◀ LİMANA DÖN</a>
-      <div class="page-title">MENÜ</div>
-      <div style="width:85px;"></div> <!-- Denge için boş div -->
+      <a href="home.html" class="btn-back"><span data-i18n="btn_harbor" data-i18n-text>◀ LİMANA DÖN</span></a>
+      <div class="page-title"><span data-i18n="menu_title" data-i18n-text>MENÜ</span></div>
+      <div style="width:85px;"></div>
     </div>
 
     <!-- MENU LIST -->
     <div class="menu-wrap">
 
       <a href="shop.html" class="menu-btn">
-        <span class="menu-lbl">Dükkan</span>
+        <span class="menu-lbl" data-i18n="menu_shop" data-i18n-text>Dükkan</span>
       </a>
 
       <a href="equipment.html" class="menu-btn">
-        <span class="menu-lbl">Ekipman</span>
+        <span class="menu-lbl" data-i18n="menu_equipment" data-i18n-text>Ekipman</span>
       </a>
 
       <a href="ships.html" class="menu-btn">
-        <span class="menu-lbl">Gemiler</span>
+        <span class="menu-lbl" data-i18n="menu_ships" data-i18n-text>Gemiler</span>
       </a>
 
       <a href="auction.html" class="menu-btn">
-        <span class="menu-lbl">Açık Arttırma</span>
+        <span class="menu-lbl" data-i18n="menu_auction" data-i18n-text>Açık Arttırma</span>
       </a>
 
       <a href="my-hall.html" class="menu-btn">
-        <span class="menu-lbl">Şeref Salonum</span>
+        <span class="menu-lbl" data-i18n="menu_my_hall" data-i18n-text>Şeref Salonum</span>
       </a>
 
       <a href="hall-of-fame.html" class="menu-btn">
-        <span class="menu-lbl">Şeref Salonu</span>
+        <span class="menu-lbl" data-i18n="menu_hall_of_fame" data-i18n-text>Şeref Salonu</span>
       </a>
 
       <a href="daily-reward.html" class="menu-btn">
-        <span class="menu-lbl">Günlük Giriş Ödülü</span>
+        <span class="menu-lbl" data-i18n="menu_daily_reward" data-i18n-text>Günlük Giriş Ödülü</span>
       </a>
 
       <a href="level-bonus.html" class="menu-btn">
-        <span class="menu-lbl">Seviye Bonusu</span>
+        <span class="menu-lbl" data-i18n="menu_level_bonus" data-i18n-text>Seviye Bonusu</span>
       </a>
 
-      <a href="clan.html" class="menu-btn" onclick="toastMsg('Klan yakında!', event)">
-        <span class="menu-lbl">Klan</span>
+      <a href="#" class="menu-btn" onclick="event.preventDefault(); showComingSoon();">
+        <span class="menu-lbl" data-i18n="menu_clan" data-i18n-text>Klan</span>
       </a>
 
       <a href="settings.html" class="menu-btn">
-        <span class="menu-lbl">Ayarlar</span>
+        <span class="menu-lbl" data-i18n="menu_settings" data-i18n-text>Ayarlar</span>
+      </a>
+
+      <a href="admin.html" class="menu-btn" id="btn-admin" style="display:none;">
+        <span class="menu-lbl" data-i18n="menu_admin" data-i18n-text>Admin</span>
       </a>
 
     </div>
@@ -263,18 +252,31 @@
   </div>
 
   <script>
-    function toastMsg(msg, e) {
-      if (e) e.preventDefault();
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.className = 'toast ok';
-      el.getBoundingClientRect();
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2000);
+    function showComingSoon() {
+      let overlay = document.getElementById('cs-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'cs-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;cursor:pointer';
+        const img = document.createElement('img');
+        img.src = 'assets/ui/images/imgi_73_coming_soon.jpg';
+        img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 40px rgba(0,0,0,0.8)';
+        overlay.appendChild(img);
+        overlay.addEventListener('click', () => overlay.remove());
+        document.body.appendChild(overlay);
+      }
     }
 
+    const token = localStorage.getItem('sp_token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.isAdmin) {
+          document.getElementById('btn-admin').style.display = '';
+        }
+      } catch(e) {}
+    }
   </script>
-  <script src="transition.js"></script>
 </body>
 
 </html>

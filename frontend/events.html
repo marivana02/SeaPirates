@@ -1,155 +1,887 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-  <title>SeaPirate — Etkinlik</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
+  <title>SeaPirates — Events</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --gld:#7a5a28;--gld-b:#9a7a38;--gld-p:#b89a48;
-      --bg:#080503;
-      --txt:#b8a888;--txt-d:#8a7a5a;--txt-m:#5a4a2a;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c8962a;
+      --gold-b: #f0c040;
+      --gold-p: #fde68a;
+      --wood-d: #1a0e05;
+      --wood-m: #2d1a08;
+      --wood-l: #422812;
+      --wood-plank: #5c3518;
+      --txt: #f5e6c8;
+      --txt-d: #b8956a;
+      --txt-m: #7a5a38;
+      --red: #c0392b;
+      --red-b: #e74c3c;
+      --green: #27ae60;
     }
-    html,body{
-      width:100%;height:100dvh;overflow:hidden;
-      background:var(--bg);font-family:'Inter',sans-serif;color:var(--txt);user-select:none;
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #0d0702;
+      font-family: 'Inter', sans-serif;
+      color: var(--txt);
     }
-    .page{
-      max-width:430px;margin:0 auto;height:100dvh;
-      display:flex;flex-direction:column;
-      background:radial-gradient(ellipse 120% 60% at 50% 30%,#120a04 0%,#080503 70%);
-      border-left:2px solid #1a1008;border-right:2px solid #1a1008;
-      box-shadow:0 0 40px rgba(0,0,0,0.95);
+
+    .page {
+      max-width: 430px;
+      margin: 0 auto;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: url('assets/ui/background/homebackground.png') center top / cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
     }
-    .page::before{
-      content:'';position:absolute;inset:0;
-      background:radial-gradient(ellipse 200px 250px at 75% 5%,rgba(60,30,15,0.10) 0%,transparent 100%);
-      pointer-events:none;z-index:0;
+
+    .page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(6, 3, 0, 0.55) 0%, rgba(6, 3, 0, 0.88) 100%);
+      pointer-events: none;
+      z-index: 0;
     }
-    .page>*{position:relative;z-index:1}
-    .header{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:12px 14px 10px;
-      background:linear-gradient(180deg,rgba(15,8,4,0.95) 0%,transparent 100%);
-      border-bottom:1px solid rgba(40,25,12,0.25);flex-shrink:0;
+
+    .page > * { position: relative; z-index: 2; }
+
+    /* TOP BAR */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      padding: 14px 14px 8px;
+      display: flex;
+      align-items: flex-start;
+      flex-shrink: 0;
     }
-    .back-btn{
-      display:inline-flex;align-items:center;gap:4px;padding:6px 10px;
-      background:linear-gradient(180deg,#2a1808,#100804);
-      border:1px solid var(--gld);border-radius:4px;
-      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;
-      color:var(--gld-p);cursor:pointer;text-decoration:none;
+
+    .btn-back {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 11px;
+      background: linear-gradient(180deg, #4a2c08 0%, #241204 100%);
+      border: 2px solid var(--gold);
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(200, 150, 42, 0.2);
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--gold-p);
+      transition: border-color 0.18s;
     }
-    .title-wrap{
-      font-family:'Cinzel',serif;font-size:0.85rem;font-weight:900;
-      color:var(--gld-p);letter-spacing:0.15em;text-shadow:0 1px 3px rgba(0,0,0,0.8);
+    .btn-back:hover { border-color: var(--gold-b); }
+
+    .page-title {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      color: var(--gold-b);
+      text-shadow: 0 0 20px rgba(240, 192, 64, 0.3);
+      text-transform: uppercase;
     }
-    .card{
-      flex:1;display:flex;flex-direction:column;align-items:center;
-      justify-content:center;text-align:center;
-      margin:16px 16px 8px;
-      background:linear-gradient(180deg,rgba(20,12,6,0.7) 0%,rgba(10,5,2,0.5) 100%);
-      border:1px solid rgba(70,50,25,0.3);border-radius:8px;
-      padding:20px;
-      box-shadow:inset 0 1px 0 rgba(180,160,120,0.03),0 4px 20px rgba(0,0,0,0.4);
+
+    /* SCROLL */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
-    .card.special{border-color:rgba(90,40,25,0.35)}
-    .card-icon{font-size:4.2rem;line-height:1;margin-bottom:10px}
-    .card-name{font-family:'Cinzel',serif;font-size:1.4rem;font-weight:900;color:var(--gld-p);margin-bottom:6px}
-    .card-desc{font-size:0.72rem;color:var(--txt-d);line-height:1.5;margin-bottom:16px;max-width:260px}
-    .card-badge{
-      display:inline-flex;align-items:center;gap:5px;
-      border:1px solid var(--gld);border-radius:14px;
-      padding:5px 16px;background:rgba(80,50,20,0.15);
-      font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;color:var(--gld-p);
+    .scroll-area::-webkit-scrollbar { display: none; }
+
+    /* ===== WANTED POSTER ===== */
+    .wanted-poster {
+      position: relative;
+      padding: 32px 20px 24px;
+      text-align: center;
+      overflow: hidden;
     }
-    .card-badge span{font-size:1rem}
-    .card-tag{
-      font-size:0.5rem;color:var(--txt-m);margin-top:10px;
-      text-transform:uppercase;letter-spacing:0.1em;
+    .wanted-poster::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(52, 28, 8, 0.92) 0%, rgba(24, 12, 3, 0.96) 100%);
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(200, 150, 42, 0.15), inset 0 0 40px rgba(0,0,0,0.5);
     }
-    .card-tag.aktif{color:var(--gld-p);font-weight:600}
-    .bar{
-      flex-shrink:0;margin:4px 16px 14px;
-      background:rgba(8,5,2,0.5);border-radius:6px;
-      padding:10px 14px;border:1px solid rgba(50,30,15,0.15);
-      display:grid;grid-template-columns:1fr 1px 1fr;gap:12px;align-items:center;
+    .wanted-poster > * { position: relative; z-index: 1; }
+
+    /* torn edge top/bottom */
+    .wanted-poster::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 6px;
+      z-index: 2;
+      pointer-events: none;
     }
-    .bar-div{width:1px;height:28px;background:rgba(80,60,30,0.2)}
-    .bar-left{text-align:left}
-    .bar-right{text-align:right}
-    .bar-lbl{font-size:0.48rem;color:var(--txt-m);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px}
-    .bar-timer{
-      font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;color:var(--gld-p);
+
+    .wanted-poster.inactive {
+      opacity: 0.65;
+      filter: grayscale(0.35);
     }
-    .bar-timer.urgent{color:#b04838}
-    .bar-next{font-size:0.7rem;color:var(--txt-d)}
-    .bar-next span{font-size:0.9rem}
-    .ld{display:flex;align-items:center;justify-content:center;flex:1;font-size:0.75rem;color:var(--txt-m)}
+    .wanted-poster.inactive::before {
+      border-color: var(--txt-m);
+      box-shadow: none;
+    }
+    .wanted-poster.inactive .wanted-glow { display: none !important; }
+
+    .wanted-glow {
+      position: absolute;
+      top: -25%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(60px);
+      opacity: 0.4;
+      animation: pulseGlow 4s ease-in-out infinite alternate;
+    }
+    .npc_reward .wanted-glow { background: radial-gradient(circle, rgba(200,150,42,0.3) 0%, transparent 70%); }
+    .elp_reward .wanted-glow { background: radial-gradient(circle, rgba(100,180,255,0.25) 0%, transparent 70%); }
+    .damage .wanted-glow { background: radial-gradient(circle, rgba(231,76,60,0.3) 0%, transparent 70%); }
+
+    @keyframes pulseGlow {
+      0% { opacity: 0.3; transform: translateX(-50%) scale(0.9); }
+      100% { opacity: 0.7; transform: translateX(-50%) scale(1.15); }
+    }
+
+    /* Stamp */
+    .stamp {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transform: rotate(12deg);
+      z-index: 3;
+      pointer-events: none;
+    }
+    .stamp.active {
+      background: rgba(192, 57, 43, 0.2);
+      border: 2px solid var(--red-b);
+      color: var(--red-b);
+      box-shadow: 0 0 12px rgba(231, 76, 60, 0.3);
+    }
+    .stamp.special-active {
+      background: rgba(200, 150, 42, 0.15);
+      border: 2px solid var(--gold-b);
+      color: var(--gold-b);
+      box-shadow: 0 0 12px rgba(240, 192, 64, 0.2);
+    }
+
+    .wanted-icon {
+      font-size: 3.4rem;
+      line-height: 1;
+      display: block;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.12));
+      animation: floatIcon 3s ease-in-out infinite alternate;
+    }
+    @keyframes floatIcon {
+      from { transform: translateY(0); }
+      to { transform: translateY(-4px); }
+    }
+
+    .wanted-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--gold-b);
+      margin-bottom: 6px;
+      text-shadow: 0 0 15px rgba(240, 192, 64, 0.25);
+      letter-spacing: 0.04em;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .wanted-desc {
+      font-size: 0.78rem;
+      color: var(--txt-d);
+      line-height: 1.5;
+      max-width: 280px;
+      margin: 0 auto 12px;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .wanted-mult {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 22px;
+      border: 2px solid var(--gold-b);
+      border-radius: 24px;
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--gold-b);
+      background: rgba(200, 150, 42, 0.1);
+      box-shadow: 0 0 20px rgba(240, 192, 64, 0.15), inset 0 0 10px rgba(240, 192, 64, 0.05);
+    }
+    .wanted-mult span {
+      font-size: 1.3rem;
+      color: var(--gold-p);
+    }
+
+    /* ===== EFFECT BREAKDOWN ===== */
+    .effect-panel {
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(200, 150, 42, 0.25);
+      background: linear-gradient(180deg, rgba(26, 14, 5, 0.85) 0%, rgba(16, 8, 2, 0.92) 100%);
+    }
+    .effect-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: var(--txt-m);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .effect-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(200, 150, 42, 0.08);
+    }
+    .effect-row:last-child { border-bottom: none; }
+    .effect-icon {
+      width: 28px;
+      text-align: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+    .effect-label {
+      flex: 1;
+      font-size: 0.72rem;
+      color: var(--txt-d);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .effect-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--gold-b);
+      background: rgba(200, 150, 42, 0.12);
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(200, 150, 42, 0.25);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    /* ===== TIMER ===== */
+    .timer-section {
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(200, 150, 42, 0.2);
+      background: linear-gradient(180deg, rgba(26, 14, 5, 0.8) 0%, rgba(16, 8, 2, 0.9) 100%);
+      text-align: center;
+    }
+    .timer-lbl {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      color: var(--txt-m);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .timer-digits {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--gold-b);
+      text-shadow: 0 0 15px rgba(240, 192, 64, 0.25);
+      letter-spacing: 0.08em;
+    }
+    .timer-digits.urgent {
+      color: var(--red-b);
+      text-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+      animation: urgentPulse 1s ease-in-out infinite alternate;
+    }
+    @keyframes urgentPulse {
+      from { opacity: 0.7; }
+      to { opacity: 1; }
+    }
+
+    /* ===== INACTIVE BANNER ===== */
+    .inactive-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1.5px dashed rgba(192, 57, 43, 0.35);
+      background: rgba(192, 57, 43, 0.06);
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--txt-m);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .inactive-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--txt-m);
+      animation: pulseDot 1.5s infinite ease-in-out;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    .next-event-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(200, 150, 42, 0.2);
+      background: rgba(26, 14, 5, 0.7);
+    }
+    .next-event-preview .icon { font-size: 1.4rem; }
+    .next-event-preview .info { flex: 1; }
+    .next-event-preview .info .name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gold-b);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .next-event-preview .info .sched {
+      font-size: 0.65rem;
+      color: var(--txt-m);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .next-event-preview .days {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--gold-b);
+    }
+
+    /* ===== WEEKLY CALENDAR ===== */
+    .weekly-cal {
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(200, 150, 42, 0.15);
+      background: linear-gradient(180deg, rgba(26, 14, 5, 0.75) 0%, rgba(16, 8, 2, 0.88) 100%);
+    }
+    .cal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--txt-m);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 2px;
+      border-radius: 6px;
+      border: 1.5px solid transparent;
+      background: rgba(200, 150, 42, 0.04);
+    }
+    .cal-day .dow {
+      font-size: 0.48rem;
+      color: var(--txt-m);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .cal-day .dnum {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--txt-d);
+    }
+    .cal-day.today {
+      background: rgba(200, 150, 42, 0.1);
+      border-color: rgba(200, 150, 42, 0.3);
+    }
+    .cal-day.today .dow { color: var(--gold); }
+    .cal-day.today .dnum { color: var(--gold-b); }
+    .cal-day.event-day {
+      background: rgba(240, 192, 64, 0.12);
+      border-color: var(--gold);
+    }
+    .cal-day.event-day .dow { color: var(--gold-b); }
+    .cal-day.event-day .dnum { color: var(--gold-b); }
+    .cal-day.past {
+      opacity: 0.4;
+    }
+    .cal-day .cal-icon {
+      font-size: 0.7rem;
+      margin-top: 2px;
+    }
+
+    /* ===== ROTATION LIST ===== */
+    .rot-panel {
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(200, 150, 42, 0.15);
+      background: linear-gradient(180deg, rgba(26, 14, 5, 0.75) 0%, rgba(16, 8, 2, 0.88) 100%);
+    }
+    .rot-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--txt-m);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .rot-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1.5px solid transparent;
+      margin-bottom: 5px;
+      transition: all 0.25s;
+    }
+    .rot-row:last-child { margin-bottom: 0; }
+    .rot-row.current {
+      background: rgba(200, 150, 42, 0.1);
+      border-color: rgba(200, 150, 42, 0.35);
+    }
+    .rot-row .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: rgba(200, 150, 42, 0.2);
+    }
+    .rot-row .dot.on {
+      background: var(--gold-b);
+      box-shadow: 0 0 8px var(--gold-b);
+    }
+    .rot-row .ricon { font-size: 1rem; width: 22px; text-align: center; flex-shrink: 0; }
+    .rot-row .rname {
+      flex: 1;
+      font-size: 0.72rem;
+      color: var(--txt-d);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .rot-row.current .rname { color: var(--gold-b); font-weight: 700; }
+    .rot-badge {
+      font-size: 0.48rem;
+      font-weight: 800;
+      font-family: 'Cinzel', serif;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .rot-badge.live {
+      background: rgba(240, 192, 64, 0.16);
+      color: var(--gold-b);
+      border: 1px solid rgba(240, 192, 64, 0.3);
+    }
+    .rot-badge.upcoming {
+      background: rgba(120, 90, 56, 0.12);
+      color: var(--txt-m);
+      border: 1px solid rgba(120, 90, 56, 0.2);
+    }
+
+    /* ===== HISTORY ===== */
+    .history-panel {
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(200, 150, 42, 0.1);
+      background: rgba(16, 8, 2, 0.6);
+    }
+    .history-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      font-weight: 700;
+      color: var(--txt-m);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .history-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(200, 150, 42, 0.06);
+    }
+    .history-row:last-child { border-bottom: none; }
+    .history-row .hicon { font-size: 0.85rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .history-row .hname {
+      flex: 1;
+      font-size: 0.65rem;
+      color: var(--txt-d);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .history-row .hdate {
+      font-size: 0.55rem;
+      color: var(--txt-m);
+    }
+
+    .ld {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--txt-m);
+    }
   </style>
 </head>
 <body>
   <div class="page">
-    <div class="header">
-      <a href="home.html" class="back-btn">◀ GERİ</a>
-      <div class="title-wrap">EMİR VAR!</div>
-      <div style="width:46px"></div>
+    <div class="top-bar">
+      <a href="home.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
+      <div class="page-title"><span data-i18n="page_events" data-i18n-text>⚓ EVENTS</span></div>
+      <div style="width:58px"></div>
     </div>
-    <div class="card" id="card">
-      <div class="ld">Yükleniyor...</div>
+
+    <div class="scroll-area" id="root">
+      <div class="ld">⚓ Loading events...</div>
     </div>
-    <div class="bar" id="bar"></div>
   </div>
+
   <script>
-    var API='http://localhost:3000/api';
-    var token=localStorage.getItem('sp_token');
-    if(!token)goTo('home.html');
-    var ROTATION=[
-      {name:'2x NPC Ödül',icon:'💰',desc:'Altın, inci ve XP 2 kat'},
-      {name:'2x ELP Ödül',icon:'⭐',desc:'Elit Puan 2 kat'},
-      {name:'2x Hasar',icon:'⚔️',desc:'Patlayan Gülle hasarı 2 kat'}
+    var token = localStorage.getItem('sp_token');
+    if (!token) window.location.href = 'home.html';
+
+    var ROTATION = [
+      { name: '2x NPC Reward', icon: '💰', desc: 'Gold, pearl and XP are doubled!' },
+      { name: '2x ELP Reward', icon: '⭐', desc: 'Earned Elite Points are doubled!' },
+      { name: '2x Damage', icon: '⚔️', desc: 'Explosive Shot damage is doubled!' }
     ];
-    var ev=null;
-    function fmtHMS(s){if(!s||isNaN(s)||s<=0)return'00:00:00';var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+((s%60)<10?'0':'')+(s%60)}
-    function rotIdx(){var d=new Date();var s=new Date(d.getFullYear(),d.getMonth(),d.getDate());return Math.floor(s.getTime()/86400000)%3}
-    function dayN(o){var n=['Pzr','Pzt','Sal','Çar','Per','Cum','Cmt'];var d=new Date();d.setDate(d.getDate()+o);return n[d.getDay()]}
-    async function loadEv(){
-      try{
-        var r=await fetch(API+'/events',{headers:{'Authorization':'Bearer '+token}});
-        if(!r.ok)throw Error();ev=await r.json();render();
-      }catch(e){document.getElementById('card').innerHTML='<div class="ld">Bağlantı hatası</div>'}
+
+    var ev = null;
+    var evHistory = [];
+
+    // Detaylı etki listesi
+    var EFFECTS = {
+      npc_reward: [
+        { icon: '🪙', label: 'Gold earned from NPCs' },
+        { icon: '🦪', label: 'Pearl dropped by NPCs' },
+        { icon: '⚡', label: 'NPC battle XP' }
+      ],
+      elp_reward: [
+        { icon: '⭐', label: 'Elite Points (ELP) gain' }
+      ],
+      damage: [
+        { icon: '💥', label: 'Explosive Shot damage' }
+      ]
+    };
+
+    var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+    const EVENTS_API = window.location.origin + '/api';
+
+    function fmtHMS(s) {
+      if (!s || isNaN(s) || s <= 0) return '00:00:00';
+      var d = Math.floor(s / 86400);
+      var h = Math.floor((s % 86400) / 3600);
+      var m = Math.floor((s % 3600) / 60);
+      var sec = (s % 60);
+      var hStr = (h < 10 ? '0' : '') + h;
+      var mStr = (m < 10 ? '0' : '') + m;
+      var sStr = (sec < 10 ? '0' : '') + sec;
+      if (d > 0) return d + 'd ' + hStr + ':' + mStr + ':' + sStr;
+      return hStr + ':' + mStr + ':' + sStr;
     }
-    function render(){
-      if(!ev)return;
-      var sp=!ev.is_auto;
-      var d=document.getElementById('card');
-      var ti=rotIdx();
-      d.className='card'+(sp?' special':'');
-      d.innerHTML=
-        '<div class="card-icon">'+ev.icon+'</div>'+
-        '<div class="card-name">'+ev.name+'</div>'+
-        '<div class="card-desc">'+ev.desc+'</div>'+
-        '<div class="card-badge"><span>×</span>'+ev.mult+'</div>'+
-        '<div class="card-tag '+(sp?'':'aktif')+'">'+(sp?'ÖZEL ETKİNLİK':'AKTİF ETKİNLİK')+'</div>';
-      var rt=ROTATION[ti];
-      var nx=ev.next;
-      var u=ev.remaining<3600;
-      document.getElementById('bar').innerHTML=
-        '<div class="bar-left"><div class="bar-lbl">'+(sp?'BİTİŞE':'KALAN')+'</div><div class="bar-timer'+(u?' urgent':'')+'" id="tmr">'+fmtHMS(ev.remaining)+'</div></div>'+
-        '<div class="bar-div"></div>'+
-        '<div class="bar-right"><div class="bar-lbl">SIRADA</div><div class="bar-next"><span>'+nx.icon+'</span> '+nx.name+'</div></div>';
+
+    function rotIdx() {
+      var d = new Date();
+      var s = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      return Math.floor(Math.floor(s.getTime() / 86400000) / 7) % 3;
     }
-    function tick(){
-      if(!ev)return;ev.remaining--;
-      var e=document.getElementById('tmr');
-      if(e){var u=ev.remaining<3600;e.textContent=fmtHMS(Math.max(0,ev.remaining));e.className='bar-timer'+(u?' urgent':'');if(ev.remaining<=0)loadEv()}
+
+    function getMonday(d) {
+      var date = new Date(d);
+      var day = date.getDay();
+      var diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      date.setDate(diff);
+      date.setHours(0,0,0,0);
+      return date;
     }
+
+    function fmtDate(d) {
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return d.getDate() + ' ' + months[d.getMonth()];
+    }
+
+    function buildCalendar() {
+      var now = new Date();
+      var monday = getMonday(now);
+      var todayStr = now.toDateString();
+      var html = '';
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        var cls = '';
+        var icon = '';
+        if (d.toDateString() === todayStr) cls += ' today';
+        // Saturday = index 5
+        if (i === 5) {
+          cls += ' event-day';
+          icon = ev && ev.isActive ? '⚓' : '📜';
+        }
+        if (d < now && d.toDateString() !== todayStr) cls += ' past';
+        html +=
+          '<div class="cal-day' + cls + '">' +
+            '<div class="dow">' + DAYS[i] + '</div>' +
+            '<div class="dnum">' + d.getDate() + '</div>' +
+            (icon ? '<div class="cal-icon">' + icon + '</div>' : '') +
+          '</div>';
+      }
+      return html;
+    }
+
+    async function loadEv() {
+      try {
+        var r = await fetch(EVENTS_API + '/events', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!r.ok) {
+          var errData;
+          try { errData = await r.json(); } catch(_) {}
+          document.getElementById('root').innerHTML = '<div class="ld">❌ Server error (' + r.status + ')' + (errData && errData.error ? ': ' + errData.error : '') + '</div>';
+          return;
+        }
+        ev = await r.json();
+        ev.loadedAt = Date.now();
+
+        try {
+          var hh = await fetch(EVENTS_API + '/events/history', { headers: { 'Authorization': 'Bearer ' + token } });
+          if (hh.ok) evHistory = await hh.json();
+        } catch(_) {}
+
+        render();
+      } catch (e) {
+        document.getElementById('root').innerHTML = '<div class="ld">❌ Connection failed: ' + e.message + '</div>';
+      }
+    }
+
+    function render() {
+      if (!ev) return;
+
+      var ti = rotIdx();
+      var now = new Date();
+      var monday = getMonday(now);
+
+      // Haftanın günü (Pazartesi=0)
+      var dayOfWeek = now.getDay();
+      if (dayOfWeek === 0) dayOfWeek = 6; // Pazar -> 6
+      else dayOfWeek -= 1; // Pazartesi->0, Salı->1, ...
+
+      // Saturday'e kaç gün kaldı
+      var daysUntilSat = (5 - dayOfWeek + 7) % 7;
+      var hoursLeft = 23 - now.getHours();
+
+      var rotHtml = '';
+      for (var i = 0; i < ROTATION.length; i++) {
+        var r = ROTATION[i];
+        var isCurrent = i === ti;
+        var badge = isCurrent
+          ? (ev.isActive
+            ? '<span class="rot-badge live">ACTIVE</span>'
+            : '<span class="rot-badge upcoming">THIS WEEK</span>')
+          : (i === (ti + 1) % 3 ? '<span class="rot-badge upcoming">NEXT WEEK</span>' : '');
+        rotHtml +=
+          '<div class="rot-row' + (isCurrent ? ' current' : '') + '">' +
+            '<div class="dot' + (isCurrent ? ' on' : '') + '"></div>' +
+            '<div class="ricon">' + r.icon + '</div>' +
+            '<div class="rname">' + r.name + '</div>' +
+            badge +
+          '</div>';
+      }
+
+      // Calendar
+      var calHtml = buildCalendar();
+
+      // History
+      var histHtml = '';
+      if (evHistory.length > 0) {
+        for (var hi = 0; hi < Math.min(evHistory.length, 4); hi++) {
+          var evh = evHistory[hi];
+          var d = new Date(evh.date);
+          histHtml +=
+            '<div class="history-row">' +
+              '<div class="hicon">' + evh.icon + '</div>' +
+              '<div class="hname">' + evh.name + '</div>' +
+              '<div class="hdate">' + fmtDate(d) + '</div>' +
+            '</div>';
+        }
+      } else {
+        histHtml = '<div style="font-size:0.6rem;color:var(--txt-m);text-align:center;padding:4px 0;">' + t('events_no_past') + '</div>';
+      }
+
+      // Effects breakdown
+      var effHtml = '';
+      var effList = EFFECTS[ev.type];
+      if (effList && ev.isActive) {
+        effHtml = '<div class="effect-panel">' +
+          '<div class="effect-title">🏴 ' + t('events_captain_orders') + '</div>';
+        for (var e = 0; e < effList.length; e++) {
+          effHtml +=
+            '<div class="effect-row">' +
+              '<div class="effect-icon">' + effList[e].icon + '</div>' +
+              '<div class="effect-label">' + effList[e].label + '</div>' +
+              '<div class="effect-badge">×' + ev.mult + '</div>' +
+            '</div>';
+        }
+        effHtml += '</div>';
+      }
+
+      var isActive = ev.isActive;
+      var isSpecial = !ev.is_auto;
+
+      var mainHtml = '';
+
+      if (isActive) {
+        // ---- ACTIVE STATE ----
+        var stampClass = isSpecial ? 'special-active' : 'active';
+        var stampText = isSpecial ? t('events_royal_order') : t('events_season_order');
+
+        mainHtml =
+          '<div class="wanted-poster ' + ev.type + '">' +
+            '<div class="wanted-glow"></div>' +
+            '<div class="stamp ' + stampClass + '">' + stampText + '</div>' +
+            '<span class="wanted-icon">' + ev.icon + '</span>' +
+            '<div class="wanted-name">' + ev.name + '</div>' +
+            '<div class="wanted-desc">' + ev.desc + '</div>' +
+            '<div class="wanted-mult"><span>×</span>' + ev.mult + 'X</div>' +
+          '</div>' +
+
+          effHtml +
+
+          '<div class="timer-section">' +
+            '<div class="timer-lbl">⚡ ' + t('events_time_remaining') + '</div>' +
+            '<div class="timer-digits' + (ev.remaining < 3600 ? ' urgent' : '') + '" id="tmr">' + fmtHMS(ev.remaining) + '</div>' +
+          '</div>';
+      } else {
+        // ---- INACTIVE STATE ----
+        var nextSat = new Date(monday);
+        nextSat.setDate(monday.getDate() + 5);
+        if (dayOfWeek >= 5) nextSat.setDate(nextSat.getDate() + 7);
+        var daysLeft = Math.ceil((nextSat - now) / 86400000);
+
+        mainHtml =
+          '<div class="inactive-banner">' +
+            '<span class="inactive-dot"></span>' +
+            '<span>' + t('events_no_active_order') + '</span>' +
+          '</div>' +
+
+          '<div class="wanted-poster ' + ev.type + ' inactive">' +
+            '<span class="wanted-icon" style="opacity:0.7;">' + ev.icon + '</span>' +
+            '<div class="wanted-name" style="font-size:1.1rem;">' + ev.name + '</div>' +
+            '<div class="wanted-desc">' + ev.desc + '</div>' +
+            '<div class="wanted-mult" style="opacity:0.5;"><span>×</span>' + ev.mult + '</div>' +
+          '</div>' +
+
+          '<div class="timer-section">' +
+            '<div class="timer-lbl">📅 ' + t('events_next_order_in') + '</div>' +
+            '<div class="timer-digits" id="tmr">' + fmtHMS(ev.remaining) + '</div>' +
+          '</div>';
+      }
+
+      document.getElementById('root').innerHTML =
+        mainHtml +
+        '<div class="weekly-cal">' +
+          '<div class="cal-title">📅 ' + t('events_weekly_route') + '</div>' +
+          '<div class="cal-grid">' + calHtml + '</div>' +
+        '</div>' +
+
+        '<div class="rot-panel">' +
+          '<div class="rot-title">🔄 ' + t('events_rotation_order') + '</div>' +
+          rotHtml +
+        '</div>' +
+
+        '<div class="history-panel">' +
+          '<div class="history-title">📜 ' + t('events_past_orders') + '</div>' +
+          histHtml +
+        '</div>';
+
+    }
+
+    function tick() {
+      if (!ev) return;
+      var elapsed = (Date.now() - ev.loadedAt) / 1000;
+      var remain = Math.max(0, ev.remaining - elapsed);
+      var e = document.getElementById('tmr');
+      if (e) {
+        e.textContent = fmtHMS(Math.ceil(remain));
+        if (remain < 3600 && ev.isActive) {
+          e.classList.add('urgent');
+        } else {
+          e.classList.remove('urgent');
+        }
+        if (remain <= 0) loadEv();
+      }
+    }
+
     loadEv();
-    setInterval(tick,1000);
+    setInterval(tick, 1000);
   </script>
-  <script src="transition.js"></script>
 </body>
 </html>

@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>SeaPirates — Seviye Bonusu</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <title>SeaPirates — Level Bonus</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -31,11 +35,14 @@
       max-width:430px;margin:0 auto;height:100dvh;
       display:flex;flex-direction:column;
       position:relative;
-      background: url('assets/background/menubackground.png') center center / cover no-repeat;
+      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
     }
     .page::before {
       content:'';position:absolute;inset:0;
-      background:rgba(0,0,0,0.65);
+      background:rgba(0,0,0,0.25);
       pointer-events:none;z-index:0;
     }
 
@@ -71,7 +78,7 @@
       padding:12px;gap:10px;overflow-y:auto;
       scrollbar-width: thin;
       scrollbar-color: #5c3518 transparent;
-      background: rgba(10, 5, 2, 0.45);
+      background: rgba(10, 5, 2, 0.15);
     }
 
     .body::-webkit-scrollbar {
@@ -92,8 +99,8 @@
       flex:1;
       text-align:center;
       border-radius:8px;
-      background: rgba(12, 6, 3, 0.85);
-      border: 1px solid #5a3a15;
+      background: rgba(18, 10, 5, 0.88);
+      border: 1px solid #7a4e20;
       padding: 6px 4px;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
     }
@@ -109,7 +116,7 @@
     }
     .info-box .l{
       font-size:0.58rem;
-      color:var(--txt-d);
+      color:#d4b080;
       text-transform:uppercase;
       letter-spacing:0.07em;
       font-weight:600;
@@ -120,11 +127,11 @@
       font-weight:900;
       color:var(--gold-b);
       margin-top:2px;
-      text-shadow: 0 0 8px rgba(240,192,64,0.3);
+      text-shadow: 0 0 10px rgba(240,192,64,0.5);
     }
     .info-box .v span{
       font-size:0.6rem;
-      color:var(--txt-m);
+      color:#b09070;
       font-family:'Inter',sans-serif;
       font-weight:400;
     }
@@ -144,7 +151,7 @@
       font-family:'Cinzel',serif;
       font-size:0.6rem;
       font-weight:700;
-      color:var(--txt-d);
+      color:#d4b080;
       letter-spacing:0.08em;
       text-transform:uppercase;
       flex-shrink:0;
@@ -177,8 +184,8 @@
       flex: 1;
       padding: 10px;
       border-radius: 12px;
-      background: rgba(12, 6, 3, 0.85);
-      border: 3px solid #7c4e20;
+      background: rgba(18, 10, 6, 0.85);
+      border: 3px solid #9a6a30;
       box-shadow: 
         0 12px 28px rgba(0,0,0,0.95),
         inset 0 0 20px rgba(0,0,0,0.9);
@@ -236,9 +243,9 @@
       gap:5px;
       text-align:center;
       transition:all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
-      background: linear-gradient(135deg, #2b1a0d 0%, #150c05 100%);
-      border:2px solid #a67c46;
-      box-shadow:0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.8);
+      background: linear-gradient(135deg, #5a3a28 0%, #332010 100%);
+      border:2px solid #c8a060;
+      box-shadow:0 4px 12px rgba(0,0,0,0.9), 0 0 0 1px rgba(200,150,42,0.08), inset 0 0 10px rgba(0,0,0,0.8);
     }
     .lv-card::before{
       content:'';position:absolute;inset:0;
@@ -250,7 +257,7 @@
 
     /* VIP CARD COLOR SYSTEM (Deep Crimson & Amber Gold) */
     .lv-card.vip {
-      background: linear-gradient(135deg, #420808 0%, #1c0303 100%);
+      background: linear-gradient(135deg, #7a2020 0%, #3d0a0a 100%);
       border-color: #c8962a;
       box-shadow:0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(200, 150, 42, 0.15);
     }
@@ -340,10 +347,10 @@
     }
     .lv-num{
       font-family:'Cinzel',serif;
-      font-size:0.65rem;
+      font-size:0.68rem;
       font-weight:900;
-      color:#e0d0b8;
-      text-shadow: 0 1px 1px #000;
+      color:#f0e4d0;
+      text-shadow: 0 1px 2px #000;
     }
     .lv-card.avail .lv-num{
       color:#fff;
@@ -351,20 +358,20 @@
 
     .lv-lbl{
       font-family:'Cinzel',serif;
-      font-size:0.5rem;
-      font-weight:600;
-      color:#ece4d4;
+      font-size:0.52rem;
+      font-weight:700;
+      color:#fff5e8;
       text-transform:uppercase;
       letter-spacing:0.06em;
-      text-shadow: 0 1px 2px #000;
+      text-shadow: 0 1px 3px #000;
       position: relative;
       z-index: 1;
     }
     .lv-card.vip .lv-lbl {
-      color: #fde68a;
+      color: #ffe8a0;
     }
     .lv-card.avail .lv-lbl{
-      color: var(--gold-p);
+      color: #ffe8a0;
     }
 
     /* REWARD CONTAINER */
@@ -378,8 +385,8 @@
       min-height: 40px;
     }
     .lv-rwd-img-wrap {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -389,14 +396,14 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85));
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.95)) brightness(1.05);
     }
     .lv-rwd-text {
-      font-size: 0.62rem;
-      font-weight: 700;
-      color: #ffd0c0;
-      text-shadow: 0 1px 2px #000;
-      white-space: nowrap;
+      font-size: 0.6rem;
+      font-weight: 800;
+      color: #fff8f0;
+      text-shadow: 0 1px 4px #000;
+      overflow-wrap:break-word;word-break:break-word;
     }
     .lv-card.vip .lv-rwd-text {
       color: #fde68a;
@@ -469,7 +476,7 @@
     }
     .lv-card.special.vip {
       border-color: #c8962a;
-      background: linear-gradient(135deg, #420808 0%, #1c0303 100%);
+      background: linear-gradient(135deg, #5a0e0e 0%, #2a0505 100%);
     }
     .lv-card.special.avail {
       border-color: #ffd700;
@@ -509,7 +516,7 @@
     }
     .claim-action-btn {
       padding: 4px 10px;
-      background: url('assets/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
+      background: url('assets/ui/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
       border: 1px solid #27ae60;
       color: #fff;
       font-family: 'Cinzel', serif;
@@ -551,59 +558,173 @@
         box-shadow: 0 0 8px rgba(200, 150, 42, 0.2), 0 4px 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.6);
         border-color: #c8962a;
       }
+      }
     }
 
-    /* TOAST STYLE */
-    .toast {
-      position: fixed;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-70px);
-      z-index: 9999;
-      padding: 9px 18px;
-      border-radius: 10px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      white-space: nowrap;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      max-width: 90vw;
-      text-align: center;
+    .magaza-overlay {
+      display:none;position:fixed;inset:0;z-index:999;
+      background:rgba(0,0,0,0.8);
+      align-items:center;justify-content:center;
+    }
+    .magaza-overlay.show { display: flex !important; animation: fadeIn 0.3s; }
+    .magaza-modal {
+      background: url('assets/ui/leaderboardbackground.png') center/cover;
+      background-clip: padding-box;
+      border: 12px solid transparent;
+      border-radius: 14px;
+      width: 92%;
+      max-width: 380px;
+      max-height: 90dvh;
+      overflow: visible;
+      padding: 20px 16px 16px;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.85), 0 0 60px rgba(200,150,42,0.12);
+    }
+    .magaza-modal::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(10,5,2,0.7);
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .magaza-modal::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      pointer-events: none;
+      z-index: 5;
+      background-image:
+        url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),
+        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),
+        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),
+        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),
+        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),
+        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),
+        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),
+        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');
+      background-position:
+        top left, top right, bottom left, bottom right,
+        top left, bottom left, top left, top right;
+      background-size:
+        55px 55px, 55px 55px, 55px 55px, 55px 55px,
+        100% 12px, 100% 12px, 12px 100%, 12px 100%;
+      background-repeat:
+        no-repeat, no-repeat, no-repeat, no-repeat,
+        repeat-x, repeat-x, repeat-y, repeat-y;
+    }
+    .magaza-modal > * { position: relative; z-index: 1; }
+    .magaza-close {
+      position:absolute;top:8px;right:10px;
+      background:none;border:none;
+      font-size:1.1rem;color:#b8956a;
+      cursor:pointer;padding:4px 8px;
+      font-family:'Inter',sans-serif;
+      transition:color 0.2s;
+      z-index:2;
+    }
+    .magaza-close:hover { color: #f5e6c8; }
+    .magaza-title {
+      font-family:'Cinzel',serif;font-size:0.95rem;font-weight:900;
+      color:#f0c040;text-align:center;
+      padding-bottom:10px;
+      border-bottom:1px solid rgba(200,150,42,0.12);
+      margin-bottom:10px;
+    }
+    .magaza-sub {
+      font-size:0.7rem;color:#b8956a;
+      text-align:center;
+      margin-bottom:12px;
+    }
+    .magaza-cards {
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .magaza-card {
+      background:rgba(0,0,0,0.35);
+      border:1.5px solid rgba(200,150,42,0.2);
+      border-radius:10px;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      transition:border-color 0.2s;
+    }
+    .magaza-card:hover { border-color: rgba(200,150,42,0.5); }
+    .magaza-card-info { display:flex; flex-direction:column; gap:2px; }
+    .magaza-card-name {
+      font-family:'Cinzel',serif;
+      font-size:0.85rem;font-weight:700;
+      color:#fde68a;
+    }
+    .magaza-card-dur { font-size:0.65rem;color:#b8956a; }
+    .magaza-card-price {
+      font-family:'Cinzel',serif;
+      font-size:0.9rem;font-weight:900;
+      color:#4ade80;
+      white-space:nowrap;
+    }
+    .magaza-card-btn {
+      background:linear-gradient(180deg,#22c55e 0%,#15803d 100%);
+      border:2px solid #86efac;
+      border-radius:20px;
+      font-family:'Cinzel',serif;
+      font-size:0.65rem;font-weight:900;
+      color:#052e16;
+      padding:6px 16px;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:filter 0.2s;
+      margin-left:8px;
+    }
+    .magaza-card-btn:hover { filter: brightness(1.15); }
+    .magaza-card-btn:active { transform: scale(0.96); }
+    .magaza-perks {
+      margin-top:14px;
+      border-top:1px solid rgba(200,150,42,0.15);
+      padding-top:12px;
+    }
+    .magaza-perks-title {
+      font-family:'Cinzel',serif;
+      font-size:0.7rem;font-weight:700;
+      color:#b8956a;
+      margin-bottom:8px;
+      text-align:center;
+      letter-spacing:0.05em;
+    }
+    .magaza-perk {
+      font-size:0.65rem;color:#f5e6c8;
+      padding:3px 0;
+      display:flex;align-items:center;gap:6px;
+    }
+    .magaza-perk::before { content:'✨';font-size:0.7rem; }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .toast.ok {
-      background: rgba(25, 70, 40, 0.95);
-      border: 1px solid #27ae60;
-      color: #c8f0d8;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-    }
   </style>
 </head>
 <body>
-<div class="toast" id="toast"></div>
+
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back">◀ LİMAN</a>
-    <div class="page-title">SEVİYE BONUSU</div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
+    <div class="page-title"><span data-i18n="page_level_bonus" data-i18n-text>LEVEL BONUS</span></div>
     <div style="width:44px;"></div>
   </div>
   <div class="body">
     <!-- STATS -->
     <div class="info-row">
       <div class="info-box"><div class="l">⭐ Seviye</div><div class="v" id="lvl-val">1</div></div>
-      <div class="info-box"><div class="l">🎯 Açık</div><div class="v" id="open-val">1 <span>seviye</span></div></div>
+      <div class="info-box"><div class="l" data-i18n="level_unlocked">🎯 Unlocked</div><div class="v" id="open-val">1 <span data-i18n="level_lvl">level</span></div></div>
       <div class="info-box vip-status-box" id="vip-box">
-        <div class="l">VIP Durumu</div>
-        <div class="v" id="vip-val">AKTİF DEĞİL</div>
+        <div class="l" data-i18n="level_vip_status">VIP Status</div>
+        <div class="v" id="vip-val">NOT ACTIVE</div>
       </div>
     </div>
 
     <!-- PROGRESS -->
     <div class="prog-wrap">
-      <span class="prog-lbl">İlerleme</span>
+      <span class="prog-lbl" data-i18n="daily_progress">Progress</span>
       <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
       <span class="prog-num" id="prog-num">0/10</span>
     </div>
@@ -612,8 +733,8 @@
     <div class="cabinet-wrap">
       <!-- CABINET HEADERS -->
       <div class="cabinet-header">
-        <div class="header-col normal-title">NORMAL ÖDÜL</div>
-        <div class="header-col vip-title">👑 VIP ÖDÜLÜ</div>
+        <div class="header-col normal-title" data-i18n="daily_normal_reward">NORMAL REWARD</div>
+        <div class="header-col vip-title" data-i18n="daily_vip_reward">👑 VIP REWARD</div>
       </div>
       <!-- GRID FOR 10 DAYS (Normal & VIP alternated) -->
       <div class="grid-wrap" id="grid-wrap"></div>
@@ -622,51 +743,46 @@
 </div>
 
 <script>
-  const API_URL = 'http://localhost:3000/api/player';
+  const API_URL = window.location.origin + '/api/player';
   const token = localStorage.getItem('sp_token');
 
   let playerLv = parseInt(localStorage.getItem('sp_level')) || 1;
   let isVip = false;
 
-  // Normal Seviye Ödülleri
+  // Normal Level Rewards
   const LV_normal = [
-    { l: 1, text: '10.000 Altın', img: 'assets/gold.png' },
-    { l: 2, text: '250 İnci', img: 'assets/pearl.png' },
-    { l: 3, text: '1.000 Oyuk', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
-    { l: 4, text: '25.000 Altın', img: 'assets/gold.png' },
-    { l: 5, text: '500 İnci', img: 'assets/pearl.png' },
-    { l: 6, text: '15x Barut & Zırh', img: 'assets/ikon/images/1_powdericon_bmpref0.png' },
-    { l: 7, text: '1.000 Patlayan', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
-    { l: 8, text: '50.000 Altın', img: 'assets/gold.png' },
-    { l: 9, text: '1.000 İnci', img: 'assets/pearl.png' },
-    { l: 10, text: '2.000 İnci + 2K Patlayan', img: 'assets/pearl.png', doubleImg: 'assets/ikon/images/11_ammoskull_bmpref0.png', x: true }
+    { l: 1, text: '20,000 Gold', img: 'assets/ui/gold.png', lk:'item_gold_amount', lp:{val:'20,000'} },
+    { l: 2, text: '500 Pearl', img: 'assets/ui/pearl.png', lk:'item_pearl_amount', lp:{val:'500'} },
+    { l: 3, text: '5,000 Hollow', img: 'assets/items/shop/oyukgülle.png', lk:'item_hollow_amount', lp:{val:'5,000'} },
+    { l: 4, text: '50,000 Gold', img: 'assets/ui/gold.png', lk:'item_gold_amount', lp:{val:'50,000'} },
+    { l: 5, text: '1,000 Pearl', img: 'assets/ui/pearl.png', lk:'item_pearl_amount', lp:{val:'1,000'} },
+    { l: 6, text: '100x Gunpowder', img: 'assets/items/shop/barut-dükkan.png', lk:'item_gunpowder_amount', lp:{val:'100'} },
+    { l: 7, text: '3,000 Explosive', img: 'assets/items/shop/elitgülle.png', lk:'item_explosive_amount', lp:{val:'3,000'} },
+    { l: 8, text: '100,000 Gold', img: 'assets/ui/gold.png', lk:'item_gold_amount', lp:{val:'100,000'} },
+    { l: 9, text: '2,000 Pearl', img: 'assets/ui/pearl.png', lk:'item_pearl_amount', lp:{val:'2,000'} },
+    { l: 10, text: '3,000 Pearl + 2K Explosive', img: 'assets/ui/pearl.png', doubleImg: 'assets/items/shop/elitgülle.png', x: true, lk:'item_mixed_rewards', lp:{p:'3,000', e:'2,000'} }
   ];
 
-  // VIP Seviye Ödülleri
+  // VIP Level Rewards
   const LV_vip = [
-    { l: 1, text: '50.000 Altın', img: 'assets/gold.png' },
-    { l: 2, text: '1.000 İnci', img: 'assets/pearl.png' },
-    { l: 3, text: '5.000 Oyuk', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
-    { l: 4, text: '100.000 Altın', img: 'assets/gold.png' },
-    { l: 5, text: '2.000 İnci', img: 'assets/pearl.png' },
-    { l: 6, text: '50x Barut & Zırh', img: 'assets/ikon/images/1_powdericon_bmpref0.png' },
-    { l: 7, text: '5.000 Patlayan', img: 'assets/ikon/images/11_ammoskull_bmpref0.png' },
-    { l: 8, text: '250.000 Altın', img: 'assets/gold.png' },
-    { l: 9, text: '5.000 İnci', img: 'assets/pearl.png' },
-    { l: 10, text: '10.000 İnci + 10K Patlayan', img: 'assets/pearl.png', doubleImg: 'assets/ikon/images/11_ammoskull_bmpref0.png', x: true }
+    { l: 1, text: '60,000 Gold', img: 'assets/ui/gold.png', lk:'item_gold_amount', lp:{val:'60,000'} },
+    { l: 2, text: '1,500 Pearl', img: 'assets/ui/pearl.png', lk:'item_pearl_amount', lp:{val:'1,500'} },
+    { l: 3, text: '15,000 Hollow', img: 'assets/items/shop/oyukgülle.png', lk:'item_hollow_amount', lp:{val:'15,000'} },
+    { l: 4, text: '150,000 Gold', img: 'assets/ui/gold.png', lk:'item_gold_amount', lp:{val:'150,000'} },
+    { l: 5, text: '3,000 Pearl', img: 'assets/ui/pearl.png', lk:'item_pearl_amount', lp:{val:'3,000'} },
+    { l: 6, text: '1,000x Gunpowder', img: 'assets/items/shop/barut-dükkan.png', lk:'item_gunpowder_amount', lp:{val:'1,000'} },
+    { l: 7, text: '10,000 Explosive', img: 'assets/items/shop/elitgülle.png', lk:'item_explosive_amount', lp:{val:'10,000'} },
+    { l: 8, text: '300,000 Gold', img: 'assets/ui/gold.png', lk:'item_gold_amount', lp:{val:'300,000'} },
+    { l: 9, text: '6,000 Pearl', img: 'assets/ui/pearl.png', lk:'item_pearl_amount', lp:{val:'6,000'} },
+    { l: 10, text: '9,000 Pearl + 6K Explosive', img: 'assets/ui/pearl.png', doubleImg: 'assets/items/shop/elitgülle.png', x: true, lk:'item_mixed_rewards', lp:{p:'9,000', e:'6,000'} }
   ];
 
   let claimedNormal = {};
   let claimedVip = {};
 
   function toast2(msg, type = 'ok') {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'toast ' + type;
-    el.getBoundingClientRect();
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 3000);
-  }
+      window.showAlert(type === 'err' ? msg : t('daily_claimed_success'), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
+    }
 
   async function fetchPlayerLevel() {
     if (!token) return;
@@ -686,7 +802,7 @@
         (data.claimedVip || []).forEach(l => claimedVip[l] = true);
       }
     } catch (e) {
-      console.error("Oyuncu bilgisi yüklenirken hata:", e);
+      console.error("Error loading player info:", e);
     }
   }
 
@@ -697,12 +813,12 @@
     const vipValEl = document.getElementById('vip-val');
     const vipBoxEl = document.getElementById('vip-box');
     if (isVip) {
-      vipValEl.textContent = 'AKTİF 👑';
+      vipValEl.textContent = t('daily_vip_active') + ' 👑';
       vipBoxEl.style.borderColor = '#c8962a';
       vipBoxEl.style.background = 'rgba(66, 8, 8, 0.7)';
       vipValEl.style.color = '#ffd700';
     } else {
-      vipValEl.textContent = 'AKTİF DEĞİL';
+      vipValEl.textContent = t('daily_vip_not_active');
       vipBoxEl.style.borderColor = '#5a3a15';
       vipBoxEl.style.background = 'rgba(12, 6, 3, 0.85)';
       vipValEl.style.color = '#7a5a38';
@@ -739,14 +855,18 @@
       if (isNormClaimed) normBadgeHTML = `<div class="day-badge claimed">✓</div>`;
       else if (!isNormUnlocked) normBadgeHTML = `<div class="day-badge locked">🔒</div>`;
 
+      // Localize text
+      let normText = norm.text;
+      if (norm.lk) normText = t(norm.lk, norm.lp || {});
+
       normCard.innerHTML = `
         <div class="day-header">
           <div class="lv-badge"><span class="lv-num">${norm.l}</span></div>
-          <div class="lv-lbl">${norm.x ? '★ BONUS' : 'SEVİYE ' + norm.l}</div>
+          <div class="lv-lbl">${norm.x ? '★ BONUS' : t('ships_level') + ' ' + norm.l}</div>
         </div>
         <div class="lv-rwd-container">
           ${normImgHTML}
-          <div class="lv-rwd-text">${norm.text}</div>
+          <div class="lv-rwd-text">${normText}</div>
         </div>
         ${normBadgeHTML}
       `;
@@ -754,7 +874,7 @@
       if (isNormAvailable) {
         normCard.innerHTML += `
           <div class="claim-action-overlay">
-            <button class="claim-action-btn">AL</button>
+            <button class="claim-action-btn">${t('daily_claim')}</button>
           </div>
         `;
         normCard.onclick = () => claimReward('normal', norm.l);
@@ -789,6 +909,10 @@
       else if (isVipAvailable) vipBadgeHTML = `<div class="day-badge claimed" style="background:#c8962a">👑</div>`;
       else vipBadgeHTML = `<div class="day-badge locked-vip">🔒</div>`;
 
+      // Localize text
+      let vipText = vip.text;
+      if (vip.lk) vipText = t(vip.lk, vip.lp || {});
+
       vipCard.innerHTML = `
         <div class="day-header">
           <div class="lv-badge"><span class="lv-num">${vip.l}</span></div>
@@ -796,7 +920,7 @@
         </div>
         <div class="lv-rwd-container">
           ${vipImgHTML}
-          <div class="lv-rwd-text">${vip.text}</div>
+          <div class="lv-rwd-text">${vipText}</div>
         </div>
         ${vipBadgeHTML}
       `;
@@ -804,7 +928,7 @@
       if (isVipAvailable) {
         vipCard.innerHTML += `
           <div class="claim-action-overlay">
-            <button class="claim-action-btn" style="border-color:#c8962a">AL</button>
+            <button class="claim-action-btn" style="border-color:#c8962a">${t('daily_claim')}</button>
           </div>
         `;
         vipCard.onclick = () => claimReward('vip', vip.l);
@@ -822,8 +946,7 @@
     document.getElementById('prog-fill').style.width = (totalClaimedNormal / 10 * 100) + '%';
     document.getElementById('prog-num').textContent = totalClaimedNormal + '/10';
     document.getElementById('lvl-val').textContent = playerLv;
-    document.getElementById('open-val').innerHTML = unlocked + ' <span>seviye</span>';
-    document.getElementById('total-val').innerHTML = totalClaims + ' <span>alındı</span>';
+    document.getElementById('open-val').innerHTML = unlocked + ' <span>' + t('ships_level') + '</span>';
   }
 
   async function claimReward(type, l) {
@@ -838,15 +961,15 @@
       });
       const data = await res.json();
       if (res.ok) {
-        toast2(data.message || 'Ödül başarıyla alındı!', 'ok');
+        toast2(data.message || 'Reward claimed successfully!', 'ok');
         await fetchPlayerLevel();
         rd();
       } else {
-        toast2(data.error || 'Ödül alınamadı!', 'err');
+        toast2(data.error || 'Could not claim reward!', 'err');
       }
     } catch (err) {
       console.error(err);
-      toast2('Sunucu hatası!', 'err');
+      toast2('Server error!', 'err');
     }
   }
 
@@ -856,7 +979,108 @@
   }
 
   init();
+
+  // ── VIP Pricing (auto currency via IP) ──
+  let vipPrices = null;
+  let vipCurrencies = null;
+  let currentCurrency = 'TRY';
+
+  async function fetchVipCurrency() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const [res, curRes] = await Promise.all([
+        fetch('/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      if (!res.ok || !curRes.ok) return;
+      const p = await res.json();
+      const c = await curRes.json();
+      vipPrices = p.prices;
+      vipCurrencies = p.currencies;
+      currentCurrency = c.currency;
+    } catch (e) { console.error('VIP fiyat yüklenemedi:', e); }
+  }
+
+  function updateVipPrices() {
+    const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
+    document.querySelectorAll('#vip-modal-level .magaza-card-price').forEach(el => {
+      const plan = parseInt(el.dataset.plan);
+      if (vipPrices?.[plan]) el.textContent = `${vipPrices[plan][currentCurrency]} ${sym}`;
+    });
+  }
+
+  function openVipModal() {
+    if (isVip) return;
+    fetchVipCurrency().then(() => {
+      updateVipPrices();
+      document.getElementById('vip-modal-level').style.cssText = 'display:flex !important;position:fixed !important;inset:0 !important;z-index:99999 !important;align-items:center;justify-content:center;background:rgba(0,0,0,0.8)';
+    });
+  }
+
+  document.getElementById('vip-box').addEventListener('click', openVipModal);
+
+  document.querySelectorAll('#vip-modal-level .magaza-card-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const plan = btn.dataset.plan;
+      const type = btn.dataset.type;
+      const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
+      const price = vipPrices?.[plan]?.[currentCurrency] || '?';
+      alert(`🔒 ${type === 'vip' ? 'VIP' : 'Starter'} "${plan}" gün paket — ${price} ${sym}. Ödeme sistemi yakında!`);
+    });
+  });
 </script>
-  <script src="transition.js"></script>
+
+<!-- VIP Purchase Modal -->
+<div class="magaza-overlay" id="vip-modal-level" onclick="if(event.target===this)this.style.display='none'">
+  <div class="magaza-modal">
+    <button class="magaza-close" id="btn-close-vip-level" onclick="document.getElementById('vip-modal-level').style.display='none'">✕</button>
+    <div class="magaza-title" data-i18n="vip_pack">👑 VIP PAKETLER</div>
+    <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
+    <div class="magaza-cards">
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayrıcalıkları</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="7">99 ₺</span>
+          <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayrıcalıkları (en popüler)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="30">249 ₺</span>
+          <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayrıcalıkları (en avantajlı)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="90">599 ₺</span>
+          <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="magaza-perks">
+      <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
+      <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarım Hızı — Savaşta gemini 2 kat hızlı onarırsın</div>
+      <div class="magaza-perk" data-i18n="vip_perk_battle_reward">+%10 Savaş Ödülü — Altın, inci ve XP ödüllerin %10 fazla gelir</div>
+      <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
+      <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayışında kat kat fazla ödül</div>
+      <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvası — Aynı anda 2 görev alabilirsin</div>
+      <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Doğ — Battığında max canının %10'u ile başlarsın</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

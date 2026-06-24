@@ -1,0 +1,11 @@
+-- Up
+ALTER TABLE players ADD COLUMN IF NOT EXISTS quest_progress2 JSON DEFAULT '[]'::json;
+ALTER TABLE players ADD COLUMN IF NOT EXISTS quest_kills2 INT DEFAULT 0;
+ALTER TABLE players ADD COLUMN IF NOT EXISTS quest_damage2 INT DEFAULT 0;
+ALTER TABLE players ADD COLUMN IF NOT EXISTS quest_glitters2 INT DEFAULT 0;
+
+-- Down
+ALTER TABLE players DROP COLUMN IF EXISTS quest_progress2;
+ALTER TABLE players DROP COLUMN IF EXISTS quest_kills2;
+ALTER TABLE players DROP COLUMN IF EXISTS quest_damage2;
+ALTER TABLE players DROP COLUMN IF EXISTS quest_glitters2;

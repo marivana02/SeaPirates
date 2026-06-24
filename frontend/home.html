@@ -3,12 +3,15 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
   <title>SeaPirates — Ana Sayfa</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="transition.js"></script>
+  <script src="js/api.js?v=2"></script>
   <style>
     *,
     *::before,
@@ -50,8 +53,9 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
       /* Yeni home.png arkaplanı (Dikey/Midjourney çıktısı uyumlu) */
-      background: url('assets/background/home.png') center top / cover no-repeat;
+      background: url('assets/ui/background/home.png') center top / cover no-repeat;
     }
 
     /* TOP BAR */
@@ -98,27 +102,58 @@
       text-transform: uppercase;
     }
 
-    /* LEADERBOARD SECTION — narrower, background visible on sides */
+    /* LEADERBOARD SECTION — wood frame */
     .lb-wrap {
       flex: 1;
       position: relative;
       z-index: 5;
       margin: 0 20px 25px;
-      /* sides & bottom: background visible */
       display: flex;
       flex-direction: column;
       min-height: 0;
+      border: 12px solid transparent;
+      border-radius: 14px;
+      background: url('assets/ui/leaderboardbackground.png') top center repeat-y;
+      background-size: 100% auto;
+      background-clip: padding-box;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.85);
+      overflow: visible;
+    }
+
+    .lb-wrap::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      pointer-events: none;
+      z-index: 5;
+      background-image:
+        url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),
+        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),
+        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),
+        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),
+        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),
+        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),
+        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),
+        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');
+      background-position:
+        top left, top right, bottom left, bottom right,
+        top left, bottom left, top left, top right;
+      background-size:
+        55px 55px, 55px 55px, 55px 55px, 55px 55px,
+        100% 12px, 100% 12px, 12px 100%, 12px 100%;
+      background-repeat:
+        no-repeat, no-repeat, no-repeat, no-repeat,
+        repeat-x, repeat-x, repeat-y, repeat-y;
     }
 
     /* Title board */
     .lb-title-bar {
-      background: url('assets/ranktxtbackgroun.png') center/cover no-repeat;
+      background: url('assets/ui/ranktxtbackgroun.png') center/cover no-repeat;
       position: relative;
       padding: 9px 16px;
       text-align: center;
-      border-radius: 10px 10px 0 0;
-      border: 2px solid #6a4218;
-      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      border: none;
       flex-shrink: 0;
     }
 
@@ -127,7 +162,7 @@
       position: absolute;
       inset: 0;
       background: rgba(0, 0, 0, 0.45);
-      border-radius: 10px 10px 0 0;
+      border-radius: 4px 4px 0 0;
       pointer-events: none;
     }
 
@@ -147,12 +182,8 @@
     .lb-body {
       flex: 1;
       min-height: 0;
-      /* Tahta arkaplanı yatayda tam sığdır, dikeyde tekrar et ki kesiklik olmasın */
-      background: url('assets/leaderboardbackground.png') center top repeat-y;
-      background-size: 100% auto;
-      border: 2px solid #6a4218;
-      border-top: 1px solid #9a6228;
-      border-radius: 0 0 10px 10px;
+      background: transparent;
+      border: none;
       overflow-y: auto;
       overflow-x: hidden;
       scrollbar-width: thin;
@@ -165,10 +196,8 @@
       position: absolute;
       inset: 0;
       z-index: 0;
-      /* Overlay opaklığını azaltarak arkaplanın görünmesini sağla */
       background: rgba(6, 3, 0, 0.40);
       pointer-events: none;
-      border-radius: 0 0 10px 10px;
     }
 
     .lb-body::-webkit-scrollbar {
@@ -371,7 +400,7 @@
       overflow: hidden;
       border: 2px solid #7a4a18;
       box-shadow: 0 -3px 20px rgba(0, 0, 0, 0.75);
-      background: url('assets/background/playerınfobackground.png') center/cover no-repeat;
+      background: url('assets/ui/background/playerınfobackground.png') center/cover no-repeat;
     }
 
     /* Username strip */
@@ -471,55 +500,61 @@
       color: #b8f0e8;
     }
 
-    /* LVL bar row — full width */
-    .lvl-row {
-      grid-column: 1/-1;
+    /* XP progress bar — full width */
+    .xp-strip-full {
+      grid-column: 1 / -1;
       display: flex;
       align-items: center;
-      gap: 7px;
-      padding-top: 2px;
+      gap: 6px;
+      margin-top: 2px;
     }
-
-    .lvl-lbl {
+    .xp-level-badge {
       font-family: 'Cinzel', serif;
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 700;
       color: var(--txt-d);
       white-space: nowrap;
     }
-
-    .lvl-track {
+    .xp-bar-holder {
       flex: 1;
-      height: 14px;
-      background: rgba(0, 0, 0, 0.65);
-      border: 1px solid #5a3a15;
-      border-radius: 4px;
-      overflow: hidden;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #4a2a10;
+      border-radius: 3px;
       position: relative;
+      overflow: hidden;
     }
-
-    .lvl-fill {
+    .xp-bar-fill {
       height: 100%;
       background: linear-gradient(90deg, #154360, #2980b9);
-      transition: width .5s ease;
+      width: 0%;
+      transition: width 0.3s ease;
     }
-
-    .lvl-pct {
+    .xp-bar-holder .xp-lbl {
+      position: absolute;
+      left: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.52rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .xp-bar-text {
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.65rem;
+      font-size: 0.58rem;
       font-weight: 700;
       color: #fff;
       text-shadow: 0 1px 2px #000;
-      white-space: nowrap;
     }
 
     /* VIP row */
     .vip-row {
-      grid-column: 1/-1;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -585,7 +620,7 @@
     }
 
     .act-btn.primary {
-      background: url('assets/ikon/images/240_btn_active_seamless.png') center/cover no-repeat;
+      background: url('assets/ui/ikon/images/240_btn_active_seamless.png') center/cover no-repeat;
       border-color: #c8962a;
       color: #fff;
       text-shadow: 0 1px 2px #000;
@@ -642,13 +677,14 @@
     .magaza-overlay.show { display: flex; animation: fadeIn 0.3s; }
 
     .magaza-modal {
-      background: url('assets/leaderboardbackground.png') center/cover;
-      border: 2px solid var(--gold);
+      background: url('assets/ui/leaderboardbackground.png') center/cover;
+      background-clip: padding-box;
+      border: 12px solid transparent;
       border-radius: 14px;
       width: 92%;
       max-width: 380px;
       max-height: 90dvh;
-      overflow-y: auto;
+      overflow: visible;
       padding: 20px 16px 16px;
       position: relative;
       box-shadow: 0 0 40px rgba(0,0,0,0.85), 0 0 60px rgba(200,150,42,0.12);
@@ -656,8 +692,34 @@
     .magaza-modal::before {
       content: ''; position: absolute; inset: 0;
       background: rgba(10,5,2,0.7);
-      border-radius: 12px;
+      border-radius: 4px;
       pointer-events: none;
+      z-index: 0;
+    }
+    .magaza-modal::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      pointer-events: none;
+      z-index: 5;
+      background-image:
+        url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),
+        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),
+        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),
+        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),
+        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),
+        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),
+        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),
+        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');
+      background-position:
+        top left, top right, bottom left, bottom right,
+        top left, bottom left, top left, top right;
+      background-size:
+        55px 55px, 55px 55px, 55px 55px, 55px 55px,
+        100% 12px, 100% 12px, 12px 100%, 12px 100%;
+      background-repeat:
+        no-repeat, no-repeat, no-repeat, no-repeat,
+        repeat-x, repeat-x, repeat-y, repeat-y;
     }
     .magaza-modal > * { position: relative; z-index: 1; }
 
@@ -809,31 +871,28 @@
       <div class="pinfo-body">
         <div class="p-stats">
           <div class="s-row">
-            <span class="s-icon"><img src="assets/pearl.png"
+            <span class="s-icon"><img src="assets/ui/pearl.png"
                 style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
             <span class="s-val pc" id="p-pearl">0</span>
           </div>
           <div class="s-row">
-            <span class="s-icon"><img src="assets/gold.png"
+            <span class="s-icon"><img src="assets/ui/gold.png"
                 style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
             <span class="s-val gc" id="p-gold">0</span>
           </div>
-          <div class="s-row">
-            <span class="s-key">XP:</span>
-            <span class="s-val" id="p-xp">0</span>
+          <div class="vip-row">
+            <span class="vip-badge off" id="vip-badge">VIP Sahip Değilsin</span>
           </div>
           <div class="s-row">
             <span class="s-key">ELP:</span>
             <span class="s-val" id="p-elp">0</span>
           </div>
-          <div class="vip-row">
-            <span class="vip-badge off" id="vip-badge">VIP Sahip Değilsin</span>
-          </div>
-          <div class="lvl-row">
-            <span class="lvl-lbl" id="p-lvl">1 LVL</span>
-            <div class="lvl-track">
-              <div class="lvl-fill" id="p-lvl-fill" style="width:8%"></div>
-              <span class="lvl-pct" id="p-lvl-pct">0 / 1.000</span>
+          <div class="xp-strip-full">
+            <span class="xp-level-badge" id="p-lvl">1 LVL</span>
+            <div class="xp-bar-holder">
+              <span class="xp-lbl">XP</span>
+              <div class="xp-bar-fill" id="p-lvl-fill" style="width:8%"></div>
+              <span class="xp-bar-text" id="p-lvl-pct">0 / 1.000</span>
             </div>
           </div>
         </div>
@@ -851,46 +910,48 @@
   <div class="magaza-overlay" id="vip-modal-home">
     <div class="magaza-modal">
       <button class="magaza-close" id="btn-close-vip-home">✕</button>
-      <div class="magaza-title">👑 VIP PAKETLER</div>
-      <div class="magaza-sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
+      <div class="magaza-title"><span data-i18n="vip_pack" data-i18n-text>👑 VIP PAKETLER</span></div>
+      <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
       <div class="magaza-cards">
         <div class="magaza-card">
           <div class="magaza-card-info">
-            <span class="magaza-card-name">7 Gün VIP</span>
-            <span class="magaza-card-dur">7 gün VIP ayrıcalıkları</span>
+            <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>
+            <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayrıcalıkları</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price">49 ₺</span>
-            <button class="magaza-card-btn" data-plan="7" data-type="vip">Satın Al</button>
+            <span class="magaza-card-price" data-plan="7">99 ₺</span>
+            <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satın Al</span></button>
           </div>
         </div>
         <div class="magaza-card">
           <div class="magaza-card-info">
-            <span class="magaza-card-name">1 Ay VIP</span>
-            <span class="magaza-card-dur">30 gün VIP ayrıcalıkları (en popüler)</span>
+            <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>
+            <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayrıcalıkları (en popüler)</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price">129 ₺</span>
-            <button class="magaza-card-btn" data-plan="30" data-type="vip">Satın Al</button>
+            <span class="magaza-card-price" data-plan="30">249 ₺</span>
+            <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satın Al</span></button>
           </div>
         </div>
         <div class="magaza-card">
           <div class="magaza-card-info">
-            <span class="magaza-card-name">3 Ay VIP</span>
-            <span class="magaza-card-dur">90 gün VIP ayrıcalıkları (en iyi değer)</span>
+            <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>
+            <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayrıcalıkları (en avantajlı)</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price">299 ₺</span>
-            <button class="magaza-card-btn" data-plan="90" data-type="vip">Satın Al</button>
+            <span class="magaza-card-price" data-plan="90">599 ₺</span>
+            <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satın Al</span></button>
           </div>
         </div>
       </div>
       <div class="magaza-perks">
-        <div class="magaza-perks-title">VIP AYRICALIKLARI</div>
-        <div class="magaza-perk">Tamirde her 3sn'de +1000 can yenileme</div>
-        <div class="magaza-perk">Savaş ödüllerinde %10 bonus</div>
-        <div class="magaza-perk">Özel VIP etiket ve görünüm</div>
-        <div class="magaza-perk">Daha hızlı gemi tamiri</div>
+        <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
+        <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarım Hızı — Savaşta gemini 2 kat hızlı onarırsın</div>
+        <div class="magaza-perk" data-i18n="vip_perk_battle_reward">+%10 Savaş Ödülü — Altın, inci ve XP ödüllerin %10 fazla gelir</div>
+        <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
+        <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayışında kat kat fazla ödül</div>
+        <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvası — Aynı anda 2 görev alabilirsin</div>
+        <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Doğ — Battığında max canının %10'u ile başlarsın</div>
       </div>
     </div>
   </div>
@@ -1014,13 +1075,13 @@
       document.getElementById('p-name').textContent = playerData.display_name || playerData.username || 'Kaptan';
       document.getElementById('p-pearl').textContent = fmt(playerData.pearl || 0);
       document.getElementById('p-gold').textContent = fmt(playerData.gold || 0);
-      document.getElementById('p-xp').textContent = fmt(playerData.xp || 0);
+      
       document.getElementById('p-elp').textContent = fmt(playerData.elite_points || 0);
       document.getElementById('p-lvl').textContent = (playerData.level || 1) + ' LVL';
 
       const rankIconEl = document.getElementById('p-rank-icon');
       if (rankIconEl) {
-        rankIconEl.innerHTML = `<img src="assets/rank/rank${playerData.rankBadge}.png" style="width: 100%; height: 100%; object-fit: contain;" alt="${playerData.rankName}" title="${playerData.rankName}">`;
+        rankIconEl.innerHTML = `<img src="assets/ui/rank/rank${playerData.rankBadge}.png" style="width: 100%; height: 100%; object-fit: contain;" alt="${playerData.rankName}" title="${playerData.rankName}">`;
       }
 
       const xpNext = playerData.xpNext || 999999999;
@@ -1031,7 +1092,8 @@
       if (playerData.vip_until) {
         const b = document.getElementById('vip-badge');
         b.className = 'vip-badge on';
-        b.textContent = 'VIP';
+        const daysLeft = Math.ceil((new Date(playerData.vip_until) - new Date()) / 86400000);
+        b.textContent = daysLeft > 0 ? 'VIP · ' + daysLeft + ' ' + t('daily_day') : '👑 VIP';
       }
 
       // Render Leaderboard
@@ -1050,7 +1112,7 @@
         <span class="rutbe-puan">${fmt(row.score || 0)}</span>
       </div>
       <div class="rutbe-icon ${rbClass}" title="${esc(row.rankName || 'Kara Adamı')}">
-        <img src="assets/rank/rank${badge}.png" alt="${esc(row.rankName || 'Kara Adamı')}">
+        <img src="assets/ui/rank/rank${badge}.png" alt="${esc(row.rankName || 'Kara Adamı')}">
       </div>
     </div>`;
       });
@@ -1067,7 +1129,7 @@
         <span class="rutbe-puan">${fmt(playerData.score || 0)}</span>
       </div>
       <div class="rutbe-icon ${rbClass}" title="${esc(playerData.rankName || 'Kara Adamı')}">
-        <img src="assets/rank/rank${badge}.png" alt="${esc(playerData.rankName || 'Kara Adamı')}">
+        <img src="assets/ui/rank/rank${badge}.png" alt="${esc(playerData.rankName || 'Kara Adamı')}">
       </div>
     </div>`;
       }
@@ -1079,10 +1141,45 @@
     function modalGoster(id) { document.getElementById(id).classList.add('show'); }
     function modalGizle(id) { document.getElementById(id).classList.remove('show'); }
 
+    // ── VIP Pricing (auto currency via IP) ──
+    let vipPrices = null;
+    let vipCurrencies = null;
+    let currentCurrency = 'TRY';
+
+    async function fetchVipCurrency() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const [res, curRes] = await Promise.all([
+          fetch('/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
+          fetch('/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        if (!res.ok || !curRes.ok) return;
+        const p = await res.json();
+        const c = await curRes.json();
+        vipPrices = p.prices;
+        vipCurrencies = p.currencies;
+        currentCurrency = c.currency;
+      } catch (e) { console.error('VIP fiyat yüklenemedi:', e); }
+    }
+
+    function updateVipPrices() {
+      const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
+      document.querySelectorAll('#vip-modal-home .magaza-card-price').forEach(el => {
+        const plan = parseInt(el.dataset.plan);
+        if (vipPrices?.[plan]) el.textContent = `${vipPrices[plan][currentCurrency]} ${sym}`;
+      });
+    }
+
     const vipBtn = document.getElementById('btn-vip-home');
     const vipModal = document.getElementById('vip-modal-home');
     const vipClose = document.getElementById('btn-close-vip-home');
-    if (vipBtn) vipBtn.addEventListener('click', (e) => { e.preventDefault(); modalGoster('vip-modal-home'); });
+    if (vipBtn) vipBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetchVipCurrency();
+      updateVipPrices();
+      modalGoster('vip-modal-home');
+    });
     if (vipClose) vipClose.addEventListener('click', () => modalGizle('vip-modal-home'));
     if (vipModal) vipModal.addEventListener('click', (e) => { if (e.target === vipModal) modalGizle('vip-modal-home'); });
 
@@ -1094,7 +1191,19 @@
     if (starterModal) starterModal.addEventListener('click', (e) => { if (e.target === starterModal) modalGizle('starter-modal-home'); });
 
     // SATIN AL BUTONLARI (placeholder — ödeme entegrasyonu sonra)
-    document.querySelectorAll('.magaza-card-btn').forEach(btn => {
+    document.querySelectorAll('#vip-modal-home .magaza-card-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const plan = btn.dataset.plan;
+        const type = btn.dataset.type;
+        const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
+        const price = vipPrices?.[plan]?.[currentCurrency] || '?';
+        alert(`🔒 ${type === 'vip' ? 'VIP' : 'Starter'} "${plan}" gün paket — ${price} ${sym}. Ödeme sistemi yakında!`);
+      });
+    });
+
+    document.querySelectorAll('#starter-modal-home .magaza-card-btn').forEach(btn => {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
         const plan = this.dataset.plan;
@@ -1117,7 +1226,6 @@
 
     init();
   </script>
-  <script src="transition.js"></script>
 </body>
 
 </html>

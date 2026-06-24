@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+  <title>Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="js/lang.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
+  <style>
+    :root {
+      --bg: #0d0602;
+      --surface: #1a0e05;
+      --card: #241206;
+      --border: #4a2a12;
+      --danger: #e74c3c;
+      --success: #2ecc71;
+      --warn: #f39c12;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100dvh;
+    }
+    .page {
+      max-width: 860px; margin: 0 auto; padding: 10px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    }
+    .top-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .top-bar h1 { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); flex: 1; }
+    .btn {
+      padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, #3d2108, #1e0e03);
+      color: var(--txt); font-size: 0.75rem; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: 0.15s;
+    }
+    .btn:hover { border-color: var(--gold); color: var(--gold-p); }
+    .btn-danger { border-color: var(--danger); color: var(--danger); }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+    .btn-success { border-color: var(--success); color: var(--success); }
+    .btn-success:hover { background: var(--success); color: #fff; }
+    .btn-warn { border-color: var(--warn); color: var(--warn); }
+    .btn-warn:hover { background: var(--warn); color: #000; }
+    .btn-sm { padding: 3px 10px; font-size: 0.7rem; }
+    input, select, textarea {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 7px 10px; color: var(--txt);
+      font-size: 0.8rem; font-family: 'Inter', sans-serif;
+      outline: none; width: 100%;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+    textarea { resize: vertical; min-height: 50px; }
+    .search-wrap { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .search-wrap input { flex: 1; min-width: 150px; }
+    .tab-bar { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+    .tab {
+      padding: 6px 16px; border-radius: 6px 6px 0 0; cursor: pointer;
+      background: var(--surface); border: 1px solid var(--border);
+      border-bottom: none; font-size: 0.75rem; color: var(--txt-m);
+      font-family: 'Inter', sans-serif; transition: 0.15s;
+    }
+    .tab:hover { color: var(--txt); }
+    .tab.active { background: var(--card); color: var(--gold); border-color: var(--gold); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px; margin-bottom: 10px;
+    }
+    .card h3 { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--gold); margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--txt-d); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; }
+    tr:hover td { background: rgba(212, 165, 48, 0.05); }
+    .badge { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; }
+    .badge-admin { background: var(--gold); color: #000; }
+    .badge-banned { background: var(--danger); color: #fff; }
+    .badge-vip { background: #9b59b6; color: #fff; }
+    .badge-ok { background: rgba(46,204,113,0.2); color: var(--success); }
+    .badge-expired { background: rgba(231,76,60,0.2); color: var(--danger); }
+    .pagination { display: flex; gap: 5px; align-items: center; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+    .pagination span { font-size: 0.7rem; color: var(--txt-m); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.75rem; }
+    .detail-grid .label { color: var(--txt-d); }
+    .detail-grid .value { color: var(--txt); }
+    .status-bar { padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; margin-bottom: 8px; display: none; }
+    .status-bar.info { display: block; background: rgba(52,152,219,0.15); border: 1px solid rgba(52,152,219,0.3); color: #5dade2; }
+    .status-bar.error { display: block; background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3); color: var(--danger); }
+    .status-bar.success { display: block; background: rgba(46,204,113,0.15); border: 1px solid rgba(46,204,113,0.3); color: var(--success); }
+    .flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .mt-8 { margin-top: 8px; }
+    .mb-8 { margin-bottom: 8px; }
+    .w-auto { width: auto; }
+    .truncate { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .copy-btn { cursor: pointer; color: var(--txt-m); font-size: 0.65rem; }
+    .copy-btn:hover { color: var(--gold); }
+    .logs-table { font-size: 0.7rem; }
+    .logs-table td { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .page { padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="top-bar">
+    <a href="menu.html" class="btn">&larr; <span data-i18n="btn_back">Geri</span></a>
+    <h1>&#9879; Admin Panel</h1>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" data-tab="players" onclick="switchTab('players')"><span data-i18n="admin_tab_players">Oyuncular</span></div>
+    <div class="tab" data-tab="logs" onclick="switchTab('logs')"><span data-i18n="admin_tab_logs">İşlem Geçmişi</span></div>
+  </div>
+
+  <div id="statusBar" class="status-bar"></div>
+
+  <!-- PLAYERS TAB -->
+  <div id="panel-players" class="panel active">
+    <div class="search-wrap">
+      <input type="text" id="playerSearch" placeholder="ID / kullanıcı adı / e-posta..." onkeydown="if(event.key==='Enter') searchPlayers()">
+      <button class="btn" onclick="searchPlayers()">&#128269; <span data-i18n="admin_search">Ara</span></button>
+    </div>
+
+    <div id="playerList"></div>
+  </div>
+
+  <!-- LOGS TAB -->
+  <div id="panel-logs" class="panel">
+    <div class="search-wrap">
+      <select id="logTypeFilter" class="w-auto" style="width:auto;min-width:120px;">
+        <option value="" data-i18n="admin_log_all">Tümü</option>
+        <option value="admin_ban">Ban</option>
+        <option value="admin_unban">Unban</option>
+        <option value="admin_vip">VIP</option>
+        <option value="register">Register</option>
+        <option value="login">Login</option>
+      </select>
+      <button class="btn" onclick="loadLogs()">&#128269; <span data-i18n="admin_filter">Filtrele</span></button>
+    </div>
+    <div id="logsList"></div>
+  </div>
+</div>
+
+<!-- PLAYER DETAIL MODAL -->
+<div id="playerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto;padding:20px;">
+  <div style="max-width:700px;margin:20px auto;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;">
+    <div class="flex" style="justify-content:space-between;margin-bottom:10px;">
+      <h3 id="modalTitle" style="font-family:'Cinzel',serif;color:var(--gold);font-size:0.9rem;"></h3>
+      <button class="btn btn-sm" onclick="closeModal()">&times;</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = '/api/admin';
+const token = localStorage.getItem('sp_token');
+
+      if (!token) { window.location.href = 'index.html'; }
+
+function getToken() { return localStorage.getItem('sp_token'); }
+
+function api(path, opts = {}) {
+  const headers = { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' };
+  if (opts.body && typeof opts.body === 'object') opts.body = JSON.stringify(opts.body);
+  return fetch(API_BASE + path, { ...opts, headers }).then(r => r.json());
+}
+
+function status(msg, cls = 'info') {
+  const el = document.getElementById('statusBar');
+  el.textContent = msg;
+  el.className = 'status-bar ' + cls;
+  if (msg) setTimeout(() => { el.className = 'status-bar'; }, 5000);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+  if (name === 'logs') loadLogs();
+}
+
+let currentPage = 1, currentSearch = '';
+
+function searchPlayers(page = 1) {
+  currentPage = page;
+  currentSearch = document.getElementById('playerSearch').value.trim();
+  api('/players?search=' + encodeURIComponent(currentSearch) + '&page=' + page + '&limit=50').then(data => {
+    if (data.error) { status(data.error, 'error'); return; }
+    renderPlayerList(data);
+  }).catch(e => status('Bağlantı hatası', 'error'));
+}
+
+function renderPlayerList(data) {
+  const el = document.getElementById('playerList');
+  if (!data.players || data.players.length === 0) {
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--txt-m);padding:30px;"><span data-i18n="admin_no_results">Sonuç bulunamadı</span></div>';
+    return;
+  }
+
+  let html = `<div class="card"><table><thead><tr>
+    <th>ID</th><th data-i18n="admin_col_username">Kullanıcı</th><th data-i18n="admin_col_display">Görünen</th><th>Lv</th>
+    <th data-i18n="admin_col_status">Durum</th><th>Email</th><th data-i18n="admin_col_actions">İşlem</th>
+  </tr></thead><tbody>`;
+
+  for (const p of data.players) {
+    const isBanned = p.is_banned;
+    const isVip = p.vip_until && new Date(p.vip_until) > new Date();
+    const statusBadges = [];
+    if (p.is_admin) statusBadges.push('<span class="badge badge-admin">ADMIN</span>');
+    if (isBanned) statusBadges.push('<span class="badge badge-banned">BANNED</span>');
+    if (isVip) statusBadges.push('<span class="badge badge-vip">VIP</span>');
+    if (statusBadges.length === 0) statusBadges.push('<span class="badge badge-ok">AKTİF</span>');
+    html += `<tr>
+      <td>${p.id}</td>
+      <td>${esc(p.username)}</td>
+      <td>${esc(p.display_name || '-')}</td>
+      <td>${p.level}</td>
+      <td>${statusBadges.join(' ')}</td>
+      <td class="truncate" title="${esc(p.email)}">${esc(p.email)}</td>
+      <td><button class="btn btn-sm" onclick="viewPlayer(${p.id})">&#128065;</button></td>
+    </tr>`;
+  }
+
+  html += '</tbody></table>';
+
+  const totalPages = Math.ceil(data.total / data.limit);
+  if (totalPages > 1) {
+    html += '<div class="pagination">';
+    if (data.page > 1) html += `<button class="btn btn-sm" onclick="searchPlayers(${data.page - 1})">&laquo;</button>`;
+    html += `<span>${data.page} / ${totalPages}</span>`;
+    if (data.page < totalPages) html += `<button class="btn btn-sm" onclick="searchPlayers(${data.page + 1})">&raquo;</button>`;
+    html += '</div>';
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function viewPlayer(id) {
+  api('/players/' + id).then(data => {
+    if (data.error) { status(data.error, 'error'); return; }
+    showPlayerModal(data.player, data.logs || []);
+  }).catch(e => status('Bağlantı hatası', 'error'));
+}
+
+function showPlayerModal(player, logs) {
+  const modal = document.getElementById('playerModal');
+  document.getElementById('modalTitle').textContent = player.display_name || player.username + ' (#' + player.id + ')';
+
+  const isBanned = player.is_banned;
+  const isVip = player.vip_until && new Date(player.vip_until) > new Date();
+  const banExpired = player.ban_expires_at && new Date(player.ban_expires_at) < new Date();
+  const vipDate = player.vip_until ? new Date(player.vip_until).toLocaleDateString() : '-';
+
+  let html = '<div class="detail-grid">';
+  const fields = [
+    ['ID', player.id],
+    ['Username', player.username],
+    ['Display Name', player.display_name || '-'],
+    ['Email', player.email],
+    ['Level', player.level],
+    ['Ship Level', player.ship_level],
+    ['Gold', fmt(player.gold)],
+    ['Pearl', fmt(player.pearl)],
+    ['XP', fmt(player.xp)],
+    ['Elite Points', fmt(player.elite_points)],
+    ['HP', fmt(player.hp) + ' / ' + fmt(player.max_hp)],
+    ['Map Level', player.current_map_level],
+    ['Tower Level', player.tower_level],
+    ['PVP Points', player.pvp_points],
+    ['Daily Streak', player.daily_streak],
+    ['VIP Until', player.vip_until ? new Date(player.vip_until).toLocaleDateString() : '-'],
+    ['Device ID', player.device_id ? `<span class="truncate" style="display:inline-block;max-width:120px;vertical-align:middle;">${esc(player.device_id)}</span>` : '-'],
+    ['Created', player.created_at ? new Date(player.created_at).toLocaleDateString() : '-'],
+    ['Admin', player.is_admin ? `<span class="badge badge-admin">YES</span>` : 'No'],
+    ['Banned', isBanned ? `<span class="badge badge-banned">YES</span>` : `<span class="badge badge-ok">No</span>`],
+  ];
+  for (const [label, val] of fields) {
+    html += `<div class="label">${label}</div><div class="value">${val}</div>`;
+  }
+  if (isBanned) {
+    html += `<div class="label">Ban Reason</div><div class="value">${esc(player.ban_reason || '-')}</div>`;
+    html += `<div class="label">Banned At</div><div class="value">${player.banned_at ? new Date(player.banned_at).toLocaleString() : '-'}</div>`;
+    html += `<div class="label">Expires</div><div class="value">${banExpired ? '<span class="badge badge-expired">SÜRESİ DOLDU</span>' : (player.ban_expires_at ? new Date(player.ban_expires_at).toLocaleString() : '<span class="badge badge-banned">KALICI</span>')}</div>`;
+  }
+  html += '</div>';
+
+  // Actions
+  html += '<div class="flex mt-8 mb-8" style="gap:6px;">';
+
+  if (isBanned) {
+    html += `<button class="btn btn-sm btn-success" onclick="unbanPlayer(${player.id})">Unban</button>`;
+  } else {
+    html += `<button class="btn btn-sm btn-danger" onclick="showBanForm(${player.id}, '${esc(player.username)}')">Ban</button>`;
+  }
+
+  if (!isVip) {
+    html += `<button class="btn btn-sm btn-warn" onclick="grantVip(${player.id})">+7 Gün VIP</button>`;
+  } else {
+    html += `<button class="btn btn-sm btn-warn" onclick="grantVip(${player.id})">+VIP Ekle</button>`;
+  }
+
+  html += '</div>';
+
+  // Compact ban form (hidden by default)
+  html += `<div id="banForm" style="display:none;" class="card">
+    <div class="flex" style="gap:6px;">
+      <input type="text" id="banReason" placeholder="Ban sebebi..." style="flex:1;">
+      <select id="banDuration" class="w-auto" style="width:auto;">
+        <option value="0">Kalıcı</option>
+        <option value="1">1 saat</option>
+        <option value="6">6 saat</option>
+        <option value="24">1 gün</option>
+        <option value="72">3 gün</option>
+        <option value="168">7 gün</option>
+        <option value="720">30 gün</option>
+      </select>
+    </div>
+    <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:0.75rem;cursor:pointer;">
+      <input type="checkbox" id="banDevice"> Cihaz banı da ekle
+    </label>
+    <button class="btn btn-sm btn-danger mt-8" onclick="confirmBan(${player.id})">Ban Uygula</button>
+  </div>`;
+
+  // Logs
+  if (logs && logs.length > 0) {
+    html += '<div class="card"><h3>Son İşlemler</h3><table class="logs-table"><thead><tr><th>ID</th><th>Tip</th><th>Detay</th><th>IP</th><th>Tarih</th></tr></thead><tbody>';
+    for (const l of logs) {
+      let details = l.details;
+      try { const d = JSON.parse(l.details); details = JSON.stringify(d); } catch(e) {}
+      html += `<tr><td>${l.id}</td><td><span class="badge badge-ok">${esc(l.action_type)}</span></td><td title="${esc(details)}">${esc(details.length > 60 ? details.slice(0,60)+'...' : details)}</td><td>${esc(l.ip || '-')}</td><td>${new Date(l.created_at).toLocaleString()}</td></tr>`;
+    }
+    html += '</tbody></table></div>';
+  }
+
+  document.getElementById('modalContent').innerHTML = html;
+  modal.style.display = '';
+}
+
+function showBanForm(id, username) {
+  const f = document.getElementById('banForm');
+  f.style.display = f.style.display === 'none' ? '' : 'none';
+}
+
+function confirmBan(id) {
+  const reason = document.getElementById('banReason').value.trim();
+  if (!reason) { status('Ban sebebi gerekli', 'error'); return; }
+  const duration = parseInt(document.getElementById('banDuration').value) || 0;
+  const deviceBan = document.getElementById('banDevice').checked;
+
+  api('/ban', { method: 'POST', body: { player_id: id, reason, duration_hours: duration || null, device_ban: deviceBan } })
+    .then(data => {
+      if (data.error) { status(data.error, 'error'); return; }
+      status(data.message, 'success');
+      document.getElementById('banForm').style.display = 'none';
+      viewPlayer(id);
+      searchPlayers(currentPage);
+    }).catch(e => status('Bağlantı hatası', 'error'));
+}
+
+function unbanPlayer(id) {
+  if (!confirm('Banı kaldırmak istediğine emin misin?')) return;
+  api('/unban', { method: 'POST', body: { player_id: id } })
+    .then(data => {
+      if (data.error) { status(data.error, 'error'); return; }
+      status(data.message, 'success');
+      viewPlayer(id);
+      searchPlayers(currentPage);
+    }).catch(e => status('Bağlantı hatası', 'error'));
+}
+
+function grantVip(id) {
+  const days = prompt('Kaç gün VIP eklemek istersin?', '7');
+  if (!days || isNaN(days) || parseInt(days) < 1) return;
+  api('/vip', { method: 'POST', body: { player_id: id, days: parseInt(days) } })
+    .then(data => {
+      if (data.error) { status(data.error, 'error'); return; }
+      status(data.message, 'success');
+      viewPlayer(id);
+    }).catch(e => status('Bağlantı hatası', 'error'));
+}
+
+function closeModal() {
+  document.getElementById('playerModal').style.display = 'none';
+}
+
+// Logs
+function loadLogs(page = 1) {
+  const type = document.getElementById('logTypeFilter').value;
+  const url = '/logs?page=' + page + '&limit=100' + (type ? '&type=' + encodeURIComponent(type) : '');
+  api(url).then(data => {
+    if (data.error) { status(data.error, 'error'); return; }
+    renderLogs(data);
+  }).catch(e => status('Bağlantı hatası', 'error'));
+}
+
+function renderLogs(data) {
+  const el = document.getElementById('logsList');
+  if (!data.logs || data.logs.length === 0) {
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--txt-m);padding:30px;">İşlem bulunamadı</div>';
+    return;
+  }
+
+  let html = '<div class="card"><table class="logs-table"><thead><tr><th>ID</th><th>Oyuncu</th><th>Tip</th><th>Detay</th><th>IP</th><th>Tarih</th></tr></thead><tbody>';
+  for (const l of data.logs) {
+    let details = l.details;
+    try { const d = JSON.parse(l.details); details = JSON.stringify(d); } catch(e) {}
+    html += `<tr><td>${l.id}</td><td>${esc(l.username || '-')} (${l.player_id})</td><td><span class="badge badge-ok">${esc(l.action_type)}</span></td><td title="${esc(details)}">${esc(details.length > 80 ? details.slice(0,80)+'...' : details)}</td><td>${esc(l.ip || '-')}</td><td>${new Date(l.created_at).toLocaleString()}</td></tr>`;
+  }
+  html += '</tbody></table>';
+
+  const totalPages = Math.ceil(data.total / data.limit);
+  if (totalPages > 1) {
+    html += '<div class="pagination">';
+    if (data.page > 1) html += `<button class="btn btn-sm" onclick="loadLogs(${data.page - 1})">&laquo;</button>`;
+    html += `<span>${data.page} / ${totalPages}</span>`;
+    if (data.page < totalPages) html += `<button class="btn btn-sm" onclick="loadLogs(${data.page + 1})">&raquo;</button>`;
+    html += '</div>';
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML;
+}
+
+function fmt(n) {
+  if (n === null || n === undefined) return '0';
+  return Number(n).toLocaleString();
+}
+
+// Init
+loadLogs();
+
+// Close modal on backdrop click
+document.getElementById('playerModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>

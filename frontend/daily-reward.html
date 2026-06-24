@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>SeaPirates — Günlük Giriş Ödülü</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <title>SeaPirates — Daily Login Reward</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -13,17 +17,8 @@
       --rust: #6b2a0a;
       --rust-l: #8b4a1a;
       --gold-d: #7a5f0a;
-      --gold: #b8860b;
-      --gold-b: #c8962a;
-      --gold-p: #d4a84b;
       --wood-bg: #0d0804;
-      --wood-d: #1a0e07;
-      --wood-m: #2d1a0c;
-      --wood-plank: #4a2a12;
       --wood-border: #5a3a1a;
-      --txt: #d4c5a9;
-      --txt-d: #a0886a;
-      --txt-m: #6a5038;
       --crimson: #5c1010;
       --crimson-d: #3a0808;
     }
@@ -38,11 +33,14 @@
       max-width:430px;margin:0 auto;height:100dvh;
       display:flex;flex-direction:column;
       position:relative;
-      background: url('assets/background/menubackground.png') center center / cover no-repeat;
+      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
     }
     .page::before{
       content:'';position:absolute;inset:0;
-      background:rgba(0,0,0,0.7);
+      background:rgba(0,0,0,0.3);
       pointer-events:none;z-index:0;
     }
 
@@ -76,7 +74,7 @@
       position:relative;z-index:5;
       flex:1;display:flex;flex-direction:column;
       padding:8px 10px;gap:6px;overflow:hidden;
-      background:rgba(8,4,2,0.5);
+      background:rgba(8,4,2,0.2);
     }
 
     .info-row{
@@ -109,38 +107,12 @@
     }
     .info-box .v span{font-size:0.48rem;color:var(--txt-m);font-weight:400;font-family:'Inter',sans-serif;}
 
-    .prog-wrap{
-      flex-shrink:0;
-      display:flex;align-items:center;gap:5px;
-      border-radius:5px;padding:4px 7px;
-      background:rgba(10,5,2,0.75);
-      border:1px solid rgba(74,42,18,0.4);
-    }
-    .prog-lbl{
-      font-family:'Cinzel',serif;font-size:0.48rem;font-weight:700;
-      color:var(--txt-d);letter-spacing:0.06em;text-transform:uppercase;flex-shrink:0;
-    }
-    .prog-track{
-      flex:1;height:4px;border-radius:2px;
-      background:rgba(0,0,0,0.6);border:1px solid #4a2a12;overflow:hidden;
-    }
-    .prog-fill{
-      height:100%;border-radius:2px;
-      background:linear-gradient(90deg,#8b7000,#c8962a);
-      box-shadow:0 0 5px rgba(200,150,42,0.4);
-      transition:width 0.4s ease;
-    }
-    .prog-num{
-      font-family:'Cinzel',serif;font-size:0.55rem;font-weight:900;
-      color:var(--gold-b);flex-shrink:0;
-    }
-
     .cabinet-wrap{
       flex:1;display:flex;flex-direction:column;
       padding:8px;
       border-radius:7px;
-      background:rgba(10,5,2,0.9);
-      border:2px solid #5a3a1a;
+      background:rgba(18,10,5,0.85);
+      border:2px solid #8a5e30;
       box-shadow:0 8px 18px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.8);
       overflow:hidden;
       min-height:0;
@@ -192,9 +164,9 @@
       padding:8px 5px;
       display:flex;flex-direction:column;align-items:center;gap:4px;
       transition:all 0.18s ease;
-      background:linear-gradient(145deg,#1a0e07,#0f0804);
-      border:1.5px solid #4a2a12;
-      box-shadow:0 2px 5px rgba(0,0,0,0.6), inset 0 0 4px rgba(0,0,0,0.5);
+      background:linear-gradient(145deg,#4a3020,#2a180e);
+      border:1.5px solid #8a6030;
+      box-shadow:0 3px 8px rgba(0,0,0,0.8), 0 0 0 1px rgba(200,150,42,0.06), inset 0 0 4px rgba(0,0,0,0.5);
       cursor:default;
       min-height:88px;
     }
@@ -212,8 +184,8 @@
     }
 
     .day-card.vip{
-      background:linear-gradient(145deg,#2a0808,#120303);
-      border-color:#4a1212;
+      background:linear-gradient(145deg,#4e1212,#260606);
+      border-color:#6a2020;
     }
     .day-card.vip.milestone{
       border-color:#8b4a1a;
@@ -263,9 +235,9 @@
     .day-card.done .day-num{color:#6a5a4a;}
 
     .day-rwd-img{
-      width:30px;height:30px;flex-shrink:0;
+      width:32px;height:32px;flex-shrink:0;
       object-fit:contain;
-      filter:drop-shadow(0 1px 3px rgba(0,0,0,0.85));
+      filter:drop-shadow(0 2px 4px rgba(0,0,0,0.9)) brightness(1.05);
     }
     .day-card.milestone .day-rwd-img{width:32px;height:32px;}
 
@@ -276,15 +248,15 @@
 
     .day-rwd-text{
       font-size:0.65rem;font-weight:700;
-      color:#f0e0c0;line-height:1.25;
-      text-shadow:0 1px 3px #000;
+      color:#fff5e8;line-height:1.25;
+      text-shadow:0 1px 4px rgba(0,0,0,0.8);
       text-align:center;
       width:100%;
-      word-break:break-word;
+      word-break:break-word;overflow-wrap:break-word;
     }
-    .day-card.done .day-rwd-text{color:#8a7a6a;}
+    .day-card.done .day-rwd-text{color:#a09080;}
     .day-card.milestone .day-rwd-text{color:#ffd700;}
-    .day-card.vip.milestone .day-rwd-text{color:#e8a860;}
+    .day-card.vip.milestone .day-rwd-text{color:#f0b870;}
 
     .day-check{
       flex-shrink:0;width:14px;text-align:center;
@@ -326,55 +298,175 @@
       100%{box-shadow:0 0 4px rgba(139,74,26,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:#5a1a12;}
     }
 
-    .toast{
-      position:fixed;top:10px;left:50%;
-      transform:translateX(-50%) translateY(-60px);
-      z-index:9999;padding:7px 14px;border-radius:7px;
-      font-size:0.65rem;font-weight:500;white-space:nowrap;
-      transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-      max-width:90vw;text-align:center;pointer-events:none;
+    .magaza-overlay {
+      display:none;position:fixed;inset:0;z-index:999;
+      background:rgba(0,0,0,0.8);
+      align-items:center;justify-content:center;
     }
-    .toast.show{transform:translateX(-50%) translateY(0);}
-    .toast.ok{background:rgba(20,50,30,0.95);border:1px solid #2a7a4a;color:#b0e0c0;}
-    .toast.err{background:rgba(60,15,8,0.95);border:1px solid #8b3a2a;color:#e0b0a0;}
+    .magaza-overlay.show { display: flex; animation: fadeIn 0.3s; }
+
+    .magaza-modal {
+      background: url('assets/ui/leaderboardbackground.png') center/cover;
+      background-clip: padding-box;
+      border: 12px solid transparent;
+      border-radius: 14px;
+      width: 92%;
+      max-width: 380px;
+      max-height: 90dvh;
+      overflow: visible;
+      padding: 20px 16px 16px;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.85), 0 0 60px rgba(200,150,42,0.12);
+    }
+    .magaza-modal::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(10,5,2,0.7);
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .magaza-modal::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      pointer-events: none;
+      z-index: 5;
+      background-image:
+        url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),
+        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),
+        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),
+        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),
+        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),
+        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),
+        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),
+        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');
+      background-position:
+        top left, top right, bottom left, bottom right,
+        top left, bottom left, top left, top right;
+      background-size:
+        55px 55px, 55px 55px, 55px 55px, 55px 55px,
+        100% 12px, 100% 12px, 12px 100%, 12px 100%;
+      background-repeat:
+        no-repeat, no-repeat, no-repeat, no-repeat,
+        repeat-x, repeat-x, repeat-y, repeat-y;
+    }
+    .magaza-modal > * { position: relative; z-index: 1; }
+    .magaza-close {
+      position:absolute;top:8px;right:10px;
+      background:none;border:none;
+      font-size:1.1rem;color:var(--txt-d);
+      cursor:pointer;padding:4px 8px;
+      font-family:'Inter',sans-serif;
+      transition:color 0.2s;
+      z-index:2;
+    }
+    .magaza-close:hover { color: var(--txt); }
+
+    .magaza-title {
+      font-family:'Cinzel',serif;font-size:0.95rem;font-weight:900;
+      color:var(--gold-b);text-align:center;
+      padding-bottom:10px;
+      border-bottom:1px solid rgba(200,150,42,0.12);
+      margin-bottom:10px;
+    }
+    .magaza-sub {
+      font-size:0.7rem; color: var(--txt-d);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .magaza-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .magaza-card {
+      background: rgba(0,0,0,0.35);
+      border: 1.5px solid rgba(200,150,42,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color 0.2s;
+    }
+    .magaza-card:hover { border-color: rgba(200,150,42,0.5); }
+    .magaza-card-info { display: flex; flex-direction: column; gap: 2px; }
+    .magaza-card-name {
+      font-family:'Cinzel',serif;
+      font-size:0.85rem;font-weight:700;
+      color:var(--gold-p);
+    }
+    .magaza-card-dur {
+      font-size:0.65rem;color:var(--txt-d);
+    }
+    .magaza-card-price {
+      font-family:'Cinzel',serif;
+      font-size:0.9rem;font-weight:900;
+      color:#4ade80;
+      white-space:nowrap;
+    }
+    .magaza-card-btn {
+      background:linear-gradient(180deg,#22c55e 0%,#15803d 100%);
+      border:2px solid #86efac;
+      border-radius:20px;
+      font-family:'Cinzel',serif;
+      font-size:0.65rem;font-weight:900;
+      color:#052e16;
+      padding:6px 16px;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:filter 0.2s;
+      margin-left:8px;
+    }
+    .magaza-card-btn:hover { filter: brightness(1.15); }
+    .magaza-card-btn:active { transform: scale(0.96); }
+
+    .magaza-perks {
+      margin-top:14px;
+      border-top:1px solid rgba(200,150,42,0.15);
+      padding-top:12px;
+    }
+    .magaza-perks-title {
+      font-family:'Cinzel',serif;
+      font-size:0.7rem;font-weight:700;
+      color:var(--txt-d);
+      margin-bottom:8px;
+      text-align:center;
+      letter-spacing:0.05em;
+    }
+    .magaza-perk {
+      font-size:0.65rem;color:var(--txt);
+      padding:3px 0;
+      display:flex;align-items:center;gap:6px;
+    }
+    .magaza-perk::before { content:'✨';font-size:0.7rem; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
   </style>
 </head>
 <body>
-<div class="toast" id="toast"></div>
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back">◀ MENÜ</a>
-    <div class="page-title">GÜNLÜK GİRİŞ</div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
+    <div class="page-title"><span data-i18n="daily_title" data-i18n-text>DAILY LOGIN</span></div>
     <div style="width:50px;"></div>
   </div>
   <div class="body">
     <div class="info-row">
-      <div class="info-box">
-        <div class="l">Seri</div>
-        <div class="v" id="streak-val">0 <span>gün</span></div>
-      </div>
-      <div class="info-box">
-        <div class="l">Kalan Süre</div>
-        <div class="v" id="timer-val">—</div>
-      </div>
       <div class="info-box vip-box" id="vip-box">
-        <div class="l">VIP</div>
-        <div class="v" id="vip-val">AKTİF DEĞİL</div>
+        <div class="l" data-i18n="daily_vip_short">VIP</div>
+        <div class="v" id="vip-val">NOT ACTIVE</div>
       </div>
-    </div>
-
-    <div class="prog-wrap">
-      <span class="prog-lbl">İlerleme</span>
-      <div class="prog-track">
-        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
-      </div>
-      <span class="prog-num" id="prog-num">0/30</span>
     </div>
 
     <div class="cabinet-wrap">
       <div class="cabinet-header">
-        <div class="header-col normal-title">NORMAL ÖDÜL</div>
-        <div class="header-col vip-title">VIP ÖDÜLÜ</div>
+        <div class="header-col normal-title" data-i18n="daily_normal_reward">NORMAL REWARD</div>
+        <div class="header-col vip-title" data-i18n="daily_vip_reward">VIP REWARD</div>
       </div>
       <div class="grid-wrap" id="grid-wrap"></div>
     </div>
@@ -382,85 +474,85 @@
 </div>
 
 <script>
-  const API_URL = 'http://localhost:3000/api/player';
+  const API_URL = window.location.origin + '/api/player';
   const token = localStorage.getItem('sp_token');
   if (!token) goTo('index.html');
 
   const MILESTONES = [5, 10, 15, 20, 25, 30];
 
   const ICONS = {
-    gold: 'assets/gold.png',
-    pearl: 'assets/pearl.png',
-    oyuk: 'assets/dükkan/oyukgülle.png',
-    patlayan: 'assets/dükkan/elitgülle.png',
-    barut: 'assets/dükkan/barut-dükkan.png',
-    zirh: 'assets/dükkan/zırh-dükkan.png'
+    gold: 'assets/ui/gold.png',
+    pearl: 'assets/ui/pearl.png',
+    oyuk: 'assets/items/shop/oyukgülle.png',
+    patlayan: 'assets/items/shop/elitgülle.png',
+    barut: 'assets/items/shop/barut-dükkan.png',
+    zirh: 'assets/items/shop/zırh-dükkan.png'
   };
 
   const D_NORMAL = [
-    { d:1,  imgs:[ICONS.gold], txt:'1.000 Altın' },
-    { d:2,  imgs:[ICONS.pearl], txt:'100 İnci' },
-    { d:3,  imgs:[ICONS.oyuk], txt:'500 Oyuk' },
-    { d:4,  imgs:[ICONS.gold], txt:'2.000 Altın' },
-    { d:5,  imgs:[ICONS.pearl], txt:'200 İnci ★' },
-    { d:6,  imgs:[ICONS.barut], txt:'10x Barut' },
-    { d:7,  imgs:[ICONS.oyuk], txt:'800 Oyuk' },
-    { d:8,  imgs:[ICONS.gold], txt:'3.000 Altın' },
-    { d:9,  imgs:[ICONS.pearl], txt:'150 İnci' },
-    { d:10, imgs:[ICONS.pearl,ICONS.patlayan], txt:'300 İnci + 50 Patlayan ★' },
-    { d:11, imgs:[ICONS.gold], txt:'5.000 Altın' },
-    { d:12, imgs:[ICONS.zirh], txt:'15x Zırh' },
-    { d:13, imgs:[ICONS.oyuk], txt:'1.200 Oyuk' },
-    { d:14, imgs:[ICONS.pearl], txt:'200 İnci' },
-    { d:15, imgs:[ICONS.pearl,ICONS.patlayan], txt:'500 İnci + 100 Patlayan ★' },
-    { d:16, imgs:[ICONS.gold], txt:'8.000 Altın' },
-    { d:17, imgs:[ICONS.barut,ICONS.zirh], txt:'20x Barut & Zırh' },
-    { d:18, imgs:[ICONS.oyuk], txt:'1.800 Oyuk' },
-    { d:19, imgs:[ICONS.pearl], txt:'300 İnci' },
-    { d:20, imgs:[ICONS.pearl,ICONS.patlayan], txt:'800 İnci + 200 Patlayan ★' },
-    { d:21, imgs:[ICONS.gold], txt:'12.000 Altın' },
-    { d:22, imgs:[ICONS.patlayan], txt:'250 Patlayan' },
-    { d:23, imgs:[ICONS.oyuk], txt:'2.500 Oyuk' },
-    { d:24, imgs:[ICONS.pearl], txt:'400 İnci' },
-    { d:25, imgs:[ICONS.pearl,ICONS.patlayan], txt:'1.000 İnci + 300 Patlayan ★' },
-    { d:26, imgs:[ICONS.gold], txt:'18.000 Altın' },
-    { d:27, imgs:[ICONS.barut,ICONS.zirh], txt:'30x Barut & Zırh' },
-    { d:28, imgs:[ICONS.oyuk], txt:'3.500 Oyuk' },
-    { d:29, imgs:[ICONS.pearl], txt:'500 İnci' },
-    { d:30, imgs:[ICONS.pearl,ICONS.patlayan], txt:'2.000 İnci + 500 Patlayan 👑' }
+    { d:1,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'2,000'} },
+    { d:2,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'100'} },
+    { d:3,  imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'1,000'} },
+    { d:4,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'5,000'} },
+    { d:5,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'200 ★'} },
+    { d:6,  imgs:[ICONS.barut], lk:'item_gunpowder_amount', lp:{val:'100'} },
+    { d:7,  imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'2,000'} },
+    { d:8,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'8,000'} },
+    { d:9,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'200'} },
+    { d:10, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'500', e:'200 ★'} },
+    { d:11, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'10,000'} },
+    { d:12, imgs:[ICONS.zirh], lk:'item_armor_amount', lp:{val:'15'} },
+    { d:13, imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'3,000'} },
+    { d:14, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'300'} },
+    { d:15, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'800', e:'300 ★'} },
+    { d:16, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'20,000'} },
+    { d:17, imgs:[ICONS.barut,ICONS.zirh], lk:'item_gunpowder_armor', lp:{val:'100'} },
+    { d:18, imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'4,000'} },
+    { d:19, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'500'} },
+    { d:20, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'1,000', e:'400 ★'} },
+    { d:21, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'25,000'} },
+    { d:22, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'500'} },
+    { d:23, imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'5,000'} },
+    { d:24, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'600'} },
+    { d:25, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'1,500', e:'600 ★'} },
+    { d:26, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'35,000'} },
+    { d:27, imgs:[ICONS.barut,ICONS.zirh], lk:'item_gunpowder_armor', lp:{val:'100'} },
+    { d:28, imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'7,000'} },
+    { d:29, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'800'} },
+    { d:30, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'3,000', e:'1,000 👑'} }
   ];
 
   const D_VIP = [
-    { d:1,  imgs:[ICONS.gold], txt:'3.000 Altın' },
-    { d:2,  imgs:[ICONS.pearl], txt:'300 İnci' },
-    { d:3,  imgs:[ICONS.oyuk], txt:'1.500 Oyuk' },
-    { d:4,  imgs:[ICONS.gold], txt:'6.000 Altın' },
-    { d:5,  imgs:[ICONS.pearl], txt:'600 İnci ★' },
-    { d:6,  imgs:[ICONS.barut], txt:'30x Barut' },
-    { d:7,  imgs:[ICONS.oyuk], txt:'2.400 Oyuk' },
-    { d:8,  imgs:[ICONS.gold], txt:'9.000 Altın' },
-    { d:9,  imgs:[ICONS.pearl], txt:'450 İnci' },
-    { d:10, imgs:[ICONS.pearl,ICONS.patlayan], txt:'900 İnci + 150 Patlayan ★' },
-    { d:11, imgs:[ICONS.gold], txt:'15.000 Altın' },
-    { d:12, imgs:[ICONS.zirh], txt:'45x Zırh' },
-    { d:13, imgs:[ICONS.oyuk], txt:'3.600 Oyuk' },
-    { d:14, imgs:[ICONS.pearl], txt:'600 İnci' },
-    { d:15, imgs:[ICONS.pearl,ICONS.patlayan], txt:'1.500 İnci + 300 Patlayan ★' },
-    { d:16, imgs:[ICONS.gold], txt:'24.000 Altın' },
-    { d:17, imgs:[ICONS.barut,ICONS.zirh], txt:'60x Barut & Zırh' },
-    { d:18, imgs:[ICONS.oyuk], txt:'5.400 Oyuk' },
-    { d:19, imgs:[ICONS.pearl], txt:'900 İnci' },
-    { d:20, imgs:[ICONS.pearl,ICONS.patlayan], txt:'2.400 İnci + 600 Patlayan ★' },
-    { d:21, imgs:[ICONS.gold], txt:'36.000 Altın' },
-    { d:22, imgs:[ICONS.patlayan], txt:'750 Patlayan' },
-    { d:23, imgs:[ICONS.oyuk], txt:'7.500 Oyuk' },
-    { d:24, imgs:[ICONS.pearl], txt:'1.200 İnci' },
-    { d:25, imgs:[ICONS.pearl,ICONS.patlayan], txt:'3.000 İnci + 900 Patlayan ★' },
-    { d:26, imgs:[ICONS.gold], txt:'54.000 Altın' },
-    { d:27, imgs:[ICONS.barut,ICONS.zirh], txt:'90x Barut & Zırh' },
-    { d:28, imgs:[ICONS.oyuk], txt:'10.500 Oyuk' },
-    { d:29, imgs:[ICONS.pearl], txt:'1.500 İnci' },
-    { d:30, imgs:[ICONS.pearl,ICONS.patlayan], txt:'6.000 İnci + 1.500 Patlayan 👑' }
+    { d:1,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'8,000'} },
+    { d:2,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'400'} },
+    { d:3,  imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'500'} },
+    { d:4,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'20,000'} },
+    { d:5,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'800 ★'} },
+    { d:6,  imgs:[ICONS.barut], lk:'item_gunpowder_amount', lp:{val:'300'} },
+    { d:7,  imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'1,000'} },
+    { d:8,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'32,000'} },
+    { d:9,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'800'} },
+    { d:10, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'2,000', e:'1,000 ★'} },
+    { d:11, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'40,000'} },
+    { d:12, imgs:[ICONS.zirh], lk:'item_armor_amount', lp:{val:'60'} },
+    { d:13, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'1,500'} },
+    { d:14, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'1,200'} },
+    { d:15, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'3,200', e:'1,800 ★'} },
+    { d:16, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'80,000'} },
+    { d:17, imgs:[ICONS.barut,ICONS.zirh], lk:'item_gunpowder_armor', lp:{val:'300'} },
+    { d:18, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'2,000'} },
+    { d:19, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'2,000'} },
+    { d:20, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'4,000', e:'2,000 ★'} },
+    { d:21, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'100,000'} },
+    { d:22, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'2,000'} },
+    { d:23, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'2,500'} },
+    { d:24, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'2,400'} },
+    { d:25, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'6,000', e:'3,000 ★'} },
+    { d:26, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'140,000'} },
+    { d:27, imgs:[ICONS.barut,ICONS.zirh], lk:'item_gunpowder_armor', lp:{val:'300'} },
+    { d:28, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'3,500'} },
+    { d:29, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'3,200'} },
+    { d:30, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'12,000', e:'4,000 👑'} }
   ];
 
   let streak = 0;
@@ -471,12 +563,7 @@
   let canClaimVip = false;
 
   function toast(msg, type) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'toast ' + (type || 'ok');
-    el.getBoundingClientRect();
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 3000);
+    window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
   }
 
   function isToday(ts) {
@@ -503,16 +590,22 @@
     } catch (e) { console.error(e); }
   }
 
+  function curCycle() {
+    return streak === 0 ? 0 : ((streak - 1) % 30) + 1;
+  }
+
   function dayState(dayNum) {
-    if (dayNum <= streak) return 'claimed';
-    if (dayNum === streak + 1 && canClaimNormal) return 'available-normal';
+    const cur = curCycle();
+    if (dayNum <= cur) return 'claimed';
+    if (dayNum === cur + 1 && canClaimNormal) return 'available-normal';
     return 'locked';
   }
 
   function vipState(dayNum) {
     if (!isVip) return 'locked';
-    if (dayNum < streak) return 'claimed';
-    if (dayNum === streak) {
+    const cur = curCycle();
+    if (dayNum < cur) return 'claimed';
+    if (dayNum === cur) {
       const normToday = lastClaim && isToday(lastClaim);
       const vipToday = lastVipClaim && isToday(lastVipClaim);
       if (normToday && !vipToday && canClaimVip) return 'available-vip';
@@ -520,7 +613,7 @@
       if (normToday && !canClaimVip) return 'locked';
       return 'locked';
     }
-    if (dayNum === streak + 1 && canClaimNormal && canClaimVip) return 'available-vip';
+    if (dayNum === cur + 1 && canClaimNormal && canClaimVip) return 'available-vip';
     return 'locked';
   }
 
@@ -528,7 +621,7 @@
     const g = document.getElementById('grid-wrap');
     g.innerHTML = '';
 
-    document.getElementById('vip-val').textContent = isVip ? 'AKTİF' : 'AKTİF DEĞİL';
+    document.getElementById('vip-val').textContent = isVip ? t('daily_vip_active') : t('daily_vip_not_active');
     document.getElementById('vip-val').style.color = isVip ? '#ffd700' : '#6a5038';
     document.getElementById('vip-box').style.borderColor = isVip ? '#8b4a1a' : '#4a2a12';
     document.getElementById('vip-box').style.background = isVip ? 'rgba(60,10,10,0.7)' : 'rgba(10,5,2,0.88)';
@@ -549,7 +642,7 @@
       else nCard.classList.add('wait');
       renderCardInner(nCard, n, dayNum, isMs, ns);
       if (ns === 'available-normal') {
-        nCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">AL</button></div>';
+        nCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">' + t('daily_claim') + '</button></div>';
         nCard.onclick = () => claimReward('normal');
       }
       g.appendChild(nCard);
@@ -564,16 +657,11 @@
       else vCard.classList.add('wait');
       renderCardInner(vCard, v, dayNum, isMs, vs);
       if (vs === 'available-vip') {
-        vCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">AL</button></div>';
+        vCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">' + t('daily_claim') + '</button></div>';
         vCard.onclick = () => claimReward('vip');
       }
       g.appendChild(vCard);
     }
-
-    const pct = Math.min((streak / 30) * 100, 100);
-    document.getElementById('prog-fill').style.width = pct + '%';
-    document.getElementById('prog-num').textContent = streak + '/30';
-    document.getElementById('streak-val').innerHTML = streak + ' <span>gün</span>';
 
     // Scroll to first available
     setTimeout(() => {
@@ -592,13 +680,19 @@
     else if (state === 'available-normal' || state === 'available-vip') badge = '<span class="day-check" style="color:var(--gold)">⚡</span>';
     else badge = '<span class="day-check locked">🔒</span>';
 
+    // Localize reward text
+    let displayTxt = r.txt;
+    if (r.lk) {
+        displayTxt = t(r.lk, r.lp || {});
+    }
+
     card.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-shrink:0;">
         <div class="day-num">${dayNum}</div>
         ${badge}
       </div>
       ${imgsHTML}
-      <div class="day-rwd-text">${r.txt}</div>
+      <div class="day-rwd-text">${displayTxt}</div>
     `;
   }
 
@@ -611,49 +705,125 @@
       });
       const data = await res.json();
       if (res.ok) {
-        toast(data.message, 'ok');
+        toast('daily_claimed_success', 'ok');
         await init();
       } else {
-        toast(data.error || 'Ödül alınamadı!', 'err');
+        toast(data.error || 'err_daily_claim_failed', 'err');
       }
     } catch (e) {
       console.error(e);
-      toast('Sunucu hatası!', 'err');
+      toast('Server error!', 'err');
     }
-  }
-
-  function updateTimer() {
-    if (canClaimNormal) {
-      document.getElementById('timer-val').textContent = 'HAZIR';
-      return;
-    }
-    if (!lastClaim) {
-      document.getElementById('timer-val').textContent = 'HAZIR';
-      return;
-    }
-    const next = lastClaim + 86400000;
-    const diff = next - Date.now();
-    if (diff <= 0) {
-      canClaimNormal = true;
-      document.getElementById('timer-val').textContent = 'HAZIR';
-      renderGrid();
-      return;
-    }
-    const h = String(Math.floor(diff / 3600000)).padStart(2,'0');
-    const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
-    const s = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
-    document.getElementById('timer-val').textContent = `${h}:${m}:${s}`;
   }
 
   async function init() {
     await fetchStatus();
     renderGrid();
-    updateTimer();
   }
 
   init();
-  setInterval(updateTimer, 1000);
+
+  // ── VIP Pricing (auto currency via IP) ──
+  let vipPrices = null;
+  let vipCurrencies = null;
+  let currentCurrency = 'TRY';
+
+  async function fetchVipCurrency() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const [res, curRes] = await Promise.all([
+        fetch('/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      if (!res.ok || !curRes.ok) return;
+      const p = await res.json();
+      const c = await curRes.json();
+      vipPrices = p.prices;
+      vipCurrencies = p.currencies;
+      currentCurrency = c.currency;
+    } catch (e) { console.error('VIP fiyat yüklenemedi:', e); }
+  }
+
+  function updateVipPrices() {
+    const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
+    document.querySelectorAll('#vip-modal-daily .magaza-card-price').forEach(el => {
+      const plan = parseInt(el.dataset.plan);
+      if (vipPrices?.[plan]) el.textContent = `${vipPrices[plan][currentCurrency]} ${sym}`;
+    });
+  }
+
+  function openVipModal() {
+    if (isVip) return;
+    fetchVipCurrency().then(() => {
+      updateVipPrices();
+      document.getElementById('vip-modal-daily').style.display = 'flex';
+    });
+  }
+
+  document.getElementById('vip-box').addEventListener('click', openVipModal);
+
+  document.querySelectorAll('#vip-modal-daily .magaza-card-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const plan = btn.dataset.plan;
+      const type = btn.dataset.type;
+      const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
+      const price = vipPrices?.[plan]?.[currentCurrency] || '?';
+      alert(`🔒 ${type === 'vip' ? 'VIP' : 'Starter'} "${plan}" gün paket — ${price} ${sym}. Ödeme sistemi yakında!`);
+    });
+  });
 </script>
-<script src="transition.js"></script>
+
+<!-- VIP Purchase Modal -->
+<div class="magaza-overlay" id="vip-modal-daily" onclick="if(event.target===this)this.style.display='none'">
+  <div class="magaza-modal">
+    <button class="magaza-close" id="btn-close-vip-daily" onclick="document.getElementById('vip-modal-daily').style.display='none'">✕</button>
+    <div class="magaza-title"><span data-i18n="vip_pack" data-i18n-text>👑 VIP PAKETLER</span></div>
+    <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
+    <div class="magaza-cards">
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayrıcalıkları</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="7">99 ₺</span>
+          <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayrıcalıkları (en popüler)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="30">249 ₺</span>
+          <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayrıcalıkları (en avantajlı)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="90">599 ₺</span>
+          <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="magaza-perks">
+      <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
+      <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarım Hızı — Savaşta gemini 2 kat hızlı onarırsın</div>
+      <div class="magaza-perk" data-i18n="vip_perk_battle_reward">+%10 Savaş Ödülü — Altın, inci ve XP ödüllerin %10 fazla gelir</div>
+      <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
+      <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayışında kat kat fazla ödül</div>
+      <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvası — Aynı anda 2 görev alabilirsin</div>
+      <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Doğ — Battığında max canının %10'u ile başlarsın</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

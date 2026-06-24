@@ -12,7 +12,7 @@ router.get('/my-items', authMiddleware, async (req, res) => {
     // Oyuncunun aktif gemi seviyesini al
     const pRes = await pool.query('SELECT ship_level FROM players WHERE id = $1', [playerId]);
     if (pRes.rows.length === 0) {
-      return res.status(404).json({ error: 'Oyuncu bulunamadı' });
+      return res.status(404).json({ error: 'Player not found' });
     }
     const shipLevel = pRes.rows[0].ship_level;
     const activeShip = gameData.SHIPS.find(s => s.level === shipLevel) || gameData.SHIPS[0];
@@ -81,96 +81,103 @@ router.get('/my-items', authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Sunucu hatası' });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
 // EQUIP AN ITEM
 router.post('/equip', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
-  const { itemId, isCannon } = req.body; // itemId: 'top1', 'top2', 'mast1' vb.
+  const { itemId, isCannon } = req.body;
 
+  let client;
   try {
-    // Oyuncunun aktif gemisini bul ve kapasitesini çek
-    const pRes = await pool.query('SELECT ship_level, max_hp FROM players WHERE id = $1', [playerId]);
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    const pRes = await client.query('SELECT ship_level, max_hp FROM players WHERE id = $1 FOR UPDATE', [playerId]);
     if (pRes.rows.length === 0) {
-      return res.status(404).json({ error: 'Oyuncu bulunamadı' });
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Player not found' });
     }
-    
+
     const player = pRes.rows[0];
     const activeShip = gameData.SHIPS.find(s => s.level === player.ship_level) || gameData.SHIPS[0];
 
     if (isCannon) {
       const cannonType = parseInt(itemId.replace('top', ''));
-      if (isNaN(cannonType)) return res.status(400).json({ error: 'Geçersiz top ID' });
+      if (isNaN(cannonType)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Invalid cannon ID' });
+      }
 
-      // Toplam takılı top sayısını kontrol et
-      const equippedCountRes = await pool.query(
+      const equippedCountRes = await client.query(
         'SELECT COALESCE(SUM(equipped), 0) as total FROM player_cannons WHERE player_id = $1',
         [playerId]
       );
       const equippedCount = parseInt(equippedCountRes.rows[0].total);
 
       if (equippedCount >= activeShip.cannonSlots) {
-        return res.status(400).json({ error: `Tüm top slotları dolu! Max: ${activeShip.cannonSlots}` });
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: `All cannon slots are full! Max: ${activeShip.cannonSlots}` });
       }
 
-      // Depoda var mı kontrol et
-      const itemRes = await pool.query(
-        'SELECT id, quantity, equipped FROM player_cannons WHERE player_id = $1 AND cannon_type = $2',
+      const itemRes = await client.query(
+        'SELECT id, quantity, equipped FROM player_cannons WHERE player_id = $1 AND cannon_type = $2 FOR UPDATE',
         [playerId, cannonType]
       );
 
       if (itemRes.rows.length === 0 || (itemRes.rows[0].quantity - itemRes.rows[0].equipped) <= 0) {
-        return res.status(400).json({ error: 'Depoda bu toptan kalmadı!' });
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'No cannons of this type left in storage!' });
       }
 
-      // Kuşan
-      await pool.query(
+      await client.query(
         'UPDATE player_cannons SET equipped = equipped + 1 WHERE id = $1',
         [itemRes.rows[0].id]
       );
 
     } else {
-      // Direk (Mast)
       const plankType = itemId === 'mast1' ? 'tahta' : 'elit';
 
-      // Toplam takılı direk sayısını kontrol et
-      const equippedCountRes = await pool.query(
+      const equippedCountRes = await client.query(
         'SELECT COALESCE(SUM(equipped), 0) as total FROM player_planks WHERE player_id = $1',
         [playerId]
       );
       const equippedCount = parseInt(equippedCountRes.rows[0].total);
 
       if (equippedCount >= activeShip.plankSlots) {
-        return res.status(400).json({ error: `Tüm direk slotları dolu! Max: ${activeShip.plankSlots}` });
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: `All plank slots are full! Max: ${activeShip.plankSlots}` });
       }
 
-      // Depoda var mı kontrol et
-      const itemRes = await pool.query(
-        'SELECT id, quantity, equipped FROM player_planks WHERE player_id = $1 AND plank_type = $2',
+      const itemRes = await client.query(
+        'SELECT id, quantity, equipped FROM player_planks WHERE player_id = $1 AND plank_type = $2 FOR UPDATE',
         [playerId, plankType]
       );
 
       if (itemRes.rows.length === 0 || (itemRes.rows[0].quantity - itemRes.rows[0].equipped) <= 0) {
-        return res.status(400).json({ error: 'Depoda bu direkten kalmadı!' });
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'No planks of this type left in storage!' });
       }
 
-      // Kuşan
-      await pool.query(
+      await client.query(
         'UPDATE player_planks SET equipped = equipped + 1 WHERE id = $1',
         [itemRes.rows[0].id]
       );
 
-      // Toplam HP'yi tekrar hesaplayıp players tablosunda max_hp'yi güncelle
-      await updatePlayerMaxHp(playerId, activeShip.baseHp);
+      await updatePlayerMaxHp(playerId, activeShip.baseHp, client);
     }
 
-    res.json({ message: 'Başarıyla kuşanıldı' });
+    await client.query('COMMIT');
+    res.json({ message: 'Equipped successfully' });
 
   } catch (err) {
+    if (client) await client.query('ROLLBACK').catch(e => {});
     console.error(err);
-    res.status(500).json({ error: 'Sunucu hatası' });
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (client) client.release();
   }
 });
 
@@ -179,10 +186,15 @@ router.post('/unequip', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   const { itemId, isCannon } = req.body;
 
+  let client;
   try {
-    const pRes = await pool.query('SELECT ship_level FROM players WHERE id = $1', [playerId]);
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    const pRes = await client.query('SELECT ship_level FROM players WHERE id = $1 FOR UPDATE', [playerId]);
     if (pRes.rows.length === 0) {
-      return res.status(404).json({ error: 'Oyuncu bulunamadı' });
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Player not found' });
     }
     const shipLevel = pRes.rows[0].ship_level;
     const activeShip = gameData.SHIPS.find(s => s.level === shipLevel) || gameData.SHIPS[0];
@@ -190,17 +202,17 @@ router.post('/unequip', authMiddleware, async (req, res) => {
     if (isCannon) {
       const cannonType = parseInt(itemId.replace('top', ''));
 
-      const itemRes = await pool.query(
-        'SELECT id, equipped FROM player_cannons WHERE player_id = $1 AND cannon_type = $2',
+      const itemRes = await client.query(
+        'SELECT id, equipped FROM player_cannons WHERE player_id = $1 AND cannon_type = $2 FOR UPDATE',
         [playerId, cannonType]
       );
 
       if (itemRes.rows.length === 0 || itemRes.rows[0].equipped <= 0) {
-        return res.status(400).json({ error: 'Takılı bu tip top bulunamadı!' });
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'No equipped cannons of this type found!' });
       }
 
-      // Çıkar
-      await pool.query(
+      await client.query(
         'UPDATE player_cannons SET equipped = equipped - 1 WHERE id = $1',
         [itemRes.rows[0].id]
       );
@@ -208,50 +220,211 @@ router.post('/unequip', authMiddleware, async (req, res) => {
     } else {
       const plankType = itemId === 'mast1' ? 'tahta' : 'elit';
 
-      const itemRes = await pool.query(
-        'SELECT id, equipped FROM player_planks WHERE player_id = $1 AND plank_type = $2',
+      const itemRes = await client.query(
+        'SELECT id, equipped FROM player_planks WHERE player_id = $1 AND plank_type = $2 FOR UPDATE',
         [playerId, plankType]
       );
 
       if (itemRes.rows.length === 0 || itemRes.rows[0].equipped <= 0) {
-        return res.status(400).json({ error: 'Takılı bu tip direk bulunamadı!' });
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'No equipped planks of this type found!' });
       }
 
-      // Çıkar
-      await pool.query(
+      await client.query(
         'UPDATE player_planks SET equipped = equipped - 1 WHERE id = $1',
         [itemRes.rows[0].id]
       );
 
-      // Toplam HP'yi tekrar hesaplayıp players tablosunda max_hp'yi güncelle
-      await updatePlayerMaxHp(playerId, activeShip.baseHp);
+      await updatePlayerMaxHp(playerId, activeShip.baseHp, client);
     }
 
-    res.json({ message: 'Başarıyla çıkarıldı' });
+    await client.query('COMMIT');
+    res.json({ message: 'Unequipped successfully' });
 
   } catch (err) {
+    if (client) await client.query('ROLLBACK').catch(e => {});
     console.error(err);
-    res.status(500).json({ error: 'Sunucu hatası' });
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+// EQUIP ALL ITEMS (Cannons sorted by best first, planks sorted by elit first)
+router.post('/equip-all', authMiddleware, async (req, res) => {
+  const playerId = req.player.id;
+  const { isCannon } = req.body;
+
+  let client;
+  try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    const pRes = await client.query('SELECT ship_level, max_hp FROM players WHERE id = $1 FOR UPDATE', [playerId]);
+    if (pRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    const player = pRes.rows[0];
+    const activeShip = gameData.SHIPS.find(s => s.level === player.ship_level) || gameData.SHIPS[0];
+
+    if (isCannon) {
+      const equippedCountRes = await client.query(
+        'SELECT COALESCE(SUM(equipped), 0) as total FROM player_cannons WHERE player_id = $1',
+        [playerId]
+      );
+      const equippedCount = parseInt(equippedCountRes.rows[0].total);
+      let remainingSlots = activeShip.cannonSlots - equippedCount;
+
+      if (remainingSlots <= 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'All cannon slots are already full!' });
+      }
+
+      const itemsRes = await client.query(
+        'SELECT id, cannon_type, quantity, equipped FROM player_cannons WHERE player_id = $1 ORDER BY cannon_type DESC',
+        [playerId]
+      );
+
+      let equippedAny = false;
+      for (const row of itemsRes.rows) {
+        if (remainingSlots <= 0) break;
+        const available = row.quantity - row.equipped;
+        if (available > 0) {
+          const toEquip = Math.min(available, remainingSlots);
+          await client.query(
+            'UPDATE player_cannons SET equipped = equipped + $1 WHERE id = $2',
+            [toEquip, row.id]
+          );
+          remainingSlots -= toEquip;
+          equippedAny = true;
+        }
+      }
+
+      if (!equippedAny) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'No cannons available to equip in storage!' });
+      }
+
+    } else {
+      const equippedCountRes = await client.query(
+        'SELECT COALESCE(SUM(equipped), 0) as total FROM player_planks WHERE player_id = $1',
+        [playerId]
+      );
+      const equippedCount = parseInt(equippedCountRes.rows[0].total);
+      let remainingSlots = activeShip.plankSlots - equippedCount;
+
+      if (remainingSlots <= 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'All plank slots are already full!' });
+      }
+
+      const itemsRes = await client.query(
+        `SELECT id, plank_type, quantity, equipped FROM player_planks 
+         WHERE player_id = $1 
+         ORDER BY (CASE WHEN plank_type = 'elit' THEN 2 ELSE 1 END) DESC`,
+        [playerId]
+      );
+
+      let equippedAny = false;
+      for (const row of itemsRes.rows) {
+        if (remainingSlots <= 0) break;
+        const available = row.quantity - row.equipped;
+        if (available > 0) {
+          const toEquip = Math.min(available, remainingSlots);
+          await client.query(
+            'UPDATE player_planks SET equipped = equipped + $1 WHERE id = $2',
+            [toEquip, row.id]
+          );
+          remainingSlots -= toEquip;
+          equippedAny = true;
+        }
+      }
+
+      if (!equippedAny) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'No planks available to equip in storage!' });
+      }
+
+      await updatePlayerMaxHp(playerId, activeShip.baseHp, client);
+    }
+
+    await client.query('COMMIT');
+    res.json({ message: 'Bulk equip completed successfully' });
+
+  } catch (err) {
+    if (client) await client.query('ROLLBACK').catch(e => {});
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+// UNEQUIP ALL ITEMS
+router.post('/unequip-all', authMiddleware, async (req, res) => {
+  const playerId = req.player.id;
+  const { isCannon } = req.body;
+
+  let client;
+  try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    const pRes = await client.query('SELECT ship_level FROM players WHERE id = $1 FOR UPDATE', [playerId]);
+    if (pRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Player not found' });
+    }
+    const shipLevel = pRes.rows[0].ship_level;
+    const activeShip = gameData.SHIPS.find(s => s.level === shipLevel) || gameData.SHIPS[0];
+
+    if (isCannon) {
+      await client.query(
+        'UPDATE player_cannons SET equipped = 0 WHERE player_id = $1',
+        [playerId]
+      );
+    } else {
+      await client.query(
+        'UPDATE player_planks SET equipped = 0 WHERE player_id = $1',
+        [playerId]
+      );
+      await updatePlayerMaxHp(playerId, activeShip.baseHp, client);
+    }
+
+    await client.query('COMMIT');
+    res.json({ message: 'All equipment unequipped successfully' });
+
+  } catch (err) {
+    if (client) await client.query('ROLLBACK').catch(e => {});
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (client) client.release();
   }
 });
 
 // Helper to update player's max HP and current HP based on equipped planks
-async function updatePlayerMaxHp(playerId, baseHp) {
-  const planksRes = await pool.query(
-    'SELECT plank_type, equipped FROM player_planks WHERE player_id = $1',
-    [playerId]
-  );
+// client opsiyonel: transaction içinden çağrıldığında aynı client'ı kullan (deadlock önler)
+async function updatePlayerMaxHp(playerId, baseHp, client) {
+  const queryFn = client ? client.query.bind(client) : pool.query.bind(pool);
+
+  const planksRes = await queryFn(`
+    SELECT pp.equipped, p.hp_bonus
+    FROM player_planks pp
+    JOIN planks p ON pp.plank_type = p.type_key
+    WHERE pp.player_id = $1
+  `, [playerId]);
 
   let hpBonus = 0;
   planksRes.rows.forEach(row => {
-    const bonus = row.plank_type === 'tahta' ? 500 : 1200;
-    hpBonus += bonus * (row.equipped || 0);
+    hpBonus += parseInt(row.hp_bonus || 0) * (row.equipped || 0);
   });
 
   const newMaxHp = baseHp + hpBonus;
   
-  // Mevcut HP'yi de eğer max'tan fazlaysa veya tamir amaçlı güncelleyelim
-  await pool.query(
+  await queryFn(
     `UPDATE players 
      SET max_hp = $1, 
          hp = LEAST(hp, $1) 

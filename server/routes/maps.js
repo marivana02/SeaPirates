@@ -44,6 +44,24 @@ router.get('/', authenticateToken, async (req, res) => {
             bossKillsLeft = Math.max(0, bossInfo.required_kills - bc.kill_count);
         }
 
+        // Tiamat availability on map 10 (checks respawn timer)
+        let tiamatAvailable = false;
+        let tiamatRespawnAt = null;
+        if (currentLevel === 10) {
+            const tiamatRes = await pool.query('SELECT hp, current_hp, respawn_at FROM tiamat WHERE id = 1');
+            if (tiamatRes.rows.length > 0) {
+                const t = tiamatRes.rows[0];
+                if (t.current_hp !== null && t.current_hp > 0) {
+                    tiamatAvailable = true;
+                } else if (t.respawn_at === null || new Date(t.respawn_at) <= new Date()) {
+                    await pool.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
+                    tiamatAvailable = true;
+                } else {
+                    tiamatRespawnAt = t.respawn_at;
+                }
+            }
+        }
+
         res.json({
             playerLevel: p.level,
             currentMapLevel: currentLevel,
@@ -51,7 +69,9 @@ router.get('/', authenticateToken, async (req, res) => {
             bossSpawned,
             bossSubMap,
             bossName,
-            bossKillsLeft
+            bossKillsLeft,
+            tiamatAvailable,
+            tiamatRespawnAt
         });
     } catch (err) {
         console.error(err);
@@ -74,15 +94,15 @@ router.post('/change', authenticateToken, async (req, res) => {
         const playerLevel = playerRes.rows[0].level;
 
         if (targetLevel > playerLevel) {
-            return res.status(403).json({ error: 'Bu haritaya girmek için seviyen yetersiz!' });
+            return res.status(403).json({ error: 'Your level is insufficient to enter this map!' });
         }
 
         // Sub map validation (Level 1-4 var 2 sub maps, Level 5+ var 1 sub map)
         if (targetLevel <= 4 && (targetSub < 1 || targetSub > 2)) {
-            return res.status(400).json({ error: 'Geçersiz alt harita' });
+            return res.status(400).json({ error: 'Invalid sub-map' });
         }
         if (targetLevel >= 5 && targetSub !== 1) {
-            return res.status(400).json({ error: 'Geçersiz alt harita' });
+            return res.status(400).json({ error: 'Invalid sub-map' });
         }
 
         // Harita konumunu güncelle
@@ -105,7 +125,7 @@ router.get('/npcs', authenticateToken, async (req, res) => {
             'SELECT current_map_level, current_map_sub FROM players WHERE id = $1',
             [req.player.id]
         );
-        if (playerRes.rows.length === 0) return res.status(404).json({ error: 'Oyuncu bulunamadı' });
+        if (playerRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
         
         const mapLevel = playerRes.rows[0].current_map_level || 1;
         const mapSub = playerRes.rows[0].current_map_sub || 1;
@@ -181,25 +201,25 @@ router.get('/npcs', authenticateToken, async (req, res) => {
                 const b = bossRes.rows[0];
                 
                 // Haritaya özel amiral (boss) görselini ata
-                let bossImg = `assets/npcc/map1/calicosJack.swf/images/amiraljack.png`;
+                let bossImg = `assets/ships/npcc/map1/calicosJack.swf/images/amiraljack.png`;
                 if (mapLevel === 2) {
-                    bossImg = `assets/npcc/map2/ratpack.swf/images/amiralratpack.png`;
+                    bossImg = `assets/ships/npcc/map2/ratpack.swf/images/amiralratpack.png`;
                 } else if (mapLevel === 3) {
-                    bossImg = `assets/npcc/map3/losrenegados.swf/images/amiralrenegados.png`;
+                    bossImg = `assets/ships/npcc/map3/losrenegados.swf/images/amiralrenegados.png`;
                 } else if (mapLevel === 4) {
-                    bossImg = `assets/npcc/map4/calocosmen.swf/images/amiralcalcos.png`;
+                    bossImg = `assets/ships/npcc/map4/calocosmen.swf/images/amiralcalcos.png`;
                 } else if (mapLevel === 5) {
-                    bossImg = `assets/npcc/map5/morgansbuccaneers.swf/images/amiralmorgan.png`;
+                    bossImg = `assets/ships/npcc/map5/morgansbuccaneers.swf/images/amiralmorgan.png`;
                 } else if (mapLevel === 6) {
-                    bossImg = `assets/npcc/map6/sinclaresmen.swf/images/amiralsiclares.png`;
+                    bossImg = `assets/ships/npcc/map6/sinclaresmen.swf/images/amiralsiclares.png`;
                 } else if (mapLevel === 7) {
-                    bossImg = `assets/npcc/map7/flyingdutchman.swf/images/amiralflying.png`;
+                    bossImg = `assets/ships/npcc/map7/flyingdutchman.swf/images/amiralflying.png`;
                 } else if (mapLevel === 8) {
-                    bossImg = `assets/npcc/map8/kilimatu.swf/images/amiralkilimatu.png`;
+                    bossImg = `assets/ships/npcc/map8/kilimatu.swf/images/amiralkilimatu.png`;
                 } else if (mapLevel === 9) {
-                    bossImg = `assets/npcc/map9/kiribati.swf/images/amiralkiribati.png`;
+                    bossImg = `assets/ships/npcc/map9/kiribati.swf/images/amiralkiribati.png`;
                 } else if (mapLevel === 10) {
-                    bossImg = `assets/npcc/map10/flyingdutchman.swf/images/amiralflying.png`;
+                    bossImg = `assets/ships/npcc/map10/flyingdutchman.swf/images/amiralflying.png`;
                 }
 
                 bossData = {
@@ -220,6 +240,24 @@ router.get('/npcs', authenticateToken, async (req, res) => {
             npcs: npcsMap,
             bossData
         });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// GET ALL ACTIVE ADMIRAL SPAWNS (within 3 maps of player)
+router.get('/admiral-spawns', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT n.map_level, n.spawned_sub_map, b.name, b.hp, b.damage
+             FROM npc3_kill_counter n
+             JOIN bosses b ON b.map_level = n.map_level
+             WHERE n.is_spawned = TRUE
+             ORDER BY n.map_level`
+        );
+        
+        res.json({ spawns: result.rows });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });

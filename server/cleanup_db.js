@@ -1,12 +1,14 @@
 const pool = require('./config/db');
 
 async function cleanupDuplicates() {
+    const client = await pool.connect();
     try {
+        await client.query('BEGIN');
         console.log("=== VERİTABANI MÜKERRER KAYIT TEMİZLEME BAŞLADI ===");
 
         // 1. player_cannons
         console.log("1. player_cannons tablosu temizleniyor...");
-        const pcRes = await pool.query(`
+        const pcRes = await client.query(`
             WITH merged AS (
                 SELECT player_id, cannon_type, SUM(quantity) as total_qty, SUM(equipped) as total_eq
                 FROM player_cannons
@@ -14,9 +16,9 @@ async function cleanupDuplicates() {
             )
             SELECT * FROM merged
         `);
-        await pool.query('DELETE FROM player_cannons');
+        await client.query('DELETE FROM player_cannons');
         for (const row of pcRes.rows) {
-            await pool.query(
+            await client.query(
                 'INSERT INTO player_cannons (player_id, cannon_type, quantity, equipped) VALUES ($1, $2, $3, $4)',
                 [row.player_id, row.cannon_type, row.total_qty, row.total_eq]
             );
@@ -24,7 +26,7 @@ async function cleanupDuplicates() {
 
         // 2. player_planks
         console.log("2. player_planks tablosu temizleniyor...");
-        const ppRes = await pool.query(`
+        const ppRes = await client.query(`
             WITH merged AS (
                 SELECT player_id, plank_type, SUM(quantity) as total_qty, SUM(equipped) as total_eq
                 FROM player_planks
@@ -32,9 +34,9 @@ async function cleanupDuplicates() {
             )
             SELECT * FROM merged
         `);
-        await pool.query('DELETE FROM player_planks');
+        await client.query('DELETE FROM player_planks');
         for (const row of ppRes.rows) {
-            await pool.query(
+            await client.query(
                 'INSERT INTO player_planks (player_id, plank_type, quantity, equipped) VALUES ($1, $2, $3, $4)',
                 [row.player_id, row.plank_type, row.total_qty, row.total_eq]
             );
@@ -42,7 +44,7 @@ async function cleanupDuplicates() {
 
         // 3. player_items
         console.log("3. player_items tablosu temizleniyor...");
-        const piRes = await pool.query(`
+        const piRes = await client.query(`
             WITH merged AS (
                 SELECT player_id, item_type, SUM(quantity) as total_qty
                 FROM player_items
@@ -50,9 +52,9 @@ async function cleanupDuplicates() {
             )
             SELECT * FROM merged
         `);
-        await pool.query('DELETE FROM player_items');
+        await client.query('DELETE FROM player_items');
         for (const row of piRes.rows) {
-            await pool.query(
+            await client.query(
                 'INSERT INTO player_items (player_id, item_type, quantity) VALUES ($1, $2, $3)',
                 [row.player_id, row.item_type, row.total_qty]
             );
@@ -60,7 +62,7 @@ async function cleanupDuplicates() {
 
         // 4. player_ammo
         console.log("4. player_ammo tablosu temizleniyor...");
-        const paRes = await pool.query(`
+        const paRes = await client.query(`
             WITH merged AS (
                 SELECT player_id, ammo_type, SUM(quantity) as total_qty
                 FROM player_ammo
@@ -68,18 +70,21 @@ async function cleanupDuplicates() {
             )
             SELECT * FROM merged
         `);
-        await pool.query('DELETE FROM player_ammo');
+        await client.query('DELETE FROM player_ammo');
         for (const row of paRes.rows) {
-            await pool.query(
+            await client.query(
                 'INSERT INTO player_ammo (player_id, ammo_type, quantity) VALUES ($1, $2, $3)',
                 [row.player_id, row.ammo_type, row.total_qty]
             );
         }
 
+        await client.query('COMMIT');
         console.log("=== MÜKERRER KAYIT TEMİZLEME TAMAMLANDI! ===");
     } catch (err) {
+        await client.query('ROLLBACK');
         console.error("Temizleme sırasında hata:", err.message);
     } finally {
+        client.release();
         await pool.end();
     }
 }

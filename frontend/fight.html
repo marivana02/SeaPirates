@@ -3,12 +3,18 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>SeaPirates — Savaş</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
+  <title>SeaPirates — Battle</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="js/lang.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
+  <script src="effects/clouds.js?v=1"></script>
+  <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
   <style>
     *,
     *::before,
@@ -43,10 +49,12 @@
       max-width: 430px;
       margin: 0 auto;
       height: 100dvh;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       position: relative;
-      background: url('assets/sea.png') repeat;
+      background: url('assets/ui/sea.png') repeat;
       background-size: 200px auto;
     }
 
@@ -61,7 +69,7 @@
     #gulle-canvas {
       position: absolute;
       inset: 0;
-      z-index: 15;
+      z-index: 19;
       pointer-events: none;
     }
 
@@ -97,8 +105,8 @@
     }
 
     .npc-wrap .ship-img {
-      max-width: 60px; /* Morgansbuccener vb. tüm büyük veya uzun görsellerin taşmasını önler */
-      max-height: 60px;
+      max-width: 70px;
+      max-height: 70px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -211,7 +219,7 @@
 
     /* Weekly Boss Custom Name & HP Decor Panel */
     .boss-decor {
-      background: url('assets/namehpdecor.png') no-repeat top center;
+      background: url('assets/ui/namehpdecor.png') no-repeat top center;
       background-size: 170px 55px !important; /* Görseli orantılı olarak %15 küçülttük */
       width: 170px !important;
       height: 75px !important; /* Dikey alanı da orantılı olarak küçülttük */
@@ -227,7 +235,7 @@
 
     .boss-decor .name-row {
       position: absolute !important;
-      top: 24px !important; /* İsmi orantılı olarak birazcık daha aşağı kaydırdık */
+      top: 18px !important;
       left: 0 !important;
       width: 100% !important;
       display: flex !important;
@@ -277,22 +285,21 @@
       gap: 8px;
     }
 
-    .player-wrap .name-row {
-      transform: translateX(-16px);
-    }
-
     .rank-icon {
       width: 32px;
       height: 32px;
       object-fit: contain;
-      filter: drop-shadow(0 0 4px rgba(240, 192, 64, 0.4)) drop-shadow(0 1px 3px #000);
-      transform: rotate(-3deg);
+    }
+    .rank-icon.right {
+      width: 24px;
+      height: 24px;
     }
 
-    .rank-icon:not([src]),
-    .rank-icon[src=""] {
+    .rank-icon {
+      visibility: visible;
+    }
+    .rank-icon.hidden {
       visibility: hidden;
-      width: 32px;
     }
 
     .ship-name {
@@ -320,7 +327,7 @@
       height: 8px;
       background: rgba(0, 0, 0, 0.8);
       border: 1.5px solid rgba(60, 35, 8, 0.9);
-      border-radius: 4px;
+      border-radius: 0;
       overflow: hidden;
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.06);
       position: relative;
@@ -329,7 +336,7 @@
     .hp-fill {
       height: 100%;
       width: 100%;
-      border-radius: 5px;
+      border-radius: 0;
       transition: width 0.4s ease-out;
       position: relative;
     }
@@ -341,7 +348,7 @@
       left: 0;
       right: 0;
       height: 40%;
-      border-radius: 5px 5px 0 0;
+      border-radius: 0;
       background: rgba(255, 255, 255, 0.18);
     }
 
@@ -409,7 +416,7 @@
 
     .ammo-bar {
       position: absolute;
-      bottom: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -427,16 +434,14 @@
     .slot {
       position: relative;
       width: 38px;
-      height: 50px;
-      /* Yukarı doğru büyüdük */
-      background: url('assets/actionmenu/item_slot.png') center/cover no-repeat;
+      height: 56px;
+      background: url('assets/ui/actionmenu/item_slot.png') center/cover no-repeat;
       touch-action: none;
       border-radius: 7px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding-bottom: 13px;
-      /* Badge alanı */
+      justify-content: flex-start;
       cursor: pointer;
       border: 1.5px solid rgba(90, 50, 10, 0.6);
       overflow: hidden;
@@ -458,10 +463,11 @@
     }
 
     .slot img {
-      width: 82%;
-      height: 82%;
+      width: 85%;
+      max-height: 65%;
       object-fit: contain;
       pointer-events: none;
+      margin: auto;
     }
 
     .slot.sel-ammo {
@@ -474,27 +480,34 @@
       box-shadow: 0 0 10px rgba(241, 196, 15, 0.45), inset 0 0 5px rgba(241, 196, 15, 0.15);
     }
 
-    /* Miktar rozeti — slot içinde alta yapışık, hiç taşmaz */
+    /* Miktar rozeti — slot içinde alta sabit, taşmaz */
     .qty {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 13px;
-      background: rgba(6, 3, 0, 0.90);
-      border-top: 1px solid rgba(200, 150, 42, 0.25);
-      font-size: 0.47rem;
-      font-weight: 800;
-      color: var(--gold-b);
+      flex-shrink: 0;
+      width: 100%;
+      height: 14px;
+      padding: 0 2px;
+      background: rgba(6, 3, 0, 0.94);
+      border-top: 1px solid rgba(200, 150, 42, 0.3);
+      font-size: 0.4rem;
+      font-weight: 700;
+      color: #f5d742;
       display: flex;
       align-items: center;
       justify-content: center;
       white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      letter-spacing: -0.02em;
     }
 
     .qty.zero {
       color: #e05a3a;
+    }
+    .qty.infinite {
+      color: #e74c3c;
+      font-size: 0.6rem;
+      font-weight: 900;
     }
 
     .outcome {
@@ -526,7 +539,7 @@
     }
 
     .outcome-box {
-      background: url('assets/leaderboardbackground.png') center/cover;
+      background: url('assets/ui/leaderboardbackground.png') center/cover;
       border: 2px solid var(--gold);
       border-radius: 14px;
       padding: 28px 24px 24px;
@@ -558,6 +571,8 @@
       margin-bottom: 4px;
       letter-spacing: 0.05em;
       text-align: center;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .outcome-title.win {
@@ -576,6 +591,8 @@
       margin-bottom: 18px;
       text-transform: uppercase;
       letter-spacing: 0.1em;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .outcome-rewards {
@@ -605,6 +622,8 @@
     .outcome-reward-row span {
       font-size: 0.9rem;
       font-weight: 700;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .outcome-reward-row .r-gold { color: var(--gold-b); }
@@ -622,12 +641,103 @@
       padding: 6px 12px;
       margin-top: 4px;
       text-align: center;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .outcome-empty {
       font-size: 0.85rem;
       color: var(--txt-d);
       padding: 8px 0;
+    }
+
+    /* NO-CANNON MODAL */
+    .nocannon-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease forwards;
+    }
+    .nocannon-box {
+      background: linear-gradient(180deg, rgba(26,14,5,0.98), rgba(10,5,2,0.98));
+      border: 2px solid #c8962a;
+      box-shadow: 0 0 40px rgba(200,150,42,0.2), 0 0 80px rgba(0,0,0,0.8);
+      border-radius: 14px;
+      width: 92%; max-width: 380px;
+      padding: 28px 22px 22px;
+      position: relative;
+      text-align: center;
+      color: #f5e6c8;
+      transform: scale(0.9);
+      animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    .nocannon-box::before {
+      content: ''; position: absolute; inset: 3px;
+      border: 1px solid rgba(200,150,42,0.12);
+      border-radius: 11px;
+      pointer-events: none;
+    }
+    .nocannon-icon {
+      font-size: 4rem; line-height: 1; margin-bottom: 10px;
+      filter: drop-shadow(0 0 20px rgba(200,150,42,0.3));
+    }
+    .nocannon-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem; font-weight: 900;
+      color: #e74c3c;
+      margin-bottom: 6px;
+      text-shadow: 0 0 20px rgba(231,76,60,0.3), 0 2px 4px #000;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .nocannon-desc {
+      font-size: 0.78rem; color: #b8956a;
+      line-height: 1.5; margin-bottom: 18px;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .nocannon-actions {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .nocannon-btn {
+      width: 100%; padding: 12px;
+      border-radius: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem; font-weight: 900;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.1s;
+      border: none;
+    }
+    .nocannon-btn:active { transform: scale(0.96); }
+    .nocannon-btn:hover { filter: brightness(1.1); }
+    .nocannon-btn.primary {
+      background: linear-gradient(180deg, #c8962a 0%, #8a5e14 100%);
+      border: 2px solid #fde68a;
+      color: #1c1005;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .nocannon-btn.secondary {
+      background: transparent;
+      border: 1.5px solid rgba(200,150,42,0.3);
+      color: #b8956a;
+    }
+    .nocannon-btn.secondary:hover {
+      border-color: #c8962a;
+      color: #f5e6c8;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .btn-return {
@@ -657,11 +767,16 @@
     .island-bg {
       position: absolute;
       pointer-events: none;
-      z-index: 1; /* Gemi ve arayüz elemanlarının arkasında durarak harika bir derinlik katar */
-      opacity: 0.75;
-      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.6));
+      z-index: 1;
+      opacity: 0.9;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
       user-select: none;
       transition: all 0.5s ease;
+    }
+
+    @keyframes tiamatPulse {
+      0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)) drop-shadow(0 0 25px rgba(255,50,0,0.5)); }
+      50% { transform: scale(1.04) translateY(-4px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)) drop-shadow(0 0 35px rgba(255,50,0,0.7)); }
     }
   </style>
 </head>
@@ -672,8 +787,8 @@
     <div class="battlefield" id="battlefield">
       
       <!-- Weekly Boss Timer Overlay -->
-      <div class="boss-timer-wrap" id="boss-timer" style="display:none; position: absolute; top: 15px; left: 15px; background: url('assets/leaderboardbackground.png') center/cover; border: 2px solid #7a4a18; border-radius: 6px; padding: 8px 14px; z-index: 100; align-items: center; gap: 8px; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.7); border-bottom: 2px solid #5a3512;">
-        <span style="color:#c8962a; font-size:0.75rem; font-weight:700; letter-spacing:0.06em; text-shadow:1px 1px 2px #000;">⏳ SAVAŞ SÜRESİ:</span>
+      <div class="boss-timer-wrap" id="boss-timer" style="display:none; position: absolute; top: 15px; left: 15px; background: url('assets/ui/leaderboardbackground.png') center/cover; border: 2px solid #7a4a18; border-radius: 6px; padding: 8px 14px; z-index: 100; align-items: center; gap: 8px; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.7); border-bottom: 2px solid #5a3512;">
+        <span style="color:#c8962a; font-size:0.75rem; font-weight:700; letter-spacing:0.06em; text-shadow:1px 1px 2px #000;" data-i18n="fight_timer_label">⏳ BATTLE TIME:</span>
         <span id="boss-timer-val" style="color:#e74c3c; font-size:1.15rem; font-weight:900; font-family:'Cinzel', serif; text-shadow:0 0 10px rgba(231,76,60,0.5), 1px 1px 2px #000; margin-left:3px;">60</span>
         <span style="color:var(--txt-d); font-size:0.7rem; font-weight:700; text-shadow:1px 1px 2px #000;">sn</span>
       </div>
@@ -699,7 +814,7 @@
       <div id="admiral-leaderboard" style="display:none; position: absolute; top: 15px; left: 15px; width: 235px; background: rgba(15, 8, 3, 0.78); border: 2px solid rgba(122, 74, 24, 0.9); border-radius: 8px; padding: 12px 10px; z-index: 100; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.6), 0 8px 25px rgba(0,0,0,0.85); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);">
         <!-- Collapsible Toggle Button -->
         <button id="admiral-leaderboard-toggle" onclick="toggleAdmiralLeaderboard()" style="position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 50px; background: rgba(15, 8, 3, 0.9); border: 2px solid rgba(122, 74, 24, 0.9); border-left: none; border-radius: 0 8px 8px 0; color: #ffd700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 101; box-shadow: 5px 0 10px rgba(0,0,0,0.5); transition: background 0.2s, color 0.2s, box-shadow 0.2s; font-family: 'Cinzel', serif;">◀</button>
-        <div style="font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffd700; font-weight: 900; border-bottom: 2px solid rgba(122, 74, 24, 0.7); padding-bottom: 6px; margin-bottom: 10px; text-align: center; letter-spacing: 0.08em; text-shadow: 2px 2px 4px #000, 0 0 6px rgba(255,215,0,0.45);">⚔️ DMG LIST</div>
+        <div style="font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffd700; font-weight: 900; border-bottom: 2px solid rgba(122, 74, 24, 0.7); padding-bottom: 6px; margin-bottom: 10px; text-align: center; letter-spacing: 0.08em; text-shadow: 2px 2px 4px #000, 0 0 6px rgba(255,215,0,0.45);" data-i18n="fight_dmg_list">⚔️ DMG LIST</div>
         <div id="admiral-leaderboard-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 212px; overflow-y: auto;">
           <!-- Leaderboard items will be loaded dynamically -->
         </div>
@@ -720,8 +835,11 @@
         <img class="ship-img" id="npc-img" src="" alt="NPC" />
         <div class="ship-info">
           <div class="name-row">
-            <div class="ship-name" id="npc-name">Korsan</div>
+            <img class="rank-icon hidden" id="npc-rank-left" src="" alt="" />
+            <div class="ship-name" id="npc-name">Pirate</div>
+            <img class="rank-icon right hidden" id="npc-rank-right" src="" alt="" />
           </div>
+          <div class="ship-pid" id="npc-pid" style="display: none;">#——</div>
           <div class="hp-bg">
             <div class="hp-fill" id="npc-hp-fill"></div>
           </div>
@@ -734,11 +852,12 @@
         <div class="flash" id="player-flash"></div>
         <div class="smoke-ring" id="player-smoke"></div>
         <div class="fire-effect" id="player-fire"></div>
-        <img class="ship-img" src="assets/elitship/default/3.png" alt="Gemi" />
+        <img class="ship-img" src="assets/ships/elitship/default/3.png" alt="Gemi" />
         <div class="ship-info">
           <div class="name-row">
-            <img class="rank-icon" id="player-rank-l" src="" alt="" />
+            <img class="rank-icon hidden" id="player-rank-left" src="" alt="" />
             <div class="ship-name" id="player-name">Kaptan</div>
+            <img class="rank-icon right hidden" id="player-rank-right" src="" alt="" />
           </div>
           <div class="ship-pid" id="player-pid">#——</div>
           <div class="hp-bg">
@@ -749,1253 +868,36 @@
       </div>
     <div class="ammo-bar" id="ammo-bar"></div>
 
-    <div class="outcome" id="outcome">
-      <div class="outcome-box">
-        <div class="outcome-title" id="outcome-title">—</div>
-        <div class="outcome-sub" id="outcome-sub"></div>
-        <div class="outcome-rewards" id="outcome-rewards"></div>
-        <button class="btn-return" onclick="handleReturn()">Geri Dön</button>
+      <div class="outcome" id="outcome">
+        <div class="outcome-box">
+          <div class="outcome-title" id="outcome-title">—</div>
+          <div class="outcome-sub" id="outcome-sub"></div>
+          <div class="outcome-rewards" id="outcome-rewards"></div>
+          <button class="btn-return" onclick="handleReturn()" data-i18n="fight_btn_go_back">Go Back</button>
+        </div>
+      </div>
+
+      <!-- NO-CANNON MODAL -->
+      <div class="nocannon-overlay" id="nocannon-modal">
+        <div class="nocannon-box">
+          <div class="nocannon-icon">⚓</div>
+          <div class="nocannon-title" data-i18n="fight_no_cannons_title">NO CANNONS EQUIPPED!</div>
+          <div class="nocannon-desc" data-i18n="fight_no_cannons_desc">
+            You must equip at least <b>1 cannon</b> to enter battle.<br><br>
+            Equip cannons from the <b>Equipment</b> screen.
+          </div>
+          <div class="nocannon-actions">
+            <button class="nocannon-btn primary" id="nocannon-goto-equip" data-i18n="fight_btn_go_equipment">⚔️ GO TO EQUIPMENT</button>
+            <button class="nocannon-btn secondary" id="nocannon-close" data-i18n="fight_btn_go_back">Go Back</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    /* ══════════════════════════════════════════════
-       SES / AMBIENT SİSTEMİ
-    ══════════════════════════════════════════════ */
-    const sounds = {
-      firePlayer: new Audio('assets/sounds/cannonfire1.mp3'),
-      fireNpc: new Audio('assets/sounds/cannonfire2.mp3'),
-      explosion: new Audio('assets/sounds/explosion.mp3')
-    };
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/fight-shared.js?v=1"></script>
+  <script src="js/fight-pve.js?v=1"></script>
 
-    sounds.firePlayer.volume = 0.35;
-    sounds.fireNpc.volume = 0.35;
-    sounds.explosion.volume = 0.45;
-
-    function playSound(name) {
-      if (localStorage.getItem('sp_setting_sound') === 'false') return;
-      try {
-        const audio = sounds[name];
-        if (!audio) return;
-        audio.currentTime = 0;
-        audio.play().catch(e => {});
-      } catch(e) {}
-    }
-
-    /* ══════════════════════════════════════════════
-       GÜLLE ANİMASYON SİSTEMİ
-    ══════════════════════════════════════════════ */
-    const gCanvas = document.getElementById('gulle-canvas');
-    const gCtx = gCanvas.getContext('2d');
-    let gProj = [];
-    let gParts = [];
-
-    function resizeCanvas() {
-      const bf = document.getElementById('battlefield');
-      gCanvas.width = bf.clientWidth;
-      gCanvas.height = bf.clientHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    /* Offscreen gülle görselleri */
-    const GULLE_OS = {};
-
-    function buildMisket() {
-      const os = document.createElement('canvas');
-      os.width = os.height = 32;
-      const c = os.getContext('2d');
-      const cx = 16, cy = 16, r = 10;
-      c.shadowColor = 'rgba(0,0,0,0.9)'; c.shadowBlur = 4; c.shadowOffsetX = 1; c.shadowOffsetY = 2;
-      const g = c.createRadialGradient(cx - 3, cy - 3, 0.5, cx, cy, r);
-      g.addColorStop(0, '#a8a89a');
-      g.addColorStop(0.3, '#6a6a60');
-      g.addColorStop(0.7, '#3a3a32');
-      g.addColorStop(1, '#111108');
-      c.fillStyle = g;
-      c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fill();
-      c.shadowBlur = 0; c.shadowOffsetX = 0; c.shadowOffsetY = 0;
-      // Texture çizgiler
-      for (let i = 0; i < 6; i++) {
-        const a = (Math.PI / 3) * i;
-        c.save(); c.translate(cx, cy); c.rotate(a);
-        c.strokeStyle = 'rgba(0,0,0,0.2)'; c.lineWidth = 0.5;
-        c.beginPath(); c.moveTo(0, -r); c.quadraticCurveTo(r * 0.3, 0, 0, r); c.stroke();
-        c.restore();
-      }
-      // Parlama
-      c.fillStyle = 'rgba(255,255,255,0.4)';
-      c.beginPath(); c.arc(cx - 4, cy - 4, 2.5, 0, Math.PI * 2); c.fill();
-      return os;
-    }
-
-    function buildOyuk() {
-      const os = document.createElement('canvas');
-      os.width = os.height = 32;
-      const c = os.getContext('2d');
-      const cx = 16, cy = 16, r = 10;
-      c.shadowColor = 'rgba(0,0,0,0.9)'; c.shadowBlur = 4; c.shadowOffsetX = 1; c.shadowOffsetY = 2;
-      const g = c.createRadialGradient(cx - 3, cy - 3, 0.5, cx, cy, r);
-      g.addColorStop(0, '#c8a878');
-      g.addColorStop(0.3, '#8a6840');
-      g.addColorStop(0.7, '#5a3a18');
-      g.addColorStop(1, '#1a0e04');
-      c.fillStyle = g;
-      c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fill();
-      c.shadowBlur = 0; c.shadowOffsetX = 0; c.shadowOffsetY = 0;
-      // Delik
-      const hx = cx + 3, hy = cy - 1, hr = 3.5;
-      c.fillStyle = '#1a1a1a';
-      c.strokeStyle = 'rgba(120,90,50,0.6)'; c.lineWidth = 0.8;
-      c.beginPath(); c.arc(hx, hy, hr, 0, Math.PI * 2); c.fill(); c.stroke();
-      const ih = c.createRadialGradient(hx, hy, 0, hx, hy, hr);
-      ih.addColorStop(0, '#000'); ih.addColorStop(1, '#111');
-      c.fillStyle = ih;
-      c.beginPath(); c.arc(hx, hy, hr - 0.5, 0, Math.PI * 2); c.fill();
-      // Parlama
-      c.fillStyle = 'rgba(255,255,255,0.35)';
-      c.beginPath(); c.arc(cx - 4, cy - 4, 2, 0, Math.PI * 2); c.fill();
-      return os;
-    }
-
-    function buildElit() {
-      const os = document.createElement('canvas');
-      os.width = os.height = 40;
-      const c = os.getContext('2d');
-      const cx = 20, cy = 20, r = 11;
-      // Corona
-      const cor = c.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 1.6);
-      cor.addColorStop(0, 'rgba(255,180,0,0.3)'); cor.addColorStop(1, 'rgba(255,80,0,0)');
-      c.fillStyle = cor;
-      c.beginPath(); c.arc(cx, cy, r * 1.6, 0, Math.PI * 2); c.fill();
-      c.shadowColor = 'rgba(255,160,0,0.5)'; c.shadowBlur = 8;
-      const g = c.createRadialGradient(cx - 3, cy - 3, 0.5, cx, cy, r);
-      g.addColorStop(0, '#777760');
-      g.addColorStop(0.4, '#333320');
-      g.addColorStop(1, '#0d0d05');
-      c.fillStyle = g;
-      c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fill();
-      c.shadowBlur = 0;
-      // Altın şerit
-      c.save(); c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.clip();
-      c.strokeStyle = 'rgba(255,200,30,0.85)'; c.lineWidth = 2;
-      c.shadowColor = '#ffd700'; c.shadowBlur = 5;
-      c.beginPath(); c.ellipse(cx, cy, r, r * 0.22, Math.PI * 0.15, 0, Math.PI * 2); c.stroke();
-      c.restore();
-      // Parlama
-      c.fillStyle = 'rgba(255,255,200,0.55)';
-      c.beginPath(); c.arc(cx - 4, cy - 5, 3, 0, Math.PI * 2); c.fill();
-      return os;
-    }
-
-    GULLE_OS[1] = buildMisket();
-    GULLE_OS[2] = buildOyuk();
-    GULLE_OS[3] = buildElit();
-
-    const GULLE_SIZE = { 1: 5, 2: 5, 3: 7 };
-
-    /* Gemi merkez noktasını al */
-    function getShipCenter(nodeId) {
-      const bf = document.getElementById('battlefield');
-      const node = document.getElementById(nodeId);
-      const img = node ? node.querySelector('.ship-img') : null;
-      const br = bf.getBoundingClientRect();
-      const nr = img ? img.getBoundingClientRect() : (node ? node.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 });
-      
-      const isWeeklyBoss = localStorage.getItem('sp_combat_is_weekly_boss') === 'true';
-      const isAdmiral = npc && npc.name && npc.name.includes('Admiral');
-      
-      let yFactor = 0.5;
-      if (nodeId === 'npc-node') {
-        if (isWeeklyBoss) {
-          yFactor = 0.55;
-        } else if (isAdmiral) {
-          yFactor = 0.5; // Perfectly hits the middle of the Admiral's ship image body!
-        }
-      }
-      
-      return {
-        x: nr.left - br.left + nr.width * 0.5,
-        y: nr.top - br.top + nr.height * yFactor
-      };
-    }
-
-
-
-    /* Bezier arc */
-    function bezier(t, sx, sy, cx2, cy2, ex, ey) {
-      return {
-        x: (1 - t) * (1 - t) * sx + 2 * (1 - t) * t * cx2 + t * t * ex,
-        y: (1 - t) * (1 - t) * sy + 2 * (1 - t) * t * cy2 + t * t * ey
-      };
-    }
-
-    /* Salvo ateşi */
-    function fireSalvo(fromId, toId, ammoType, count, delay) {
-      const from = getShipCenter(fromId);
-      const to = getShipCenter(toId);
-      const cx2 = (from.x + to.x) / 2 + (Math.random() - 0.5) * 20;
-      const cy2 = (from.y + to.y) / 2 - 60;
-
-      const soundName = fromId === 'player-node' ? 'firePlayer' : 'fireNpc';
-      playSound(soundName); // Salvo başına sadece tek 1 defa top atış sesi çalsın
-
-      for (let i = 0; i < count; i++) {
-        setTimeout(() => {
-          const spread = (Math.random() - 0.5) * 18;
-          gProj.push({
-            ammo: ammoType,
-            sx: from.x, sy: from.y,
-            ex: to.x, ey: to.y,
-            cx2: cx2 + spread, cy2: cy2,
-            startTime: performance.now(), // Cihazın ekran yenileme hızından bağımsız gerçek zaman damgası
-            duration: 1500, // Havada kalış süresi tam olarak 1500ms (1.5 saniye)
-            done: false
-          });
-        }, i * delay);
-      }
-    }
-
-    /* Gülle çizim */
-    function drawGulle(ammo, x, y, t) {
-      const os = GULLE_OS[ammo];
-      const size = GULLE_SIZE[ammo];
-      gCtx.save();
-      gCtx.translate(x, y);
-
-      if (ammo === 3) {
-        const pulse = 0.6 + Math.sin(t * Math.PI * 14) * 0.4;
-        gCtx.shadowColor = '#ffd700';
-        gCtx.shadowBlur = 10 * pulse;
-        // Dönen halka
-        gCtx.rotate(t * Math.PI * 5);
-        gCtx.strokeStyle = `rgba(255,190,0,${0.35 * pulse})`;
-        gCtx.lineWidth = 1;
-        gCtx.beginPath(); gCtx.arc(0, 0, size * 0.9, 0, Math.PI * 1.5); gCtx.stroke();
-        gCtx.rotate(-t * Math.PI * 5);
-      } else {
-        gCtx.shadowColor = 'rgba(0,0,0,0.5)';
-        gCtx.shadowBlur = 4;
-      }
-
-      gCtx.drawImage(os, -size, -size, size * 2, size * 2);
-      gCtx.restore();
-    }
-
-    /* Çarpma anında kıvılcım/patlama efektleri */
-    function createExplosion(x, y, ammo) {
-      const count = 4 + Math.floor(Math.random() * 3); // Sade ve şık, sadece 4-6 küçük kıvılcım
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 0.6 + Math.random() * 0.9; // Yavaş ve asil bir dağılma
-        
-        let color = 'rgba(230, 95, 20, '; // Standart turuncu kıvılcım
-        if (ammo === 3) {
-          color = `rgba(255, 215, 0, `; // Elit gülle için parlak sarı/altın kıvılcım
-        } else if (ammo === 2) {
-          color = `rgba(210, 135, 55, `; // Oyuk gülle için hafif kahve/turuncu kıvılcım
-        }
-        
-        gParts.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 0.4, // Hafifçe yukarı doğru yükseliş
-          radius: 0.8 + Math.random() * 1.0, // Çok küçük, minimal parçacıklar
-          alpha: 1.0,
-          decay: 0.05 + Math.random() * 0.04, // Çok hızlı sönme (ekranda kalabalık etmez)
-          color: color
-        });
-      }
-    }
-
-    /* Ana canvas döngüsü */
-    function gLoop() {
-      gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
-
-      const now = performance.now();
-      
-      // Gülleler
-      for (let i = gProj.length - 1; i >= 0; i--) {
-        const p = gProj[i];
-        if (p.done) { gProj.splice(i, 1); continue; }
-
-        const elapsed = now - p.startTime;
-        const t = Math.min(1.0, elapsed / p.duration); // Delta-time bazlı t hesabı
-
-        if (t >= 1.0) {
-          p.done = true;
-          createExplosion(p.ex, p.ey, p.ammo);
-          continue;
-        }
-
-        const pos = bezier(t, p.sx, p.sy, p.cx2, p.cy2, p.ex, p.ey);
-
-        // İz
-        for (let k = 1; k <= 4; k++) {
-          const tp = Math.max(0, t - k * 0.03);
-          const tp2 = bezier(tp, p.sx, p.sy, p.cx2, p.cy2, p.ex, p.ey);
-          gCtx.save();
-          gCtx.globalAlpha = (0.15 - k * 0.03) * (1 - t * 0.5);
-          gCtx.fillStyle = p.ammo === 3 ? '#ffa500' : '#888';
-          gCtx.shadowColor = p.ammo === 3 ? '#ffd700' : '#555';
-          gCtx.shadowBlur = p.ammo === 3 ? 4 : 1;
-          gCtx.beginPath();
-          gCtx.arc(tp2.x, tp2.y, Math.max(1, (GULLE_SIZE[p.ammo] - 2) * (1 - k * 0.15)), 0, Math.PI * 2);
-          gCtx.fill();
-          gCtx.restore();
-        }
-
-        drawGulle(p.ammo, pos.x, pos.y, t);
-      }
-
-      // Parçacıklar (Patlama efektleri)
-      for (let i = gParts.length - 1; i >= 0; i--) {
-        const pt = gParts[i];
-        pt.x += pt.vx;
-        pt.y += pt.vy;
-        pt.vy += 0.08; // Yer çekimi!
-        pt.alpha -= pt.decay;
-        
-        if (pt.alpha <= 0) {
-          gParts.splice(i, 1);
-          continue;
-        }
-
-        gCtx.save();
-        gCtx.globalAlpha = pt.alpha;
-        gCtx.fillStyle = pt.color + pt.alpha + ')';
-        
-        if (pt.color.includes('255')) {
-          gCtx.shadowColor = '#ffd700';
-          gCtx.shadowBlur = 5;
-        }
-        
-        gCtx.beginPath();
-        gCtx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
-        gCtx.fill();
-        gCtx.restore();
-      }
-
-      requestAnimationFrame(gLoop);
-    }
-    requestAnimationFrame(gLoop);
-
-    /* ══════════════════════════════════════════════
-       OYUN STATE
-    ══════════════════════════════════════════════ */
-    let active = true;
-
-    const savedAmmo = parseInt(localStorage.getItem('sp_selected_ammo')) || 1;
-    const savedBarut = localStorage.getItem('sp_use_barut') === 'true';
-    const savedZirh = localStorage.getItem('sp_use_zirh') === 'true';
-
-    var player = {
-      name: 'Kaptan',
-      hp: 15000, maxHp: 15000,
-      ammo: savedAmmo, barut: savedBarut, zirh: savedZirh
-    };
-
-    const isWeeklyBoss = localStorage.getItem('sp_combat_is_weekly_boss') === 'true';
-    const isTowerMode = localStorage.getItem('sp_combat_is_tower') === 'true';
-    const towerId = parseInt(localStorage.getItem('sp_combat_tower_id')) || 1;
-    const TOWERS_LOAD = {
-       1: { name: 'Tower (Lvl 1)', img: 'assets/tower/low1.png', damaged: 'assets/tower/low2.png' },
-       2: { name: 'Tower (Lvl 2)', img: 'assets/tower/low3.png', damaged: 'assets/tower/low4.png' },
-       3: { name: 'Tower (Lvl 3)', img: 'assets/tower/middle1.png', damaged: 'assets/tower/middle2.png' },
-       4: { name: 'Tower (Lvl 4)', img: 'assets/tower/middle3.png', damaged: 'assets/tower/middle4.png' },
-       5: { name: 'Tower (Lvl 5)', img: 'assets/tower/hard1.png', damaged: 'assets/tower/hard2.png' }
-    };
-    const tInit = TOWERS_LOAD[towerId] || TOWERS_LOAD[1];
-
-    const npc = {
-      name: isWeeklyBoss ? 'Efsanevi Leviathan' : (isTowerMode ? tInit.name : (localStorage.getItem('sp_current_target_name') || 'Korsan')),
-      img: isWeeklyBoss ? 'assets/weekly_boss.png' : (isTowerMode ? tInit.img : (localStorage.getItem('sp_current_target_img') || '')),
-      hp: isWeeklyBoss ? 999999999 : 30000,
-      maxHp: isWeeklyBoss ? 999999999 : 30000
-    };
-
-    /* Init */
-    document.getElementById('npc-name').textContent = npc.name;
-
-    if (npc.img) {
-      let src = npc.img;
-      if (!isWeeklyBoss && src.includes('/images/')) {
-        src = src.replace(/\/\d+\.png$/, '/1.png');
-      }
-      if (!isWeeklyBoss && !src.includes('assets/npcc/') && src.includes('npcc/')) src = 'assets/' + src;
-      
-      const npcImgEl = document.getElementById('npc-img');
-      if (npcImgEl) {
-        npcImgEl.src = src;
-        if (isTowerMode) {
-          npcImgEl.style.maxWidth = '90px';
-          npcImgEl.style.maxHeight = '90px';
-          npc.isTower = true;
-          npc.fullImg = tInit.img;
-          npc.damagedImg = tInit.damaged;
-        } else if (isWeeklyBoss) {
-          npcImgEl.style.maxWidth = '280px';
-          npcImgEl.style.maxHeight = '280px';
-          npcImgEl.style.mixBlendMode = 'normal'; // Yeni transparan görsel için normal renk modu
-          npcImgEl.style.filter = 'drop-shadow(0 15px 30px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 15px rgba(231, 76, 60, 0.35))';
-          
-          // Weekly Boss için konumlandırma düzeltmesi: Sağ üst çaprazda konumlandırma
-          const npcWrapEl = document.querySelector('.npc-wrap');
-          if (npcWrapEl) {
-            npcWrapEl.style.right = '10px';
-            npcWrapEl.style.transform = 'none';
-            npcWrapEl.style.top = '25px'; // Biraz yukarı konumlandırıldı
-            
-            // namehpdecor.png Panelini uygula
-            const npcInfoEl = npcWrapEl.querySelector('.ship-info');
-            if (npcInfoEl) {
-              npcInfoEl.classList.add('boss-decor');
-            }
-          }
-        } else if (npc.name && npc.name.includes('Admiral')) {
-          // Admiral Boss için özel boyutlandırma (Orta-büyük)
-          npcImgEl.style.maxWidth = '135px';
-          npcImgEl.style.maxHeight = '135px';
-          npcImgEl.style.mixBlendMode = 'normal';
-          npcImgEl.style.filter = 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 10px rgba(240, 192, 64, 0.35))';
-          
-          const npcWrapEl = document.querySelector('.npc-wrap');
-          if (npcWrapEl) {
-            // Amiral konumu (Kendi boyutuna göre dengeli hizalama)
-            npcWrapEl.style.right = '20px';
-            npcWrapEl.style.top = '35px'; 
-            
-            // namehpdecor.png Panelini uygula
-            const npcInfoEl = npcWrapEl.querySelector('.ship-info');
-            if (npcInfoEl) {
-              npcInfoEl.classList.add('boss-decor');
-            }
-          }
-        }
-      }
-    }
-
-    async function fetchPlayerData() {
-      try {
-        const res = await fetch('http://localhost:3000/api/player/me', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('sp_token')}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          player.name = data.display_name || data.username;
-          document.getElementById('player-name').textContent = player.name;
-          document.getElementById('player-pid').textContent = `#ID:${data.id}`;
-          
-          // Dinamik rütbe ikonu uygulaması
-          const rankSrc = `assets/rank/rank${data.rankBadge || 13}.png`;
-          const rankEl = document.getElementById('player-rank-l');
-          if (rankEl) {
-            rankEl.src = rankSrc;
-            rankEl.title = data.rankName || 'Kara Adamı';
-          }
-
-          // Seçilen Elit Gemi görselinin savaş açısına (3.png veya 11.png) göre dinamik uygulanması
-          const shipLvl = parseInt(data.ship_level) || 0;
-          const currentHpPct = (data.hp / data.max_hp) * 100;
-          const targetImageName = (currentHpPct <= 50) ? '11.png' : '3.png';
-          
-          let shipImgSrc = `assets/elitship/default/${targetImageName}`;
-          if (shipLvl > 0) {
-            shipImgSrc = `assets/elitship/elit${shipLvl}/images/${targetImageName}`;
-          }
-          const playerShipImg = document.querySelector('.player-wrap .ship-img');
-          if (playerShipImg) {
-            playerShipImg.src = shipImgSrc;
-          }
-
-          // Envanter miktarlarını player nesnesine atalım
-          player.ammoQtys = {};
-          if (data.ammo) data.ammo.forEach(a => player.ammoQtys[a.ammo_type] = a.quantity);
-          player.itemQtys = {};
-          if (data.items) data.items.forEach(i => player.itemQtys[i.item_type] = i.quantity);
-
-          // Sıfır olan barut/zırhların aktifliğini kapat
-          if (!player.itemQtys['barut'] || player.itemQtys['barut'] === 0) {
-            player.barut = false;
-            localStorage.setItem('sp_use_barut', 'false');
-          }
-          if (!player.itemQtys['zirh'] || player.itemQtys['zirh'] === 0) {
-            player.zirh = false;
-            localStorage.setItem('sp_use_zirh', 'false');
-          }
-
-          if (typeof renderSlots === 'function') renderSlots();
-        }
-      } catch (e) { console.error(e); }
-    }
-    fetchPlayerData();
-
-    refreshHP();
-
-    /* HP */
-    function hpColor(pct) {
-      if (pct > 60) return 'linear-gradient(90deg,#1a7a2e,#27ae60,#2ecc71)';
-      if (pct > 30) return 'linear-gradient(90deg,#7a5a00,#e6a817,#f1c40f)';
-      if (pct > 15) return 'linear-gradient(90deg,#7a2500,#e05010,#e67e22)';
-      return 'linear-gradient(90deg,#7a0a0a,#c0392b,#e74c3c)';
-    }
-    function refreshHP() {
-      const isWeeklyBoss = localStorage.getItem('sp_combat_is_weekly_boss') === 'true';
-      const pp = Math.max(0, player.hp / player.maxHp * 100);
-      const np = isWeeklyBoss ? 100 : Math.max(0, npc.hp / npc.maxHp * 100);
-      const pf = document.getElementById('player-hp-fill');
-      const nf = document.getElementById('npc-hp-fill');
-      pf.style.width = pp + '%'; pf.style.background = hpColor(pp);
-      nf.style.width = np + '%'; nf.style.background = hpColor(np);
-      document.getElementById('player-hp-txt').textContent = fmt(Math.ceil(player.hp)) + ' / ' + fmt(player.maxHp);
-      
-      if (isWeeklyBoss) {
-        const bossDmg = Number(localStorage.getItem('sp_boss_dmg_dealt') || 0);
-        document.getElementById('npc-hp-txt').textContent = 'Vurulan Hasar: ' + fmt(bossDmg);
-      } else {
-        document.getElementById('npc-hp-txt').textContent = fmt(Math.ceil(npc.hp)) + ' / ' + fmt(npc.maxHp);
-      }
-
-      // NPC Yelken Düşürme (HP <= 50% ise -> 9.png, aksi halde -> 1.png) veya Kule Hasarlı görseli - Darbe anında anlık geçiş
-      const npcImg = document.getElementById('npc-img');
-      if (npcImg && npcImg.src) {
-        if (isWeeklyBoss) {
-          // Boss hasar görsel geçişi yok
-        } else if (npc.isTower && npc.fullImg && npc.damagedImg) {
-          const target = (np <= 50) ? npc.damagedImg : npc.fullImg;
-          if (!npcImg.src.endsWith(target)) {
-            npcImg.src = target;
-          }
-        } else {
-          const parts = npcImg.src.split('/');
-          const last = parts[parts.length - 1];
-          const match = last.match(/^(\d+)\.png$/);
-          if (match) {
-            const target = (np <= 50) ? '9.png' : '1.png';
-            if (last !== target) {
-              parts[parts.length - 1] = target;
-              npcImg.src = parts.join('/');
-            }
-          }
-        }
-      }
-
-      // Oyuncu Yelken Düşürme (HP <= 50% ise -> 11.png, aksi halde -> 3.png) - Darbe anında anlık geçiş
-      const playerShipImg = document.querySelector('.player-wrap .ship-img');
-      if (playerShipImg && playerShipImg.src) {
-        const parts = playerShipImg.src.split('/');
-        const last = parts[parts.length - 1];
-        const match = last.match(/^(\d+)\.png$/);
-        if (match) {
-          const target = (pp <= 50) ? '11.png' : '3.png';
-          if (last !== target) {
-            parts[parts.length - 1] = target;
-            playerShipImg.src = parts.join('/');
-          }
-        }
-      }
-
-      toggleSmoke('player-smoke', pp < 40);
-      toggleSmoke('npc-smoke', np < 40);
-      toggleFire('player-fire', pp <= 50);
-      toggleFire('npc-fire', np <= 50);
-    }
-
-    function fmt(n) { return Number(n).toLocaleString('tr-TR'); }
-    function toggleSmoke(id, on) { const el = document.getElementById(id); if (on) { el.classList.add('visible'); el.style.opacity = '1'; } else { el.classList.remove('visible'); el.style.opacity = '0'; } }
-    function toggleFire(id, on) { const el = document.getElementById(id); if (el) { el.style.opacity = on ? '0.75' : '0'; } }
-
-    /* Flash — küçük (Kullanıcı isteğiyle kapatıldı) */
-    function flash(who) {
-      // no-op
-    }
-
-    /* Hasar sayısı — geminin üstünde sabit, renk+ikon desteği */
-    function spawnDmg(nodeId, amount, color, icon) {
-      playSound('explosion'); // Gülle çarpma / patlama sesi!
-      const node = document.getElementById(nodeId);
-      const parent = document.getElementById('battlefield');
-      const nr = node.getBoundingClientRect();
-      const pr = parent.getBoundingClientRect();
-      const el = document.createElement('div');
-      el.className = 'dmg-static';
-      el.style.left = (nr.left - pr.left + nr.width * 0.5) + 'px';
-      el.style.top = (nr.top - pr.top - 18) + 'px';
-      el.innerHTML = (icon ? `<span class="dmg-icon">${icon}</span>` : '')
-        + `<span class="dmg-val" style="color:${color}">${fmt(amount)}</span>`;
-      parent.appendChild(el);
-      setTimeout(() => el.remove(), 1600);
-    }
-
-    /* Slot sistemi */
-    const DEFAULT_SLOTS = [
-      { type: 'ammo', ammo: 1, img: 'assets/dükkan/misketgülle.png', title: 'Misket Gülle' },
-      { type: 'ammo', ammo: 2, img: 'assets/dükkan/oyukgülle.png', title: 'Oyuk Gülle' },
-      { type: 'ammo', ammo: 3, img: 'assets/dükkan/elitgülle.png', title: 'Elit Gülle' },
-      { type: 'buff', key: 'barut', img: 'assets/dükkan/barut-fight.png', title: 'Barut' },
-      { type: 'buff', key: 'zirh', img: 'assets/dükkan/zırh-fghit.png', title: 'Zırh' },
-      { type: 'empty' }, { type: 'empty' }, { type: 'empty' }, { type: 'empty' }, { type: 'empty' }
-    ];
-    let slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null');
-    // Eğer eski, hatalı yerleşim localStorage'da kayıtlıysa veya başlık/görsel eşleşmiyorsa sıfırla/düzelt:
-    let isSlotsValid = true;
-    if (slots && Array.isArray(slots) && slots.length === 10) {
-      slots.forEach(s => {
-        if (s && s.type === 'ammo') {
-          if (s.ammo === 1 && (!s.title || !s.title.includes('Misket') || !s.img || !s.img.includes('misket'))) isSlotsValid = false;
-          if (s.ammo === 2 && (!s.title || !s.title.includes('Oyuk') || !s.img || !s.img.includes('oyuk'))) isSlotsValid = false;
-          if (s.ammo === 3 && (!s.title || !s.title.includes('Elit') || !s.img || !s.img.includes('elit'))) isSlotsValid = false;
-        }
-      });
-    } else {
-      isSlotsValid = false;
-    }
-
-    if (!isSlotsValid) {
-      slots = null;
-      localStorage.removeItem('sp_slot_layout');
-    }
-    if (!slots) {
-      slots = DEFAULT_SLOTS;
-    }
-    let selectedAmmo = player.ammo;
-    function saveSlots() { localStorage.setItem('sp_slot_layout', JSON.stringify(slots)); }
-    /* Miktar tam sayı göster */
-    function renderSlots() {
-      const bar = document.getElementById('ammo-bar');
-      bar.innerHTML = '';
-      slots.forEach((s, i) => {
-        const div = document.createElement('div');
-        div.className = 'slot';
-        div.dataset.index = i;
-        div.dataset.dragged = '0';
-        div.title = s.title || '';
-        div.style.touchAction = 'none';
-        if (s.type !== 'empty') {
-          if (s.type === 'ammo' && player.ammo === s.ammo) div.classList.add('sel-ammo');
-          if (s.key === 'barut' && player.barut) div.classList.add('sel-buff');
-          if (s.key === 'zirh' && player.zirh) div.classList.add('sel-buff');
-          if (s.img) {
-            let imgSrc = s.img;
-            if (!imgSrc.includes('assets/')) imgSrc = 'assets/' + imgSrc;
-            div.innerHTML = `<img src="${imgSrc}" draggable="false"/>`;
-            let qty = 0;
-            if (s.type === 'ammo' && player.ammoQtys) {
-              qty = player.ammoQtys[s.ammo] || 0;
-            } else if (s.type === 'buff' && player.itemQtys) {
-              qty = player.itemQtys[s.key] || 0;
-            }
-            const b = document.createElement('div');
-            b.className = 'qty' + (qty === 0 ? ' zero' : '');
-            b.textContent = qty;
-            div.appendChild(b);
-          }
-          div.addEventListener('click', () => {
-            if (div.dataset.dragged === '1') { div.dataset.dragged = '0'; return; }
-            if (s.type === 'ammo') { 
-              selectedAmmo = s.ammo; 
-              player.ammo = s.ammo; 
-              localStorage.setItem('sp_selected_ammo', s.ammo);
-            }
-            else if (s.type === 'buff') {
-              const qty = player.itemQtys ? (player.itemQtys[s.key] || 0) : 0;
-              if (qty <= 0) {
-                // Miktar sıfırsa aktif edilmesine izin verilmez!
-                player[s.key] = false;
-                localStorage.setItem('sp_use_' + s.key, 'false');
-                renderSlots();
-                return;
-              }
-              if (s.key === 'barut') {
-                player.barut = !player.barut;
-                localStorage.setItem('sp_use_barut', player.barut);
-              }
-              if (s.key === 'zirh') {
-                player.zirh = !player.zirh;
-                localStorage.setItem('sp_use_zirh', player.zirh);
-              }
-            }
-            renderSlots();
-          });
-        }
-        div.addEventListener('pointerdown', (e) => {
-          const fromIdx = parseInt(div.dataset.index);
-          div.setPointerCapture(e.pointerId);
-          let moved = false;
-          function onMove(ev) { moved = true; const over = document.elementFromPoint(ev.clientX, ev.clientY); const os2 = over && over.closest('#ammo-bar .slot[data-index]'); document.querySelectorAll('#ammo-bar .slot').forEach(s2 => s2.classList.remove('drag-over')); if (os2 && os2 !== div) os2.classList.add('drag-over'); }
-          function onUp(ev) { div.removeEventListener('pointermove', onMove); div.removeEventListener('pointerup', onUp); document.querySelectorAll('#ammo-bar .slot').forEach(s2 => s2.classList.remove('drag-over')); if (!moved) return; const over = document.elementFromPoint(ev.clientX, ev.clientY); const os2 = over && over.closest('#ammo-bar .slot[data-index]'); if (os2 && os2 !== div) { const toIdx = parseInt(os2.dataset.index);[slots[fromIdx], slots[toIdx]] = [slots[toIdx], slots[fromIdx]]; saveSlots(); renderSlots(); div.dataset.dragged = '1'; } }
-          div.addEventListener('pointermove', onMove);
-          div.addEventListener('pointerup', onUp);
-        });
-        bar.appendChild(div);
-      });
-    }
-    renderSlots();
-
-    /* Combat API */
-    const API_URL = 'http://localhost:3000/api/combat';
-    const token = localStorage.getItem('sp_token');
-    if (!token) goTo('index.html');
-
-    let attackInterval;
-    let admiralStatusInterval = null;
-
-    async function fetchAdmiralStatus() {
-      try {
-        const res = await fetch(`${API_URL}/admiral-status`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        
-        if (data.spawned) {
-          npc.hp = data.bossHp;
-          npc.maxHp = data.bossMaxHp;
-          refreshHP();
-
-          const listEl = document.getElementById('admiral-leaderboard-list');
-          if (listEl && data.leaderboard) {
-            listEl.innerHTML = '';
-            data.leaderboard.slice(0, 30).forEach((row, idx) => {
-              const isSelf = row.username === player.name;
-              const cleanLvl = (row.ship_level >= 1 && row.ship_level <= 10) ? row.ship_level : (row.ship_level > 10 ? 10 : 0);
-              const shipIcon = cleanLvl > 0 
-                ? `assets/elitship/elit${cleanLvl}/images/7.png` 
-                : `assets/elitship/default/7.png`;
-              
-              const hpPct = Math.max(0, Math.min(100, (row.current_hp / row.max_hp) * 100));
-              
-              const rowHtml = `
-                <div style="display: flex; align-items: center; gap: 8px; position: relative; padding: 5px 8px; border-radius: 6px; ${isSelf ? 'background: rgba(122, 74, 24, 0.45); border: 1.5px solid #d4af37;' : 'background: rgba(0, 0, 0, 0.55); border: 1.5px solid rgba(122, 74, 24, 0.5);'}">
-                  <span style="font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 900; color: ${idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#d2b48c'}; width: 14px; text-align: center; text-shadow: 1px 1px 2px #000;">${idx + 1}</span>
-                  <img src="${shipIcon}" style="width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));" />
-                  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                      <span style="font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 700; color: ${isSelf ? '#ffd700' : '#fff'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; text-shadow: 1px 1px 2px #000;">${row.username}</span>
-                      <span style="font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 800; color: #ffd700; text-shadow: 1px 1px 2px #000;">${fmt(row.damage_dealt)}</span>
-                    </div>
-                    <div style="width: 100%; height: 4px; background: rgba(0, 0, 0, 0.85); border-radius: 2px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.85);">
-                      <div style="width: ${hpPct}%; height: 100%; background: ${hpPct > 50 ? '#2e7d32' : hpPct > 20 ? '#f57f17' : '#c62828'}; transition: width 0.3s ease;"></div>
-                    </div>
-                  </div>
-                </div>
-              `;
-              listEl.insertAdjacentHTML('beforeend', rowHtml);
-            });
-          }
-          
-          if (data.bossHp <= 0 && active) {
-            active = false;
-            clearInterval(attackInterval);
-            if (admiralStatusInterval) clearInterval(admiralStatusInterval);
-            endFight(true, { gold: 0, pearl: 0, xp: 0 });
-          }
-        } else if (active) {
-          // Amiral savaşı aktif ama artık Amiral yok; yani başka bir oyuncu tarafından öldürülmüş!
-          active = false;
-          clearInterval(attackInterval);
-          if (admiralStatusInterval) clearInterval(admiralStatusInterval);
-          npc.hp = 0;
-          refreshHP();
-          endFight(true, { gold: 0, pearl: 0, xp: 0 });
-        }
-      } catch(e) {
-        console.error(e);
-      }
-    }
-
-    function startAdmiralStatusTracking() {
-      if (admiralStatusInterval) clearInterval(admiralStatusInterval);
-      fetchAdmiralStatus();
-      admiralStatusInterval = setInterval(fetchAdmiralStatus, 1500);
-    }
-
-    let isLeaderboardCollapsed = false;
-    function toggleAdmiralLeaderboard() {
-      const panel = document.getElementById('admiral-leaderboard');
-      const toggleBtn = document.getElementById('admiral-leaderboard-toggle');
-      if (!panel || !toggleBtn) return;
-      
-      isLeaderboardCollapsed = !isLeaderboardCollapsed;
-      if (isLeaderboardCollapsed) {
-        panel.style.transform = 'translateX(-245px)';
-        toggleBtn.innerHTML = '▶';
-        toggleBtn.style.boxShadow = '5px 0 15px rgba(255, 215, 0, 0.35)';
-      } else {
-        panel.style.transform = 'translateX(0)';
-        toggleBtn.innerHTML = '◀';
-        toggleBtn.style.boxShadow = '5px 0 10px rgba(0,0,0,0.5)';
-      }
-    }
-
-    function setupIsland(mapLvl) {
-      const island = document.getElementById('island-bg');
-      if (!island) return;
-      
-      const islandFiles = {
-        1: 'assets/island/images/1_tile_57.png',
-        2: 'assets/island/images/2_tile_56.png',
-        3: 'assets/island/images/3_tile_55.png',
-        4: 'assets/island/images/4_tile_54.png',
-        5: 'assets/island/images/5_tile_53.png',
-        6: 'assets/island/images/6_tile_52.png',
-        7: 'assets/island/images/images/1_tile_51.png',
-        8: 'assets/island/images/images/2_tile_50.png',
-        9: 'assets/island/images/images/3_tile_49.png',
-        10: 'assets/island/images/images/4_tile_48.png'
-      };
-      
-      const file = islandFiles[mapLvl];
-      if (file) {
-        island.src = file;
-        island.style.display = 'block';
-        
-        // Reset positions
-        island.style.top = 'auto';
-        island.style.bottom = 'auto';
-        island.style.left = 'auto';
-        island.style.right = 'auto';
-        
-        // Savaş alanı için estetik, çakışmayı önleyen köşe yerleşimleri (10 Harita)
-        if (mapLvl === 1) {
-          island.style.top = '320px';
-          island.style.left = '-30px';
-          island.style.width = '140px';
-        } else if (mapLvl === 2) {
-          island.style.bottom = '180px';
-          island.style.right = '-35px';
-          island.style.width = '160px';
-        } else if (mapLvl === 3) {
-          // Amiral'den uzaklaştırmak için dikey konumu 100px'den 240px'e çektik!
-          island.style.top = '240px';
-          island.style.right = '-30px';
-          island.style.width = '150px';
-        } else if (mapLvl === 4) {
-          island.style.bottom = '260px';
-          island.style.left = '-35px';
-          island.style.width = '160px';
-        } else if (mapLvl === 5) {
-          // Amiral'den uzaklaştırmak için bottom tabanlı konumlandırma yaptık!
-          island.style.bottom = '300px';
-          island.style.right = '-40px';
-          island.style.width = '170px';
-        } else if (mapLvl === 6) {
-          island.style.top = '350px';
-          island.style.left = '-25px';
-          island.style.width = '150px';
-        } else if (mapLvl === 7) {
-          island.style.bottom = '160px';
-          island.style.right = '-30px';
-          island.style.width = '160px';
-        } else if (mapLvl === 8) {
-          island.style.top = '40%';
-          island.style.left = '-35px';
-          island.style.width = '155px';
-        } else if (mapLvl === 9) {
-          island.style.bottom = '250px';
-          island.style.right = '-35px';
-          island.style.width = '165px';
-        } else if (mapLvl === 10) {
-          island.style.bottom = '150px';
-          island.style.right = '-30px';
-          island.style.width = '170px';
-        }
-      } else {
-        island.style.display = 'none';
-      }
-    }
-
-    async function startCombat() {
-      try {
-        const mapLvl = parseInt(localStorage.getItem('sp_current_map')) || 1;
-        const isTower = localStorage.getItem('sp_combat_is_tower') === 'true';
-        const isWeeklyBoss = localStorage.getItem('sp_combat_is_weekly_boss') === 'true';
-        const towerId = parseInt(localStorage.getItem('sp_combat_tower_id')) || 1;
-
-        let payload;
-        if (isWeeklyBoss) {
-          setupIsland(0); // Ada dekorasyonunu gizle
-          payload = { isWeeklyBoss: true };
-        } else if (isTower) {
-          setupIsland(0); // Kule savaşında ada dekorasyonunu gizle
-          payload = { isTower: true, towerId: towerId };
-        } else {
-          setupIsland(mapLvl);
-          payload = { mapLevel: mapLvl, npcName: npc.name };
-        }
-
-        const res = await fetch(`${API_URL}/start`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (res.ok) {
-          player.hp = data.playerHp; player.maxHp = data.playerMaxHp;
-          npc.hp = data.npcHp; npc.maxHp = data.npcMaxHp;
-          
-          if (!isWeeklyBoss && data.isTower && data.fullImg) {
-            npc.isTower = true;
-            npc.fullImg = data.fullImg;
-            npc.damagedImg = data.damagedImg;
-            if (data.npcName) {
-              npc.name = data.npcName;
-              document.getElementById('npc-name').textContent = data.npcName;
-            }
-            
-            const npcImgEl = document.getElementById('npc-img');
-            if (npcImgEl) {
-              npcImgEl.src = data.fullImg;
-              npcImgEl.style.maxWidth = '90px';
-              npcImgEl.style.maxHeight = '90px';
-            }
-          }
-
-          refreshHP();
-          attackInterval = setInterval(doAttack, 3000);
-
-          if (data.isAdmiral) {
-            document.getElementById('admiral-leaderboard').style.display = 'block';
-            startAdmiralStatusTracking();
-          }
-
-          if (isWeeklyBoss) {
-            document.getElementById('boss-timer').style.display = 'flex';
-            let bossTimeLeft = 60;
-            const bossTimerValEl = document.getElementById('boss-timer-val');
-            
-            const timerInterval = setInterval(() => {
-              if (!active) {
-                clearInterval(timerInterval);
-                return;
-              }
-              bossTimeLeft--;
-              bossTimerValEl.textContent = bossTimeLeft;
-              
-              if (bossTimeLeft <= 0) {
-                clearInterval(timerInterval);
-                clearInterval(attackInterval);
-                endFight(true); // Süre doldu, savaşı başarıyla tamamla
-              }
-            }, 1000);
-          }
-        } else {
-          alert(data.error);
-          goTo(isTower ? 'tower.html' : 'map.html');
-        }
-      } catch (e) { console.error(e); }
-    }
-
-    function handleReturn() {
-      const isTower = localStorage.getItem('sp_combat_is_tower') === 'true';
-      localStorage.removeItem('sp_combat_is_tower');
-      localStorage.removeItem('sp_combat_tower_id');
-      localStorage.removeItem('sp_combat_is_weekly_boss');
-      localStorage.removeItem('sp_boss_dmg_dealt');
-      goTo(isTower ? 'tower.html' : 'map.html');
-    }
-
-    async function doAttack() {
-      if (!active) return;
-      try {
-        const payload = {
-          ammoId: player.ammo,
-          useBarut: player.barut,
-          useZirh: player.zirh
-        };
-        const res = await fetch(`${API_URL}/attack`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (res.ok) {
-
-          if (isWeeklyBoss && data.weeklyBossDamageDealt !== undefined) {
-            localStorage.setItem('sp_boss_dmg_dealt', data.weeklyBossDamageDealt);
-          }
-          // Sunucudan dönen yeni can değerlerini geçici değişkenlerde sakla
-          const nextPlayerHp = data.playerHp;
-          const nextNpcHp = data.npcHp;
-
-          const TRAVEL_MS = 1620; // Delta-time bazlı 1500ms gülle uçuşuna göre tam senkronize süre
-
-          // t=0: Oyuncu ateşler (Sadece seçili gülle envanterde varsa atış yapılır!)
-          const hasAmmo = data.consumed && data.consumed.ammo > 0;
-          if (hasAmmo) {
-            flash('player');
-            const ammoCount = player.ammo === 1 ? 4 : player.ammo === 2 ? 5 : 3;
-            fireSalvo('player-node', 'npc-node', player.ammo, ammoCount, 80);
-          }
-
-          // Oyuncu güllesi NPC'ye çarptığı an (t = TRAVEL_MS) - Sadece atış yapıldıysa hasar efekti tetiklenir
-          const isBarutUsed = data.consumed && data.consumed.barut > 0;
-          if (data.playerDamage && hasAmmo) {
-            const pColor = isBarutUsed ? '#ffa502' : '#ff4757';
-            const pIcon = isBarutUsed
-              ? '<img src="assets/dükkan/barut-fight.png" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;">'
-              : null;
-            setTimeout(() => {
-              if (!active) return;
-              npc.hp = nextNpcHp; // Yeni canı darbe anında uygula!
-              spawnDmg('npc-node', data.playerDamage, pColor, pIcon);
-              refreshHP(); // HP barı düşer, sails (yelken) düşme kontrolü tam bu saniye gerçekleşir!
-            }, TRAVEL_MS);
-          } else {
-            // Atış yapılmadıysa sessizce canları eşitle
-            setTimeout(() => {
-              if (!active) return;
-              npc.hp = nextNpcHp;
-              refreshHP();
-            }, TRAVEL_MS);
-          }
-
-          // t=600ms: NPC karşı ateş açar (Sadece oyuncu hedeflenmişse ateş eder!)
-          const isAdmiral = npc.name && npc.name.includes('Admiral');
-          const shouldNpcAttackPlayer = !isAdmiral || (data.npcDamage && data.npcDamage > 0);
-
-          if (shouldNpcAttackPlayer) {
-            setTimeout(() => {
-              if (!active) return;
-              flash('npc');
-              const npcShots = 1;
-              fireSalvo('npc-node', 'player-node', 1, npcShots, 100);
-
-              // NPC güllesi oyuncuya çarptığı an (t = 600 + TRAVEL_MS) - Sadece zırh tüketildiyse koruma kalkanı gösterilir!
-              const isZirhUsed = data.consumed && data.consumed.zirh > 0;
-              const nIcon = isZirhUsed
-                ? '<img src="assets/dükkan/zırh-fghit.png" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;">'
-                : null;
-              setTimeout(() => {
-                if (!active) return;
-                player.hp = nextPlayerHp; // Yeni canı darbe anında uygula!
-                if (data.npcDamage) spawnDmg('player-node', data.npcDamage, '#ff4757', nIcon);
-                refreshHP(); // HP barı darbe anında düşer!
-              }, TRAVEL_MS);
-            }, 600);
-          } else {
-            // Oyuncu hedeflenmediyse, Amiral ateş etmez; sessizce canları senkronize et
-            setTimeout(() => {
-              if (!active) return;
-              player.hp = nextPlayerHp;
-              refreshHP();
-            }, 600 + TRAVEL_MS);
-          }
-
-          // Savaş bitti kontrollerini darbeden hemen sonraya ertele (Darbe hissi tam olsun)
-          setTimeout(() => {
-            if (data.state === 'won') { endFight(true, data.rewards, data.leveledUp, data.newLevel); clearInterval(attackInterval); }
-            else if (data.state === 'lost') { endFight(false, data.rewards); clearInterval(attackInterval); }
-          }, 600 + TRAVEL_MS + 200);
-
-          if (data.consumed) {
-            if (data.consumed.ammo > 0 && player.ammoQtys && player.ammoQtys[player.ammo]) {
-              player.ammoQtys[player.ammo] = Math.max(0, player.ammoQtys[player.ammo] - data.consumed.ammo);
-            }
-            if (player.itemQtys) {
-              if (data.consumed.barut > 0 && player.itemQtys['barut']) {
-                player.itemQtys['barut'] = Math.max(0, player.itemQtys['barut'] - data.consumed.barut);
-              }
-              if (data.consumed.zirh > 0 && player.itemQtys['zirh']) {
-                player.itemQtys['zirh'] = Math.max(0, player.itemQtys['zirh'] - data.consumed.zirh);
-              }
-              
-              // Eğer dövüş esnasında tükenirse hemen pasife al
-              if (player.itemQtys['barut'] === 0 && player.barut) {
-                player.barut = false;
-                localStorage.setItem('sp_use_barut', 'false');
-              }
-              if (player.itemQtys['zirh'] === 0 && player.zirh) {
-                player.zirh = false;
-                localStorage.setItem('sp_use_zirh', 'false');
-              }
-            }
-            if (typeof renderSlots === 'function') renderSlots();
-          }
-        }
-      } catch (e) { console.error(e); }
-    }
-
-    function endFight(won, rewards, leveledUp, newLevel) {
-      active = false;
-      if (admiralStatusInterval) {
-        clearInterval(admiralStatusInterval);
-        admiralStatusInterval = null;
-      }
-
-      if (player) {
-        const existing = JSON.parse(localStorage.getItem('sp_player') || '{}');
-        existing.hp = player.hp;
-        existing.max_hp = player.maxHp || existing.max_hp;
-        if (newLevel) existing.level = newLevel;
-        localStorage.setItem('sp_player', JSON.stringify(existing));
-      }
-
-      const rw = rewards || {};
-      const titleEl = document.getElementById('outcome-title');
-      const subEl = document.getElementById('outcome-sub');
-      const rewardsEl = document.getElementById('outcome-rewards');
-
-      const isWeeklyBoss = localStorage.getItem('sp_combat_is_weekly_boss') === 'true';
-      const isTower = localStorage.getItem('sp_combat_is_tower') === 'true';
-      const isAdmiral = npc.name && npc.name.includes('Admiral');
-
-      let titleText, subText;
-
-      if (isWeeklyBoss) {
-        titleText = 'MÜCADELE BİTTİ';
-        subText = 'Haftalık Amiral Avı';
-      } else if (won) {
-        if (isTower) { titleText = 'KULE YIKILDI'; subText = 'Daily Tower'; }
-        else if (isAdmiral) { titleText = 'AMİRAL BATIRILDI'; subText = 'Ödüller hasara göre aktarıldı'; }
-        else { titleText = 'ZAFER'; subText = npc.name || ''; }
-      } else {
-        titleText = 'MAĞLUBİYET';
-        subText = 'Geminiz battı!';
-      }
-
-      titleEl.textContent = titleText;
-      titleEl.className = won ? 'outcome-title win' : 'outcome-title loss';
-      subEl.textContent = subText;
-
-      if (!won) {
-        rewardsEl.innerHTML = '';
-      } else {
-        let html = '<div style="font-size:1.2rem;color:var(--gold-p);margin-bottom:10px;">ÖDÜLLER</div>';
-        if (isWeeklyBoss) {
-          const bossDmg = Number(localStorage.getItem('sp_boss_dmg_dealt') || 0);
-          html += '<div class="outcome-reward-row"><span style="font-weight:700;color:#ff6b6b;">' + bossDmg.toLocaleString('tr-TR') + ' Hasar</span></div>';
-        } else {
-          const hasAny = rw.gold > 0 || rw.pearl > 0 || rw.xp > 0;
-          if (!hasAny) html += '<div class="outcome-empty">Ödül yok</div>';
-          if (rw.gold > 0) html += '<div class="outcome-reward-row"><img src="assets/gold.png" /><span class="r-gold">+' + fmt(rw.gold) + '</span></div>';
-          if (rw.pearl > 0) html += '<div class="outcome-reward-row"><img src="assets/pearl.png" /><span class="r-pearl">+' + fmt(rw.pearl) + '</span></div>';
-          if (rw.xp > 0) html += '<div class="outcome-reward-row"><span style="font-size:1.1rem;">⭐</span><span class="r-xp">+' + fmt(rw.xp) + ' XP</span></div>';
-        }
-        if (leveledUp) html += '<div class="outcome-lvlup">🎉 SEVİYE ATLADI! → ' + newLevel + ' LVL</div>';
-        rewardsEl.innerHTML = html;
-      }
-      setTimeout(() => document.getElementById('outcome').classList.add('show'), 900);
-    }
-
-    startCombat();
-  </script>
-
-  <!-- AMBIENT ANIMATIONS -->
-  <script id="ambient-fx">
-    (function () {
-      const cfg = [
-        { p: 'assets/DefineSprite_19_bird', f: 9, t: 'bird' },
-        { p: 'assets/DefineSprite_31_albatross', f: 15, t: 'bird' },
-        { p: 'assets/DefineSprite_27_dolphin4', f: 13, t: 'fish' },
-        { p: 'assets/DefineSprite_54_dolphin3', f: 13, t: 'fish' },
-        { p: 'assets/DefineSprite_81_dolphin2', f: 13, t: 'fish' }
-      ];
-      const layer = document.createElement('div');
-      layer.style.cssText = 'position:absolute; inset:0; z-index:200; pointer-events:none; overflow:hidden;';
-      const page = document.querySelector('.page') || document.body;
-      page.appendChild(layer);
-
-      function spawn() {
-        if (localStorage.getItem('sp_setting_graphics') === 'false') return;
-        if (Math.random() > 0.75) return; // Arttırılmış sıklık şansı (%75 ihtimalle çıkar)
-        const c = cfg[Math.floor(Math.random() * cfg.length)];
-        const img = document.createElement('img');
-        img.style.position = 'absolute';
-        // Kuşları küçülttük (30px)
-        img.style.width = c.t === 'bird' ? '30px' : '70px';
-        img.style.height = c.t === 'bird' ? '30px' : '70px';
-        img.style.objectFit = 'contain';
-        img.style.opacity = '0';
-        img.style.filter = 'drop-shadow(0 8px 8px rgba(0,0,0,0.5))';
-
-        // Kuşlar ekranın bir ucundan girip diğer ucundan tamamen çıksın (kaybolmadan önce ekran kenarına varsın)
-        let flyRight = Math.random() > 0.5;
-        let startX = c.t === 'bird' ? (flyRight ? -50 : 450) : (Math.random() * 350 - 20);
-
-        // Kuşlar tüm ekranda random uçabilsin ve gemilerin üzerinden de geçebilsin
-        let startY = c.t === 'bird' ? (Math.random() * 600 + 50) : (Math.random() * 150 + 400);
-
-        // Kuşlar hareket eder, balıklar sabit noktada sadece kendi animasyonunu oynatır
-        let moveX = c.t === 'bird' ? (flyRight ? 520 : -520) : 0;
-        // moveY hafif çapraz uçuşlar için random
-        let moveY = c.t === 'bird' ? ((Math.random() - 0.5) * 160) : 0;
-
-        let duration = c.t === 'bird' ? 8000 : 1600; // Kuşlar tüm ekranı daha pürüzsüz geçsin diye 8sn
-
-        img.style.transition = `opacity 0.6s, transform ${duration}ms linear`;
-        img.style.left = startX + 'px';
-        img.style.top = startY + 'px';
-
-        let scale = moveX < 0 ? 'scaleX(-1)' : 'scaleX(1)';
-
-        // Kuşun gidiş yönüne göre burnunu aşağı/yukarı eğ (rotate)
-        let angle = 0;
-        if (c.t === 'bird') {
-          angle = Math.atan2(moveY, Math.abs(moveX)) * (180 / Math.PI);
-          angle = angle * 0.5;
-        }
-        let rotate = c.t === 'bird' ? ` rotate(${angle}deg)` : '';
-
-        img.style.transform = scale + rotate;
-
-        layer.appendChild(img);
-
-        let frame = 1;
-        img.src = `${c.p}/${frame}.png`;
-
-        setTimeout(() => {
-          img.style.opacity = c.t === 'fish' ? '0.95' : '0.90'; // Arttırılmış netlik / kontrast
-          img.style.transform = `translate(${moveX}px, ${moveY}px) ${scale}${rotate}`;
-        }, 50);
-
-        let frameInterval = c.t === 'bird' ? 100 : 130;
-        const anim = setInterval(() => {
-          frame++;
-          if (frame > c.f) {
-            if (c.t === 'fish') {
-              clearInterval(anim);
-              return;
-            }
-            frame = 1;
-          }
-          img.src = `${c.p}/${frame}.png`;
-        }, frameInterval);
-
-        setTimeout(() => {
-          img.style.opacity = '0';
-          setTimeout(() => {
-            clearInterval(anim);
-            if (img.parentNode) img.parentNode.removeChild(img);
-          }, 600);
-        }, duration - 600);
-      }
-
-      // Her 2 saniyede bir şans denesin
-      setInterval(spawn, 2000);
-      setTimeout(spawn, 500);
-    })();
-  </script>
-
-  <!-- YANMA ANİMASYON DÖNGÜSÜ -->
-  <script>
-    (function() {
-      let fireFrame = 2;
-      setInterval(() => {
-        fireFrame += 2;
-        if (fireFrame > 60) fireFrame = 2; // Frame sınırı 60'a yükseltildi (30 kare)
-        const path = `assets/fight/shapes/${fireFrame}.png`; // Doğru klasör yolu
-        const playerFire = document.getElementById('player-fire');
-        const npcFire = document.getElementById('npc-fire');
-        if (playerFire) playerFire.style.backgroundImage = `url('${path}')`;
-        if (npcFire) npcFire.style.backgroundImage = `url('${path}')`;
-      }, 90);
-    })();
-  </script>
-
-  <script src="transition.js"></script>
 </body>
 
 </html>

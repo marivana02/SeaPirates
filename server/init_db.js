@@ -1,251 +1,34 @@
 const pool = require('./config/db');
+const fs = require('fs');
+const path = require('path');
 
-// ─────────────────────────────────────────────
-// 1. TABLO OLUŞTURMA (Eksik olanları ekle)
-// ─────────────────────────────────────────────
-const createTables = `
-CREATE TABLE IF NOT EXISTS players (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    display_name VARCHAR(50) DEFAULT '',
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    gold BIGINT DEFAULT 5000,
-    pearl BIGINT DEFAULT 0,
-    xp BIGINT DEFAULT 0,
-    level INT DEFAULT 1,
-    elite_points BIGINT DEFAULT 0,
-    ship_level INT DEFAULT 0,
-    hp INT DEFAULT 10000,
-    max_hp INT DEFAULT 10000,
-    vip_until TIMESTAMP,
-    last_username_change TIMESTAMP DEFAULT NULL,
-    last_boss_attack DATE DEFAULT NULL,
-    weekly_boss_damage BIGINT DEFAULT 0,
-    weekly_boss_week VARCHAR(10) DEFAULT '',
-    last_tower_attack DATE DEFAULT NULL,
-    tower_level INT DEFAULT 1,
-    active_quest_id INT DEFAULT NULL,
-    quest_kills INT DEFAULT 0,
-    quest_damage BIGINT DEFAULT 0,
-    quest_glitters INT DEFAULT 0,
-    completed_quests INT[] DEFAULT '{}',
-    last_quest_reset_date VARCHAR(20) DEFAULT '',
-    daily_streak INT DEFAULT 0,
-    last_daily_claim TIMESTAMP DEFAULT NULL,
-    last_vip_claim TIMESTAMP DEFAULT NULL,
-    claimed_normal_levels INT[] DEFAULT '{}',
-    claimed_vip_levels INT[] DEFAULT '{}',
-    current_map_level INT DEFAULT 1,
-    current_map_sub INT DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+console.log('');
+console.log('╔══════════════════════════════════════════════╗');
+console.log('║  Tablolar migration SQL ile oluşturuluyor.  ║');
+console.log('╚══════════════════════════════════════════════╝');
+console.log('');
 
-CREATE TABLE IF NOT EXISTS player_cannons (
-    id SERIAL PRIMARY KEY,
-    player_id INT REFERENCES players(id) ON DELETE CASCADE,
-    cannon_type INT,
-    quantity INT DEFAULT 0,
-    equipped INT DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS player_ammo (
-    id SERIAL PRIMARY KEY,
-    player_id INT REFERENCES players(id) ON DELETE CASCADE,
-    ammo_type INT,
-    quantity INT DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS player_items (
-    id SERIAL PRIMARY KEY,
-    player_id INT REFERENCES players(id) ON DELETE CASCADE,
-    item_type VARCHAR(50),
-    quantity INT DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS player_planks (
-    id SERIAL PRIMARY KEY,
-    player_id INT REFERENCES players(id) ON DELETE CASCADE,
-    plank_type VARCHAR(50),
-    quantity INT DEFAULT 0,
-    equipped INT DEFAULT 0
-);
-
--- Gemi tipleri referans tablosu
-CREATE TABLE IF NOT EXISTS ships (
-    level INT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    base_hp INT NOT NULL,
-    cannon_slots INT NOT NULL,
-    plank_slots INT NOT NULL,
-    required_elp BIGINT DEFAULT 0,
-    pearl_cost INT DEFAULT 0  -- sadece Elit I için 10.000 inci
-);
-
--- Toplar (Cannon)
-CREATE TABLE IF NOT EXISTS cannons (
-    id INT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    damage INT NOT NULL,
-    reload_time_ms INT NOT NULL,
-    price INT NOT NULL,
-    currency VARCHAR(10) NOT NULL  -- 'gold' veya 'pearl'
-);
-
--- Gülleler (Ammo)
-CREATE TABLE IF NOT EXISTS ammo (
-    id INT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    damage_bonus INT NOT NULL,
-    elp_per_shot NUMERIC(4,2) DEFAULT 0,
-    pack_size INT DEFAULT 100,
-    price INT NOT NULL,
-    currency VARCHAR(10) NOT NULL
-);
-
--- Direkler (Planks / Beams)
-CREATE TABLE IF NOT EXISTS planks (
-    id SERIAL PRIMARY KEY,
-    type_key VARCHAR(30) UNIQUE NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    hp_bonus INT NOT NULL,
-    break_chance VARCHAR(20),  -- 'Yüksek', 'Düşük'
-    price INT NOT NULL,
-    currency VARCHAR(10) NOT NULL
-);
-
--- Sarf malzemeleri (Barut, Zırh)
-CREATE TABLE IF NOT EXISTS items (
-    id SERIAL PRIMARY KEY,
-    type_key VARCHAR(30) UNIQUE NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    effect_pct NUMERIC(4,2) NOT NULL,  -- 0.10 = %10
-    description VARCHAR(200),
-    pack_size INT DEFAULT 100,
-    price INT NOT NULL,
-    currency VARCHAR(10) NOT NULL
-);
-
--- NPC tablosu
-CREATE TABLE IF NOT EXISTS npcs (
-    id SERIAL PRIMARY KEY,
-    map_level INT NOT NULL,
-    npc_tier INT NOT NULL,   -- 1=Zayıf, 2=Orta, 3=Güçlü
-    name VARCHAR(100) NOT NULL,
-    hp BIGINT NOT NULL,
-    damage INT NOT NULL,
-    gold INT DEFAULT 0,
-    pearl INT DEFAULT 0,
-    xp INT NOT NULL,
-    UNIQUE(map_level, npc_tier)
-);
-
--- Boss tablosu
-CREATE TABLE IF NOT EXISTS bosses (
-    id SERIAL PRIMARY KEY,
-    map_level INT UNIQUE NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    hp BIGINT NOT NULL,
-    damage INT NOT NULL,
-    pearl INT NOT NULL,
-    xp INT NOT NULL,
-    required_kills INT NOT NULL  -- spawn için gereken NPC3 öldürme sayısı
-);
-
--- Tiamat (özel boss - harita 10)
-CREATE TABLE IF NOT EXISTS tiamat (
-    id INT PRIMARY KEY DEFAULT 1,
-    hp BIGINT NOT NULL,
-    damage INT NOT NULL,
-    pearl INT NOT NULL,
-    xp INT NOT NULL,
-    spawn_min_min INT DEFAULT 60,   -- dakika
-    spawn_max_min INT DEFAULT 180   -- dakika
-);
-
--- NPC3 kill counter (boss spawn için)
-CREATE TABLE IF NOT EXISTS npc3_kill_counter (
-    map_level INT PRIMARY KEY,
-    kill_count INT DEFAULT 0,
-    is_spawned BOOLEAN DEFAULT FALSE,
-    spawned_sub_map INT DEFAULT 1,
-    last_reset TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Boss hasar logu (ödül dağıtımı için)
-CREATE TABLE IF NOT EXISTS boss_damage_log (
-    id SERIAL PRIMARY KEY,
-    boss_session_id UUID,
-    player_id INT REFERENCES players(id) ON DELETE CASCADE,
-    damage_dealt BIGINT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Açık artırma tablosu
-CREATE TABLE IF NOT EXISTS auctions (
-    id SERIAL PRIMARY KEY,
-    seller_id INT REFERENCES players(id) ON DELETE CASCADE,
-    item_type VARCHAR(30) NOT NULL,  -- 'barut', 'zirh'
-    quantity INT NOT NULL,
-    currency VARCHAR(10) NOT NULL,   -- 'gold' veya 'pearl'
-    starting_price INT NOT NULL,
-    current_price INT NOT NULL,
-    highest_bidder_id INT REFERENCES players(id) ON DELETE SET NULL,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Etkinlikler tablosu
-CREATE TABLE IF NOT EXISTS events (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    icon VARCHAR(20) DEFAULT '🎉',
-    type VARCHAR(30) NOT NULL,       -- 'npc_reward', 'elp_reward', 'damage', 'none'
-    mult NUMERIC(4,1) DEFAULT 2.0,
-    start_at TIMESTAMP NOT NULL,
-    end_at TIMESTAMP NOT NULL,
-    is_auto BOOLEAN DEFAULT FALSE,   -- TRUE = sabit rotasyon, FALSE = özel etkinlik
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- XP / Level tablosu
-CREATE TABLE IF NOT EXISTS level_requirements (
-    level INT PRIMARY KEY,
-    required_xp BIGINT NOT NULL,
-    unlocks_map VARCHAR(30)
-);
-
--- Yeni Oyuncu Başlangıç Paketi Trigger'ı
-CREATE OR REPLACE FUNCTION give_starter_pack()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO player_cannons (player_id, cannon_type, quantity) VALUES (NEW.id, 1, 5);
-    INSERT INTO player_cannons (player_id, cannon_type, quantity) VALUES (NEW.id, 2, 1);
-
-    INSERT INTO player_ammo (player_id, ammo_type, quantity) VALUES (NEW.id, 1, 2000);
-    INSERT INTO player_ammo (player_id, ammo_type, quantity) VALUES (NEW.id, 2, 1000);
-    INSERT INTO player_ammo (player_id, ammo_type, quantity) VALUES (NEW.id, 3, 500);
-
-    INSERT INTO player_items (player_id, item_type, quantity) VALUES (NEW.id, 'barut', 100);
-    INSERT INTO player_items (player_id, item_type, quantity) VALUES (NEW.id, 'zirh', 100);
-
-    INSERT INTO player_planks (player_id, plank_type, quantity) VALUES (NEW.id, 'tahta', 10);
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trigger_starter_pack ON players;
-CREATE TRIGGER trigger_starter_pack
-AFTER INSERT ON players
-FOR EACH ROW
-EXECUTE FUNCTION give_starter_pack();
-`;
-
-// ─────────────────────────────────────────────
-// 2. VERİ SEED FONKSİYONLARI
-// ─────────────────────────────────────────────
+async function runMigrations() {
+  const dir = path.join(__dirname, 'migrations');
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql')).sort();
+  const client = await pool.connect();
+  try {
+    for (const file of files) {
+      const sql = fs.readFileSync(path.join(dir, file), 'utf8');
+      const upMatch = sql.match(/^-- Up\n([\s\S]*?)(?=\n-- Down)/);
+      if (upMatch) {
+        const upSql = upMatch[1].trim();
+        if (upSql) {
+          console.log(`  → ${file} uygulanıyor...`);
+          await client.query(upSql);
+          console.log(`    ✔ ${file} tamam.`);
+        }
+      }
+    }
+  } finally {
+    client.release();
+  }
+}
 
 async function seedShips(client) {
     console.log('  → Gemiler ekleniyor...');
@@ -320,18 +103,18 @@ async function seedAmmo(client) {
 async function seedPlanks(client) {
     console.log('  → Direkler (Kirişler) ekleniyor...');
     await client.query(
-        `INSERT INTO planks (type_key, name, hp_bonus, break_chance, price, currency)
-         VALUES ('tahta', 'Tahta Kiriş', 500,  'Yüksek', 25000, 'gold')
+        `INSERT INTO planks (type_key, name, hp_bonus, repair_bonus, break_chance, price, currency)
+         VALUES ('tahta', 'Tahta Kiriş', 500, 8, 50, 25000, 'gold')
          ON CONFLICT (type_key) DO UPDATE SET
-           name=EXCLUDED.name, hp_bonus=EXCLUDED.hp_bonus, break_chance=EXCLUDED.break_chance,
-           price=EXCLUDED.price, currency=EXCLUDED.currency`
+           name=EXCLUDED.name, hp_bonus=EXCLUDED.hp_bonus, repair_bonus=EXCLUDED.repair_bonus,
+           break_chance=EXCLUDED.break_chance, price=EXCLUDED.price, currency=EXCLUDED.currency`
     );
     await client.query(
-        `INSERT INTO planks (type_key, name, hp_bonus, break_chance, price, currency)
-         VALUES ('elit', 'Elit Kiriş', 1200, 'Düşük', 800, 'pearl')
+        `INSERT INTO planks (type_key, name, hp_bonus, repair_bonus, break_chance, price, currency)
+         VALUES ('elit', 'Elit Kiriş', 1200, 20, 15, 800, 'pearl')
          ON CONFLICT (type_key) DO UPDATE SET
-           name=EXCLUDED.name, hp_bonus=EXCLUDED.hp_bonus, break_chance=EXCLUDED.break_chance,
-           price=EXCLUDED.price, currency=EXCLUDED.currency`
+           name=EXCLUDED.name, hp_bonus=EXCLUDED.hp_bonus, repair_bonus=EXCLUDED.repair_bonus,
+           break_chance=EXCLUDED.break_chance, price=EXCLUDED.price, currency=EXCLUDED.currency`
     );
     console.log(`     ✔ 2 kiriş tipi eklendi.`);
 }
@@ -357,9 +140,7 @@ async function seedItems(client) {
 
 async function seedNPCs(client) {
     console.log('  → NPC\'ler ekleniyor...');
-    // GDD Bölüm 6.3 — Tam NPC detay tablosu
     const npcs = [
-        // [map, tier, name,                   hp,       damage, gold,  pearl, xp]
         [1,  1, 'Blackpearl',        6000,     90,    180,   0,   35],
         [1,  2, 'Rackham',           12000,    150,   320,   0,   65],
         [1,  3, 'Calicos Jack',      25000,    250,   550,   0,  120],
@@ -406,19 +187,17 @@ async function seedNPCs(client) {
 
 async function seedBosses(client) {
     console.log('  → Admiral Boss\'lar ekleniyor...');
-    // GDD Bölüm 7.3 — Admiral Boss Tablosu
     const bosses = [
-        // [map, name,                 hp,        damage,  pearl,  xp,      kills]
-        [1,  'Admiral Jack',      150000,    300,    180,    3500,    40],
-        [2,  'Admiral Ratpack',   280000,    450,    320,    5500,    45],
-        [3,  'Admiral Renegado',  450000,    650,    520,    8500,    50],
-        [4,  'Admiral Calico',    750000,    900,   1260,   13000,    55],
-        [5,  'Admiral Morgan',   1100000,   1350,   2140,   20000,    60],
-        [6,  'Admiral Sinclare', 1600000,   1800,   3010,   28000,    65],
-        [7,  'Admiral Dutchman', 2200000,   2200,   4560,   40000,    70],
-        [8,  'Admiral Kilimatu', 2800000,   2900,   6430,   55000,    75],
-        [9,  'Admiral Kiribati', 3300000,   3600,   8860,   72000,    80],
-        [10, 'Admiral Dutchman', 4000000,   4500,  13950,  110000,    90],
+        [1,  'Admiral Jack',      150000,    300,    180,     875,    40],
+        [2,  'Admiral Ratpack',   280000,    450,    320,    1375,    45],
+        [3,  'Admiral Renegado',  450000,    650,    520,    2125,    50],
+        [4,  'Admiral Calico',    750000,    900,   1260,    3250,    55],
+        [5,  'Admiral Morgan',   1100000,   1350,   2140,    5000,    60],
+        [6,  'Admiral Sinclare', 1600000,   1800,   3010,    7000,    65],
+        [7,  'Admiral Dutchman', 2200000,   2200,   4560,   10000,    70],
+        [8,  'Admiral Kilimatu', 2800000,   2900,   6430,   13750,    75],
+        [9,  'Admiral Kiribati', 3300000,   3600,   8860,   18000,    80],
+        [10, 'Admiral Dutchman', 4000000,   4500,  13950,   27500,    90],
     ];
     for (const [map_level, name, hp, damage, pearl, xp, required_kills] of bosses) {
         await client.query(
@@ -436,11 +215,12 @@ async function seedBosses(client) {
 async function seedTiamat(client) {
     console.log('  → Tiamat ekleniyor...');
     await client.query(
-        `INSERT INTO tiamat (id, hp, damage, pearl, xp, spawn_min_min, spawn_max_min)
-         VALUES (1, 12000000, 3800, 38000, 280000, 60, 180)
+        `INSERT INTO tiamat (id, hp, damage, pearl, xp, spawn_min_min, spawn_max_min, current_hp)
+         VALUES (1, 12000000, 3800, 38000, 280000, 60, 180, 12000000)
          ON CONFLICT (id) DO UPDATE SET
            hp=EXCLUDED.hp, damage=EXCLUDED.damage, pearl=EXCLUDED.pearl,
-           xp=EXCLUDED.xp, spawn_min_min=EXCLUDED.spawn_min_min, spawn_max_min=EXCLUDED.spawn_max_min`
+           xp=EXCLUDED.xp, spawn_min_min=EXCLUDED.spawn_min_min, spawn_max_min=EXCLUDED.spawn_max_min,
+           current_hp=COALESCE(tiamat.current_hp, EXCLUDED.hp)`
     );
     console.log(`     ✔ Tiamat eklendi.`);
 }
@@ -460,7 +240,6 @@ async function seedNPC3KillCounters(client) {
 
 async function seedLevelRequirements(client) {
     console.log('  → Level XP gereksinimleri ekleniyor...');
-    // GDD Bölüm 5.4
     const levels = [
         [1,  0,       '1/1, 1/2'],
         [2,  3000,    '2/1, 2/2'],
@@ -487,14 +266,11 @@ async function seedLevelRequirements(client) {
 
 async function seedStarterPacksForExistingPlayers(client) {
     console.log('  → Eski oyunculara başlangıç paketi uygulanıyor...');
-    
-    // Check players who don't have any cannons in player_cannons
     const playersRes = await client.query(`
-        SELECT p.id FROM players p 
-        LEFT JOIN player_cannons pc ON p.id = pc.player_id 
+        SELECT p.id FROM players p
+        LEFT JOIN player_cannons pc ON p.id = pc.player_id
         WHERE pc.id IS NULL
     `);
-    
     for (const row of playersRes.rows) {
         const pid = row.id;
         await client.query('INSERT INTO player_cannons (player_id, cannon_type, quantity) VALUES ($1, 1, 5), ($1, 2, 1)', [pid]);
@@ -502,22 +278,15 @@ async function seedStarterPacksForExistingPlayers(client) {
         await client.query(`INSERT INTO player_items (player_id, item_type, quantity) VALUES ($1, 'barut', 100), ($1, 'zirh', 100)`, [pid]);
         await client.query(`INSERT INTO player_planks (player_id, plank_type, quantity) VALUES ($1, 'tahta', 5)`, [pid]);
     }
-    
     console.log(`     ✔ ${playersRes.rows.length} eski oyuncuya başlangıç paketi verildi.`);
 }
 
-// ─────────────────────────────────────────────
-// 3. ANA FONKSİYON
-// ─────────────────────────────────────────────
 async function main() {
+    await runMigrations();
+
     const client = await pool.connect();
     try {
-        console.log('\n🏴‍☠️  SeaPirates Veritabanı Kurulumu Başlıyor...\n');
-        console.log('📋 Tablolar oluşturuluyor...');
-        await client.query(createTables);
-        console.log('   ✔ Tüm tablolar hazır.\n');
-
-        console.log('🌊 Oyun verileri işleniyor...');
+        console.log('\n🏴‍☠️  SeaPirates Oyun Verileri Yükleniyor...\n');
         await client.query('BEGIN');
         await seedShips(client);
         await seedCannons(client);
@@ -531,9 +300,7 @@ async function main() {
         await seedLevelRequirements(client);
         await seedStarterPacksForExistingPlayers(client);
         await client.query('COMMIT');
-
         console.log('\n✅ Tüm veriler başarıyla veritabanına işlendi!');
-        console.log('   → Sunucuyu başlatmak için: node index.js\n');
     } catch (err) {
         await client.query('ROLLBACK');
         console.error('\n❌ HATA — Değişiklikler geri alındı:', err.message);

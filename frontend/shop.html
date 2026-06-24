@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>SeaPirates — Dükkan</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <title>SeaPirates — Shop</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -26,7 +30,10 @@
       height:100dvh;
       display:flex;flex-direction:column;
       position:relative;
-      background:url('assets/background/menubackground.png') center center / cover no-repeat;
+      background:url('assets/ui/background/menubackground.png') center center / cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
     }
     .page::before{
       content:'';position:absolute;inset:0;
@@ -94,7 +101,7 @@
       position:relative;
       display:flex;align-items:center;gap:10px;
       padding:10px 12px 10px 14px;
-      background:url('assets/leaderboardbackground.png') center/cover;
+      background:url('assets/ui/leaderboardbackground.png') center/cover;
       border:1.5px solid #6a4218;border-radius:10px;
       border-left:3px solid rgba(200,150,42,0.2);
       box-shadow:0 4px 12px rgba(0,0,0,0.6);
@@ -141,15 +148,23 @@
     }
     .item-name{
       font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;color:var(--txt);
+      overflow-wrap:break-word;word-break:break-word;
     }
     .item-stats{
       display:flex;flex-direction:column;gap:1px;
     }
     .item-stat{
       font-size:0.68rem;font-weight:600;line-height:1.3;
+      overflow-wrap:break-word;word-break:break-word;
+    }
+    .item-qty{
+      font-size:0.6rem;font-weight:600;color:#fde68a;margin-top:2px;
+      letter-spacing:0.03em;
+      text-shadow:0 0 6px rgba(240,192,64,0.25);
     }
     .item-stat.dmg{color:var(--red-b);}
     .item-stat.hp{color:var(--green);}
+    .item-stat.repair{color:#d4a030;}
     .item-stat.spd{color:#5fb3c8;}
     .item-stat.elp{color:#c084fc;}
     .item-stat.atk{color:#ff9f43;}
@@ -185,7 +200,7 @@
 
     .btn-buy{
       padding:6px 14px;
-      background:url('assets/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
+      background:url('assets/ui/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
       border:1px solid #1e5a32;border-radius:5px;
       font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;
       color:#fff;cursor:pointer;white-space:nowrap;
@@ -196,44 +211,33 @@
     .btn-buy:hover{filter:brightness(1.15);border-color:#27ae60;}
     .btn-buy:active{transform:scale(0.95);}
     .btn-buy.premium{
-      background:url('assets/ikon/images/173_btn_blue_seamless.png') center/cover no-repeat;
+      background:url('assets/ui/ikon/images/173_btn_blue_seamless.png') center/cover no-repeat;
       border-color:#104060;
       color:#fff;
       box-shadow:0 2px 8px rgba(16,64,96,0.3);
     }
     .btn-buy.premium:hover{filter:brightness(1.15);border-color:#2980b9;}
 
-    /* TOAST */
-    .toast{
-      position:fixed;top:14px;left:50%;
-      transform:translateX(-50%) translateY(-70px);
-      z-index:9999;padding:10px 20px;border-radius:10px;
-      font-size:0.8rem;font-weight:600;white-space:nowrap;
-      transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .toast.show{transform:translateX(-50%) translateY(0);}
-    .toast.ok{background:rgba(25,70,40,0.95);border:1px solid #27ae60;color:#c8f0d8;}
-    .toast.err{background:rgba(80,20,20,0.95);border:1px solid #c0392b;color:#f8d8d8;}
   </style>
 </head>
 <body>
-<div class="toast" id="toast"></div>
+
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back">◀ GERİ</a>
-    <div class="page-title">DÜKKAN</div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
+    <div class="page-title"><span data-i18n="shop_title" data-i18n-text>SHOP</span></div>
     <div style="width:60px;"></div>
   </div>
 
   <div class="currency-bar">
     <div class="c-item">
-      <span><img src="assets/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
-      <span>Altın:</span>
+      <span><img src="assets/ui/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+      <span data-i18n="currency_gold">Gold:</span>
       <span class="c-val" id="disp-gold">0</span>
     </div>
     <div class="c-item c-pearl">
-      <span><img src="assets/pearl.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
-      <span>İnci:</span>
+      <span><img src="assets/ui/pearl.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+      <span data-i18n="currency_pearl">Pearl:</span>
       <span class="c-val" id="disp-pearl">0</span>
     </div>
   </div>
@@ -242,32 +246,62 @@
 </div>
 
 <script>
-  const ITEMS = [
-    { cat:'TOPLAR', id:1, name:'30 Pounder', stats:[{t:'Hasar: 120',c:'dmg'},{t:'Doldurma: 4sn',c:'spd'}], price:10000, currency:'gold', img:'assets/toppp/top1.png' },
-    { cat:'TOPLAR', id:2, name:'55 Pounder', stats:[{t:'Hasar: 185',c:'dmg'},{t:'Doldurma: 3sn',c:'spd'}], price:2000, currency:'pearl', img:'assets/toppp/top2.png' },
-    { cat:'TOPLAR', id:3, name:'60 Pounder', stats:[{t:'Hasar: 260',c:'dmg'},{t:'Doldurma: 2sn',c:'spd'}], price:6000, currency:'pearl', img:'assets/toppp/top3.png' },
-    { cat:'GÜLLELER', id:10, name:'Misket Gülle (x100)', stats:[{t:'Hasar: +30',c:'dmg'}], price:4000, currency:'gold', img:'assets/dükkan/misketgülle.png' },
-    { cat:'GÜLLELER', id:11, name:'Oyuk Gülle (x100)', stats:[{t:'Hasar: +75',c:'dmg'}], price:8000, currency:'gold', img:'assets/dükkan/oyukgülle.png' },
-    { cat:'GÜLLELER', id:12, name:'Patlayan Gülle (x100)', stats:[{t:'Hasar: +130',c:'dmg'},{t:'Elit Puan: 1.0/top',c:'elp'}], price:400, currency:'pearl', img:'assets/dükkan/elitgülle.png' },
-    { cat:'DİREKLER', id:20, name:'Tahta Kiriş', stats:[{t:'HP: +500',c:'hp'}], price:35000, currency:'gold', img:'assets/dükkan/tahtakiriş.png' },
-    { cat:'DİREKLER', id:21, name:'Elit Kiriş', stats:[{t:'HP: +1.200',c:'hp'}], price:1200, currency:'pearl', img:'assets/dükkan/elitkiriş.png' },
-    { cat:'SARF', id:30, name:'Barut (x100)', stats:[{t:'Hasar: +%10',c:'atk'}], price:120, currency:'pearl', img:'assets/dükkan/barut-dükkan.png' },
-    { cat:'SARF', id:31, name:'Zırh (x100)', stats:[{t:'Hasar Önleme: -%10',c:'def'}], price:120, currency:'pearl', img:'assets/dükkan/zırh-dükkan.png' },
-    { cat:'GEMİLER', id:40, name:'Elit Gemi I', stats:[{t:'HP: 16.000',c:'hp'},{t:'Top Yeri: 34',c:'dmg'},{t:'Direk Yeri: 12',c:'spd'}], price:10000, currency:'pearl', img:'assets/dükkan/elit gemi 1.png' }
+  const SHOP_ITEMS = [
+    { cat:'item_cannons', id:1, nk:'shop_name_30_pounder', name:'30 Pounder', stats:[{k:'stat_damage',p:{val:'120'},c:'dmg'},{k:'stat_reload',p:{val:'4'},c:'spd'}], price:10000, currency:'gold', img:'assets/items/toppp/top1.png' },
+    { cat:'item_cannons', id:2, nk:'shop_name_55_pounder', name:'55 Pounder', stats:[{k:'stat_damage',p:{val:'185'},c:'dmg'},{k:'stat_reload',p:{val:'3'},c:'spd'}], price:2000, currency:'pearl', img:'assets/items/toppp/top2.png' },
+    { cat:'item_cannons', id:3, nk:'shop_name_60_pounder', name:'60 Pounder', stats:[{k:'stat_damage',p:{val:'260'},c:'dmg'},{k:'stat_reload',p:{val:'2'},c:'spd'}], price:6000, currency:'pearl', img:'assets/items/toppp/top3.png' },
+    { cat:'item_ammo', id:10, nk:'shop_name_grapeshot', name:'Grapeshot (x100)', stats:[{k:'stat_damage_plus',p:{val:'30'},c:'dmg'}], price:4000, currency:'gold', img:'assets/items/shop/misketgülle.png' },
+    { cat:'item_ammo', id:11, nk:'shop_name_hollow_shot', name:'Hollow Shot (x100)', stats:[{k:'stat_damage_plus',p:{val:'75'},c:'dmg'}], price:8000, currency:'gold', img:'assets/items/shop/oyukgülle.png' },
+    { cat:'item_ammo', id:12, nk:'shop_name_explosive_shot', name:'Explosive Shot (x100)', stats:[{k:'stat_damage_plus',p:{val:'130'},c:'dmg'},{k:'stat_elite_points',p:{val:'1.0'},c:'elp'}], price:400, currency:'pearl', img:'assets/items/shop/elitgülle.png' },
+    { cat:'item_beams', id:20, nk:'shop_name_wooden_beam', name:'Wooden Beam', stats:[{k:'stat_hp_plus',p:{val:'500'},c:'hp'},{k:'stat_repair_plus',p:{val:'8'},c:'repair'}], price:35000, currency:'gold', img:'assets/items/shop/tahtakiriş.png' },
+    { cat:'item_beams', id:21, nk:'shop_name_elite_beam', name:'Elite Beam', stats:[{k:'stat_hp_plus',p:{val:'1,200'},c:'hp'},{k:'stat_repair_plus',p:{val:'20'},c:'repair'}], price:1200, currency:'pearl', img:'assets/items/shop/elitkiriş.png' },
+    { cat:'item_consumables', id:30, nk:'shop_name_gunpowder', name:'Gunpowder (x100)', stats:[{k:'stat_damage_pct',p:{val:'10'},c:'atk'}], price:120, currency:'pearl', img:'assets/items/shop/barut-dükkan.png' },
+    { cat:'item_consumables', id:31, nk:'shop_name_armor', name:'Armor (x100)', stats:[{k:'stat_damage_reduction',p:{val:'10'},c:'def'}], price:120, currency:'pearl', img:'assets/items/shop/zırh-dükkan.png' },
+    { cat:'SHIPS', id:40, nk:'shop_name_elite_ship', name:'Elite Ship I', stats:[{k:'stat_hp',p:{val:'25,000'},c:'hp'},{k:'stat_cannon_slots',p:{val:'30'},c:'dmg'},{k:'stat_mast_slots',p:{val:'10'},c:'spd'}], price:10000, currency:'pearl', img:'assets/items/shop/elit gemi 1.png' },
+    { cat:'DESIGNS', id:41, nk:'shop_name_crystal_queen', name:'Crystal Queen', stats:[{k:'stat_skin',p:{val:'Crystal Coating'},c:'spd'},{k:'stat_note_cosmetic',p:{},c:'hp'}], price:5000, currency:'pearl', img:'assets/items/shop/kristalquen/1.png' }
   ];
+
+  let playerQtys = { ammo: {}, items: {}, cannons: {}, planks: {} };
+
+  async function loadQtys() {
+    try {
+      const res = await fetch('/api/player/me', {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('sp_token') }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      playerQtys = { ammo: {}, items: {}, cannons: {}, planks: {} };
+      if (data.ammo) data.ammo.forEach(a => playerQtys.ammo[a.ammo_type] = a.quantity);
+      if (data.items) data.items.forEach(i => playerQtys.items[i.item_type] = i.quantity);
+      if (data.cannons_by_type) data.cannons_by_type.forEach(c => playerQtys.cannons[c.cannon_type] = parseInt(c.total));
+      if (data.planks) data.planks.forEach(p => playerQtys.planks[p.plank_type] = parseInt(p.quantity));
+    } catch (e) {}
+  }
+
+  function getQty(shopId) {
+    const map = {
+      1: ['cannons', 1], 2: ['cannons', 2], 3: ['cannons', 3],
+      10: ['ammo', 1], 11: ['ammo', 2], 12: ['ammo', 3],
+      20: ['planks', 'tahta'], 21: ['planks', 'elit'],
+      30: ['items', 'barut'], 31: ['items', 'zirh']
+    };
+    const m = map[shopId];
+    if (!m) return null;
+    return playerQtys[m[0]][m[1]] || 0;
+  }
 
   function render() {
     const list = document.getElementById('shop-list');
     list.innerHTML = '';
 
     const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
-    const shipLevel = parseInt(saved.ship_level) || 0;
+    const hasElite = saved.has_elite_ship === true;
+    const ownedDesigns = saved.ownedDesigns || [];
+    const items = SHOP_ITEMS;
 
-    ITEMS.forEach(item => {
-      // Eğer elit gemi 1 satın alınmışsa dükkanda bir daha gösterme
-      if (item.id === 40 && shipLevel >= 1) {
-        return;
-      }
+    items.forEach(item => {
+      if (item.id === 40 && hasElite) return;
+      if (item.id === 41 && ownedDesigns.includes('kristal_queen')) return;
 
       const card = document.createElement('div');
       card.className = 'item-card';
@@ -280,17 +314,18 @@
           <span class="item-icon fallback" style="display:none;">${isGold ? '🔫' : '💎'}</span>
         </div>
         <div class="item-info">
-          <div class="item-name">${item.name}</div>
-          <div class="item-stats">${item.stats.map(s => `<span class="item-stat ${s.c}">${s.t}</span>`).join('')}</div>
+          <div class="item-name">${item.nk ? t(item.nk) : item.name}</div>
+          <div class="item-stats">${item.stats.map(s => `<span class="item-stat ${s.c}">${s.k ? t(s.k, s.p) : s.t}</span>`).join('')}</div>
+          ${(() => { const q = getQty(item.id); return q !== null ? `<div class="item-qty">Mevcut: ${Number(q).toLocaleString('tr-TR')}</div>` : ''; })()}
         </div>
         <div class="item-buy-zone">
           <div class="item-price ${priceCls}">
-            <span>${item.price.toLocaleString('tr-TR')}</span>
-            <span>${isGold ? '<img src="assets/gold.png" style="width:14px;vertical-align:middle;">' : '<img src="assets/pearl.png" style="width:14px;vertical-align:middle;">'}</span>
+            <span>${item.price.toLocaleString('en-US')}</span>
+            <span>${isGold ? '<img src="assets/ui/gold.png" style="width:14px;vertical-align:middle;">' : '<img src="assets/ui/pearl.png" style="width:14px;vertical-align:middle;">'}</span>
           </div>
           <div class="buy-row">
             <input type="number" class="qty-input" value="1" min="1" max="999" id="qty-${item.id}"/>
-            <button class="btn-buy${isGold?'':' premium'}" onclick="buyItem('${item.name}', ${item.id})">SATIN AL</button>
+            <button class="btn-buy${isGold?'':' premium'}" onclick="buyItem(${item.id})">${t('buy_now')}</button>
           </div>
         </div>
       `;
@@ -298,14 +333,14 @@
     });
   }
 
-  const API_URL = 'http://localhost:3000/api';
+  const API_URL = window.location.origin + '/api';
   const token = localStorage.getItem('sp_token');
 
   if (!token) {
     goTo('index.html');
   }
 
-  async function buyItem(name, id) {
+  async function buyItem(id) {
     const qty = parseInt(document.getElementById('qty-' + id).value) || 1;
     
     try {
@@ -320,43 +355,41 @@
       
       const data = await res.json();
       if (!res.ok) {
-        toast(data.error || 'Satın alma başarısız!', 'err');
+        toast(data.error || t('unauthorized'), 'err');
         return;
       }
       
-      toast(data.message, 'ok');
+      toast(t('buy_success'), 'ok');
       
       // Update local storage player stats
       const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
       saved.gold = data.gold;
       saved.pearl = data.pearl;
       saved.ship_level = data.ship_level;
+      if (data.has_elite_ship !== undefined) saved.has_elite_ship = data.has_elite_ship;
+      if (data.ownedDesigns) saved.ownedDesigns = data.ownedDesigns;
       localStorage.setItem('sp_player', JSON.stringify(saved));
       
       updateCurrency();
       render();
     } catch (err) {
       console.error(err);
-      toast('Sunucuya bağlanılamadı!', 'err');
+      toast(t('connection_failed'), 'err');
     }
   }
 
   function toast(msg, type) {
-    const el = document.getElementById('toast');
-    el.textContent = msg; el.className = 'toast ' + type;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 2500);
+    window.showAlert(msg, type === 'err' ? t('server_error') : 'SEAPIRATES', type === 'err');
   }
 
   function updateCurrency() {
     const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
-    document.getElementById('disp-gold').textContent = (saved.gold || 0).toLocaleString('tr-TR');
-    document.getElementById('disp-pearl').textContent = (saved.pearl || 0).toLocaleString('tr-TR');
+    document.getElementById('disp-gold').textContent = (saved.gold || 0).toLocaleString('en-US');
+    document.getElementById('disp-pearl').textContent = (saved.pearl || 0).toLocaleString('en-US');
   }
 
   updateCurrency();
-  render();
+  loadQtys().finally(render);
 </script>
-  <script src="transition.js"></script>
 </body>
 </html>

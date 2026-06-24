@@ -2,10 +2,14 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>SeaPirates — Görevler</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <title>SeaPirates — Quests</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/api.js?v=1"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script src="transition.js?v=3"></script>
   <style>
     *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
     :root {
@@ -27,7 +31,10 @@
       height: 100dvh;
       display: flex; flex-direction: column;
       position: relative;
-      background: url('assets/background/menubackground.png') center center / cover no-repeat;
+      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
     }
     .page::before {
       content: ''; position: absolute; inset: 0;
@@ -38,24 +45,24 @@
     /* TOP BAR */
     .top-bar {
       position: relative; z-index: 10;
-      padding: 14px;
+      padding: 10px;
       display: flex; align-items: center; justify-content: space-between;
       flex-shrink: 0;
       border-bottom: 1px solid rgba(200,150,42,0.3);
       background: linear-gradient(180deg, rgba(20,10,2,0.95), rgba(10,5,0,0.85));
     }
     .btn-back {
-      padding: 8px 12px;
+      padding: 5px 8px;
       background: linear-gradient(180deg,#3d2108,#1e0e03);
-      border: 1px solid #7a4a18; border-radius: 7px;
-      font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 700;
+      border: 1px solid #7a4a18; border-radius: 5px;
+      font-family: 'Cinzel', serif; font-size: 0.6rem; font-weight: 700;
       color: var(--txt-d); letter-spacing: 0.04em;
       cursor: pointer; text-align: center; text-decoration: none;
       box-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
     .btn-back:hover { border-color: var(--gold); color: var(--gold-b); }
     .page-title {
-      font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.1rem;
+      font-family: 'Cinzel', serif; font-weight: 900; font-size: 0.95rem;
       letter-spacing: 0.1em; color: var(--gold-b);
       text-shadow: 0 0 10px rgba(200,150,42,0.6);
       text-transform: uppercase;
@@ -69,9 +76,9 @@
       border-bottom: 2px solid var(--wood-plank);
     }
     .tab-btn {
-      flex: 1; padding: 12px 0;
+      flex: 1; padding: 8px 0;
       background: transparent; border: none; cursor: pointer;
-      font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 700;
+      font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 700;
       letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--txt-m); transition: all 0.25s;
       position: relative;
@@ -85,10 +92,10 @@
 
     /* CONTENT WRAP */
     .content-wrap {
-      flex: 1; position: relative; z-index: 5;
-      padding: 15px;
+      flex: 1; min-height: 0; position: relative; z-index: 5;
+      padding: 10px;
       overflow-y: auto;
-      display: flex; flex-direction: column; gap: 15px;
+      display: flex; flex-direction: column; gap: 10px;
     }
     .content-wrap::-webkit-scrollbar { width: 4px; }
     .content-wrap::-webkit-scrollbar-thumb { background: var(--wood-plank); border-radius: 2px; }
@@ -96,10 +103,10 @@
     /* QUEST CARD */
     .quest-card {
       position: relative;
-      background: url('assets/leaderboardbackground.png') center/cover no-repeat;
-      border: 2px solid #6a4218;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.8), inset 0 0 10px rgba(0,0,0,0.5);
+      background: url('assets/ui/leaderboardbackground.png') center/cover no-repeat;
+      border: 1px solid #6a4218;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.6), inset 0 0 6px rgba(0,0,0,0.3);
       overflow: hidden;
     }
     .quest-card::before {
@@ -108,48 +115,58 @@
     }
     .q-header {
       position: relative; z-index: 1;
-      padding: 10px 14px;
+      padding: 8px 10px 6px;
       background: rgba(0,0,0,0.4);
       border-bottom: 1px solid rgba(200,150,42,0.2);
       display: flex; justify-content: space-between; align-items: center;
     }
     .q-title {
-      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.9rem;
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.8rem;
       color: var(--gold-b); text-shadow: 0 1px 3px #000;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .q-level {
-      font-size: 0.65rem; font-weight: 700; color: var(--txt-d);
-      background: rgba(0,0,0,0.5); padding: 3px 6px; border-radius: 4px; border: 1px solid #4a2c08;
+      font-size: 0.6rem; font-weight: 700; color: var(--txt-d);
+      background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 3px; border: 1px solid #4a2c08;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .q-body {
       position: relative; z-index: 1;
-      padding: 14px;
-      display: flex; flex-direction: column; gap: 12px;
+      padding: 8px 10px;
+      display: flex; flex-direction: column; gap: 6px;
     }
     
     /* Hikaye / Description */
     .q-desc {
-      font-size: 0.75rem; color: var(--txt);
-      line-height: 1.4; font-style: italic;
+      font-size: 0.7rem; color: var(--txt);
+      line-height: 1.3; font-style: italic;
       border-left: 2px solid var(--wood-plank);
-      padding-left: 10px;
+      padding-left: 8px;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     /* Hedefler (Objectives) */
     .q-objectives {
       background: rgba(0,0,0,0.3);
       border: 1px dashed rgba(200,150,42,0.3);
-      border-radius: 8px; padding: 10px;
+      border-radius: 4px; padding: 4px 6px;
     }
     .q-obj-title {
-      font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 700;
-      color: var(--txt-d); margin-bottom: 8px; text-transform: uppercase;
+      font-family: 'Cinzel', serif; font-size: 0.6rem; font-weight: 700;
+      color: var(--txt-d); margin-bottom: 3px; text-transform: uppercase;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .q-obj-row {
       display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.75rem; font-weight: 600; color: var(--txt);
-      margin-bottom: 6px;
+      font-size: 0.65rem; font-weight: 600; color: var(--txt);
+      margin-bottom: 3px;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .q-obj-row:last-child { margin-bottom: 0; }
     .q-obj-progress { color: var(--gold-p); }
@@ -157,29 +174,31 @@
 
     /* Ödüller (Rewards) */
     .q-rewards-wrap {
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
     }
     .q-reward {
-      display: flex; align-items: center; gap: 4px;
+      display: flex; align-items: center; gap: 3px;
       background: rgba(0,0,0,0.5); border: 1px solid #4a2c08;
-      border-radius: 6px; padding: 4px 8px;
-      font-size: 0.7rem; font-weight: 700; color: var(--txt);
+      border-radius: 4px; padding: 2px 6px;
+      font-size: 0.6rem; font-weight: 700; color: var(--txt);
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
-    .q-reward img { width: 14px; height: 14px; object-fit: contain; }
+    .q-reward img { width: 12px; height: 12px; object-fit: contain; }
 
     /* Footer (Action) */
     .q-footer {
       position: relative; z-index: 1;
-      padding: 10px 14px;
+      padding: 8px 10px 6px;
       background: rgba(0,0,0,0.4);
       border-top: 1px solid rgba(200,150,42,0.2);
-      display: flex; justify-content: flex-end;
+      display: flex;
     }
     .act-btn {
-      padding: 8px 18px;
-      background: url('assets/ikon/images/110_btn_green_small_seamless.png') center/cover no-repeat;
-      border: 1px solid #1e5a32; border-radius: 6px;
-      font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 700;
+      padding: 6px 14px;
+      background: linear-gradient(180deg, #2d7a3a, #1a5a28);
+      border: 1px solid #3a9a4a; border-radius: 5px;
+      font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 700;
       color: #fff; letter-spacing: 0.04em;
       cursor: pointer; text-align: center; white-space: nowrap;
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
@@ -194,11 +213,19 @@
       text-shadow: none;
     }
 
+    /* Bonus quest shine */
+    .quest-card.bonus {
+      border-color: #c8962a !important;
+      box-shadow: 0 4px 20px rgba(200,150,42,0.25), inset 0 0 15px rgba(200,150,42,0.05);
+    }
+
     /* Empty state */
     .empty-state {
       text-align: center; margin-top: 40px;
       font-size: 0.85rem; color: var(--txt-m); font-style: italic;
       line-height: 1.6;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
   </style>
 </head>
@@ -206,31 +233,29 @@
 <div class="page">
   <!-- TOP BAR -->
   <div class="top-bar">
-    <a href="map.html" class="btn-back">◀ HARİTAYA DÖN</a>
-    <div class="page-title"><img src="assets/ikon/images/40_ico_quest.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;object-fit:contain;">GÖREVLER</div>
+    <a href="map.html" class="btn-back" data-i18n="btn_return" data-i18n-text>◀ BACK TO MAP</a>
+    <div class="page-title"><img src="assets/ui/ikon/images/40_ico_quest.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;object-fit:contain;"><span data-i18n="page_quest" data-i18n-text>GÖREVLER</span></div>
     <div style="width:85px;"></div>
   </div>
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('active')">Aktif Görev</button>
-    <button class="tab-btn" onclick="switchTab('available')">Mevcut Görevler</button>
+    <button class="tab-btn active" onclick="switchTab('active')" data-i18n="quest_tab_active">ACTIVE QUEST</button>
+    <button class="tab-btn" onclick="switchTab('available')" data-i18n="quest_tab_available">AVAILABLE QUESTS</button>
   </div>
 
-  <!-- ACTIVE QUESTS TAB -->
-  <div class="content-wrap" id="tab-active"></div>
-
-  <!-- AVAILABLE QUESTS TAB -->
-  <div class="content-wrap" id="tab-available" style="display:none;"></div>
+  <!-- QUEST CONTENT -->
+  <div class="content-wrap" id="tab-content"></div>
 </div>
 
 <script>
-  const API_URL = 'http://localhost:3000/api/quests';
+  const API_URL = window.location.origin + '/api/quests';
   const token = localStorage.getItem('sp_token');
 
   let activeTab = 'active'; // 'active' veya 'available'
   let quests = [];
-  let activeQuestId = null;
+  let activeQuestIds = [];
+  let isVip = false;
   let playerLevel = 1;
 
   function switchTab(tab) {
@@ -238,48 +263,7 @@
     const tabs = document.querySelectorAll('.tab-btn');
     tabs[0].classList.toggle('active', tab === 'active');
     tabs[1].classList.toggle('active', tab === 'available');
-
-    document.getElementById('tab-active').style.display = tab === 'active' ? 'flex' : 'none';
-    document.getElementById('tab-available').style.display = tab === 'available' ? 'flex' : 'none';
     render();
-  }
-
-  // Create toast dynamic element for beautiful premium UI feedback
-  function showToast(msg, type = 'ok') {
-    let el = document.getElementById('toast');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'toast';
-      el.style.position = 'fixed';
-      el.style.top = '14px';
-      el.style.left = '50%';
-      el.style.transform = 'translateX(-50%) translateY(-70px)';
-      el.style.zIndex = '9999';
-      el.style.padding = '10px 20px';
-      el.style.borderRadius = '10px';
-      el.style.fontSize = '0.8rem';
-      el.style.fontWeight = '600';
-      el.style.whiteSpace = 'nowrap';
-      el.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
-      document.body.appendChild(el);
-    }
-    
-    el.textContent = msg;
-    if (type === 'ok') {
-      el.style.background = 'rgba(25,70,40,0.95)';
-      el.style.border = '1px solid #27ae60';
-      el.style.color = '#c8f0d8';
-    } else {
-      el.style.background = 'rgba(80,20,20,0.95)';
-      el.style.border = '1px solid #c0392b';
-      el.style.color = '#f8d8d8';
-    }
-    
-    el.getBoundingClientRect();
-    el.style.transform = 'translateX(-50%) translateY(0)';
-    setTimeout(() => {
-      el.style.transform = 'translateX(-50%) translateY(-70px)';
-    }, 3000);
   }
 
   async function loadQuests() {
@@ -291,12 +275,13 @@
       if (res.ok) {
         const data = await res.json();
         quests = data.quests || [];
-        activeQuestId = data.activeQuestId;
+        activeQuestIds = data.activeQuestIds || [];
+        isVip = data.isVip || false;
         playerLevel = data.playerLevel;
         render();
       }
     } catch (e) {
-      console.error('Görevler yüklenirken hata:', e);
+      console.error('Quests load error:', e);
     }
   }
 
@@ -313,140 +298,148 @@
       });
       const data = await res.json();
       if (res.ok) {
-        showToast(data.message || 'Görev kabul edildi!', 'ok');
+        window.showAlert(t(data.message || 'quest_accepted'), t('success'), false);
         await loadQuests();
         switchTab('active');
       } else {
-        showToast(data.error || 'Görev kabul edilemedi!', 'err');
+        window.showAlert(t(data.error || 'quest_accept_failed'), t('error'), true);
       }
     } catch (err) {
       console.error(err);
-      showToast('Sunucu hatası!', 'err');
+      window.showAlert(t('server_error'), t('error'), true);
     }
   }
 
-  async function deliverQuest() {
+  async function cancelQuest(qId) {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ questId: qId })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.showAlert(t(data.message || 'quest_cancelled'), t('success'), false);
+        await loadQuests();
+      } else {
+        window.showAlert(t(data.error || 'quest_cancel_failed'), t('error'), true);
+      }
+    } catch (err) {
+      console.error(err);
+      window.showAlert(t('server_error'), t('error'), true);
+    }
+  }
+
+  async function deliverQuest(qId) {
     if (!token) return;
     try {
       const res = await fetch(`${API_URL}/deliver`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ questId: qId })
       });
       const data = await res.json();
       if (res.ok) {
-        showToast(data.message || 'Görev teslim edildi!', 'ok');
+        window.showAlert(t(data.message || 'quest_delivered'), t('success'), false);
         await loadQuests();
       } else {
-        showToast(data.error || 'Görev teslim edilemedi!', 'err');
+        window.showAlert(t(data.error || 'quest_deliver_failed'), t('error'), true);
       }
     } catch (err) {
       console.error(err);
-      showToast('Sunucu hatası!', 'err');
+      window.showAlert(t('server_error'), t('error'), true);
     }
   }
 
+  let bonusTimerInterval = null;
+  window.addEventListener('beforeunload', () => { if (bonusTimerInterval) clearInterval(bonusTimerInterval); });
+
   function render() {
-    const actContainer = document.getElementById('tab-active');
-    const availContainer = document.getElementById('tab-available');
+    const container = document.getElementById('tab-content');
+    container.innerHTML = '';
 
-    actContainer.innerHTML = '';
-    availContainer.innerHTML = '';
-
-    const activeQuest = quests.find(q => q.state === 'active');
+    const activeQuests = quests.filter(q => q.state === 'active');
+    const bonusQuest = quests.find(q => q.state === 'bonus');
     const availableQuests = quests.filter(q => q.state === 'available');
+    const otherQuests = quests.filter(q => q.state === 'locked' || q.state === 'completed');
 
-    // ── RENDER ACTIVE TAB ──
-    if (activeQuest) {
-      const card = createQuestCard(activeQuest);
-      actContainer.appendChild(card);
-    } else {
-      actContainer.innerHTML = `
-        <div class="empty-state">
-          Aktif bir göreviniz bulunmuyor.<br>
-          "Mevcut Görevler" sekmesinden yeni bir görev alabilirsiniz!
-        </div>
-      `;
-    }
-
-    // ── RENDER AVAILABLE TAB ──
-    if (availableQuests.length > 0) {
-      availableQuests.forEach(q => {
-        const card = createQuestCard(q);
-        availContainer.appendChild(card);
-      });
-    } else {
-      // Locked or completed quests show up in available tab too, but with disabled/locked states
-      const otherQuests = quests.filter(q => q.state === 'locked' || q.state === 'completed');
-      if (otherQuests.length > 0) {
-        otherQuests.forEach(q => {
+    if (activeTab === 'active') {
+      // ── RENDER ACTIVE TAB ──
+      const hasSomething = bonusQuest !== undefined || activeQuests.length > 0;
+      if (hasSomething) {
+        if (bonusQuest) {
+          const card = createQuestCard(bonusQuest);
+          container.appendChild(card);
+        }
+        activeQuests.forEach(q => {
           const card = createQuestCard(q);
-          availContainer.appendChild(card);
+          container.appendChild(card);
         });
       } else {
-        availContainer.innerHTML = `
-          <div class="empty-state">
-            Şu an alabileceğiniz yeni bir görev yok.<br>
-            Tüm görevleri başarıyla tamamladınız!
-          </div>
-        `;
+        container.innerHTML = `<div class="empty-state">${t('quest_no_active')}</div>`;
+      }
+    } else {
+      // ── RENDER AVAILABLE TAB ──
+      if (availableQuests.length > 0) {
+        availableQuests.forEach(q => {
+          const card = createQuestCard(q);
+          container.appendChild(card);
+        });
+      } else if (otherQuests.length > 0) {
+        otherQuests.forEach(q => {
+          const card = createQuestCard(q);
+          container.appendChild(card);
+        });
+      } else {
+        container.innerHTML = `<div class="empty-state">${t('quest_no_available')}<br>${t('quest_all_done')}</div>`;
       }
     }
   }
 
   function createQuestCard(q) {
     const card = document.createElement('div');
-    card.className = 'quest-card';
+    card.className = 'quest-card' + (q.state === 'bonus' ? ' bonus' : '');
 
-    const isKillsDone = q.requiredKills === 0 || q.currentKills >= q.requiredKills;
-    const isDamageDone = q.requiredDamage === 0 || q.currentDamage >= q.requiredDamage;
-    const isGlittersDone = q.requiredGlitters === 0 || q.currentGlitters >= q.requiredGlitters;
-    const isQuestFullyDone = isKillsDone && isDamageDone && isGlittersDone;
+    const progress = q.progress || [];
+    const isQuestFullyDone = q.objectives && q.objectives.every((obj, i) => (progress[i] || 0) >= obj.amount);
 
     // Rewards HTML
     let rewardsHTML = '';
     if (q.rewards.gold) {
-      rewardsHTML += `<div class="q-reward"><img src="assets/gold.png"> ${q.rewards.gold.toLocaleString('tr-TR')}</div>`;
+      rewardsHTML += `<div class="q-reward"><img src="assets/ui/gold.png"> ${q.rewards.gold.toLocaleString('en-US')}</div>`;
     }
     if (q.rewards.pearl) {
-      rewardsHTML += `<div class="q-reward"><img src="assets/pearl.png"> ${q.rewards.pearl.toLocaleString('tr-TR')}</div>`;
+      rewardsHTML += `<div class="q-reward"><img src="assets/ui/pearl.png"> ${q.rewards.pearl.toLocaleString('en-US')}</div>`;
     }
     if (q.rewards.xp) {
-      rewardsHTML += `<div class="q-reward">XP: ${q.rewards.xp.toLocaleString('tr-TR')}</div>`;
+      rewardsHTML += `<div class="q-reward">XP: ${q.rewards.xp.toLocaleString('en-US')}</div>`;
     }
 
-    // Objectives HTML
+    // Objectives HTML — iterate over q.objectives
     let objectivesHTML = '';
-    if (q.state === 'active' || q.state === 'available' || q.state === 'locked' || q.state === 'completed') {
+    if (q.objectives && q.objectives.length > 0 && (q.state === 'active' || q.state === 'available' || q.state === 'locked' || q.state === 'completed')) {
       let rowsHTML = '';
-      if (q.requiredKills > 0) {
+      q.objectives.forEach((obj, i) => {
+        const cur = progress[i] || 0;
+        const done = cur >= obj.amount;
+        let displayVal;
+        if (obj.type === 'damage') {
+          displayVal = `${cur.toLocaleString('en-US')} / ${obj.amount.toLocaleString('en-US')}`;
+        } else {
+          displayVal = `${cur} / ${obj.amount}`;
+        }
+        const objLabel = (currentLang === 'tr') ? (obj.label || obj.type) : (function(){ var k='obj_'+obj.type+(obj.target?'_'+obj.target:''), v=t(k); return v===k ? (obj.label||obj.type) : v; })();
         rowsHTML += `
           <div class="q-obj-row">
-            <span>Batır: ${q.targetNpc || 'Herhangi'}</span>
-            <span class="q-obj-progress ${q.currentKills >= q.requiredKills ? 'done' : ''}">${q.currentKills} / ${q.requiredKills}</span>
+            <span>${objLabel}</span>
+            <span class="q-obj-progress ${done ? 'done' : ''}">${displayVal}</span>
           </div>
         `;
-      }
-      if (q.requiredDamage > 0) {
-        rowsHTML += `
-          <div class="q-obj-row">
-            <span>Hasar Ver</span>
-            <span class="q-obj-progress ${q.currentDamage >= q.requiredDamage ? 'done' : ''}">${q.currentDamage.toLocaleString('tr-TR')} / ${q.requiredDamage.toLocaleString('tr-TR')}</span>
-          </div>
-        `;
-      }
-      if (q.requiredGlitters > 0) {
-        rowsHTML += `
-          <div class="q-obj-row">
-            <span>Pırıltı Topla</span>
-            <span class="q-obj-progress ${q.currentGlitters >= q.requiredGlitters ? 'done' : ''}">${q.currentGlitters} / ${q.requiredGlitters}</span>
-          </div>
-        `;
-      }
+      });
       objectivesHTML = `
         <div class="q-objectives">
-          <div class="q-obj-title">Hedefler</div>
+          <div class="q-obj-title">${t('lbl_objectives')}</div>
           ${rowsHTML}
         </div>
       `;
@@ -454,28 +447,53 @@
 
     // Footer Button HTML
     let buttonHTML = '';
-    if (q.state === 'active') {
-      buttonHTML = `<button class="act-btn" onclick="deliverQuest()" ${isQuestFullyDone ? '' : 'disabled'}>TESLİM ET</button>`;
+    let timerHTML = '';
+    if (q.state === 'bonus') {
+      const expiresAt = q.expiresAt ? new Date(q.expiresAt).getTime() : 0;
+      timerHTML = `<div class="bonus-timer" id="bonus-timer-${q.id}" style="font-family:'Cinzel',serif;font-size:0.65rem;color:#e74c3c;text-align:center;padding:3px 6px;background:rgba(0,0,0,0.4);border-radius:4px;margin-bottom:4px;border:1px solid rgba(231,76,60,0.3);">
+        ⏱ ${t('quest_time_left')}: <span id="bonus-countdown-${q.id}">--:--</span>
+      </div>`;
+      if (bonusTimerInterval) clearInterval(bonusTimerInterval);
+      if (expiresAt) {
+        updateBonusTimer(q.id, expiresAt);
+        bonusTimerInterval = setInterval(() => updateBonusTimer(q.id, expiresAt), 1000);
+      }
+      buttonHTML = `
+        <div style="display:flex;gap:8px;width:100%;">
+          <button class="act-btn" onclick="deliverBonusQuest()" ${isQuestFullyDone ? '' : 'disabled'} style="flex:1;background:linear-gradient(180deg,#8b6914,#4a3008);border-color:#c8962a;">${t('quest_btn_claim')}</button>
+        </div>`;
+    } else if (q.state === 'active') {
+      buttonHTML = `
+        <div style="display:flex;gap:8px;width:100%;">
+          <button class="act-btn" onclick="cancelQuest(${q.id})" style="background:linear-gradient(180deg,#8b1a1a,#4a0e0e);border-color:#a62424;flex:1;">${t('quest_btn_cancel')}</button>
+          <button class="act-btn" onclick="deliverQuest(${q.id})" ${isQuestFullyDone ? '' : 'disabled'} style="flex:1;">${t('quest_btn_deliver')}</button>
+        </div>`;
     } else if (q.state === 'available') {
-      buttonHTML = `<button class="act-btn" onclick="acceptQuest(${q.id})">GÖREVİ AL</button>`;
+      const canAccept = activeQuestIds.length < (isVip ? 2 : 1);
+      buttonHTML = `<div style="display:flex;width:100%;"><button class="act-btn" onclick="acceptQuest(${q.id})" style="flex:1;"${canAccept ? '' : ' disabled'}>${t(canAccept ? 'quest_btn_accept' : 'quest_max_active')}</button></div>`;
     } else if (q.state === 'locked') {
-      buttonHTML = `<button class="act-btn" disabled>SEVİYE ${q.levelReq} GEREKLİ</button>`;
+      buttonHTML = `<button class="act-btn" disabled>${t('quest_locked_req',{val:q.levelReq})}</button>`;
     } else if (q.state === 'completed') {
-      buttonHTML = `<button class="act-btn" style="background:#5a3a15 !important; border-color:#7a5a38;" disabled>✓ TAMAMLANDI</button>`;
+      buttonHTML = `<button class="act-btn" style="background:#5a3a15 !important; border-color:#7a5a38;" disabled>${t('quest_completed')}</button>`;
     }
 
+    const isBonus = q.state === 'bonus';
+    const isSimple = q.state === 'locked' || q.state === 'completed';
     card.innerHTML = `
-      <div class="q-header">
-        <div class="q-title">${q.title}</div>
-        <div class="q-level">LVL ${q.levelReq}+</div>
+      <div class="q-header" style="${isBonus ? 'background:rgba(139,105,20,0.3);border-bottom-color:rgba(200,150,42,0.5);' : ''}">
+        <div class="q-title">${isBonus ? '⏱ ' : ''}${function(){ var k='q_title_'+q.id, v=t(k); return (currentLang === 'tr' || v === k) ? q.title : v; }()}</div>
+        <div class="q-level" style="${isBonus ? 'background:rgba(200,150,42,0.3);border-color:#c8962a;color:#f0c040;' : ''}"> ${isBonus ? t('quest_bonus_time') : t('quest_level_badge',{val:q.levelReq}) + '+'}</div>
       </div>
+      ${isSimple ? '' : `
       <div class="q-body">
-        <div class="q-desc">"${q.desc}"</div>
+        ${isBonus ? timerHTML : ''}
+        <div class="q-desc">"${function(){ var k='q_desc_'+q.id, v=t(k); return (currentLang === 'tr' || v === k) ? q.desc : v; }()}"</div>
         ${objectivesHTML}
         <div class="q-rewards-wrap">
           ${rewardsHTML}
         </div>
       </div>
+      `}
       <div class="q-footer">
         ${buttonHTML}
       </div>
@@ -484,9 +502,42 @@
     return card;
   }
 
+  function updateBonusTimer(qId, expiresAt) {
+    const el = document.getElementById(`bonus-countdown-${qId}`);
+    if (!el) return;
+    const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+    if (remaining <= 0) {
+      el.textContent = t('quest_times_up');
+      loadQuests();
+      return;
+    }
+    const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
+    const secs = String(remaining % 60).padStart(2, '0');
+    el.textContent = `${mins}:${secs}`;
+  }
+
+  async function deliverBonusQuest() {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/deliver-bonus`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.showAlert(t(data.message || 'quest_bonus_delivered'), t('success'), false);
+        await loadQuests();
+      } else {
+        window.showAlert(t(data.error || 'quest_submit_failed'), t('error'), true);
+      }
+    } catch (err) {
+      console.error(err);
+      window.showAlert(t('server_error'), t('error'), true);
+    }
+  }
+
   // Init
   loadQuests();
 </script>
-  <script src="transition.js"></script>
 </body>
 </html>

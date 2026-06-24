@@ -1,7 +1,10 @@
 # Dependencies
 node_modules/
-package-lock.json
 yarn.lock
+
+# Node.js binaries (accidentally copied)
+server/node
+server/npm
 
 # Environment
 .env
