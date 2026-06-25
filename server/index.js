@@ -1,7 +1,11 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const { errorHandler } = require('./middleware/errorHandler');
 
@@ -104,26 +108,66 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const http = require('http');
-const server = http.createServer(app);
-initSocketIO(server);
-server.listen(PORT, () => {
-  console.log(`Sunucu ${PORT} portunda çalışıyor (Socket.IO aktif)`);
+const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
+
+// Self-signed cert oluştur
+let httpsOptions = null;
+const certDir = path.join(__dirname, 'certs');
+if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
+const keyPath = path.join(certDir, 'key.pem');
+const certPath = path.join(certDir, 'cert.pem');
+if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+  console.log('Self-signed sertifika oluşturuluyor...');
+  try {
+    execSync(`openssl req -x509 -newkey rsa:2048 -keyout "${keyPath}" -out "${certPath}" -days 3650 -nodes -subj "/CN=SeaPirates"`, { stdio: 'pipe' });
+    console.log('Sertifika oluşturuldu');
+  } catch (e) {
+    console.log('OpenSSL bulunamadı, HTTPS sunucu başlatılmayacak');
+  }
+}
+if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+  httpsOptions = { key: fs.readFileSync(keyPath), cert: fs.readFileSync(certPath) };
+}
+
+const servers = [];
+const httpServer = http.createServer(app);
+servers.push(httpServer);
+initSocketIO(httpServer);
+
+let httpsServer = null;
+if (httpsOptions) {
+  httpsServer = https.createServer(httpsOptions, app);
+  servers.push(httpsServer);
+}
+
+httpServer.listen(PORT, () => {
+  console.log(`HTTP sunucu ${PORT} portunda çalışıyor`);
   startBotTicks();
   startTiamatBotTicks();
 });
 
+if (httpsServer) {
+  httpsServer.listen(HTTPS_PORT, () => {
+    console.log(`HTTPS sunucu ${HTTPS_PORT} portunda çalışıyor`);
+  });
+}
+
 // Graceful shutdown
 const shutdown = async (signal) => {
   console.log(`\n${signal} alındı, sunucu kapatılıyor...`);
-  server.close(() => {
-    console.log('HTTP sunucusu kapatıldı.');
-    pool.end().then(() => {
-      console.log('PostgreSQL bağlantısı kapatıldı.');
-      process.exit(0);
+  let closed = 0;
+  const total = servers.length;
+  servers.forEach(s => {
+    s.close(() => {
+      closed++;
+      if (closed === total) {
+        pool.end().then(() => {
+          console.log('PostgreSQL bağlantısı kapatıldı.');
+          process.exit(0);
+        });
+      }
     });
   });
-  // 10 saniyede kapanmazsa zorla kapat
   setTimeout(() => {
     console.error('Zaman aşımı, zorla kapatılıyor...');
     process.exit(1);
