@@ -51,7 +51,7 @@ app.use(helmet({
   originAgentCluster: false,
   strictTransportSecurity: false,
 }));
-const allowedOrigins = (process.env.ALLOWED_ORIGIN || 'http://localhost:3000,http://192.168.1.3:3000,http://192.168.1.100:3000').split(',').map(s => s.trim());
+const allowedOrigins = (process.env.ALLOWED_ORIGIN || 'http://localhost:3000,http://192.168.1.2:3000,http://192.168.1.3:3000,http://192.168.1.100:3000').split(',').map(s => s.trim());
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
