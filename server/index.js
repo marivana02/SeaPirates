@@ -103,75 +103,47 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const REDIRECT_PORT = PORT + 1;
+const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
 
 (async () => {
   const certDir = path.join(__dirname, 'certs');
   if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
 
+  // HTTP sunucu (APK için) — her zaman çalışır
+  const httpServer = http.createServer(app);
+  initSocketIO(httpServer);
+  httpServer.listen(PORT, () => {
+    console.log(`HTTP sunucu ${PORT} portunda çalışıyor`);
+    startBotTicks();
+    startTiamatBotTicks();
+  });
+
+  // HTTPS sunucu (tarayıcı için) — sertifika varsa çalışır
   if (await ensureCert(certDir)) {
-    // Sertifika varsa: HTTPS port 3000'de çalışır (telefon HTTPS-Only modu için)
     const httpsOpts = {
       key: fs.readFileSync(path.join(certDir, 'key.pem')),
       cert: fs.readFileSync(path.join(certDir, 'cert.pem'))
     };
     const httpsServer = https.createServer(httpsOpts, app);
     initSocketIO(httpsServer);
-    httpsServer.listen(PORT, () => {
-      console.log(`HTTPS sunucu ${PORT} portunda çalışıyor`);
-      startBotTicks();
-      startTiamatBotTicks();
+    httpsServer.listen(HTTPS_PORT, () => {
+      console.log(`HTTPS sunucu ${HTTPS_PORT} portunda çalışıyor`);
     });
-
-    // HTTP redirect (port+1) — HTTPS-Only modu OLMAYAN cihazlar için
-    const httpRedirect = http.createServer((req, res) => {
-      const host = req.headers.host ? req.headers.host.split(':')[0] : 'localhost';
-      res.writeHead(301, { Location: `https://${host}:${PORT}${req.url}` });
-      res.end();
-    });
-    httpRedirect.listen(REDIRECT_PORT, () => {
-      console.log(`HTTP -> HTTPS yönlendirme ${REDIRECT_PORT} portunda`);
-    });
-
-    // Graceful shutdown
-    const servers = [httpsServer, httpRedirect];
-    const shutdown = async (signal) => {
-      console.log(`\n${signal} alındı, sunucu kapatılıyor...`);
-      servers.forEach(s => s.close());
-      pool.end().then(() => {
-        console.log('PostgreSQL bağlantısı kapatıldı.');
-        process.exit(0);
-      });
-      setTimeout(() => {
-        console.error('Zaman aşımı, zorla kapatılıyor...');
-        process.exit(1);
-      }, 10000).unref();
-    };
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('SIGINT', () => shutdown('SIGINT'));
-  } else {
-    // Sertifika yoksa: HTTP üzerinden çalış (fallback)
-    const httpServer = http.createServer(app);
-    initSocketIO(httpServer);
-    httpServer.listen(PORT, () => {
-      console.log(`HTTP sunucu ${PORT} portunda çalışıyor (fallback - sertifika yok)`);
-      startBotTicks();
-      startTiamatBotTicks();
-    });
-
-    const shutdown = async (signal) => {
-      console.log(`\n${signal} alındı, sunucu kapatılıyor...`);
-      httpServer.close();
-      pool.end().then(() => {
-        console.log('PostgreSQL bağlantısı kapatıldı.');
-        process.exit(0);
-      });
-      setTimeout(() => {
-        console.error('Zaman aşımı, zorla kapatılıyor...');
-        process.exit(1);
-      }, 10000).unref();
-    };
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('SIGINT', () => shutdown('SIGINT'));
   }
+
+  const servers = [httpServer];
+  const shutdown = async (signal) => {
+    console.log(`\n${signal} alındı, sunucu kapatılıyor...`);
+    servers.forEach(s => s.close());
+    pool.end().then(() => {
+      console.log('PostgreSQL bağlantısı kapatıldı.');
+      process.exit(0);
+    });
+    setTimeout(() => {
+      console.error('Zaman aşımı, zorla kapatılıyor...');
+      process.exit(1);
+    }, 10000).unref();
+  };
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 })();
