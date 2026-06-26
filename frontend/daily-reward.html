@@ -34,7 +34,6 @@
       display:flex;flex-direction:column;
       position:relative;
       background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;
-    
       padding-bottom: env(safe-area-inset-bottom, 0px);
       box-sizing: border-box;
     }
@@ -107,6 +106,14 @@
     }
     .info-box .v span{font-size:0.48rem;color:var(--txt-m);font-weight:400;font-family:'Inter',sans-serif;}
 
+    .month-label{
+      flex-shrink:0;text-align:center;
+      font-family:'Cinzel',serif;font-size:0.75rem;font-weight:900;
+      color:var(--gold-b);padding:4px 0;
+      text-shadow:0 0 6px rgba(184,134,11,0.3);
+      letter-spacing:0.08em;
+    }
+
     .cabinet-wrap{
       flex:1;display:flex;flex-direction:column;
       padding:8px;
@@ -154,10 +161,6 @@
     .grid-wrap::-webkit-scrollbar{width:3px;}
     .grid-wrap::-webkit-scrollbar-thumb{background:#3a2010;border-radius:2px;}
 
-    .day-row{
-      display:contents;
-    }
-
     .day-card{
       position:relative;
       border-radius:6px;
@@ -201,6 +204,14 @@
     }
     .day-card.done::before{background:rgba(0,0,0,0.4);}
 
+    .day-card.missed{
+      opacity:0.35;
+      border-color:#5a1515;
+      background:linear-gradient(145deg,#1a0808,#0a0404);
+      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);
+    }
+    .day-card.missed::before{background:rgba(0,0,0,0.5);}
+
     .day-card.avail{
       border-color:var(--gold);
       background:linear-gradient(145deg,#2a1a06,#1a0e04);
@@ -233,6 +244,7 @@
     .day-card.milestone .day-num{border-color:var(--gold-d);color:var(--gold-p);}
     .day-card.avail .day-num{color:var(--gold-b);border-color:var(--gold);}
     .day-card.done .day-num{color:#6a5a4a;}
+    .day-card.missed .day-num{color:#8a3030;}
 
     .day-rwd-img{
       width:32px;height:32px;flex-shrink:0;
@@ -255,6 +267,7 @@
       word-break:break-word;overflow-wrap:break-word;
     }
     .day-card.done .day-rwd-text{color:#a09080;}
+    .day-card.missed .day-rwd-text{color:#6a4040;}
     .day-card.milestone .day-rwd-text{color:#ffd700;}
     .day-card.vip.milestone .day-rwd-text{color:#f0b870;}
 
@@ -263,9 +276,9 @@
       font-size:0.55rem;
     }
     .day-check.claimed{color:#5a8a5a;}
+    .day-check.missed-icon{color:#c04040;font-size:0.7rem;}
     .day-check.locked{color:#4a3a2a;}
     .day-card.avail .day-check{color:var(--gold);}
-    .day-card.milestone .day-check.avail{color:var(--gold-b);}
 
     .claim-overlay{
       position:absolute;inset:0;z-index:3;
@@ -457,6 +470,10 @@
   </div>
   <div class="body">
     <div class="info-row">
+      <div class="info-box" id="month-box">
+        <div class="l" data-i18n="daily_month_label">MONTH</div>
+        <div class="v" id="month-val">—</div>
+      </div>
       <div class="info-box vip-box" id="vip-box">
         <div class="l" data-i18n="daily_vip_short">VIP</div>
         <div class="v" id="vip-val">NOT ACTIVE</div>
@@ -555,22 +572,24 @@
     { d:30, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'12,000', e:'4,000 👑'} }
   ];
 
-  let streak = 0;
-  let lastClaim = null;
-  let lastVipClaim = null;
+  let today = 1;
+  let daysInMonth = 30;
+  let claimedNormal = [];
+  let claimedVip = [];
   let isVip = false;
   let canClaimNormal = false;
   let canClaimVip = false;
 
-  function toast(msg, type) {
-    window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
+  const MONTHS_TR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function getMonthName(monthIndex) {
+    const lang = window.currentLang || 'en';
+    return (lang === 'tr' ? MONTHS_TR : MONTHS_EN)[monthIndex];
   }
 
-  function isToday(ts) {
-    if (!ts) return false;
-    const d = new Date(ts);
-    const t = new Date();
-    return d.getDate() === t.getDate() && d.getMonth() === t.getMonth() && d.getFullYear() === t.getFullYear();
+  function toast(msg, type) {
+    window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
   }
 
   async function fetchStatus() {
@@ -580,9 +599,10 @@
       });
       if (res.ok) {
         const d = await res.json();
-        streak = d.streak;
-        lastClaim = d.lastClaim ? new Date(d.lastClaim).getTime() : null;
-        lastVipClaim = d.lastVipClaim ? new Date(d.lastVipClaim).getTime() : null;
+        today = d.today;
+        daysInMonth = d.daysInMonth;
+        claimedNormal = d.claimedNormal || [];
+        claimedVip = d.claimedVip || [];
         isVip = d.isVip;
         canClaimNormal = d.canClaimNormal;
         canClaimVip = d.canClaimVip;
@@ -590,30 +610,22 @@
     } catch (e) { console.error(e); }
   }
 
-  function curCycle() {
-    return streak === 0 ? 0 : ((streak - 1) % 30) + 1;
-  }
-
+  // Determine the state for a normal day card
   function dayState(dayNum) {
-    const cur = curCycle();
-    if (dayNum <= cur) return 'claimed';
-    if (dayNum === cur + 1 && canClaimNormal) return 'available-normal';
+    if (claimedNormal.includes(dayNum)) return 'claimed';
+    if (dayNum < today) return 'missed';
+    if (dayNum === today && canClaimNormal) return 'available-normal';
+    if (dayNum === today && !canClaimNormal) return 'claimed'; // already claimed today
     return 'locked';
   }
 
+  // Determine the state for a VIP day card
   function vipState(dayNum) {
     if (!isVip) return 'locked';
-    const cur = curCycle();
-    if (dayNum < cur) return 'claimed';
-    if (dayNum === cur) {
-      const normToday = lastClaim && isToday(lastClaim);
-      const vipToday = lastVipClaim && isToday(lastVipClaim);
-      if (normToday && !vipToday && canClaimVip) return 'available-vip';
-      if (normToday && vipToday) return 'claimed';
-      if (normToday && !canClaimVip) return 'locked';
-      return 'locked';
-    }
-    if (dayNum === cur + 1 && canClaimNormal && canClaimVip) return 'available-vip';
+    if (claimedVip.includes(dayNum)) return 'claimed';
+    if (dayNum < today) return 'missed';
+    if (dayNum === today && canClaimVip) return 'available-vip';
+    if (dayNum === today && !canClaimVip) return 'claimed'; // already claimed today
     return 'locked';
   }
 
@@ -621,16 +633,24 @@
     const g = document.getElementById('grid-wrap');
     g.innerHTML = '';
 
+    // Update month label
+    const now = new Date();
+    document.getElementById('month-val').textContent = getMonthName(now.getMonth());
+
+    // Update VIP box
     document.getElementById('vip-val').textContent = isVip ? t('daily_vip_active') : t('daily_vip_not_active');
     document.getElementById('vip-val').style.color = isVip ? '#ffd700' : '#6a5038';
     document.getElementById('vip-box').style.borderColor = isVip ? '#8b4a1a' : '#4a2a12';
     document.getElementById('vip-box').style.background = isVip ? 'rgba(60,10,10,0.7)' : 'rgba(10,5,2,0.88)';
 
-    for (let i = 0; i < 30; i++) {
-      const n = D_NORMAL[i];
-      const v = D_VIP[i];
+    // Render days up to daysInMonth (but rewards capped at 30)
+    const totalDays = Math.min(daysInMonth, 31);
+    for (let i = 0; i < totalDays; i++) {
       const dayNum = i + 1;
-      const isMs = MILESTONES.includes(dayNum);
+      const rewardIdx = Math.min(dayNum, 30) - 1; // cap at 30
+      const n = D_NORMAL[rewardIdx];
+      const v = D_VIP[rewardIdx];
+      const isMs = MILESTONES.includes(Math.min(dayNum, 30));
 
       // Normal card
       const ns = dayState(dayNum);
@@ -638,6 +658,7 @@
       nCard.className = 'day-card';
       if (isMs) nCard.classList.add('milestone');
       if (ns === 'claimed') nCard.classList.add('done');
+      else if (ns === 'missed') nCard.classList.add('missed');
       else if (ns === 'available-normal') nCard.classList.add('avail');
       else nCard.classList.add('wait');
       renderCardInner(nCard, n, dayNum, isMs, ns);
@@ -653,6 +674,7 @@
       vCard.className = 'day-card vip';
       if (isMs) vCard.classList.add('milestone');
       if (vs === 'claimed') vCard.classList.add('done');
+      else if (vs === 'missed') vCard.classList.add('missed');
       else if (vs === 'available-vip') vCard.classList.add('avail');
       else vCard.classList.add('wait');
       renderCardInner(vCard, v, dayNum, isMs, vs);
@@ -663,7 +685,7 @@
       g.appendChild(vCard);
     }
 
-    // Scroll to first available
+    // Scroll to today's row
     setTimeout(() => {
       const avail = g.querySelector('.avail');
       if (avail) avail.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -677,6 +699,7 @@
 
     let badge = '';
     if (state === 'claimed') badge = '<span class="day-check claimed">✓</span>';
+    else if (state === 'missed') badge = '<span class="day-check missed-icon">✕</span>';
     else if (state === 'available-normal' || state === 'available-vip') badge = '<span class="day-check" style="color:var(--gold)">⚡</span>';
     else badge = '<span class="day-check locked">🔒</span>';
 
@@ -730,7 +753,7 @@
 
   async function fetchVipCurrency() {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('sp_token');
       if (!token) return;
       const [res, curRes] = await Promise.all([
         fetch('/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
@@ -817,11 +840,11 @@
     <div class="magaza-perks">
       <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
       <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarım Hızı — Savaşta gemini 2 kat hızlı onarırsın</div>
-      <div class="magaza-perk" data-i18n="vip_perk_battle_reward">+%10 Savaş Ödülü — Altın, inci ve XP ödüllerin %10 fazla gelir</div>
       <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
       <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayışında kat kat fazla ödül</div>
       <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvası — Aynı anda 2 görev alabilirsin</div>
       <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Doğ — Battığında max canının %10'u ile başlarsın</div>
+      <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 Dükkan İndirimi — Dükkandaki tüm ürünlerde %10 indirim</div>
     </div>
   </div>
 </div>

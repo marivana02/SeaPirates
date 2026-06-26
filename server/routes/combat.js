@@ -45,10 +45,16 @@ router.get('/active', authMiddleware, async (req, res) => {
   }
 });
 
+const lastWeekRewardRun = {};
+
 router.get('/boss/status', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   try {
-    await distributeOldWeekRewards(pool);
+    const ts = Date.now();
+    if (!lastWeekRewardRun.time || ts - lastWeekRewardRun.time > 60000) {
+      await distributeOldWeekRewards(pool);
+      lastWeekRewardRun.time = ts;
+    }
     const pRes = await pool.query('SELECT last_boss_attack, weekly_boss_damage, weekly_boss_week FROM players WHERE id = $1', [playerId]);
     if (pRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
     let pData = pRes.rows[0];
@@ -87,6 +93,7 @@ router.get('/boss/status', authMiddleware, async (req, res) => {
 
 router.post('/end', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
+  if (!acquireAttackLock(playerId)) return res.status(429).json({ error: 'Attack in progress, cannot end fight now' });
   try {
     const fightRes = await pool.query('SELECT * FROM active_fights WHERE player_id = $1', [playerId]);
     if (fightRes.rows.length === 0) return res.json({ ok: true, message: 'No active fight' });
@@ -101,6 +108,8 @@ router.post('/end', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('end fight error:', err);
     res.status(500).json({ error: 'Server error' });
+  } finally {
+    releaseAttackLock(playerId);
   }
 });
 
@@ -163,8 +172,8 @@ router.post('/start', authMiddleware, async (req, res) => {
     await pool.query(`INSERT INTO active_fights (
       player_id, npc_name, npc_hp, npc_max_hp, npc_damage, npc_gold, npc_pearl, npc_xp,
       player_hp, player_max_hp, weekly_boss_damage_dealt, map_level, is_admiral, is_tiamat,
-      is_tower, tower_id, full_img, damaged_img, is_weekly_boss, is_pvp, last_activity
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP)
+      is_tower, tower_id, full_img, damaged_img, is_weekly_boss, is_pvp, last_activity, last_npc_attack
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     ON CONFLICT (player_id) DO UPDATE SET
       npc_name = EXCLUDED.npc_name, npc_hp = EXCLUDED.npc_hp, npc_max_hp = EXCLUDED.npc_max_hp,
       npc_damage = EXCLUDED.npc_damage, npc_gold = EXCLUDED.npc_gold, npc_pearl = EXCLUDED.npc_pearl,
@@ -172,7 +181,7 @@ router.post('/start', authMiddleware, async (req, res) => {
       weekly_boss_damage_dealt = EXCLUDED.weekly_boss_damage_dealt, map_level = EXCLUDED.map_level,
       is_admiral = EXCLUDED.is_admiral, is_tiamat = EXCLUDED.is_tiamat, is_tower = EXCLUDED.is_tower,
       tower_id = EXCLUDED.tower_id, full_img = EXCLUDED.full_img, damaged_img = EXCLUDED.damaged_img,
-      is_weekly_boss = EXCLUDED.is_weekly_boss, is_pvp = EXCLUDED.is_pvp, last_activity = CURRENT_TIMESTAMP
+      is_weekly_boss = EXCLUDED.is_weekly_boss, is_pvp = EXCLUDED.is_pvp, last_activity = CURRENT_TIMESTAMP, last_npc_attack = CURRENT_TIMESTAMP
     `, [
       playerId, targetNpc.name, (isAdmiral || isTiamatFight) ? bossCurrentHp : targetNpc.hp, targetNpc.hp,
       targetNpc.damage || 0, targetNpc.gold || 0, targetNpc.pearl || 0, targetNpc.xp || 0,
@@ -204,6 +213,10 @@ router.post('/attack', authMiddleware, async (req, res) => {
     const fightRow = fightRes.rows[0];
     const fight = mapDbFightRowToFightState(fightRow);
 
+    const NPC_ATTACK_INTERVAL_MS = 3000;
+    const lastNpcAttack = fightRow.last_npc_attack ? new Date(fightRow.last_npc_attack).getTime() : 0;
+    const npcCanAttack = (Date.now() - lastNpcAttack) >= NPC_ATTACK_INTERVAL_MS;
+
     const cooldownMs = await calculatePlayerCooldownMs(pool, playerId, fight.isTower);
     const elapsed = Date.now() - new Date(fightRow.last_activity).getTime();
     const tolerance = Math.min(1000, Math.round(cooldownMs * 0.2));
@@ -215,12 +228,41 @@ router.post('/attack', authMiddleware, async (req, res) => {
     const playerDbRes = await pool.query('SELECT username, display_name, ship_level, max_hp, hp, level, pvp_target_id FROM players WHERE id = $1', [playerId]);
     const pDbInfo = playerDbRes.rows[0];
 
+    // Paylaşımlı boss (Admiral/Tiamat) için can kontrolü — kaynak harcamadan önce
+    if (fight.isAdmiral) {
+      const aliveRes = await pool.query(
+        'SELECT boss_current_hp FROM npc3_kill_counter WHERE map_level = $1',
+        [fight.mapLevel]
+      );
+      const bossHp = aliveRes.rows[0] ? parseInt(aliveRes.rows[0].boss_current_hp) : 0;
+      if (bossHp <= 0) {
+        return res.json({
+          state: 'boss_defeated', npcHp: 0, playerHp: fight.playerHp,
+          playerDamage: 0, npcDamage: 0, elpGained: 0,
+          message: 'This boss has already been defeated!'
+        });
+      }
+    } else if (fight.isTiamat) {
+      const aliveRes = await pool.query(
+        'SELECT current_hp FROM tiamat WHERE id = 1'
+      );
+      const bossHp = aliveRes.rows[0] ? parseInt(aliveRes.rows[0].current_hp) : 0;
+      if (bossHp <= 0) {
+        return res.json({
+          state: 'boss_defeated', npcHp: 0, playerHp: fight.playerHp,
+          playerDamage: 0, npcDamage: 0, elpGained: 0,
+          message: 'Tiamat has already been defeated!'
+        });
+      }
+    }
+
     const pd = await calculatePlayerDamage(pool, playerId, ammoId);
 
     const dm = await applyDamageModifiers(pool, playerId, pd, { npcUseBarut: false, npcUseZirh: false }, fight, { useBarut, useZirh, currentEvent, ammoId });
 
     let playerDamage = dm.finalDamage;
     let npcDamage = dm.finalNpcDamage;
+    if (!npcCanAttack) npcDamage = 0;
     let gainedElp = dm.gainedElp;
 
     // Patlayan gülle (ammo 3) kullanıldıysa ELP'yi her atışta direkt veritabanına işle
@@ -267,13 +309,8 @@ router.post('/attack', authMiddleware, async (req, res) => {
 
     if (fight.npcHp === 0) {
       await updateQuestProgress(pool, playerId, { type: 'kill', npcNameStr, amount: 1, npcObj });
-      let vipMult = 1.0;
-      try {
-        const vipRes = await pool.query('SELECT vip_until FROM players WHERE id = $1', [playerId]);
-        if (vipRes.rows.length > 0 && vipRes.rows[0].vip_until && new Date(vipRes.rows[0].vip_until) > new Date()) vipMult = 1.10;
-      } catch (vipErr) { console.error('VIP check error:', vipErr); }
       const evMult = currentEvent.type === 'npc_reward' ? currentEvent.mult : 1;
-      const rewardResult = await grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBoss, vipMult, evMult, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh });
+      const rewardResult = await grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBoss, evMult, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh });
       return res.json(rewardResult);
     }
 
@@ -294,6 +331,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
       const sel = await selectRandomTiamatTarget(pool, npcDamage);
       targetHitId = sel.targetHitId;
       targetHitUsername = sel.targetHitUsername;
+      actualNpcDamage = sel.actualNpcDamage;
       if (targetHitId === playerId) {
         fight.playerHp -= npcDamage;
         if (fight.playerHp < 0) fight.playerHp = 0;
@@ -325,8 +363,8 @@ router.post('/attack', authMiddleware, async (req, res) => {
     } else {
       await pool.query('UPDATE players SET hp = $1, dmg_pve = dmg_pve + $2 WHERE id = $3', [fight.playerHp, playerDamage, playerId]);
     }
-    await pool.query('UPDATE active_fights SET npc_hp = $1, player_hp = $2, weekly_boss_damage_dealt = $3, last_activity = CURRENT_TIMESTAMP WHERE player_id = $4',
-      [fight.npcHp, fight.playerHp, fight.weeklyBossDamageDealt, playerId]);
+    await pool.query(`UPDATE active_fights SET npc_hp = $1, player_hp = $2, weekly_boss_damage_dealt = $3, last_activity = CURRENT_TIMESTAMP, last_npc_attack = CASE WHEN $5 THEN CURRENT_TIMESTAMP ELSE last_npc_attack END WHERE player_id = $4`,
+      [fight.npcHp, fight.playerHp, fight.weeklyBossDamageDealt, playerId, npcCanAttack]);
 
     res.json({
       state: 'ongoing', npcHp: fight.npcHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: actualNpcDamage,
@@ -374,6 +412,7 @@ router.get('/tiamat-status', authMiddleware, async (req, res) => {
     // Dead or not spawned — check respawn timer
     if (t.respawn_at === null || new Date(t.respawn_at) <= new Date()) {
       await pool.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
+      await pool.query('DELETE FROM tiamat_damage');
       const dmgRes = await pool.query('SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp FROM tiamat_damage WHERE player_id > 0 ORDER BY damage_dealt DESC');
       return res.json({ spawned: true, bossHp: parseInt(t.hp), bossMaxHp: parseInt(t.hp), leaderboard: dmgRes.rows });
     }

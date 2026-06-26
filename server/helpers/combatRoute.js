@@ -25,7 +25,8 @@ function mapDbFightRowToFightState(dbFight) {
     isAdmiral: dbFight.is_admiral,
     isTiamat: dbFight.is_tiamat,
     isTower: dbFight.is_tower,
-    isPvP: dbFight.is_pvp
+    isPvP: dbFight.is_pvp,
+    lastNpcAttack: dbFight.last_npc_attack
   };
 }
 
@@ -55,22 +56,25 @@ async function getOpponentReloadMs(pool, opponentId) {
 async function checkLevelUp(pool, playerId) {
   let leveledUp = false;
   let newLevel = null;
-  const lvlRes = await pool.query(
-    `SELECT p.level, p.xp, lr.required_xp
-     FROM players p
-     LEFT JOIN level_requirements lr ON lr.level = p.level + 1
-     WHERE p.id = $1`,
-    [playerId]
-  );
-  if (lvlRes.rows.length > 0) {
+  let maxIter = 20;
+  while (maxIter-- > 0) {
+    const lvlRes = await pool.query(
+      `SELECT p.level, p.xp, lr.required_xp
+       FROM players p
+       LEFT JOIN level_requirements lr ON lr.level = p.level + 1
+       WHERE p.id = $1`,
+      [playerId]
+    );
+    if (lvlRes.rows.length === 0) break;
     const row = lvlRes.rows[0];
-    if (row.required_xp !== null && parseInt(row.xp) >= parseInt(row.required_xp)) {
-      const updateRes = await pool.query('UPDATE players SET level = level + 1 WHERE id = $1 AND level = $2', [playerId, row.level]);
-      if (updateRes.rowCount > 0) {
-        leveledUp = true;
-        newLevel = parseInt(row.level) + 1;
-      }
-    }
+    if (row.required_xp === null || parseInt(row.xp) < parseInt(row.required_xp)) break;
+    const updateRes = await pool.query(
+      'UPDATE players SET level = level + 1 WHERE id = $1 AND level = $2',
+      [playerId, row.level]
+    );
+    if (updateRes.rowCount === 0) break;
+    leveledUp = true;
+    newLevel = parseInt(row.level) + 1;
   }
   return { leveledUp, newLevel };
 }

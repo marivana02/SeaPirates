@@ -723,13 +723,15 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       if(!password){showErr('l-pass-err');return;}
       setLoading('login-btn',true);
       try {
-        const data = await API.post('/auth/login', { username, password });
+        const data = await API.post('/auth/login', { username, password, deviceId: localStorage.getItem('sp_device_id') });
         Auth.login(data.token, data.player, remember);
         if (remember) localStorage.setItem('sp_remembered_username', username);
         showFormMsg(t('login_welcome', { name: data.player.display_name || data.player.username }), 'ok');
         setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {
-        if (err.status === 403 && err.message === 'err_account_banned' && err.data) {
+          if (err.status === 403 && err.message === 'err_device_banned') {
+            showFormMsg('🚫 ' + t('ban_notification_title') + '\n' + t('ban_reason_label') + ' Bu cihaz yasaklanmış.', 'err');
+          } else if (err.status === 403 && err.message === 'err_account_banned' && err.data) {
           const d = err.data;
           let banMsg = '🚫 ' + t('ban_notification_title');
           if (d.ban_reason) banMsg += '\n📝 ' + t('ban_reason_label') + ' ' + d.ban_reason;
@@ -770,12 +772,16 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
       setLoading('reg-btn',true);
       try {
-        const data = await API.post('/auth/register', { username, email, password });
+        const data = await API.post('/auth/register', { username, email, password, deviceId: localStorage.getItem('sp_device_id') });
         Auth.login(data.token, data.player, true);
         showFormMsg(t('register_welcome', { name: data.player.display_name || data.player.username }), 'ok');
         setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {
-        showFormMsg(err.message || t('connection_failed'), 'err');
+        if (err.status === 403 && err.message === 'err_device_banned') {
+          showFormMsg('🚫 Bu cihaz yasaklanmış. Kayıt yapılamaz.', 'err');
+        } else {
+          showFormMsg(err.message || t('connection_failed'), 'err');
+        }
       }
       setLoading('reg-btn',false);
     }

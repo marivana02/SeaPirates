@@ -83,7 +83,7 @@ async function distributeOldWeekRewards(pool) {
       await rewardClient.query(
         `UPDATE players 
          SET weekly_boss_damage = 0, weekly_boss_week = $1 
-         WHERE weekly_boss_week = $2`,
+         WHERE weekly_boss_week = $2 AND weekly_boss_damage > 0`,
         [currentWeek, oldWeek]
       );
     }
@@ -97,7 +97,7 @@ async function distributeOldWeekRewards(pool) {
   }
 }
 
-async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBoss, vipMult, evMult, actualCannonsFired, useBarut, useZirh }) {
+async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBoss, evMult, actualCannonsFired, useBarut, useZirh }) {
   let rewGold = Math.floor((npcObj.gold || 0) * evMult);
   let rewPearl = Math.floor((npcObj.pearl || 0) * evMult);
   let rewXp = Math.floor((npcObj.xp || 0) * evMult);
@@ -105,11 +105,11 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
   if (npcObj.isTower) {
     await pool.query(
       `UPDATE players 
-       SET pearl = pearl + FLOOR($1::numeric * $4::numeric),
-           hp = $2,
-           tower_level = LEAST(COALESCE(tower_level, 1) + 1, 100)
+       SET pearl = pearl + $1,
+            hp = $2,
+            tower_level = LEAST(COALESCE(tower_level, 1) + 1, 100)
        WHERE id = $3`,
-      [npcObj.pearl || 0, fight.playerHp, playerId, vipMult]
+      [rewPearl, fight.playerHp, playerId]
     );
   } else if (fight.isAdmiral) {
     await pool.query(
@@ -138,18 +138,19 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
     const rewAdmElite = Math.floor(rewAdmXp * 0.5);
 
     // Tüm oyunculara ödülleri dağıt (killer dahil)
-    const rewardsGiven = await distributeAdmiralRewards(fight.mapLevel);
-
-    const { leveledUp: admiralLeveledUp, newLevel: admiralNewLevel } = await checkLevelUp(pool, playerId);
+    const { rewardsGiven, skipReason } = await distributeAdmiralRewards(fight.mapLevel);
 
     await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+
+    const { leveledUp: admiralLeveledUp, newLevel: admiralNewLevel } = await checkLevelUp(pool, playerId);
     return {
       state: 'won', npcHp: 0, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
       rewards: rewardsGiven ? { gold: 0, pearl: rewAdmPearl, xp: rewAdmXp } : { gold: 0, pearl: 0, xp: 0 },
       consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
       leveledUp: admiralLeveledUp,
       newLevel: admiralNewLevel,
-      isAdmiral: true
+      isAdmiral: true,
+      rewardSkipReason: skipReason || null
     };
   } else if (fight.isTiamat) {
     await pool.query(
@@ -160,12 +161,12 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
     );
     const tiamatRewards = await distributeTiamatRewards(playerId);
 
+    await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+
     const respawnHp = await getRespawnHp(pool, playerId, fight.playerMaxHp);
     await pool.query('UPDATE players SET hp = $1 WHERE id = $2', [respawnHp, playerId]);
 
     const { leveledUp, newLevel } = await checkLevelUp(pool, playerId);
-
-    await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
     return {
       state: 'won', npcHp: 0, playerHp: respawnHp, playerDamage: 0, npcDamage: 0,
       rewards: { gold: 0, pearl: tiamatRewards.pearl, xp: tiamatRewards.xp },
@@ -177,67 +178,77 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
   } else if (isBoss) {
     await pool.query(
       `UPDATE players 
-       SET gold = gold + FLOOR($1::numeric * $6::numeric), 
-           pearl = pearl + FLOOR($2::numeric * $6::numeric), 
+       SET gold = gold + $1, 
+           pearl = pearl + $2, 
            xp = xp + $3,
            dmg_amiral = dmg_amiral + $4
        WHERE id = $5`,
-      [rewGold, rewPearl, rewXp, playerDamage, playerId, vipMult]
+      [rewGold, rewPearl, rewXp, playerDamage, playerId]
     );
   } else {
     await pool.query(
       `UPDATE players 
-       SET gold = gold + FLOOR($1::numeric * $6::numeric), 
-           pearl = pearl + FLOOR($2::numeric * $6::numeric), 
+       SET gold = gold + $1, 
+           pearl = pearl + $2, 
            xp = xp + $3,
            dmg_pve = dmg_pve + $4,
            kill_npc = kill_npc + 1
        WHERE id = $5`,
-      [rewGold, rewPearl, rewXp, playerDamage, playerId, vipMult]
+      [rewGold, rewPearl, rewXp, playerDamage, playerId]
     );
 
     if (!npcObj.isTower && !npcObj.isWeeklyBoss) {
       try {
         const fightMapLvl = fight.mapLevel || 1;
-        await pool.query(
-          `INSERT INTO npc3_kill_counter (map_level, kill_count)
-           VALUES ($1, 1)
-           ON CONFLICT (map_level)
-           DO UPDATE SET kill_count = npc3_kill_counter.kill_count + 1`,
-          [fightMapLvl]
-        );
+        const spawnClient = await pool.connect();
+        try {
+          await spawnClient.query('BEGIN');
+          await spawnClient.query(
+            `INSERT INTO npc3_kill_counter (map_level, kill_count)
+             VALUES ($1, 1)
+             ON CONFLICT (map_level)
+             DO UPDATE SET kill_count = npc3_kill_counter.kill_count + 1`,
+            [fightMapLvl]
+          );
 
-        const bcRes = await pool.query(
-          'SELECT kill_count, is_spawned FROM npc3_kill_counter WHERE map_level = $1',
-          [fightMapLvl]
-        );
-        const bossRes = await pool.query(
-          'SELECT required_kills, name FROM bosses WHERE map_level = $1',
-          [fightMapLvl]
-        );
+          const bcRes = await spawnClient.query(
+            'SELECT kill_count, is_spawned FROM npc3_kill_counter WHERE map_level = $1 FOR UPDATE',
+            [fightMapLvl]
+          );
+          const bossRes = await spawnClient.query(
+            'SELECT required_kills, name FROM bosses WHERE map_level = $1',
+            [fightMapLvl]
+          );
 
-        if (bcRes.rows.length > 0 && bossRes.rows.length > 0) {
-          const bc = bcRes.rows[0];
-          const bossInfo = bossRes.rows[0];
+          if (bcRes.rows.length > 0 && bossRes.rows.length > 0) {
+            const bc = bcRes.rows[0];
+            const bossInfo = bossRes.rows[0];
 
-          if (!bc.is_spawned && bc.kill_count >= bossInfo.required_kills) {
-            const maxSubs = fightMapLvl <= 4 ? 2 : 1;
-            const randomSubMap = Math.floor(Math.random() * maxSubs) + 1;
+            if (!bc.is_spawned && bc.kill_count >= bossInfo.required_kills) {
+              const maxSubs = fightMapLvl <= 4 ? 2 : 1;
+              const randomSubMap = Math.floor(Math.random() * maxSubs) + 1;
 
-            await pool.query(
-              `UPDATE npc3_kill_counter 
-               SET is_spawned = TRUE, 
-                   spawned_sub_map = $1, 
-                   kill_count = 0 
-               WHERE map_level = $2`,
-              [randomSubMap, fightMapLvl]
-            );
-            console.log(`[BOSS SPAWN] ${bossInfo.name} spawned in Map ${fightMapLvl}-${randomSubMap}!`);
-            sendPushToAll(
-              '⚓ Admiral Spawnlandı!',
-              `${bossInfo.name} — Harita ${fightMapLvl}-${randomSubMap}'de göründü!`
-            );
+              await spawnClient.query(
+                `UPDATE npc3_kill_counter 
+                 SET is_spawned = TRUE, 
+                     spawned_sub_map = $1, 
+                     kill_count = 0 
+                 WHERE map_level = $2`,
+                [randomSubMap, fightMapLvl]
+              );
+              console.log(`[BOSS SPAWN] ${bossInfo.name} spawned in Map ${fightMapLvl}-${randomSubMap}!`);
+              sendPushToAll(
+                '⚓ Admiral Spawnlandı!',
+                `${bossInfo.name} — Harita ${fightMapLvl}-${randomSubMap}'de göründü!`
+              );
+            }
           }
+          await spawnClient.query('COMMIT');
+        } catch (txErr) {
+          await spawnClient.query('ROLLBACK');
+          throw txErr;
+        } finally {
+          spawnClient.release();
         }
       } catch (counterErr) {
         console.error('NPC3 kill counter increment error:', counterErr);

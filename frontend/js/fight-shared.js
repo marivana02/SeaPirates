@@ -28,31 +28,88 @@
       } catch(e) {}
     }
 
-    function playFireSound() {
+    function playFireSound(durationSec = 1.3) {
+      if (localStorage.getItem('sp_setting_sound') === 'false') return;
       try {
         const actx = new (window.AudioContext || window.webkitAudioContext)();
-        const dur = 1.5;
-        const bufSize = Math.floor(actx.sampleRate * dur);
+        
+        // 1. Noise Generator (Brown + White noise mix)
+        const bufSize = Math.floor(actx.sampleRate * durationSec);
         const buf = actx.createBuffer(1, bufSize, actx.sampleRate);
         const data = buf.getChannelData(0);
+        
+        let lastOut = 0.0;
         for (let i = 0; i < bufSize; i++) {
-          const t = i / actx.sampleRate;
-          const envelope = Math.max(0, 1 - t / dur);
-          const crackle = Math.random() * 0.3 + 0.7;
-          const mod = 0.5 + 0.5 * Math.sin(t * 120) * Math.sin(t * 37);
-          data[i] = (Math.random() * 2 - 1) * crackle * mod * envelope * 0.4;
+          const white = Math.random() * 2 - 1;
+          // Brown noise filter (leaky integrator)
+          const brown = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = brown;
+          // Mix brown (deep rumble) and white (high hiss) noise
+          data[i] = (brown * 3.5 * 0.7) + (white * 0.3);
         }
-        const src = actx.createBufferSource();
-        src.buffer = buf;
-        const gain = actx.createGain();
-        gain.gain.value = 0.25;
+        
+        const noiseNode = actx.createBufferSource();
+        noiseNode.buffer = buf;
+        
+        // 2. Filter with Modulation
         const filter = actx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.value = 600 + Math.random() * 400;
-        src.connect(filter);
-        filter.connect(gain);
-        gain.connect(actx.destination);
-        src.start();
+        filter.frequency.setValueAtTime(450, actx.currentTime);
+        // Modulate filter frequency to create a roaring effect
+        filter.frequency.linearRampToValueAtTime(700, actx.currentTime + 0.2);
+        
+        // Create an LFO to modulate filter frequency for turbulent flame sound
+        const lfo = actx.createOscillator();
+        lfo.frequency.value = 8; // 8 Hz rumble
+        const lfoGain = actx.createGain();
+        lfoGain.gain.value = 150; // modulate by +/- 150Hz
+        
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+        lfo.start();
+        
+        // 3. Gain Envelope
+        const mainGain = actx.createGain();
+        mainGain.gain.setValueAtTime(0.001, actx.currentTime);
+        // Fade in
+        mainGain.gain.linearRampToValueAtTime(0.35, actx.currentTime + 0.15);
+        // Sustain & slight decay
+        mainGain.gain.setValueAtTime(0.35, actx.currentTime + durationSec - 0.3);
+        // Fade out
+        mainGain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + durationSec);
+        
+        // 4. Sub-bass Dragon Roar Oscillator (Triangle wave at 65Hz)
+        const subOsc = actx.createOscillator();
+        subOsc.type = 'triangle';
+        subOsc.frequency.setValueAtTime(65, actx.currentTime);
+        subOsc.frequency.exponentialRampToValueAtTime(45, actx.currentTime + 0.5);
+        
+        const subGain = actx.createGain();
+        subGain.gain.setValueAtTime(0.2, actx.currentTime);
+        subGain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.5);
+        
+        subOsc.connect(subGain);
+        subGain.connect(actx.destination);
+        
+        // Connect noise
+        noiseNode.connect(filter);
+        filter.connect(mainGain);
+        mainGain.connect(actx.destination);
+        
+        // Start sources
+        noiseNode.start();
+        subOsc.start();
+        
+        // Stop LFO and sources
+        setTimeout(() => {
+          try {
+            noiseNode.stop();
+            subOsc.stop();
+            lfo.stop();
+            actx.close();
+          } catch(e) {}
+        }, durationSec * 1000 + 100);
+        
       } catch(e) {}
     }
 
@@ -306,58 +363,77 @@
       if (isTiamatFiring) {
         const npcNode = document.getElementById('npc-node');
         const br = document.getElementById('battlefield').getBoundingClientRect();
-        let mx, my;
-        const tCanv = npcNode ? npcNode.querySelector('canvas.ship-img') : null;
-        if (tCanv) {
-          const nr = tCanv.getBoundingClientRect();
-          if (nr.width > 10 && nr.height > 10) {
-            mx = nr.left - br.left + nr.width * 0.32;
-            my = nr.top - br.top + nr.height * 0.76;
+        
+        // 36-frame coordinate offsets relative to 220x220 canvas size
+        const TIAMAT_MOUTH_OFFSETS = [
+          {x: 77.2, y: 157.6}, {x: 77.2, y: 157.6}, {x: 77.2, y: 157.6}, {x: 77.2, y: 157.6}, {x: 77.2, y: 157.6}, {x: 77.2, y: 157.6}, {x: 77.2, y: 157.6}, 
+          {x: 78.3, y: 156.3}, {x: 79.3, y: 154.9}, {x: 80.4, y: 153.7}, {x: 81.4, y: 152.4}, {x: 82.4, y: 151.0}, {x: 83.5, y: 149.8}, 
+          {x: 84.3, y: 148.2}, {x: 85.0, y: 146.7}, {x: 85.8, y: 145.1}, {x: 86.6, y: 143.5}, {x: 87.4, y: 142.0}, {x: 88.2, y: 140.4}, 
+          {x: 86.9, y: 140.4}, {x: 85.5, y: 140.4}, {x: 84.3, y: 140.4}, {x: 83.0, y: 140.4}, {x: 81.6, y: 140.4}, {x: 80.4, y: 140.4}, 
+          {x: 80.0, y: 142.0}, {x: 79.9, y: 143.5}, {x: 79.6, y: 145.1}, {x: 79.3, y: 146.7}, {x: 79.1, y: 148.2}, {x: 78.8, y: 149.8}, 
+          {x: 78.5, y: 151.0}, {x: 78.3, y: 152.4}, {x: 78.0, y: 153.7}, {x: 77.7, y: 154.9}, {x: 77.5, y: 156.3}
+        ];
+
+        function getMouthPos() {
+          let mx = br.width * 0.8; // absolute fallback
+          let my = br.height * 0.35;
+          const tCanv = npcNode ? npcNode.querySelector('canvas.ship-img') : null;
+          if (tCanv) {
+            const nr = tCanv.getBoundingClientRect();
+            if (nr.width > 10 && nr.height > 10) {
+              const currentFrame = window.tiamatCurrentFrame || 0;
+              const offset = TIAMAT_MOUTH_OFFSETS[currentFrame] || TIAMAT_MOUTH_OFFSETS[0];
+              const scale = nr.width / 220;
+              mx = nr.left - br.left + offset.x * scale;
+              my = nr.top - br.top + offset.y * scale;
+            } else {
+              const wr = npcNode.getBoundingClientRect();
+              mx = wr.left - br.left + wr.width * 0.32;
+              my = wr.top - br.top + wr.height * 0.76;
+            }
           } else {
             const wr = npcNode.getBoundingClientRect();
             mx = wr.left - br.left + wr.width * 0.32;
             my = wr.top - br.top + wr.height * 0.76;
           }
-        } else {
-          const wr = npcNode.getBoundingClientRect();
-          mx = wr.left - br.left + wr.width * 0.32;
-          my = wr.top - br.top + wr.height * 0.76;
+          return { x: mx, y: my };
         }
-        from = { x: mx, y: my };
 
-        playFireSound();
+        const startFrom = getMouthPos();
+        const BREATH_DURATION = 1300;
+        
+        playFireSound(BREATH_DURATION / 1000);
 
-        const dx = to.x - from.x;
-        const dy = to.y - from.y;
+        const dx = to.x - startFrom.x;
+        const dy = to.y - startFrom.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const ux = dx / dist;
         const uy = dy / dist;
         const px = -uy;
         const py = ux;
-
-        const BREATH_DURATION = 2400;
         const startTime = performance.now();
 
         const fireInterval = setInterval(() => {
           const elapsed = performance.now() - startTime;
           if (elapsed >= BREATH_DURATION) {
             clearInterval(fireInterval);
+            const endFrom = getMouthPos();
             for (let fi = 0; fi < 5; fi++) {
               setTimeout(() => {
                 if (!active) return;
-                const bSpeed = 6 + Math.random() * 3;
+                const bSpeed = 10 + Math.random() * 5;
                 const bSpread = (Math.random() - 0.5) * 6;
                 gParts.push({
-                  x: from.x + (Math.random() - 0.5) * 20,
-                  y: from.y + (Math.random() - 0.5) * 16,
+                  x: endFrom.x + (Math.random() - 0.5) * 20,
+                  y: endFrom.y + (Math.random() - 0.5) * 16,
                   vx: ux * bSpeed + px * bSpread,
                   vy: uy * bSpeed + py * bSpread,
-                  radius: 10 + Math.random() * 6,
+                  radius: 12 + Math.random() * 6,
                   alpha: 1,
                   decay: 0.006 + Math.random() * 0.004,
                   color: 'rgba(255,220,50,',
                   isFlame: true,
-                  growth: 0.08,
+                  growth: 0.12,
                   gravity: 0.03
                 });
               }, fi * 120);
@@ -367,15 +443,16 @@
 
           const phase = elapsed / BREATH_DURATION;
           const intensity = phase < 0.1 ? phase * 10 : phase > 0.8 ? (1 - phase) / 0.2 : 1;
+          const currentFrom = getMouthPos();
 
           // ön kıvılcım
           if (phase < 0.08 && Math.random() < 0.4) {
             gParts.push({
-              x: from.x + (Math.random() - 0.5) * 6,
-              y: from.y + (Math.random() - 0.5) * 6,
-              vx: ux * (2 + Math.random() * 2) + px * (Math.random() - 0.5) * 2,
-              vy: uy * (2 + Math.random() * 2) + py * (Math.random() - 0.5) * 2,
-              radius: 3 + Math.random() * 4,
+              x: currentFrom.x + (Math.random() - 0.5) * 6,
+              y: currentFrom.y + (Math.random() - 0.5) * 6,
+              vx: ux * (4 + Math.random() * 3) + px * (Math.random() - 0.5) * 2,
+              vy: uy * (4 + Math.random() * 3) + py * (Math.random() - 0.5) * 2,
+              radius: 4 + Math.random() * 4,
               alpha: 0.6,
               decay: 0.05 + Math.random() * 0.03,
               color: 'rgba(180,170,150,',
@@ -388,21 +465,21 @@
           // ana alev
           const pCount = Math.round(2 + 3 * intensity + Math.random() * 2);
           for (let i = 0; i < pCount; i++) {
-            const speed = 4 + Math.random() * 8 * intensity;
+            const speed = 12 + Math.random() * 12 * intensity;
             const spread = (Math.random() - 0.5) * (3 + 2 * (1 - intensity));
-            const sx = from.x + (Math.random() - 0.5) * 10 + (Math.random() - 0.5) * 6;
-            const sy = from.y + (Math.random() - 0.5) * 10 + (Math.random() - 0.5) * 6;
+            const sx = currentFrom.x + (Math.random() - 0.5) * 10 + (Math.random() - 0.5) * 6;
+            const sy = currentFrom.y + (Math.random() - 0.5) * 10 + (Math.random() - 0.5) * 6;
             const travelTime = dist / (speed + 0.1);
             const decay = 1 / (travelTime + Math.random() * 4);
             const colors = ['rgba(255,255,255,', 'rgba(255,230,60,', 'rgba(255,120,0,', 'rgba(200,40,0,'];
             const color = colors[Math.random() < 0.15 ? 0 : Math.random() < 0.4 ? 1 : Math.random() < 0.8 ? 2 : 3];
             gParts.push({
               x: sx, y: sy, vx: ux * speed + px * spread, vy: uy * speed + py * spread,
-              radius: 2 + Math.random() * 3.5,
+              radius: 4 + Math.random() * 5.5,
               alpha: 0.8 + Math.random() * 0.2,
               decay: decay * (0.85 + Math.random() * 0.3),
               color, isFlame: true,
-              growth: 0.08 + Math.random() * 0.12,
+              growth: 0.14 + Math.random() * 0.16,
               gravity: -0.01 + Math.random() * 0.02
             });
           }
@@ -556,6 +633,7 @@
       gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
 
       const now = performance.now();
+      const playerCenter = getShipCenter('player-node');
       
       // Gülleler
       for (let i = gProj.length - 1; i >= 0; i--) {
@@ -658,6 +736,33 @@
         const pt = gParts[i];
         pt.x += pt.vx;
         pt.y += pt.vy;
+
+        // Tiamat alevlerinin oyuncu gemisine çarptığını kontrol et
+        if (pt.isFlame && pt.vx < 0 && playerCenter) {
+          const dx = pt.x - playerCenter.x;
+          const dy = pt.y - playerCenter.y;
+          const distToPlayer = Math.sqrt(dx * dx + dy * dy);
+          if (distToPlayer < 45) {
+            // Çarpma anında kıvılcım (splash) saç
+            const splashCount = Math.random() < 0.35 ? 2 : 1;
+            for (let k = 0; k < splashCount; k++) {
+              gParts.push({
+                x: pt.x,
+                y: pt.y,
+                vx: 2 + Math.random() * 5, // sağa doğru sıçrasın (splash back)
+                vy: (Math.random() - 0.5) * 6,
+                radius: 1.5 + Math.random() * 2,
+                alpha: 1.0,
+                decay: 0.02 + Math.random() * 0.025,
+                color: Math.random() < 0.65 ? 'rgba(255,200,50,' : 'rgba(255,100,0,',
+                isEmber: true,
+                gravity: 0.04 + Math.random() * 0.03
+              });
+            }
+            pt.alpha = 0; // alevi söndür
+          }
+        }
+
         if (pt.growth) pt.radius += pt.growth;
         pt.vy += pt.gravity !== undefined ? pt.gravity : 0.08;
         pt.vx *= 0.98;
@@ -679,24 +784,33 @@
           gCtx.globalAlpha = pt.alpha * 0.8;
           gCtx.beginPath(); gCtx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2); gCtx.fill();
         } else if (pt.isFlame) {
-          gCtx.shadowColor = '#ff5500';
-          gCtx.shadowBlur = 10 * pt.alpha;
-          const grad = gCtx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, pt.radius * 2);
-          if (pt.color.includes('255,255')) {
-            grad.addColorStop(0, 'rgba(255,255,255,' + pt.alpha + ')');
-            grad.addColorStop(0.3, 'rgba(255,220,100,' + pt.alpha * 0.85 + ')');
-            grad.addColorStop(1, 'rgba(255,100,0,0)');
-          } else if (pt.color.includes('255,210')) {
-            grad.addColorStop(0, 'rgba(255,210,50,' + pt.alpha + ')');
-            grad.addColorStop(0.4, 'rgba(255,100,0,' + pt.alpha * 0.65 + ')');
-            grad.addColorStop(1, 'rgba(200,30,0,0)');
-          } else {
-            grad.addColorStop(0, 'rgba(220,40,0,' + pt.alpha + ')');
-            grad.addColorStop(0.5, 'rgba(100,10,0,' + pt.alpha * 0.45 + ')');
-            grad.addColorStop(1, 'rgba(50,5,0,0)');
+          gCtx.shadowColor = 'rgba(230, 60, 0, 0.4)';
+          gCtx.shadowBlur = 8 * pt.alpha;
+          
+          const grad = gCtx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, pt.radius * 2.0);
+          if (pt.color.includes('255,255,255')) { // Core hot yellow/white
+            grad.addColorStop(0, 'rgba(255,255,200,' + pt.alpha + ')');
+            grad.addColorStop(0.3, 'rgba(255,160,0,' + pt.alpha * 0.8 + ')');
+            grad.addColorStop(0.8, 'rgba(200,50,0,' + pt.alpha * 0.3 + ')');
+            grad.addColorStop(1, 'rgba(120,20,0,0)');
+          } else if (pt.color.includes('255,230,60')) { // Yellow-Orange
+            grad.addColorStop(0, 'rgba(255,200,50,' + pt.alpha + ')');
+            grad.addColorStop(0.4, 'rgba(230,80,0,' + pt.alpha * 0.7 + ')');
+            grad.addColorStop(1, 'rgba(150,20,0,0)');
+          } else if (pt.color.includes('255,120,0')) { // Orange
+            grad.addColorStop(0, 'rgba(240,100,0,' + pt.alpha + ')');
+            grad.addColorStop(0.5, 'rgba(180,30,0,' + pt.alpha * 0.6 + ')');
+            grad.addColorStop(1, 'rgba(90,10,0,0)');
+          } else { // Red / Smoke
+            grad.addColorStop(0, 'rgba(180,30,0,' + pt.alpha * 0.8 + ')');
+            grad.addColorStop(0.6, 'rgba(80,10,5,' + pt.alpha * 0.4 + ')');
+            grad.addColorStop(1, 'rgba(40,5,2,0)');
           }
+          
           gCtx.fillStyle = grad;
-          gCtx.beginPath(); gCtx.arc(pt.x, pt.y, pt.radius * 2.5, 0, Math.PI * 2); gCtx.fill();
+          gCtx.beginPath();
+          gCtx.arc(pt.x, pt.y, pt.radius * 2.2, 0, Math.PI * 2);
+          gCtx.fill();
         } else if (pt.color.includes('255,200') || pt.color.includes('255,215') || pt.color.includes('255,')) {
           gCtx.shadowColor = '#ffd700';
           gCtx.shadowBlur = 5;
@@ -1640,6 +1754,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
             return;
           }
           frameIdx = (frameIdx + 1) % TIAMAT_FRAME_COUNT;
+          window.tiamatCurrentFrame = frameIdx;
           drawFrame(frameIdx);
         }, 80);
       };

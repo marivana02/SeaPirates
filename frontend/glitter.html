@@ -740,7 +740,7 @@
               updatePlayerUI(data.player);
               if (data.glitterRemaining !== undefined) {
                 const lbl = document.getElementById('glitter-limit-lbl');
-                if (lbl) lbl.textContent = `${data.glitterRemaining}/60`;
+                if (lbl) lbl.textContent = `${data.glitterRemaining}/200`;
               }
               if (data.leveledUp) {
                 toast2(`🎉 LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');

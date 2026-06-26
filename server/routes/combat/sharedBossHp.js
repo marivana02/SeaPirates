@@ -122,13 +122,13 @@ async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage) {
   try {
     await targetClient.query('BEGIN');
     const partRes = await targetClient.query(
-      'SELECT player_id, username, current_hp FROM admiral_damage WHERE map_level = $1 AND current_hp > 0 FOR UPDATE',
+      'SELECT player_id, username, current_hp FROM admiral_damage WHERE map_level = $1 AND current_hp > 0',
       [mapLevel]
     );
 
     let targetHitId = null;
     let targetHitUsername = null;
-    let actualNpcDamage = npcDamage;
+    let actualNpcDamage = 0;
 
     if (partRes.rows.length > 0) {
       const targetRow = partRes.rows[Math.floor(Math.random() * partRes.rows.length)];
@@ -137,10 +137,18 @@ async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage) {
     }
 
     if (targetHitId !== null) {
-      await targetClient.query(
-        'UPDATE admiral_damage SET current_hp = GREATEST(0, current_hp - $1) WHERE map_level = $2 AND player_id = $3',
-        [npcDamage, mapLevel, targetHitId]
+      // Sadece seçilen hedefin satırını kilitle — tüm katılımcıları değil
+      const lockRes = await targetClient.query(
+        'SELECT current_hp FROM admiral_damage WHERE map_level = $1 AND player_id = $2 AND current_hp > 0 FOR UPDATE',
+        [mapLevel, targetHitId]
       );
+      if (lockRes.rows.length > 0) {
+        actualNpcDamage = npcDamage;
+        await targetClient.query(
+          'UPDATE admiral_damage SET current_hp = GREATEST(0, current_hp - $1) WHERE map_level = $2 AND player_id = $3',
+          [npcDamage, mapLevel, targetHitId]
+        );
+      }
     }
 
     await targetClient.query('COMMIT');
@@ -159,28 +167,37 @@ async function selectRandomTiamatTarget(pool, npcDamage) {
   try {
     await targetClient.query('BEGIN');
 
-    const lockRes = await targetClient.query(
-      'SELECT player_id, username, current_hp FROM tiamat_damage WHERE current_hp > 0 FOR UPDATE'
+    const partRes = await targetClient.query(
+      'SELECT player_id, username, current_hp FROM tiamat_damage WHERE current_hp > 0'
     );
 
     let targetHitId = null;
     let targetHitUsername = null;
+    let actualNpcDamage = 0;
 
-    if (lockRes.rows.length > 0) {
-      const targetRow = lockRes.rows[Math.floor(Math.random() * lockRes.rows.length)];
+    if (partRes.rows.length > 0) {
+      const targetRow = partRes.rows[Math.floor(Math.random() * partRes.rows.length)];
       targetHitId = parseInt(targetRow.player_id);
       targetHitUsername = targetRow.username;
     }
 
     if (targetHitId !== null) {
-      await targetClient.query(
-        'UPDATE tiamat_damage SET current_hp = GREATEST(0, current_hp - $1) WHERE player_id = $2',
-        [npcDamage, targetHitId]
+      // Sadece seçilen hedefin satırını kilitle
+      const lockRes = await targetClient.query(
+        'SELECT current_hp FROM tiamat_damage WHERE player_id = $1 AND current_hp > 0 FOR UPDATE',
+        [targetHitId]
       );
+      if (lockRes.rows.length > 0) {
+        actualNpcDamage = npcDamage;
+        await targetClient.query(
+          'UPDATE tiamat_damage SET current_hp = GREATEST(0, current_hp - $1) WHERE player_id = $2',
+          [npcDamage, targetHitId]
+        );
+      }
     }
 
     await targetClient.query('COMMIT');
-    return { targetHitId, targetHitUsername };
+    return { targetHitId, targetHitUsername, actualNpcDamage };
   } catch (txErr) {
     await targetClient.query('ROLLBACK');
     throw txErr;

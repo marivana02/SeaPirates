@@ -6,58 +6,68 @@ const { isPlayerVip } = require('../../helpers/rewards');
 const { upsertAmmo, upsertItem } = require('../../helpers/rewards');
 const { DAILY_REWARDS, VIP_DAILY_REWARDS } = require('../../config/rewardsData');
 
+// Helper: get current month string 'YYYY-MM'
+function getCurrentMonth() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+}
+
+// Helper: get today's day of month (1-31)
+function getTodayDay() {
+  return new Date().getDate();
+}
+
+// Helper: get number of days in current month
+function getDaysInMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+}
+
+// Reset arrays if month changed
+async function ensureMonthReset(playerId) {
+  const currentMonth = getCurrentMonth();
+  const res = await pool.query(
+    'SELECT daily_reward_month FROM players WHERE id = $1',
+    [playerId]
+  );
+  if (res.rows.length === 0) return;
+  const savedMonth = res.rows[0].daily_reward_month || '';
+  if (savedMonth !== currentMonth) {
+    await pool.query(
+      `UPDATE players SET claimed_daily_days = '{}', claimed_vip_days = '{}', daily_reward_month = $1 WHERE id = $2`,
+      [currentMonth, playerId]
+    );
+  }
+}
+
 router.get('/daily-reward/status', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   try {
-    const pRes = await pool.query('SELECT daily_streak, last_daily_claim, last_vip_claim, vip_until FROM players WHERE id = $1', [playerId]);
+    await ensureMonthReset(playerId);
+
+    const pRes = await pool.query(
+      'SELECT claimed_daily_days, claimed_vip_days, vip_until FROM players WHERE id = $1',
+      [playerId]
+    );
     if (pRes.rows.length === 0) return res.status(404).json({ error: 'Player not found.' });
 
     const p = pRes.rows[0];
-    let streak = p.daily_streak || 0;
-    let lastClaim = p.last_daily_claim;
-    let lastVipClaim = p.last_vip_claim;
     const isVip = isPlayerVip(p);
+    const today = getTodayDay();
+    const daysInMonth = getDaysInMonth();
+    const claimedNormal = p.claimed_daily_days || [];
+    const claimedVip = p.claimed_vip_days || [];
 
-    let canClaimNormal = false;
-    let canClaimVip = false;
-
-    if (!lastClaim) {
-      canClaimNormal = true;
-    } else {
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      const last = new Date(lastClaim);
-      last.setHours(0,0,0,0);
-      
-      const diffMs = today.getTime() - last.getTime();
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      
-      if (diffDays === 1) {
-        canClaimNormal = true;
-      } else if (diffDays > 1) {
-        streak = 0;
-        canClaimNormal = true;
-      }
-    }
-
-    if (isVip) {
-      if (!lastVipClaim) {
-        canClaimVip = true;
-      } else {
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        const lastV = new Date(lastVipClaim);
-        lastV.setHours(0,0,0,0);
-        if (today.getTime() - lastV.getTime() >= 1000 * 60 * 60 * 24) {
-          canClaimVip = true;
-        }
-      }
-    }
+    const canClaimNormal = !claimedNormal.includes(today);
+    const canClaimVip = isVip && !claimedVip.includes(today);
 
     res.json({
-      streak,
-      lastClaim,
-      lastVipClaim,
+      today,
+      daysInMonth,
+      claimedNormal,
+      claimedVip,
       isVip,
       canClaimNormal,
       canClaimVip
@@ -71,64 +81,24 @@ router.get('/daily-reward/status', authMiddleware, async (req, res) => {
 router.post('/daily-reward/claim', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   const { type } = req.body;
-  
+
   try {
-    const pRes = await pool.query('SELECT daily_streak, last_daily_claim, last_vip_claim, vip_until FROM players WHERE id = $1', [playerId]);
+    await ensureMonthReset(playerId);
+
+    const pRes = await pool.query(
+      'SELECT claimed_daily_days, claimed_vip_days, vip_until FROM players WHERE id = $1',
+      [playerId]
+    );
     if (pRes.rows.length === 0) return res.status(404).json({ error: 'Player not found.' });
 
     const p = pRes.rows[0];
-    let streak = p.daily_streak || 0;
-    let lastClaim = p.last_daily_claim;
-    let lastVipClaim = p.last_vip_claim;
     const isVip = isPlayerVip(p);
+    const today = getTodayDay();
+    const claimedNormal = p.claimed_daily_days || [];
+    const claimedVip = p.claimed_vip_days || [];
 
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    let canClaimNormal = false;
-    if (!lastClaim) {
-      canClaimNormal = true;
-    } else {
-      const last = new Date(lastClaim);
-      last.setHours(0,0,0,0);
-      const diffMs = today.getTime() - last.getTime();
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      
-      if (diffDays === 1) {
-        canClaimNormal = true;
-      } else if (diffDays > 1) {
-        streak = 0;
-        canClaimNormal = true;
-      }
-    }
-
-    let canClaimVip = false;
-    if (isVip) {
-      if (!lastVipClaim) {
-        canClaimVip = true;
-      } else {
-        const lastV = new Date(lastVipClaim);
-        lastV.setHours(0,0,0,0);
-        if (today.getTime() - lastV.getTime() >= 1000 * 60 * 60 * 24) {
-          canClaimVip = true;
-        }
-      }
-    }
-
-    let claimNormalAction = false;
-    let claimVipAction = false;
-
-    if (type === 'vip') {
-      if (!canClaimVip) {
-        return res.status(400).json({ error: 'err_daily_vip_not_claimable' });
-      }
-      claimVipAction = true;
-    } else {
-      if (!canClaimNormal) {
-        return res.status(400).json({ error: 'err_daily_already_claimed' });
-      }
-      claimNormalAction = true;
-    }
+    // Reward day is capped at 30 (day 31 gets day 30 reward)
+    const rewardDay = Math.min(today, 30);
 
     let goldReward = 0;
     let pearlReward = 0;
@@ -136,33 +106,41 @@ router.post('/daily-reward/claim', authMiddleware, async (req, res) => {
     let items = [];
     let rewardsList = [];
 
-    const normalRewards = DAILY_REWARDS;
-    const vipRewards = VIP_DAILY_REWARDS;
-
-    let newStreak = streak;
-
-    if (claimNormalAction) {
-      newStreak = streak + 1;
-      const rewardDay = ((newStreak - 1) % 30) + 1;
-      const r = normalRewards[rewardDay];
+    if (type === 'vip') {
+      if (!isVip) {
+        return res.status(400).json({ error: 'err_daily_vip_not_active' });
+      }
+      if (claimedVip.includes(today)) {
+        return res.status(400).json({ error: 'err_daily_vip_already_claimed' });
+      }
+      const r = VIP_DAILY_REWARDS[rewardDay];
+      if (!r) return res.status(400).json({ error: 'err_daily_no_reward' });
       if (r.gold) goldReward += r.gold;
       if (r.pearl) pearlReward += r.pearl;
       if (r.ammo) ammos.push(r.ammo);
       if (r.items) items.push(...r.items);
       rewardsList.push(r.name);
-    }
 
-    if (claimVipAction) {
-      const effectiveVipStreak = claimNormalAction ? newStreak : streak;
-      const vipDay = ((effectiveVipStreak - 1) % 30) + 1;
-      if (vipDay >= 1 && vipDay <= 30) {
-        const r = vipRewards[vipDay];
-        if (r.gold) goldReward += r.gold;
-        if (r.pearl) pearlReward += r.pearl;
-        if (r.ammo) ammos.push(r.ammo);
-        if (r.items) items.push(...r.items);
-        rewardsList.push(r.name);
+      await pool.query(
+        'UPDATE players SET claimed_vip_days = array_append(claimed_vip_days, $1) WHERE id = $2',
+        [today, playerId]
+      );
+    } else {
+      if (claimedNormal.includes(today)) {
+        return res.status(400).json({ error: 'err_daily_already_claimed' });
       }
+      const r = DAILY_REWARDS[rewardDay];
+      if (!r) return res.status(400).json({ error: 'err_daily_no_reward' });
+      if (r.gold) goldReward += r.gold;
+      if (r.pearl) pearlReward += r.pearl;
+      if (r.ammo) ammos.push(r.ammo);
+      if (r.items) items.push(...r.items);
+      rewardsList.push(r.name);
+
+      await pool.query(
+        'UPDATE players SET claimed_daily_days = array_append(claimed_daily_days, $1) WHERE id = $2',
+        [today, playerId]
+      );
     }
 
     if (goldReward > 0 || pearlReward > 0) {
@@ -180,24 +158,10 @@ router.post('/daily-reward/claim', authMiddleware, async (req, res) => {
       await upsertItem(pool, playerId, it.type, it.qty);
     }
 
-    if (claimNormalAction) {
-      await pool.query(
-        'UPDATE players SET daily_streak = $1, last_daily_claim = CURRENT_TIMESTAMP WHERE id = $2',
-        [newStreak, playerId]
-      );
-    }
-    if (claimVipAction) {
-      await pool.query(
-        'UPDATE players SET last_vip_claim = CURRENT_TIMESTAMP WHERE id = $1',
-        [playerId]
-      );
-    }
-
     res.json({
       success: true,
       message: 'daily_claimed_success',
-      streak: newStreak,
-      rewardDay: claimNormalAction ? newStreak : streak,
+      rewardDay,
       rewardType: type,
       reward: {
         name: rewardsList.join(' & '),

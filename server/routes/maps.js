@@ -90,7 +90,13 @@ router.post('/change', authenticateToken, async (req, res) => {
     try {
         const playerRes = await pool.query('SELECT level FROM players WHERE id = $1', [req.player.id]);
         if (playerRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
-        
+
+        // Aktif savaş varsa harita değiştirmeyi engelle
+        const fightCheck = await pool.query('SELECT 1 FROM active_fights WHERE player_id = $1', [req.player.id]);
+        if (fightCheck.rows.length > 0) {
+            return res.status(400).json({ error: 'You cannot change maps while in combat!' });
+        }
+
         const playerLevel = playerRes.rows[0].level;
 
         if (targetLevel > playerLevel) {

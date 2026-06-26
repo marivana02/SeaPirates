@@ -182,6 +182,32 @@
     }
     .item-price.gold{color:var(--gold-b);}
     .item-price.pearl{color:var(--pearl);}
+    .item-price-row{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      position:relative;
+    }
+    .item-price-original{
+      text-decoration:line-through;
+      color:rgba(245,230,200,0.4);
+      font-size:0.65rem;
+      font-family:'Cinzel',serif;
+      font-weight:600;
+    }
+    .vip-badge{
+      background:linear-gradient(135deg,#ffe066,#f5b041);
+      color:#1a0e05;
+      font-size:0.55rem;
+      font-weight:800;
+      padding:1px 4px;
+      border-radius:4px;
+      text-shadow:none;
+      box-shadow:0 1px 3px rgba(0,0,0,0.3);
+      display:inline-flex;
+      align-items:center;
+      gap:1px;
+    }
 
     .buy-row{
       display:flex;align-items:center;gap:5px;
@@ -275,6 +301,16 @@
       if (data.items) data.items.forEach(i => playerQtys.items[i.item_type] = i.quantity);
       if (data.cannons_by_type) data.cannons_by_type.forEach(c => playerQtys.cannons[c.cannon_type] = parseInt(c.total));
       if (data.planks) data.planks.forEach(p => playerQtys.planks[p.plank_type] = parseInt(p.quantity));
+
+      // Sync player data to sp_player cache in localStorage
+      const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
+      saved.gold = data.gold;
+      saved.pearl = data.pearl;
+      saved.vip_until = data.vip_until;
+      saved.has_elite_ship = data.has_elite_ship;
+      saved.ownedDesigns = data.ownedDesigns;
+      localStorage.setItem('sp_player', JSON.stringify(saved));
+      updateCurrency();
     } catch (e) {}
   }
 
@@ -297,6 +333,7 @@
     const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
     const hasElite = saved.has_elite_ship === true;
     const ownedDesigns = saved.ownedDesigns || [];
+    const isVip = saved.vip_until && new Date(saved.vip_until) > new Date();
     const items = SHOP_ITEMS;
 
     items.forEach(item => {
@@ -308,6 +345,28 @@
       const isGold = item.currency === 'gold';
       const priceCls = isGold ? 'gold' : 'pearl';
       
+      let priceHtml = '';
+      if (isVip) {
+        const discountedPrice = Math.round(item.price * 0.9);
+        priceHtml = `
+          <div class="item-price-row">
+            <span class="item-price-original">${item.price.toLocaleString('en-US')}</span>
+            <span class="item-price ${priceCls}">
+              <span>${discountedPrice.toLocaleString('en-US')}</span>
+              <span>${isGold ? '<img src="assets/ui/gold.png" style="width:14px;vertical-align:middle;">' : '<img src="assets/ui/pearl.png" style="width:14px;vertical-align:middle;">'}</span>
+            </span>
+            <span class="vip-badge" title="VIP Discount">👑 -10%</span>
+          </div>
+        `;
+      } else {
+        priceHtml = `
+          <div class="item-price ${priceCls}">
+            <span>${item.price.toLocaleString('en-US')}</span>
+            <span>${isGold ? '<img src="assets/ui/gold.png" style="width:14px;vertical-align:middle;">' : '<img src="assets/ui/pearl.png" style="width:14px;vertical-align:middle;">'}</span>
+          </div>
+        `;
+      }
+
       card.innerHTML = `
         <div class="item-icon-wrap">
           <img src="${item.img}" class="item-icon" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
@@ -319,10 +378,7 @@
           ${(() => { const q = getQty(item.id); return q !== null ? `<div class="item-qty">Mevcut: ${Number(q).toLocaleString('tr-TR')}</div>` : ''; })()}
         </div>
         <div class="item-buy-zone">
-          <div class="item-price ${priceCls}">
-            <span>${item.price.toLocaleString('en-US')}</span>
-            <span>${isGold ? '<img src="assets/ui/gold.png" style="width:14px;vertical-align:middle;">' : '<img src="assets/ui/pearl.png" style="width:14px;vertical-align:middle;">'}</span>
-          </div>
+          ${priceHtml}
           <div class="buy-row">
             <input type="number" class="qty-input" value="1" min="1" max="999" id="qty-${item.id}"/>
             <button class="btn-buy${isGold?'':' premium'}" onclick="buyItem(${item.id})">${t('buy_now')}</button>

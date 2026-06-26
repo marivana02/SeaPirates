@@ -7,11 +7,7 @@ const { upsertAmmo } = require('../../helpers/rewards');
 const QUESTS = require('../../config/questsData');
 
 const GLITTER_CONFIG = {
-  HOURLY_LIMIT: 60,
-  BASE_COOLDOWN: 1500,
-  BOT_COOLDOWN: 4000,
-  SUSPICIOUS_COOLDOWN: 2500,
-  COOLDOWN_MAX: 5000,
+  HOURLY_LIMIT: 200,
   HISTORY_CLEANUP_MS: 1800000,
 };
 
@@ -59,45 +55,6 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
   const history = glitterClickHistory.get(playerId) || [];
   const lastClick = history.length > 0 ? history[history.length - 1].timestamp : 0;
 
-  let cooldownMs = GLITTER_CONFIG.BASE_COOLDOWN;
-
-  if (history.length >= 5) {
-    const recent = history.slice(-5);
-    const intervals = [];
-    for (let i = 1; i < recent.length; i++) {
-      intervals.push(recent[i].timestamp - recent[i - 1].timestamp);
-    }
-    const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-    const variance = intervals.reduce((sum, val) => sum + (val - avg) ** 2, 0) / intervals.length;
-    const stdDev = Math.sqrt(variance);
-
-    if (stdDev < avg * 0.15 && avg < 3000) {
-      cooldownMs = Math.max(cooldownMs, GLITTER_CONFIG.BOT_COOLDOWN);
-    } else if (stdDev < avg * 0.3 && avg < 2500) {
-      cooldownMs = Math.max(cooldownMs, GLITTER_CONFIG.SUSPICIOUS_COOLDOWN);
-    }
-  }
-
-  if (mouseDelta !== undefined && mouseDelta < 5 && history.length > 3) {
-    cooldownMs = Math.max(cooldownMs, GLITTER_CONFIG.COOLDOWN_MAX);
-  }
-
-  if (clickX !== undefined && clickY !== undefined) {
-    const samePosClicks = history.filter(h => h.x === clickX && h.y === clickY).length;
-    if (samePosClicks >= 3) {
-      cooldownMs = Math.max(cooldownMs, GLITTER_CONFIG.COOLDOWN_MAX);
-    }
-  }
-
-  const burstClicks = history.filter(h => now - h.timestamp < 30000).length;
-  if (burstClicks >= 20) {
-    cooldownMs = Math.max(cooldownMs, GLITTER_CONFIG.COOLDOWN_MAX);
-  }
-
-  if (now - lastClick < cooldownMs) {
-    return res.status(429).json({ error: 'err_glitter_too_fast', retryAfter: cooldownMs });
-  }
-
   try {
     const pRes = await pool.query(
       'SELECT glitter_hour, glitter_hour_count, gold, pearl, xp, level FROM players WHERE id = $1',
@@ -140,21 +97,24 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
 
     const remaining = GLITTER_CONFIG.HOURLY_LIMIT - glitter_hour_count;
 
-    await pool.query(
-      `UPDATE players 
-       SET gold = gold + $1, 
-           pearl = pearl + $2, 
-           xp = xp + $3,
-           glitter_hour = $4,
-           glitter_hour_count = $5,
-           quest_glitters = CASE WHEN active_quest_id IS NOT NULL THEN COALESCE(quest_glitters, 0) + 1 ELSE COALESCE(quest_glitters, 0) END,
-           quest_glitters2 = CASE WHEN active_quest_id2 IS NOT NULL THEN COALESCE(quest_glitters2, 0) + 1 ELSE COALESCE(quest_glitters2, 0) END
-       WHERE id = $6`,
-      [goldReward, pearlReward, xpReward, glitter_hour, glitter_hour_count, playerId]
-    );
-
+    const glitterClient = await pool.connect();
     try {
-      const qRes = await pool.query(
+      await glitterClient.query('BEGIN');
+
+      await glitterClient.query(
+        `UPDATE players 
+         SET gold = gold + $1, 
+             pearl = pearl + $2, 
+             xp = xp + $3,
+             glitter_hour = $4,
+             glitter_hour_count = $5,
+             quest_glitters = CASE WHEN active_quest_id IS NOT NULL THEN COALESCE(quest_glitters, 0) + 1 ELSE COALESCE(quest_glitters, 0) END,
+             quest_glitters2 = CASE WHEN active_quest_id2 IS NOT NULL THEN COALESCE(quest_glitters2, 0) + 1 ELSE COALESCE(quest_glitters2, 0) END
+         WHERE id = $6`,
+        [goldReward, pearlReward, xpReward, glitter_hour, glitter_hour_count, playerId]
+      );
+
+      const qRes = await glitterClient.query(
         'SELECT active_quest_id, active_quest_id2, quest_progress, quest_progress2 FROM players WHERE id = $1',
         [playerId]
       );
@@ -173,7 +133,7 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
               }
             });
             if (needUpdate) {
-              await pool.query(
+              await glitterClient.query(
                 'UPDATE players SET quest_progress = $1 WHERE id = $2',
                 [JSON.stringify(progress), playerId]
               );
@@ -193,7 +153,7 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
               }
             });
             if (needUpdate) {
-              await pool.query(
+              await glitterClient.query(
                 'UPDATE players SET quest_progress2 = $1 WHERE id = $2',
                 [JSON.stringify(progress), playerId]
               );
@@ -201,8 +161,13 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
           }
         }
       }
-    } catch (qErr) {
-      console.error('Quest glitter progress update error:', qErr);
+
+      await glitterClient.query('COMMIT');
+    } catch (txErr) {
+      await glitterClient.query('ROLLBACK');
+      console.error('Glitter transaction error:', txErr);
+    } finally {
+      glitterClient.release();
     }
 
     if (ammoReward) {

@@ -1,3 +1,15 @@
+function generateDeviceId() {
+  let deviceId = localStorage.getItem('sp_device_id');
+  if (!deviceId) {
+    deviceId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    localStorage.setItem('sp_device_id', deviceId);
+  }
+  return deviceId;
+}
+
 const API = (() => {
   const BASE = window.location.origin + '/api';
 
@@ -6,7 +18,7 @@ const API = (() => {
   }
 
   function getHeaders(extra = {}) {
-    const headers = { 'Content-Type': 'application/json', ...extra };
+    const headers = { 'Content-Type': 'application/json', 'X-Device-Id': generateDeviceId(), ...extra };
     const token = getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
     return headers;

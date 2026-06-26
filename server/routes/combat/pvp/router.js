@@ -59,8 +59,8 @@ router.post('/start', authMiddleware, async (req, res) => {
     await pool.query(`INSERT INTO active_fights (
       player_id, npc_name, npc_hp, npc_max_hp, npc_damage, npc_gold, npc_pearl, npc_xp,
       player_hp, player_max_hp, weekly_boss_damage_dealt, map_level, is_admiral, is_tiamat,
-      is_tower, tower_id, full_img, damaged_img, is_weekly_boss, is_pvp, last_activity
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP)
+      is_tower, tower_id, full_img, damaged_img, is_weekly_boss, is_pvp, last_activity, last_npc_attack
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     ON CONFLICT (player_id) DO UPDATE SET
       npc_name = EXCLUDED.npc_name, npc_hp = EXCLUDED.npc_hp, npc_max_hp = EXCLUDED.npc_max_hp,
       npc_damage = EXCLUDED.npc_damage, npc_gold = EXCLUDED.npc_gold, npc_pearl = EXCLUDED.npc_pearl,
@@ -68,7 +68,7 @@ router.post('/start', authMiddleware, async (req, res) => {
       weekly_boss_damage_dealt = EXCLUDED.weekly_boss_damage_dealt, map_level = EXCLUDED.map_level,
       is_admiral = EXCLUDED.is_admiral, is_tiamat = EXCLUDED.is_tiamat, is_tower = EXCLUDED.is_tower,
       tower_id = EXCLUDED.tower_id, full_img = EXCLUDED.full_img, damaged_img = EXCLUDED.damaged_img,
-      is_weekly_boss = EXCLUDED.is_weekly_boss, is_pvp = EXCLUDED.is_pvp, last_activity = CURRENT_TIMESTAMP
+      is_weekly_boss = EXCLUDED.is_weekly_boss, is_pvp = EXCLUDED.is_pvp, last_activity = CURRENT_TIMESTAMP, last_npc_attack = CURRENT_TIMESTAMP
     `, [
       playerId, targetNpc.name, targetNpc.hp, targetNpc.hp,
       targetNpc.damage || 0, targetNpc.gold || 0, targetNpc.pearl || 0, targetNpc.xp || 0,
@@ -123,6 +123,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
         return res.json({ state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, opponentConsumed: { barut: 0, zirh: 0, ammoId: null } });
       }
       lastOpponentAttack.set(playerId, now);
+      await pool.query('UPDATE active_fights SET last_activity = CURRENT_TIMESTAMP WHERE player_id = $1', [playerId]);
       res.json({
         state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: simResult.npcDamage,
         elpGained: 0,

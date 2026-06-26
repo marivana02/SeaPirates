@@ -44,7 +44,15 @@ const loginRules = {
 };
 
 router.post('/register', registerRateLimiter, validate(registerRules), asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, deviceId } = req.body;
+  const deviceIdHeader = deviceId || req.headers['x-device-id'];
+
+  if (deviceIdHeader) {
+    const banned = await pool.query('SELECT 1 FROM players WHERE $1 = ANY(banned_devices) LIMIT 1', [deviceIdHeader]);
+    if (banned.rows.length > 0) {
+      return res.status(403).json({ error: 'err_device_banned' });
+    }
+  }
 
   const exists = await pool.query(
     'SELECT id FROM players WHERE username = $1 OR email = $2',
@@ -58,10 +66,10 @@ router.post('/register', registerRateLimiter, validate(registerRules), asyncHand
 
   const result = await pool.query(
     `INSERT INTO players 
-      (username, display_name, email, password, gold, pearl, xp, level, elite_points, ship_level)
-     VALUES ($1, $1, $2, $3, 5000, 0, 0, 1, 0, 0)
+      (username, display_name, email, password, gold, pearl, xp, level, elite_points, ship_level, device_id)
+     VALUES ($1, $1, $2, $3, 5000, 0, 0, 1, 0, 0, $4)
      RETURNING id, username, display_name, email, gold, pearl, xp, level, elite_points, ship_level`,
-    [username, email, hashedPassword]
+    [username, email, hashedPassword, deviceIdHeader]
   );
 
   const player = result.rows[0];
@@ -77,7 +85,8 @@ router.post('/register', registerRateLimiter, validate(registerRules), asyncHand
 }));
 
 router.post('/login', loginRateLimiter, validate(loginRules), asyncHandler(async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, deviceId } = req.body;
+  const deviceIdHeader = deviceId || req.headers['x-device-id'];
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
   const result = await pool.query(
@@ -134,6 +143,12 @@ router.post('/login', loginRateLimiter, validate(loginRules), asyncHandler(async
     const updatedPlayer = (await pool.query('SELECT session_counter FROM players WHERE id = $1', [player.id])).rows[0];
     if (updatedPlayer) session_counter = updatedPlayer.session_counter;
   } catch (_) { /* session_counter column may not exist yet */ }
+
+  if (deviceIdHeader && player.device_id !== deviceIdHeader) {
+    try {
+      await pool.query('UPDATE players SET device_id = $1 WHERE id = $2', [deviceIdHeader, player.id]);
+    } catch (_) { /* silent */ }
+  }
 
   const token = jwt.sign(
     { id: player.id, username: player.username, isAdmin: !!player.is_admin, session_counter },

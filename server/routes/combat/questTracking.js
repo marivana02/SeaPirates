@@ -1,53 +1,12 @@
 const QUESTS = require('../../config/questsData');
 
-function matchesObjective(obj, type, npcNameStr) {
-  if (obj.type !== type) return false;
-  if (!obj.target) return true;
-  if (obj.target === npcNameStr) return true;
-  if (obj.target === 'Admiral Jack' && npcNameStr.includes('Jack')) return true;
-  return false;
-}
-
-async function updateSlotProgress(pool, playerId, questId, progressField, killsField, damageField, { type, amount }) {
-  if (!questId) return;
-  const quest = QUESTS[questId];
-  if (!quest || !quest.objectives) return;
-
-  let progress = await getProgress(pool, playerId, progressField);
-  let needUpdate = false;
-
-  quest.objectives.forEach((obj, i) => {
-    if (matchesObjective(obj, type, '')) {
-      progress[i] = (progress[i] || 0) + amount;
-      needUpdate = true;
-    }
-  });
-
-  if (!needUpdate) return;
-
-  if (type === 'damage') {
-    await pool.query(
-      `UPDATE players SET ${progressField} = $1, ${damageField} = ${damageField} + $2 WHERE id = $3`,
-      [JSON.stringify(progress), amount, playerId]
-    );
-  } else if (type === 'kill') {
-    await pool.query(
-      `UPDATE players SET ${progressField} = $1, ${killsField} = ${killsField} + 1 WHERE id = $2`,
-      [JSON.stringify(progress), playerId]
-    );
-  }
-}
-
-async function getProgress(pool, playerId, field) {
-  const res = await pool.query(`SELECT ${field} FROM players WHERE id = $1`, [playerId]);
-  if (res.rows.length === 0) return [];
-  return res.rows[0][field] || [];
-}
-
 function checkNpcMatch(obj, npcNameStr) {
   if (!obj.target) return true;
   if (obj.target === npcNameStr) return true;
-  if (obj.target === 'Admiral Jack' && npcNameStr.includes('Jack')) return true;
+  const target = obj.target.toLowerCase();
+  const npc = npcNameStr.toLowerCase();
+  if (npc.includes(target)) return true;
+  if (target === 'admiral jack' && npc.includes('jack')) return true;
   return false;
 }
 

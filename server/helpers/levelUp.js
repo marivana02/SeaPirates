@@ -19,7 +19,7 @@ async function checkAndApplyLevelUp(pool, playerId, currentXp, currentLevel) {
 
   if (leveledUp) {
     await pool.query(
-      'UPDATE players SET level = $1, hp = max_hp WHERE id = $2',
+      'UPDATE players SET level = $1 WHERE id = $2',
       [newLevel, playerId]
     );
   }

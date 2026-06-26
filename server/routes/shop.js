@@ -34,23 +34,29 @@ router.post('/buy', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Invalid quantity' });
   }
 
-  const totalCost = item.price * qty;
-  if (!isFinite(totalCost) || totalCost < 0) {
-    return res.status(400).json({ error: 'Invalid quantity' });
-  }
-
   let client;
   try {
     client = await pool.connect();
     await client.query('BEGIN');
 
-    const pRes = await client.query('SELECT gold, pearl, level, elite_points, ship_level, has_elite_ship FROM players WHERE id = $1 FOR UPDATE', [playerId]);
+    const pRes = await client.query('SELECT gold, pearl, level, elite_points, ship_level, has_elite_ship, vip_until FROM players WHERE id = $1 FOR UPDATE', [playerId]);
     if (pRes.rows.length === 0) {
       await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Player not found' });
     }
 
     const player = pRes.rows[0];
+    
+    // 10% VIP Discount
+    const isVip = !!(player.vip_until && new Date(player.vip_until) > new Date());
+    const discount = isVip ? 0.10 : 0.0;
+    const totalCost = Math.round(item.price * qty * (1 - discount));
+
+    if (!isFinite(totalCost) || totalCost < 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Invalid total cost' });
+    }
+
     const currentBalance = item.currency === 'gold' ? player.gold : player.pearl;
 
     if (currentBalance < totalCost) {

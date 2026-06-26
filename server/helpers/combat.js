@@ -40,7 +40,7 @@ async function distributeAdmiralRewards(mapLevel) {
         if (resetRes.rowCount === 0) {
             await client.query('ROLLBACK');
             console.log(`[REWARD] Already run or not spawned for Map Level ${mapLevel}. Skipping.`);
-            return false;
+            return { rewardsGiven: false };
         }
 
         console.log(`[REWARD] Distributing rewards for Map Level ${mapLevel}...`);
@@ -51,7 +51,7 @@ async function distributeAdmiralRewards(mapLevel) {
         );
         if (bossInfoRes.rows.length === 0) {
             await client.query('ROLLBACK');
-            return false;
+            return { rewardsGiven: false };
         }
 
         const b = bossInfoRes.rows[0];
@@ -64,6 +64,8 @@ async function distributeAdmiralRewards(mapLevel) {
             [mapLevel]
         );
 
+        let skipReason = null;
+
         for (const row of partsRes.rows) {
             const pId = parseInt(row.player_id);
             const dmg = parseInt(row.damage_dealt);
@@ -75,6 +77,7 @@ async function distributeAdmiralRewards(mapLevel) {
 
             if (!isBot && playerLevel >= 10 && mapLevel <= 5) {
                 console.log(`[REWARD] Player ${pId} (lvl ${playerLevel}) skipped — map ${mapLevel} too low`);
+                if (pId > 0) skipReason = 'level_too_high_for_map';
                 continue;
             }
 
@@ -99,10 +102,11 @@ async function distributeAdmiralRewards(mapLevel) {
 
         await client.query('COMMIT');
         console.log(`[REWARD] Completed for Map Level ${mapLevel}.`);
-        return true;
+        return { rewardsGiven: true, skipReason };
     } catch (err) {
         await client.query('ROLLBACK');
         console.error('Reward distribution error:', err);
+        return { rewardsGiven: false };
     } finally {
         client.release();
     }

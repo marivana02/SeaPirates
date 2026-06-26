@@ -1,8 +1,11 @@
-const attackLocks = new Set();
+const LOCK_TTL_MS = 30000;
+const attackLocks = new Map();
 
 function acquireAttackLock(playerId) {
-  if (attackLocks.has(playerId)) return false;
-  attackLocks.add(playerId);
+  const now = Date.now();
+  const existing = attackLocks.get(playerId);
+  if (existing && (now - existing) < LOCK_TTL_MS) return false;
+  attackLocks.set(playerId, now);
   return true;
 }
 

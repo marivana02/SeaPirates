@@ -35,6 +35,17 @@ module.exports = async (req, res, next) => {
                 }
             }
 
+            const deviceId = req.headers['x-device-id'];
+            if (deviceId) {
+                const bannedDevice = await pool.query(
+                    'SELECT 1 FROM players WHERE $1 = ANY(banned_devices) LIMIT 1',
+                    [deviceId]
+                );
+                if (bannedDevice.rows.length > 0) {
+                    return res.status(403).json({ error: 'err_device_banned' });
+                }
+            }
+
             if (decoded.session_counter !== undefined) {
                 const scRes = await pool.query(
                     'SELECT session_counter FROM players WHERE id = $1',

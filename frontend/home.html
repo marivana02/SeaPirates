@@ -829,6 +829,47 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+
+    /* Event banner */
+    .ev-banner {
+      margin: 0 20px 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--gold);
+      background: linear-gradient(135deg, rgba(52,28,8,0.85), rgba(24,12,3,0.9));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(200,150,42,0.1);
+    }
+    .ev-banner.hidden { display: none; }
+    .ev-banner .ev-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .ev-banner .ev-info { flex: 1; min-width: 0; }
+    .ev-banner .ev-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--gold-b);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ev-banner .ev-desc {
+      font-size: 0.62rem;
+      color: var(--txt-d);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ev-banner .ev-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: var(--gold-b);
+      flex-shrink: 0;
+      text-shadow: 0 0 8px rgba(240,192,64,0.3);
+    }
   </style>
 </head>
 
@@ -860,6 +901,16 @@
       <div class="lb-body" id="lb-body">
         <!-- Rows injected by JS -->
       </div>
+    </div>
+
+    <!-- EVENT BANNER -->
+    <div class="ev-banner hidden" id="ev-banner" onclick="goTo('events.html')" style="cursor:pointer;">
+      <span class="ev-icon" id="ev-icon">🎯</span>
+      <div class="ev-info">
+        <div class="ev-name" id="ev-name">Etkinlik</div>
+        <div class="ev-desc" id="ev-desc">Açıklama</div>
+      </div>
+      <span class="ev-badge" id="ev-badge">×2</span>
     </div>
 
     <!-- PLAYER PANEL -->
@@ -897,9 +948,9 @@
           </div>
         </div>
         <div class="p-actions">
-          <button class="act-btn" onclick="goTo('menu.html')">☰ Menü</button>
-          <button class="act-btn" onclick="goTo('events.html')">🎉 Etkinlik</button>
-          <button class="act-btn primary" onclick="goTo('map.html')">▶ OYNA</button>
+          <button class="act-btn" onclick="goTo('menu.html')">☰ <span class="btn-txt"><span data-i18n="btn_menu" data-i18n-text>MENÜ</span></span></button>
+          <button class="act-btn" onclick="goTo('events.html')"><span class="btn-txt"><span data-i18n="btn_events" data-i18n-text>🎉 ETKİNLİK</span></span></button>
+          <button class="act-btn primary" onclick="goTo('map.html')">▶ <span class="btn-txt"><span data-i18n="btn_play" data-i18n-text>OYNA</span></span></button>
         </div>
       </div>
     </div>
@@ -947,11 +998,11 @@
       <div class="magaza-perks">
         <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
         <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarım Hızı — Savaşta gemini 2 kat hızlı onarırsın</div>
-        <div class="magaza-perk" data-i18n="vip_perk_battle_reward">+%10 Savaş Ödülü — Altın, inci ve XP ödüllerin %10 fazla gelir</div>
         <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
         <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayışında kat kat fazla ödül</div>
         <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvası — Aynı anda 2 görev alabilirsin</div>
         <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Doğ — Battığında max canının %10'u ile başlarsın</div>
+        <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 Dükkan İndirimi — Dükkandaki tüm ürünlerde %10 indirim</div>
       </div>
     </div>
   </div>
@@ -960,51 +1011,73 @@
   <div class="magaza-overlay" id="starter-modal-home">
     <div class="magaza-modal">
       <button class="magaza-close" id="btn-close-starter-home">✕</button>
-      <div class="magaza-title">🚀 STARTER PAKETİ</div>
+      <div class="magaza-title">STARTER PAKETİ</div>
       <div class="magaza-sub">Yeni korsanlar için tek seferlik fırsat!</div>
       <div class="magaza-cards">
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name">Başlangıç Paketi</span>
-            <span class="magaza-card-dur">500 💎 + 50.000 🪙 + 2x XP Bonus</span>
+            <span class="magaza-card-dur">
+              <span class="starter-item"><img src="assets/ui/gold.png" class="starter-icon"> 10.000</span>
+              <span class="starter-item"><img src="assets/ui/pearl.png" class="starter-icon"> 1.000</span>
+              <span class="starter-item"><img src="assets/items/shop/oyukgülle.png" class="starter-icon"> 5.000 Hollow</span>
+              <span class="starter-item"><img src="assets/items/shop/barut-dükkan.png" class="starter-icon"> 1.000</span>
+              <span class="starter-item"><img src="assets/items/shop/zırh-dükkan.png" class="starter-icon"> 1.000</span>
+              <span class="starter-item"><img src="assets/items/shop/top1.png" class="starter-icon"> 5x 30lb</span>
+            </span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price">29 ₺</span>
-            <button class="magaza-card-btn" data-plan="starter" data-type="starter">Satın Al</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span class="magaza-card-price">100 ₺</span>
+            <button class="magaza-card-btn" data-pack="basic">Satın Al</button>
           </div>
         </div>
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name">Korsan Destek Paketi</span>
-            <span class="magaza-card-dur">1.200 💎 + 150.000 🪙 + 3x XP Bonus</span>
+            <span class="magaza-card-dur">
+              <span class="starter-item"><img src="assets/ui/gold.png" class="starter-icon"> 30.000</span>
+              <span class="starter-item"><img src="assets/ui/pearl.png" class="starter-icon"> 3.500</span>
+              <span class="starter-item"><img src="assets/items/shop/oyukgülle.png" class="starter-icon"> 10.000 Hollow</span>
+              <span class="starter-item"><img src="assets/items/shop/elitgülle.png" class="starter-icon"> 2.000 Explosive</span>
+              <span class="starter-item"><img src="assets/items/shop/barut-dükkan.png" class="starter-icon"> 2.500</span>
+              <span class="starter-item"><img src="assets/items/shop/zırh-dükkan.png" class="starter-icon"> 2.500</span>
+              <span class="starter-item"><img src="assets/items/shop/top1.png" class="starter-icon"> 10x</span>
+              <span class="starter-item"><img src="assets/items/shop/top2.png" class="starter-icon"> 5x</span>
+            </span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price">79 ₺</span>
-            <button class="magaza-card-btn" data-plan="korsan" data-type="starter">Satın Al</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span class="magaza-card-price">300 ₺</span>
+            <button class="magaza-card-btn" data-pack="medium">Satın Al</button>
           </div>
         </div>
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name">Kaptan Paketi</span>
-            <span class="magaza-card-dur">3.000 💎 + 500.000 🪙 + 5x XP Bonus</span>
+            <span class="magaza-card-dur">
+              <span class="starter-item"><img src="assets/ui/gold.png" class="starter-icon"> 75.000</span>
+              <span class="starter-item"><img src="assets/ui/pearl.png" class="starter-icon"> 7.000</span>
+              <span class="starter-item"><img src="assets/items/shop/oyukgülle.png" class="starter-icon"> 20.000 Hollow</span>
+              <span class="starter-item"><img src="assets/items/shop/elitgülle.png" class="starter-icon"> 5.000 Explosive</span>
+              <span class="starter-item"><img src="assets/items/shop/barut-dükkan.png" class="starter-icon"> 5.000</span>
+              <span class="starter-item"><img src="assets/items/shop/zırh-dükkan.png" class="starter-icon"> 5.000</span>
+              <span class="starter-item"><img src="assets/items/shop/top1.png" class="starter-icon"> 15x</span>
+              <span class="starter-item"><img src="assets/items/shop/top2.png" class="starter-icon"> 8x</span>
+              <span class="starter-item"><img src="assets/items/shop/top3.png" class="starter-icon"> 4x</span>
+              <span class="starter-item premium"><img src="assets/items/shop/seahawk/1.png" class="starter-icon"> + Seahawk</span>
+            </span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price">199 ₺</span>
-            <button class="magaza-card-btn" data-plan="kaptan" data-type="starter">Satın Al</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span class="magaza-card-price">600 ₺</span>
+            <button class="magaza-card-btn" data-pack="premium">Satın Al</button>
           </div>
         </div>
       </div>
-      <div class="magaza-perks">
-        <div class="magaza-perks-title">📦 PAKET İÇERİĞİ</div>
-        <div class="magaza-perk">Anında hesabınıza yüklenir</div>
-        <div class="magaza-perk">Tek seferlik satın alım</div>
-        <div class="magaza-perk">Hesap sıfırlanmaz, kalıcıdır</div>
-      </div>
+      <div id="starter-msg" class="form-msg" style="margin-top:10px;"></div>
     </div>
   </div>
 
   <script>
-    const API_URL = 'http://localhost:3000/api/player';
+    const API_URL = window.location.origin + '/api/player';
     // Session/Beni Hatırla doğrulaması
     const isRemembered = localStorage.getItem('sp_remember_me') === 'true';
     const isSessionActive = sessionStorage.getItem('sp_session_active') === 'true';
@@ -1067,8 +1140,26 @@
       }
     }
 
+    async function fetchEventBanner() {
+      try {
+        const evRes = await fetch(`${window.location.origin}/api/events`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!evRes.ok) return;
+        const ev = await evRes.json();
+        const banner = document.getElementById('ev-banner');
+        const icon = document.getElementById('ev-icon');
+        const name = document.getElementById('ev-name');
+        const desc = document.getElementById('ev-desc');
+        const badge = document.getElementById('ev-badge');
+        if (ev.icon) icon.textContent = ev.icon;
+        if (ev.name) name.textContent = ev.name;
+        if (ev.desc) desc.textContent = ev.desc;
+        if (ev.mult) badge.textContent = '×' + ev.mult;
+        banner.classList.remove('hidden');
+      } catch (e) { /* silent */ }
+    }
+
     async function init() {
-      const [playerData, lbData] = await Promise.all([fetchPlayer(), fetchLeaderboard()]);
+      const [playerData, lbData] = await Promise.all([fetchPlayer(), fetchLeaderboard(), fetchEventBanner()]);
       if (!playerData) return;
 
       // Render Player Info Panel
@@ -1148,7 +1239,7 @@
 
     async function fetchVipCurrency() {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('sp_token');
         if (!token) return;
         const [res, curRes] = await Promise.all([
           fetch('/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
@@ -1203,12 +1294,47 @@
       });
     });
 
+    const starterMsg = document.getElementById('starter-msg');
+    function showStarterMsg(msg, type) {
+      if (!starterMsg) return;
+      starterMsg.textContent = msg;
+      starterMsg.className = 'form-msg show ' + type;
+      if (type === 'ok') {
+        setTimeout(() => { starterMsg.className = 'form-msg'; starterMsg.textContent = ''; }, 4000);
+      }
+    }
     document.querySelectorAll('#starter-modal-home .magaza-card-btn').forEach(btn => {
-      btn.addEventListener('click', function (e) {
+      btn.addEventListener('click', async function (e) {
+        e.preventDefault();
         e.stopPropagation();
-        const plan = this.dataset.plan;
-        const type = this.dataset.type;
-        toast2(`🔒 ${type === 'vip' ? 'VIP' : 'Starter'} "${plan}" paketi seçildi. Ödeme sistemi yakında!`, 'ok', 3000);
+        if (this.disabled) return;
+        this.disabled = true;
+        const origText = this.textContent;
+        this.textContent = '⏳';
+
+        const packId = this.dataset.pack;
+        try {
+          const token = localStorage.getItem('sp_token');
+          const res = await fetch('/api/starter/buy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ packId })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            showStarterMsg(data.error || 'Satın alma başarısız!', 'err');
+          } else {
+            showStarterMsg(data.message, 'ok');
+            const goldEl = document.getElementById('p-gold');
+            const pearlEl = document.getElementById('p-pearl');
+            if (goldEl) goldEl.textContent = fmt(data.gold);
+            if (pearlEl) pearlEl.textContent = fmt(data.pearl);
+          }
+        } catch (err) {
+          showStarterMsg('Bağlantı hatası!', 'err');
+        }
+        this.textContent = origText;
+        this.disabled = false;
       });
     });
 

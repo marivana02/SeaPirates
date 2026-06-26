@@ -69,8 +69,26 @@ async function initTiamatState(pool) {
     if (t.respawn_at !== null && new Date(t.respawn_at) > new Date()) {
       return { error: 'Tiamat has not respawned yet. Check back later!' };
     }
-    await pool.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
-    tiamatHp = parseInt(t.hp);
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const lockRes = await client.query('SELECT current_hp, hp FROM tiamat WHERE id = 1 FOR UPDATE');
+      const locked = lockRes.rows[0];
+      if (locked.current_hp !== null && locked.current_hp > 0) {
+        tiamatHp = parseInt(locked.current_hp);
+      } else {
+        await client.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
+        await client.query('DELETE FROM tiamat_damage');
+        tiamatHp = parseInt(t.hp);
+      }
+      await client.query('COMMIT');
+    } catch (txErr) {
+      await client.query('ROLLBACK');
+      console.error('Tiamat respawn transaction error:', txErr);
+      return { error: 'Tiamat initialization failed' };
+    } finally {
+      client.release();
+    }
   }
 
   return {
