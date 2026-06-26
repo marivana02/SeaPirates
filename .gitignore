@@ -3,3 +3,6 @@ android/
 www/
 *.exe
 *.log
+server/.env
+server/certs/
+server/node

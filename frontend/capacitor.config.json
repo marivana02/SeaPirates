@@ -3,9 +3,9 @@
   "appName": "SeaPirates",
   "webDir": "www",
   "server": {
-    "androidScheme": "http",
-    "hostname": "seapirates.com",
-    "url": "http://192.168.1.100:3000",
-    "cleartext": true
+    "androidScheme": "https",
+    "hostname": "192.168.1.5",
+    "url": "https://192.168.1.5:3000",
+    "cleartext": false
   }
 }
