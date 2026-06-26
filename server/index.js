@@ -112,7 +112,7 @@ const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
   // HTTP sunucu (APK için) — her zaman çalışır
   const httpServer = http.createServer(app);
   initSocketIO(httpServer);
-  httpServer.listen(PORT, () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`HTTP sunucu ${PORT} portunda çalışıyor`);
     startBotTicks();
     startTiamatBotTicks();
@@ -126,7 +126,7 @@ const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
     };
     const httpsServer = https.createServer(httpsOpts, app);
     initSocketIO(httpsServer);
-    httpsServer.listen(HTTPS_PORT, () => {
+    httpsServer.listen(HTTPS_PORT, '0.0.0.0', () => {
       console.log(`HTTPS sunucu ${HTTPS_PORT} portunda çalışıyor`);
     });
   }
