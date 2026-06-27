@@ -109,7 +109,13 @@
     .logs-table td { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     @media (max-width: 600px) {
       .detail-grid { grid-template-columns: 1fr; }
-      .page { padding: 6px; }
+      .page { padding: 6px; max-width: 100%; }
+      table { font-size: 0.65rem; }
+      th, td { padding: 4px 4px; }
+      .table-wrap { overflow-x: auto; }
+      .search-wrap input { min-width: 100px; }
+      .truncate { max-width: 60px; }
+      .logs-table td { max-width: 120px; }
     }
   </style>
 </head>
@@ -210,7 +216,7 @@ function renderPlayerList(data) {
     return;
   }
 
-  let html = `<div class="card"><table><thead><tr>
+  let html = `<div class="card"><div class="table-wrap"><table><thead><tr>
     <th>ID</th><th data-i18n="admin_col_username">Kullanıcı</th><th data-i18n="admin_col_display">Görünen</th><th>Lv</th>
     <th data-i18n="admin_col_status">Durum</th><th>Email</th><th data-i18n="admin_col_actions">İşlem</th>
   </tr></thead><tbody>`;
@@ -234,7 +240,7 @@ function renderPlayerList(data) {
     </tr>`;
   }
 
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
 
   const totalPages = Math.ceil(data.total / data.limit);
   if (totalPages > 1) {
@@ -337,7 +343,7 @@ function showPlayerModal(player, logs) {
 
   // Logs
   if (logs && logs.length > 0) {
-    html += '<div class="card"><h3>Son İşlemler</h3><table class="logs-table"><thead><tr><th>ID</th><th>Tip</th><th>Detay</th><th>IP</th><th>Tarih</th></tr></thead><tbody>';
+    html += '<div class="card"><h3>Son İşlemler</h3><div class="table-wrap"><table class="logs-table"><thead><tr><th>ID</th><th>Tip</th><th>Detay</th><th>IP</th><th>Tarih</th></tr></thead><tbody>';
     for (const l of logs) {
       let details = l.details;
       try { const d = JSON.parse(l.details); details = JSON.stringify(d); } catch(e) {}
@@ -414,13 +420,13 @@ function renderLogs(data) {
     return;
   }
 
-  let html = '<div class="card"><table class="logs-table"><thead><tr><th>ID</th><th>Oyuncu</th><th>Tip</th><th>Detay</th><th>IP</th><th>Tarih</th></tr></thead><tbody>';
+  let html = '<div class="card"><div class="table-wrap"><table class="logs-table"><thead><tr><th>ID</th><th>Oyuncu</th><th>Tip</th><th>Detay</th><th>IP</th><th>Tarih</th></tr></thead><tbody>';
   for (const l of data.logs) {
     let details = l.details;
     try { const d = JSON.parse(l.details); details = JSON.stringify(d); } catch(e) {}
     html += `<tr><td>${l.id}</td><td>${esc(l.username || '-')} (${l.player_id})</td><td><span class="badge badge-ok">${esc(l.action_type)}</span></td><td title="${esc(details)}">${esc(details.length > 80 ? details.slice(0,80)+'...' : details)}</td><td>${esc(l.ip || '-')}</td><td>${new Date(l.created_at).toLocaleString()}</td></tr>`;
   }
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
 
   const totalPages = Math.ceil(data.total / data.limit);
   if (totalPages > 1) {

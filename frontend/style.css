@@ -348,8 +348,16 @@ html, body {
   .glass { border-radius: 12px; }
 }
 
+@media (max-width: 400px) {
+  .page { padding-left: 8px; padding-right: 8px; }
+  .glass { padding: 10px; }
+  [class*="grid"] { gap: 6px; }
+  button, .btn { font-size: max(0.7rem, 11px); padding: 6px 10px; }
+}
+
 /* ---- Responsive Font Sizes ---- */
 html { font-size: 16px; }
+@media (max-width: 400px) { html { font-size: 15px; } }
 @media (max-width: 360px) { html { font-size: 14px; } }
 @media (min-width: 769px) { html { font-size: 17px; } }
 
