@@ -49,4 +49,50 @@
     API.post('/player/ping').catch(() => {});
   }, 60000);
 
+  /* Android geri tuşu — tarayıcı gibi sayfa geçmişinde dolaş, çıkma */
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    try {
+      window.Capacitor.Plugins.App.addListener('backButton', function(info) {
+        var page = window.location.pathname.split('/').pop() || 'index.html';
+        if (info.canGoBack) {
+          window.history.back();
+        } else if (page !== 'home.html' && page !== 'index.html') {
+          window.goTo('home.html');
+        } else {
+          /* Ana sayfada çıkış onayı göster */
+          var exitConfirm = document.getElementById('sp-exit-confirm');
+          if (!exitConfirm) {
+            exitConfirm = document.createElement('div');
+            exitConfirm.id = 'sp-exit-confirm';
+            exitConfirm.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;font-family:Inter,sans-serif;';
+            exitConfirm.innerHTML = [
+              '<div style="background:linear-gradient(145deg,#1a0e05,#2d1a08);border:2px solid #c8962a;border-radius:16px;padding:28px 22px;max-width:320px;width:90%;text-align:center;box-shadow:0 0 40px rgba(200,150,42,0.3);">',
+              '<div style="font-size:40px;margin-bottom:6px;">🚪</div>',
+              '<div style="font-family:\'Cinzel\',serif;font-size:17px;color:#f0c040;margin-bottom:8px;">UYGULAMADAN ÇIK</div>',
+              '<div style="color:#b8956a;font-size:13px;margin-bottom:16px;">Çıkmak istediğinize emin misiniz?</div>',
+              '<div style="display:flex;gap:8px;">',
+              '<button id="sp-exit-cancel" style="flex:1;padding:10px;background:rgba(90,53,24,0.5);border:1px solid #5c3518;border-radius:10px;color:#b8956a;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">HAYIR</button>',
+              '<button id="sp-exit-yes" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b2500,#c0392b);border:2px solid #e74c3c;border-radius:10px;color:#fff;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">EVET</button>',
+              '</div></div>'
+            ].join('');
+            document.body.appendChild(exitConfirm);
+            document.getElementById('sp-exit-cancel').addEventListener('click', function() {
+              exitConfirm.style.display = 'none';
+            });
+            document.getElementById('sp-exit-yes').addEventListener('click', function() {
+              if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+                window.Capacitor.Plugins.App.exitApp();
+              }
+            });
+            exitConfirm.addEventListener('click', function(e) {
+              if (e.target === exitConfirm) exitConfirm.style.display = 'none';
+            });
+          }
+          exitConfirm.style.display = 'flex';
+        }
+      });
+    } catch(e) {
+      /* Capacitor backButton plugin yoksa sessizce geç */
+    }
+  }
 })();
