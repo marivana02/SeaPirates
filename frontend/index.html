@@ -292,7 +292,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     .tabs .tab-btn:first-child{border-right:1px solid var(--wood-plank);}
 
     /* ── PANELS ── */
-    .panel{display:none;flex-direction:column;gap:14px;padding:24px 20px;}
+    .panel{display:none;flex-direction:column;gap:14px;padding:24px 20px;position:relative;z-index:2;}
     .panel.active{display:flex;animation:fadeUp 0.28s ease;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
