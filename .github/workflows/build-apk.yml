@@ -81,6 +81,17 @@ jobs:
           cd frontend
           npx cap sync android
 
+      - name: Enable cleartext traffic in AndroidManifest
+        run: |
+          MANIFEST="frontend/android/app/src/main/AndroidManifest.xml"
+          if grep -q 'usesCleartextTraffic' "$MANIFEST"; then
+            echo "usesCleartextTraffic already set"
+          else
+            echo "Adding android:usesCleartextTraffic=\"true\" to <application>"
+            sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
+            grep 'usesCleartextTraffic' "$MANIFEST"
+          fi
+
       - name: Build APK
         run: |
           cd frontend/android
