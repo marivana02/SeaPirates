@@ -95,6 +95,18 @@ app.use('/api/starter', standardRateLimiter, starterRoutes);
 // Combat routes - no rate limiter (frequent requests expected)
 app.use('/api/combat', combatRoutes);
 
+// Debug endpoint — her zaman yanıt verir (tanı için)
+app.get('/api/debug/info', (req, res) => {
+  res.json({
+    ok: true,
+    origin: req.headers.origin || '(none)',
+    host: req.headers.host,
+    'user-agent': req.headers['user-agent'],
+    ip: req.ip,
+    timestamp: Date.now()
+  });
+});
+
 // Global error handler (must be last)
 app.use(errorHandler);
 

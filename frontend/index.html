@@ -612,6 +612,10 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
     </div>
 
+    <div id="diag-box" style="margin-top:8px;padding:6px;background:#1a0e05;border:1px solid #c8962a;border-radius:6px;font-size:10px;color:#f5e6c8;text-align:center;word-break:break-all;max-width:340px;margin-left:auto;margin-right:auto;">
+      Origin: <span id="diag-origin">yükleniyor...</span>
+    </div>
+
   </div>
 
   <!-- MODAL OVERLAY -->
@@ -652,6 +656,21 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         document.getElementById('l-user').value = rememberedUser;
         document.getElementById('remember').checked = true;
       }
+
+      // 4. Tanı: origin ve fetch testi
+      (async function() {
+        const el = document.getElementById('diag-origin');
+        const origin = window.location.origin;
+        let status = origin;
+        try {
+          const r = await fetch(origin + '/api/debug/info');
+          const d = await r.json();
+          status += ' | FETCH OK';
+        } catch(e) {
+          status += ' | FETCH FAIL: ' + e.message;
+        }
+        if (el) el.textContent = status;
+      })();
     };
 
     /* ── TAB ── */
@@ -747,7 +766,8 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
           }
           showFormMsg(banMsg, 'err');
         } else {
-          showFormMsg(err.message || t('connection_failed'), 'err');
+          const detail = err.message + ' (status:' + err.status + ')';
+          showFormMsg(detail || t('connection_failed'), 'err');
         }
       }
       setLoading('login-btn',false);
@@ -780,7 +800,8 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         if (err.status === 403 && err.message === 'err_device_banned') {
           showFormMsg('🚫 Bu cihaz yasaklanmış. Kayıt yapılamaz.', 'err');
         } else {
-          showFormMsg(err.message || t('connection_failed'), 'err');
+          const detail = err.message + ' (status:' + err.status + ')';
+          showFormMsg(detail || t('connection_failed'), 'err');
         }
       }
       setLoading('reg-btn',false);
@@ -838,6 +859,8 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
           .catch(err => console.error('Service Worker registration failed:', err));
       });
     }
+
+
 
     /* Enter key */
     document.addEventListener('keydown',e=>{
