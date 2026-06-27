@@ -388,7 +388,7 @@ router.get('/admiral-status', authMiddleware, async (req, res) => {
     const bcRes = await pool.query('SELECT boss_current_hp, boss_max_hp, is_spawned FROM npc3_kill_counter WHERE map_level = $1', [mapLevel]);
     if (bcRes.rows.length === 0 || !bcRes.rows[0].is_spawned || bcRes.rows[0].boss_current_hp === null) return res.json({ spawned: false });
     const dmgRes = await pool.query(
-      `SELECT a.player_id, a.username, a.ship_level, a.damage_dealt, a.current_hp, a.max_hp, p.active_design, p.visual_ship_level FROM admiral_damage a JOIN players p ON p.id = a.player_id WHERE a.map_level = $1 AND a.player_id > 0 ORDER BY a.damage_dealt DESC`,
+      `SELECT a.player_id, a.username, a.ship_level, a.damage_dealt, a.current_hp, a.max_hp, p.active_design, p.visual_ship_level FROM admiral_damage a LEFT JOIN players p ON p.id = a.player_id WHERE a.map_level = $1 ORDER BY a.damage_dealt DESC`,
       [mapLevel]
     );
     res.json({ spawned: true, bossHp: parseInt(bcRes.rows[0].boss_current_hp), bossMaxHp: parseInt(bcRes.rows[0].boss_max_hp), leaderboard: dmgRes.rows });
@@ -405,7 +405,7 @@ router.get('/tiamat-status', authMiddleware, async (req, res) => {
 
     const t = tRes.rows[0];
     if (t.current_hp !== null && t.current_hp > 0) {
-      const dmgRes = await pool.query('SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp FROM tiamat_damage WHERE player_id > 0 ORDER BY damage_dealt DESC');
+      const dmgRes = await pool.query('SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp FROM tiamat_damage ORDER BY damage_dealt DESC');
       return res.json({ spawned: true, bossHp: parseInt(t.current_hp), bossMaxHp: parseInt(t.hp), leaderboard: dmgRes.rows });
     }
 
@@ -413,7 +413,7 @@ router.get('/tiamat-status', authMiddleware, async (req, res) => {
     if (t.respawn_at === null || new Date(t.respawn_at) <= new Date()) {
       await pool.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
       await pool.query('DELETE FROM tiamat_damage');
-      const dmgRes = await pool.query('SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp FROM tiamat_damage WHERE player_id > 0 ORDER BY damage_dealt DESC');
+      const dmgRes = await pool.query('SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp FROM tiamat_damage ORDER BY damage_dealt DESC');
       return res.json({ spawned: true, bossHp: parseInt(t.hp), bossMaxHp: parseInt(t.hp), leaderboard: dmgRes.rows });
     }
 

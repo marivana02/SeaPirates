@@ -303,6 +303,8 @@ const I18N_DATA = {
     exit_confirm_msg: 'Çıkmak istediğinize emin misiniz?',
     exit_confirm_yes: 'EVET',
     exit_confirm_no: 'HAYIR',
+    fight_back_title: 'SAVAŞ DEVAM EDİYOR',
+    fight_back_msg: 'Savaştan ayrılırsanız ilerlemeniz kaybolacak! Devam etmek istiyor musunuz?',
 
     modal_terms_title: '⚓ KULLANIM ŞARTLARI',
     modal_privacy_title: '🛡️ GİZLİLİK POLİTİKASI',
@@ -984,6 +986,8 @@ const I18N_DATA = {
     exit_confirm_msg: 'Are you sure you want to exit?',
     exit_confirm_yes: 'YES',
     exit_confirm_no: 'NO',
+    fight_back_title: 'FIGHT IN PROGRESS',
+    fight_back_msg: 'If you leave now, your progress will be lost! Are you sure?',
 
     modal_terms_title: '⚓ TERMS OF SERVICE',
     modal_privacy_title: '🛡️ PRIVACY POLICY',
@@ -1641,6 +1645,9 @@ const I18N_DATA = {
     exit_confirm_msg: 'Sind Sie sicher, dass Sie die App verlassen möchten?',
     exit_confirm_yes: 'JA',
     exit_confirm_no: 'NEIN',
+    fight_back_title: 'KAMPF LÄUFT',
+    fight_back_msg: 'Wenn Sie jetzt gehen, geht Ihr Fortschritt verloren! Sind Sie sicher?',
+
     modal_terms_title: '⚓ NUTZUNGSBEDINGUNGEN',
     modal_privacy_title: '🛡️ DATENSCHUTZ',
     quest_accepted: 'Quest angenommen!',
@@ -2238,6 +2245,9 @@ const I18N_DATA = {
     exit_confirm_msg: 'Tem certeza de que deseja sair?',
     exit_confirm_yes: 'SIM',
     exit_confirm_no: 'NÃO',
+    fight_back_title: 'COMBATE EM ANDAMENTO',
+    fight_back_msg: 'Se você sair agora, seu progresso será perdido! Tem certeza?',
+
     modal_terms_title: '⚓ TERMOS DE USO',
     modal_privacy_title: '🛡️ POLÍTICA DE PRIVACIDADE',
     quest_accepted: 'Missão aceita!',
@@ -2836,6 +2846,9 @@ const I18N_DATA = {
     exit_confirm_msg: '¿Estás seguro de que deseas salir?',
     exit_confirm_yes: 'SÍ',
     exit_confirm_no: 'NO',
+    fight_back_title: 'COMBATE EN CURSO',
+    fight_back_msg: '¡Si sales ahora, perderás tu progreso! ¿Estás seguro?',
+
     modal_terms_title: '⚓ TÉRMINOS DE USO',
     modal_privacy_title: '🛡️ POLÍTICA DE PRIVACIDAD',
     quest_accepted: '¡Misión aceptada!',
@@ -3434,6 +3447,9 @@ const I18N_DATA = {
     exit_confirm_msg: 'Czy na pewno chcesz wyjść?',
     exit_confirm_yes: 'TAK',
     exit_confirm_no: 'NIE',
+    fight_back_title: 'WALKA TRWA',
+    fight_back_msg: 'Jeśli teraz wyjdziesz, stracisz postępy! Czy na pewno?',
+
     modal_terms_title: '⚓ WARUNKI KORZYSTANIA',
     modal_privacy_title: '🛡️ POLITYKA PRYWATNOŚCI',
     quest_accepted: 'Zadanie przyjęte!',
