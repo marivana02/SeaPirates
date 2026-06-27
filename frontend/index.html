@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
@@ -96,18 +96,18 @@ const Auth = (() => {
   <script>
 window.t = window.t || function(key, vars) {
   var texts = {
-    login_welcome: '⚓ Hoş geldin Kaptan!', register_welcome: '⚔ Hoş geldin Kaptan!',
-    connection_failed: 'Bağlantı hatası', btn_login: '⚓ Denize Açıl',
-    login_title: '⚓ Giriş Yap', register_title: '⚔ Kayıt Ol',
-    username_label: 'Kullanıcı adı', password_label: 'Şifre',
-    strength_weak: 'Zayıf', strength_medium: 'Orta', strength_good: 'İyi', strength_strong: 'Güçlü',
-    reg_error_username: '3–20 karakter, harf/rakam/_ kullanın.',
-    modal_close: 'Tamam', error: 'Hata',
-    ban_notification_title: 'Hesabınız banlanmış!', ban_reason_label: 'Sebep:',
-    ban_expires_label: 'Bitiş:', ban_permanent_label: 'Kalıcı ban',
-    ban_date_label: 'Tarih:',
+    login_welcome: '⚓ Welcome aboard, Captain!', register_welcome: '⚔ Welcome aboard, Captain!',
+    connection_failed: 'Connection failed', btn_login: '⚓ Set Sail',
+    login_title: '⚓ Login', register_title: '⚔ Register',
+    username_label: 'Username', password_label: 'Password',
+    strength_weak: 'Weak', strength_medium: 'Medium', strength_good: 'Good', strength_strong: 'Strong',
+    reg_error_username: '3–20 characters, use letters/numbers/_.',
+    modal_close: 'Close', error: 'Error',
+    ban_notification_title: 'Your account has been banned!', ban_reason_label: 'Reason:',
+    ban_expires_label: 'Expires:', ban_permanent_label: 'Permanent ban',
+    ban_date_label: 'Date:',
 
-    modal_terms_title: '⚓ KULLANIM ŞARTLARI', modal_privacy_title: '🔒 GİZLİLİK POLİTİKASI'
+    modal_terms_title: '⚓ TERMS OF SERVICE', modal_privacy_title: '🔒 PRIVACY POLICY'
   };
   var msg = texts[key] || key;
   if (vars && vars.name) msg = msg.replace('{name}', vars.name);
@@ -520,8 +520,8 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
       <!-- TABS -->
       <div class="tabs">
-        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')"><span data-i18n="login_title" data-i18n-text>⚓ Giriş Yap</span></button>
-        <button class="tab-btn" id="tab-register" onclick="switchTab('register')"><span data-i18n="register_title" data-i18n-text>⚔ Kayıt Ol</span></button>
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')"><span data-i18n="login_title" data-i18n-text>⚓ Login</span></button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')"><span data-i18n="register_title" data-i18n-text>⚔ Register</span></button>
       </div>
 
       <!-- LOGIN PANEL -->
@@ -529,27 +529,27 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="l-user" placeholder="Kullanıcı adı" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false"/>
+          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false"/>
         </div>
-        <span class="err" id="l-user-err" data-i18n="login_error_fields">Kullanıcı adı gerekli.</span>
+        <span class="err" id="l-user-err" data-i18n="login_error_fields">Username is required.</span>
 
         <div class="field">
           <span class="field-icon">🔒</span>
-          <input type="password" id="l-pass" placeholder="Şifre" data-i18n-placeholder="password_label" autocomplete="current-password"/>
+          <input type="password" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" autocomplete="current-password"/>
         </div>
-        <span class="err" id="l-pass-err" data-i18n="login_error_fields">Şifre gerekli.</span>
+        <span class="err" id="l-pass-err" data-i18n="login_error_fields">Password is required.</span>
 
         <div class="meta-row">
           <label class="remember">
             <input type="checkbox" id="remember"/>
-            <span data-i18n="remember_me" data-i18n-text>Beni hatırla</span>
+            <span data-i18n="remember_me" data-i18n-text>Remember me</span>
           </label>
         </div>
 
         <div class="form-msg" id="l-msg"></div>
 
         <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
-          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>⚓ &nbsp;Denize Açıl</span></span>
+          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>⚓ &nbsp;Set Sail</span></span>
           <div class="spinner"></div>
         </button>
 
@@ -560,46 +560,46 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="r-user" placeholder="Kullanıcı adı (3–20 karakter)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" maxlength="20" oninput="liveValidUser(this)"/>
+          <input type="text" id="r-user" placeholder="Username (3–20 characters)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" maxlength="20" oninput="liveValidUser(this)"/>
         </div>
-        <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 karakter, harf/rakam/_ kullanın.</span>
+        <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 characters, use letters/numbers/_.</span>
 
         <div class="field">
           <span class="field-icon">📧</span>
-          <input type="email" id="r-email" placeholder="E-posta adresi" data-i18n-placeholder="email_placeholder" autocomplete="email"/>
+          <input type="email" id="r-email" placeholder="Email address" data-i18n-placeholder="email_placeholder" autocomplete="email"/>
         </div>
-        <span class="err" id="r-email-err" data-i18n="reg_error_email">Geçerli bir e-posta giriniz.</span>
+        <span class="err" id="r-email-err" data-i18n="reg_error_email">Enter a valid email address.</span>
 
         <div class="field">
           <span class="field-icon">🔒</span>
-          <input type="password" id="r-pass" placeholder="Şifre (min. 6 karakter)" data-i18n-placeholder="password_placeholder" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+          <input type="password" id="r-pass" placeholder="Password (min. 6 chars)" data-i18n-placeholder="password_placeholder" autocomplete="new-password" oninput="checkStrength(this.value)"/>
         </div>
-        <span class="err" id="r-pass-err" data-i18n="reg_error_password">Şifre en az 6 karakter olmalı.</span>
+        <span class="err" id="r-pass-err" data-i18n="reg_error_password">Password must be at least 6 characters.</span>
 
         <div class="strength" id="strength">
           <div class="s-bars">
             <div class="s-bar" id="sb1"></div><div class="s-bar" id="sb2"></div>
             <div class="s-bar" id="sb3"></div><div class="s-bar" id="sb4"></div>
           </div>
-          <span class="s-txt" id="s-label">Zayıf</span>
+          <span class="s-txt" id="s-label">Weak</span>
         </div>
 
         <div class="field">
           <span class="field-icon">🔐</span>
-          <input type="password" id="r-pass2" placeholder="Şifreyi tekrar gir" data-i18n-placeholder="repassword_placeholder" autocomplete="new-password"/>
+          <input type="password" id="r-pass2" placeholder="Confirm password" data-i18n-placeholder="repassword_placeholder" autocomplete="new-password"/>
         </div>
-        <span class="err" id="r-pass2-err" data-i18n="reg_error_pass2">Şifreler eşleşmiyor.</span>
+        <span class="err" id="r-pass2-err" data-i18n="reg_error_pass2">Passwords do not match.</span>
 
         <label class="terms">
           <input type="checkbox" id="terms"/>
-          <span><a href="#" onclick="openModal('terms'); return false;"><span data-i18n="terms_link" data-i18n-text>Kullanım şartlarını</span></a> <span data-i18n="accept_terms" data-i18n-text>kabul ediyorum.</span></span>
+          <span><a href="#" onclick="openModal('terms'); return false;"><span data-i18n="terms_link" data-i18n-text>Terms of Service</span></a> <span data-i18n="accept_terms" data-i18n-text>I accept.</span></span>
         </label>
-        <span class="err" id="terms-err" data-i18n="reg_error_terms">Şartları kabul etmelisiniz.</span>
+        <span class="err" id="terms-err" data-i18n="reg_error_terms">You must accept the terms.</span>
 
         <div class="form-msg" id="r-msg"></div>
 
         <button class="btn btn-primary" id="reg-btn" onclick="doRegister()">
-          <span class="btn-txt"><span data-i18n="btn_register" data-i18n-text>⚔ &nbsp;Korsan Ol</span></span>
+          <span class="btn-txt"><span data-i18n="btn_register" data-i18n-text>⚔ &nbsp;Become a Pirate</span></span>
           <div class="spinner"></div>
         </button>
 
@@ -607,8 +607,8 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     </div>
 
     <div class="bottom-note">
-      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Gizlilik Politikası</span></a> &nbsp;·&nbsp;
-      <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Kullanım Şartları</span></a><br/>
+      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Privacy Policy</span></a> &nbsp;·&nbsp;
+      <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Terms of Service</span></a><br/>
       <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
     </div>
 
@@ -617,11 +617,11 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
   <!-- MODAL OVERLAY -->
   <div class="modal-overlay" id="sp-modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header" id="modal-title">⚓ KULLANIM ŞARTLARI</div>
+      <div class="modal-header" id="modal-title">⚓ TERMS OF SERVICE</div>
       <div class="modal-body" id="modal-body">
         <!-- Dinamik içerik buraya yüklenecek -->
       </div>
-      <button class="modal-close-btn" onclick="closeModal()"><span data-i18n="modal_close" data-i18n-text>Tamam</span></button>
+      <button class="modal-close-btn" onclick="closeModal()"><span data-i18n="modal_close" data-i18n-text>OK</span></button>
     </div>
   </div>
 
@@ -733,7 +733,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {
           if (err.status === 403 && err.message === 'err_device_banned') {
-            showFormMsg('🚫 ' + t('ban_notification_title') + '\n' + t('ban_reason_label') + ' Bu cihaz yasaklanmış.', 'err');
+            showFormMsg('🚫 ' + t('ban_notification_title') + '\n' + t('ban_reason_label') + ' This device is banned.', 'err');
           } else if (err.status === 403 && err.message === 'err_account_banned' && err.data) {
           const d = err.data;
           let banMsg = '🚫 ' + t('ban_notification_title');
@@ -782,7 +782,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {
         if (err.status === 403 && err.message === 'err_device_banned') {
-          showFormMsg('🚫 Bu cihaz yasaklanmış. Kayıt yapılamaz.', 'err');
+          showFormMsg('🚫 This device is banned. Registration not allowed.', 'err');
         } else {
           const detail = err.message + ' (status:' + err.status + ')';
           showFormMsg(detail || t('connection_failed'), 'err');
@@ -801,19 +801,19 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       if (type === 'terms') {
         title.innerHTML = t('modal_terms_title');
         body.innerHTML = `
-          <p><strong>1. Kabul Edilme Şartları:</strong> SeaPirates web tabanlı bir clicker-RPG oyunudur. Bu oyuna üye olarak tüm kuralları ve şartları peşinen kabul etmiş sayılırsınız.</p>
-          <p><strong>2. Hesap Güvenliği:</strong> Hesabınızın şifresini korumak sizin sorumluluğunuzdadır. Üçüncü şahıslarla şifre paylaşımı yasaktır.</p>
-          <p><strong>3. Hile ve Suiistimal Yasağı:</strong> Otomatik botlar, açıklar (exploit) ve veritabanına hileli istek gönderen yazılımlar kullanmak kesinlikle yasaktır. Tespit edilen hesaplar süresiz olarak kapatılır.</p>
-          <p><strong>4. Sanal Para Birimleri:</strong> Oyun içindeki altın ve inci birimleri hiçbir şekilde gerçek paraya dönüştürülemez veya devredilemez.</p>
-          <p><strong>5. Yaş Sınırı:</strong> Oyunu oynamak için en az 13 yaşında olmanız gerekmektedir.</p>
+          <p><strong>1. Acceptance of Terms:</strong> SeaPirates is a web-based clicker-RPG game. By registering, you agree to all rules and terms stated herein.</p>
+          <p><strong>2. Account Security:</strong> You are responsible for keeping your password secure. Sharing your password with third parties is prohibited.</p>
+          <p><strong>3. Prohibition of Cheating & Exploitation:</strong> The use of automated bots, exploits, and software that sends fraudulent requests to the database is strictly forbidden. Detected accounts will be permanently closed.</p>
+          <p><strong>4. Virtual Currency:</strong> In-game gold and pearl currencies cannot be exchanged for real money or transferred under any circumstances.</p>
+          <p><strong>5. Age Requirement:</strong> You must be at least 13 years old to play this game.</p>
         `;
       } else {
         title.innerHTML = t('modal_privacy_title');
         body.innerHTML = `
-          <p><strong>1. Toplanan Veriler:</strong> Kayıt sırasında sağladığınız kullanıcı adı, e-posta adresi ve şifre (güvenli bir şekilde şifrelenmiş olarak) sunucumuzda saklanır.</p>
-          <p><strong>2. Verilerin Kullanımı:</strong> Bilgileriniz yalnızca oyuna giriş yapabilmeniz ve ilerlemenizi kaydedebilmeniz amacıyla kullanılır.</p>
-          <p><strong>3. Üçüncü Şahıslarla Paylaşım:</strong> SeaPirates, verilerinizi hiçbir koşul altında reklam şirketleri veya üçüncü şahıslarla paylaşmaz.</p>
-          <p><strong>4. Çerezler (Cookies) ve Depolama:</strong> Oturumunuzun açık kalması için tarayıcınızın LocalStorage / SessionStorage özellikleri kullanılır. "Beni Hatırla" seçeneği dışında şifreniz asla yerel olarak saklanmaz.</p>
+          <p><strong>1. Data Collected:</strong> The username, email address, and password (securely encrypted) you provide during registration are stored on our server.</p>
+          <p><strong>2. Use of Data:</strong> Your information is used solely to allow you to log in and save your game progress.</p>
+          <p><strong>3. Sharing with Third Parties:</strong> SeaPirates does not share your data with advertising companies or third parties under any circumstances.</p>
+          <p><strong>4. Data Storage:</strong> Session data is stored locally to keep you logged in. Your password is never stored in plain text.</p>
         `;
       }
       modal.style.display = 'flex';

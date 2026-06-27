@@ -49,91 +49,89 @@
     API.post('/player/ping').catch(() => {});
   }, 60000);
 
-  /* Android geri tuşu */
-  var _t = function(key, fallback) {
+  /* Android geri tuşu — savaş blokajı + ana sayfa çift basış */
+  var _tr = function(key, fallback) {
     return (typeof t === 'function' ? t(key) : null) || fallback;
   };
-  var spFightBackConfirm = null;
-  function showFightBackConfirm() {
-    if (!spFightBackConfirm) {
-      spFightBackConfirm = document.createElement('div');
-      spFightBackConfirm.id = 'sp-fight-back-confirm';
-      spFightBackConfirm.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;font-family:Inter,sans-serif;';
-      spFightBackConfirm.innerHTML = [
+  var backPressedOnce = false;
+
+  function showToast(msg) {
+    var el = document.getElementById('sp-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'sp-toast';
+      el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:99998;background:rgba(0,0,0,0.88);color:#f5e6c8;font-family:Inter,sans-serif;font-size:0.78rem;padding:12px 20px;border-radius:10px;border:1px solid rgba(200,150,42,0.3);text-align:center;max-width:320px;width:90%;pointer-events:none;transition:opacity 0.3s;opacity:0;';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._timeout);
+    el._timeout = setTimeout(function() { el.style.opacity = '0'; }, 2000);
+  }
+
+  function showExitConfirm() {
+    var exitConfirm = document.getElementById('sp-exit-confirm');
+    if (!exitConfirm) {
+      exitConfirm = document.createElement('div');
+      exitConfirm.id = 'sp-exit-confirm';
+      exitConfirm.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;font-family:Inter,sans-serif;';
+      exitConfirm.innerHTML = [
         '<div style="background:linear-gradient(145deg,#1a0e05,#2d1a08);border:2px solid #c8962a;border-radius:16px;padding:28px 22px;max-width:320px;width:90%;text-align:center;box-shadow:0 0 40px rgba(200,150,42,0.3);">',
-        '<div style="font-size:40px;margin-bottom:6px;">⚔️</div>',
-        '<div style="font-family:\'Cinzel\',serif;font-size:17px;color:#e74c3c;margin-bottom:8px;">' + _t('fight_back_title', 'SAVAŞ DEVAM EDİYOR') + '</div>',
-        '<div style="color:#b8956a;font-size:13px;margin-bottom:16px;">' + _t('fight_back_msg', 'Savaştan ayrılırsanız ilerlemeniz kaybolacak! Devam etmek istiyor musunuz?') + '</div>',
+        '<div style="font-size:40px;margin-bottom:6px;">🚪</div>',
+        '<div style="font-family:\'Cinzel\',serif;font-size:17px;color:#f0c040;margin-bottom:8px;">' + _tr('exit_confirm_title', 'UYGULAMADAN ÇIK') + '</div>',
+        '<div style="color:#b8956a;font-size:13px;margin-bottom:16px;">' + _tr('exit_confirm_msg', 'Çıkmak istediğinize emin misiniz?') + '</div>',
         '<div style="display:flex;gap:8px;">',
-        '<button id="sp-fight-back-cancel" style="flex:1;padding:10px;background:rgba(90,53,24,0.5);border:1px solid #5c3518;border-radius:10px;color:#b8956a;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">' + _t('exit_confirm_no', 'HAYIR') + '</button>',
-        '<button id="sp-fight-back-yes" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b2500,#c0392b);border:2px solid #e74c3c;border-radius:10px;color:#fff;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">' + _t('exit_confirm_yes', 'EVET') + '</button>',
+        '<button id="sp-exit-cancel" style="flex:1;padding:10px;background:rgba(90,53,24,0.5);border:1px solid #5c3518;border-radius:10px;color:#b8956a;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">' + _tr('exit_confirm_no', 'HAYIR') + '</button>',
+        '<button id="sp-exit-yes" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b2500,#c0392b);border:2px solid #e74c3c;border-radius:10px;color:#fff;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">' + _tr('exit_confirm_yes', 'EVET') + '</button>',
         '</div></div>'
       ].join('');
-      document.body.appendChild(spFightBackConfirm);
-      document.getElementById('sp-fight-back-cancel').addEventListener('click', function() {
-        spFightBackConfirm.style.display = 'none';
+      document.body.appendChild(exitConfirm);
+      document.getElementById('sp-exit-cancel').addEventListener('click', function() {
+        exitConfirm.style.display = 'none';
       });
-      document.getElementById('sp-fight-back-yes').addEventListener('click', function() {
-        spFightBackConfirm.style.display = 'none';
-        window.history.back();
+      document.getElementById('sp-exit-yes').addEventListener('click', function() {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+          window.Capacitor.Plugins.App.exitApp();
+        }
       });
-      spFightBackConfirm.addEventListener('click', function(e) {
-        if (e.target === spFightBackConfirm) spFightBackConfirm.style.display = 'none';
+      exitConfirm.addEventListener('click', function(e) {
+        if (e.target === exitConfirm) exitConfirm.style.display = 'none';
       });
     }
-    spFightBackConfirm.style.display = 'flex';
+    exitConfirm.style.display = 'flex';
   }
 
   if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
     try {
       window.Capacitor.Plugins.App.addListener('backButton', function(info) {
         var page = window.location.pathname.split('/').pop() || 'index.html';
-        /* Savaş sayfalarında geri tuşu uyarısı */
-        if ((page === 'fight.html' || page === 'fight-pvp.html') && info.canGoBack) {
+
+        // 1. SAVAŞ AKTİFSE — tamamen bloke et
+        if (page === 'fight.html' || page === 'fight-pvp.html') {
           var outcomeEl = document.getElementById('outcome');
           if (!outcomeEl || !outcomeEl.classList.contains('show')) {
-            showFightBackConfirm();
-            return;
+            return; // hiçbir şey yapma, navigasyon olmasın
           }
         }
+
+        // 2. ANA SAYFA — çift basış
+        if (page === 'home.html' || page === 'index.html') {
+          if (backPressedOnce) {
+            backPressedOnce = false;
+            showExitConfirm();
+          } else {
+            backPressedOnce = true;
+            setTimeout(function() { backPressedOnce = false; }, 2000);
+            showToast(_tr('back_double_tap', 'Çıkış yapmak için ard arda iki defa deneyin'));
+          }
+          return;
+        }
+
+        // 3. DİĞER SAYFALAR
         if (info.canGoBack) {
           window.history.back();
-        } else if (page !== 'home.html' && page !== 'index.html') {
-          window.goTo('home.html');
         } else {
-          /* Ana sayfada çıkış onayı göster (çoklu dil) */
-          function _tr(key, fallback) {
-            return (typeof t === 'function' ? t(key) : null) || fallback;
-          }
-          var exitConfirm = document.getElementById('sp-exit-confirm');
-          if (!exitConfirm) {
-            exitConfirm = document.createElement('div');
-            exitConfirm.id = 'sp-exit-confirm';
-            exitConfirm.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;font-family:Inter,sans-serif;';
-            exitConfirm.innerHTML = [
-              '<div style="background:linear-gradient(145deg,#1a0e05,#2d1a08);border:2px solid #c8962a;border-radius:16px;padding:28px 22px;max-width:320px;width:90%;text-align:center;box-shadow:0 0 40px rgba(200,150,42,0.3);">',
-              '<div style="font-size:40px;margin-bottom:6px;">🚪</div>',
-              '<div style="font-family:\'Cinzel\',serif;font-size:17px;color:#f0c040;margin-bottom:8px;">' + _tr('exit_confirm_title', 'UYGULAMADAN ÇIK') + '</div>',
-              '<div style="color:#b8956a;font-size:13px;margin-bottom:16px;">' + _tr('exit_confirm_msg', 'Çıkmak istediğinize emin misiniz?') + '</div>',
-              '<div style="display:flex;gap:8px;">',
-              '<button id="sp-exit-cancel" style="flex:1;padding:10px;background:rgba(90,53,24,0.5);border:1px solid #5c3518;border-radius:10px;color:#b8956a;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">' + _tr('exit_confirm_no', 'HAYIR') + '</button>',
-              '<button id="sp-exit-yes" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b2500,#c0392b);border:2px solid #e74c3c;border-radius:10px;color:#fff;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">' + _tr('exit_confirm_yes', 'EVET') + '</button>',
-              '</div></div>'
-            ].join('');
-            document.body.appendChild(exitConfirm);
-            document.getElementById('sp-exit-cancel').addEventListener('click', function() {
-              exitConfirm.style.display = 'none';
-            });
-            document.getElementById('sp-exit-yes').addEventListener('click', function() {
-              if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
-                window.Capacitor.Plugins.App.exitApp();
-              }
-            });
-            exitConfirm.addEventListener('click', function(e) {
-              if (e.target === exitConfirm) exitConfirm.style.display = 'none';
-            });
-          }
-          exitConfirm.style.display = 'flex';
+          window.goTo('home.html');
         }
       });
     } catch(e) {

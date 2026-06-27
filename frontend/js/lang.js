@@ -305,6 +305,7 @@ const I18N_DATA = {
     exit_confirm_no: 'HAYIR',
     fight_back_title: 'SAVAŞ DEVAM EDİYOR',
     fight_back_msg: 'Savaştan ayrılırsanız ilerlemeniz kaybolacak! Devam etmek istiyor musunuz?',
+    back_double_tap: 'Çıkış yapmak için ard arda iki defa deneyin',
 
     modal_terms_title: '⚓ KULLANIM ŞARTLARI',
     modal_privacy_title: '🛡️ GİZLİLİK POLİTİKASI',
@@ -988,6 +989,7 @@ const I18N_DATA = {
     exit_confirm_no: 'NO',
     fight_back_title: 'FIGHT IN PROGRESS',
     fight_back_msg: 'If you leave now, your progress will be lost! Are you sure?',
+    back_double_tap: 'Press back again to exit',
 
     modal_terms_title: '⚓ TERMS OF SERVICE',
     modal_privacy_title: '🛡️ PRIVACY POLICY',
@@ -1647,6 +1649,7 @@ const I18N_DATA = {
     exit_confirm_no: 'NEIN',
     fight_back_title: 'KAMPF LÄUFT',
     fight_back_msg: 'Wenn Sie jetzt gehen, geht Ihr Fortschritt verloren! Sind Sie sicher?',
+    back_double_tap: 'Zum Beenden zweimal zurück drücken',
 
     modal_terms_title: '⚓ NUTZUNGSBEDINGUNGEN',
     modal_privacy_title: '🛡️ DATENSCHUTZ',
@@ -2247,6 +2250,7 @@ const I18N_DATA = {
     exit_confirm_no: 'NÃO',
     fight_back_title: 'COMBATE EM ANDAMENTO',
     fight_back_msg: 'Se você sair agora, seu progresso será perdido! Tem certeza?',
+    back_double_tap: 'Pressione voltar novamente para sair',
 
     modal_terms_title: '⚓ TERMOS DE USO',
     modal_privacy_title: '🛡️ POLÍTICA DE PRIVACIDADE',
@@ -2848,6 +2852,7 @@ const I18N_DATA = {
     exit_confirm_no: 'NO',
     fight_back_title: 'COMBATE EN CURSO',
     fight_back_msg: '¡Si sales ahora, perderás tu progreso! ¿Estás seguro?',
+    back_double_tap: 'Presione atrás nuevamente para salir',
 
     modal_terms_title: '⚓ TÉRMINOS DE USO',
     modal_privacy_title: '🛡️ POLÍTICA DE PRIVACIDAD',
@@ -3449,6 +3454,7 @@ const I18N_DATA = {
     exit_confirm_no: 'NIE',
     fight_back_title: 'WALKA TRWA',
     fight_back_msg: 'Jeśli teraz wyjdziesz, stracisz postępy! Czy na pewno?',
+    back_double_tap: 'Naciśnij ponownie wstecz, aby wyjść',
 
     modal_terms_title: '⚓ WARUNKI KORZYSTANIA',
     modal_privacy_title: '🛡️ POLITYKA PRYWATNOŚCI',
