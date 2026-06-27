@@ -49,17 +49,6 @@
     API.post('/player/ping').catch(() => {});
   }, 60000);
 
-  // Sayfa/tab kapanırken logout çağır (fetch keepalive destekler)
-  window.addEventListener('beforeunload', function() {
-    if (window.Auth && Auth.isLoggedIn()) {
-      var t = Auth.getToken();
-      if (t) {
-        var url = (window.__API_URL__ || window.location.origin) + '/api/auth/logout';
-        fetch(url, { method: 'POST', headers: { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' }, body: '{}', keepalive: true });
-      }
-    }
-  });
-
   /* Android geri tuşu — savaş blokajı + ana sayfa çift basış */
   var _tr = function(key, fallback) {
     return (typeof t === 'function' ? t(key) : null) || fallback;
