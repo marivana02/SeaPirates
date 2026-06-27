@@ -82,9 +82,9 @@ async function seedCannons(client) {
 async function seedAmmo(client) {
     console.log('  → Gülleler ekleniyor...');
     const ammo = [
-        [1, 'Misket Gülle',   30,  0.00, 100, 3000, 'gold'],
-        [2, 'Oyuk Gülle',     75,  0.00, 100, 6000, 'gold'],
-        [3, 'Patlayan Gülle', 130, 1.00, 100, 280,  'pearl'],
+        [1, 'Misket Gülle',   20,  0.00, 100, 3000, 'gold'],
+        [2, 'Oyuk Gülle',     40,  0.00, 100, 6000, 'gold'],
+        [3, 'Patlayan Gülle', 100, 1.00, 100, 280,  'pearl'],
     ];
     for (const [id, name, damage_bonus, elp_per_shot, pack_size, price, currency] of ammo) {
         await client.query(
