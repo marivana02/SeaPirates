@@ -18,7 +18,7 @@ const API = (() => {
   }
 
   function getHeaders(extra = {}) {
-    const headers = { 'Content-Type': 'application/json', 'X-Device-Id': generateDeviceId(), ...extra };
+    const headers = { 'Content-Type': 'application/json', 'X-Device-Id': generateDeviceId(), 'X-Requested-With': 'XMLHttpRequest', ...extra };
     const token = getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
     return headers;

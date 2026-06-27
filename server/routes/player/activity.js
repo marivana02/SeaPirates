@@ -6,8 +6,18 @@ const authMiddleware = require('../../middleware/auth');
 router.post('/ping', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   try {
+    // last_seen her ping'te güncellenir, playtime sadece 30sn geçmişse artar
     const result = await pool.query(
-      `UPDATE players SET playtime = playtime + 1 WHERE id = $1 RETURNING playtime`,
+      `UPDATE players SET
+        last_seen = NOW(),
+        is_online = true,
+        playtime = CASE
+          WHEN last_seen IS NULL OR EXTRACT(EPOCH FROM (NOW() - last_seen)) >= 30
+          THEN playtime + 1
+          ELSE playtime
+        END
+       WHERE id = $1
+       RETURNING playtime`,
       [playerId]
     );
     if (result.rows.length === 0) {

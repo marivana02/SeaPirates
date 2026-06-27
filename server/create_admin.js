@@ -2,9 +2,9 @@ const bcrypt = require('bcryptjs');
 const pool = require('./config/db');
 
 async function createAdmin() {
-  const username = 'admin';
-  const password = 'admin123';
-  const email = 'admin@test.com';
+  const username = process.env.ADMIN_USERNAME || 'admin';
+  const password = process.env.ADMIN_PASSWORD || 'admin123';
+  const email = process.env.ADMIN_EMAIL || 'admin@test.com';
 
   const exists = await pool.query('SELECT id FROM players WHERE username = $1 OR email = $2', [username, email]);
   if (exists.rows.length > 0) {

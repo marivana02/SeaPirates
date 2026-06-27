@@ -41,6 +41,8 @@ process.on('uncaughtException', (err) => {
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -57,11 +59,21 @@ app.use(helmet({
   strictTransportSecurity: false,
 }));
 app.use(cors({
-  origin: true,
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 }));
+
+// CSRF koruması: state değiştiren POST isteklerinde X-Requested-With zorunlu
+app.use('/api', (req, res, next) => {
+  if (req.method === 'POST' && !req.path.startsWith('/auth/')) {
+    if (req.headers['x-requested-with'] !== 'XMLHttpRequest') {
+      return res.status(403).json({ error: 'CSRF protection: missing X-Requested-With header' });
+    }
+  }
+  next();
+});
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, '../frontend'), {
   maxAge: 0,
@@ -75,7 +87,7 @@ app.use(express.static(path.join(__dirname, '../frontend'), {
   }
 }));
 
-const { standardRateLimiter } = require('./middleware/rateLimiter');
+const { standardRateLimiter, createApiRateLimiter } = require('./middleware/rateLimiter');
 
 // Rate limit only non-combat routes (combat needs fast requests)
 app.use('/api/auth', standardRateLimiter, authRoutes);
@@ -92,8 +104,9 @@ app.use('/api/admin', standardRateLimiter, adminRoutes);
 app.use('/api/vip', standardRateLimiter, vipRoutes);
 app.use('/api/starter', standardRateLimiter, starterRoutes);
 
-// Combat routes - no rate limiter (frequent requests expected)
-app.use('/api/combat', combatRoutes);
+// Combat routes - lightweight rate limiter (frequent but capped)
+const combatLimiter = createApiRateLimiter(120, 60000, 'combat'); // 120 req/min
+app.use('/api/combat', combatLimiter, combatRoutes);
 
 // Global error handler (must be last)
 app.use(errorHandler);
@@ -109,14 +122,22 @@ const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
   const certDir = path.join(__dirname, 'certs');
   if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
 
-  // HTTP sunucu (APK için) — her zaman çalışır
-  const httpServer = http.createServer(app);
-  initSocketIO(httpServer);
-  httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`HTTP sunucu ${PORT} portunda çalışıyor`);
-    startBotTicks();
-    startTiamatBotTicks();
-  });
+  const servers = [];
+
+  // HTTP sunucu (APK için) — development'ta her zaman, production'da disable
+  const enableHttp = process.env.DISABLE_HTTP !== 'true';
+  if (enableHttp) {
+    const httpServer = http.createServer(app);
+    initSocketIO(httpServer);
+    httpServer.listen(PORT, '0.0.0.0', () => {
+      console.log(`HTTP sunucu ${PORT} portunda çalışıyor`);
+      startBotTicks();
+      startTiamatBotTicks();
+    });
+    servers.push(httpServer);
+  } else {
+    console.log('HTTP sunucu devre dışı (DISABLE_HTTP=true)');
+  }
 
   // HTTPS sunucu (tarayıcı için) — sertifika varsa çalışır
   if (await ensureCert(certDir)) {
@@ -129,9 +150,8 @@ const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
     httpsServer.listen(HTTPS_PORT, '0.0.0.0', () => {
       console.log(`HTTPS sunucu ${HTTPS_PORT} portunda çalışıyor`);
     });
+    servers.push(httpsServer);
   }
-
-  const servers = [httpServer];
   const shutdown = async (signal) => {
     console.log(`\n${signal} alındı, sunucu kapatılıyor...`);
     servers.forEach(s => s.close());

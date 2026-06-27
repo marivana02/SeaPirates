@@ -56,24 +56,6 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
   const lastClick = history.length > 0 ? history[history.length - 1].timestamp : 0;
 
   try {
-    const pRes = await pool.query(
-      'SELECT glitter_hour, glitter_hour_count, gold, pearl, xp, level FROM players WHERE id = $1',
-      [playerId]
-    );
-    if (pRes.rows.length === 0) {
-      return res.status(404).json({ error: 'err_player_not_found' });
-    }
-
-    let { glitter_hour, glitter_hour_count } = pRes.rows[0];
-    if (glitter_hour < currentHour) {
-      glitter_hour_count = 0;
-      glitter_hour = currentHour;
-    }
-    glitter_hour_count++;
-    if (glitter_hour_count > GLITTER_CONFIG.HOURLY_LIMIT) {
-      return res.status(429).json({ error: 'err_glitter_hourly_limit', remaining: 0 });
-    }
-
     const roll = Math.floor(Math.random() * 100);
 
     let xpReward = 0;
@@ -95,25 +77,40 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
       ammoReward = { type: 3, name: 'Explosive Shot', qty };
     }
 
-    const remaining = GLITTER_CONFIG.HOURLY_LIMIT - glitter_hour_count;
-
     const glitterClient = await pool.connect();
     try {
       await glitterClient.query('BEGIN');
 
-      await glitterClient.query(
+      // Atomic hourly limit check: yalnızca limit aşılmamışsa güncelle
+      const upRes = await glitterClient.query(
         `UPDATE players 
          SET gold = gold + $1, 
              pearl = pearl + $2, 
              xp = xp + $3,
-             glitter_hour = $4,
-             glitter_hour_count = $5,
+             glitter_hour = CASE WHEN glitter_hour < $4 THEN $4 ELSE glitter_hour END,
+             glitter_hour_count = CASE WHEN glitter_hour < $4 THEN 1 ELSE glitter_hour_count + 1 END,
              quest_glitters = CASE WHEN active_quest_id IS NOT NULL THEN COALESCE(quest_glitters, 0) + 1 ELSE COALESCE(quest_glitters, 0) END,
              quest_glitters2 = CASE WHEN active_quest_id2 IS NOT NULL THEN COALESCE(quest_glitters2, 0) + 1 ELSE COALESCE(quest_glitters2, 0) END
-         WHERE id = $6`,
-        [goldReward, pearlReward, xpReward, glitter_hour, glitter_hour_count, playerId]
+         WHERE id = $5
+         AND (glitter_hour < $4 OR glitter_hour_count < $6)`,
+        [goldReward, pearlReward, xpReward, currentHour, playerId, GLITTER_CONFIG.HOURLY_LIMIT]
       );
 
+      if (upRes.rowCount === 0) {
+        await glitterClient.query('ROLLBACK');
+        return res.status(429).json({ error: 'err_glitter_hourly_limit', remaining: 0 });
+      }
+
+      // Ammo ödülünü de transaction içinde ver
+      if (ammoReward) {
+        await glitterClient.query(
+          `INSERT INTO player_ammo (player_id, ammo_type, quantity) VALUES ($1, $2, $3)
+           ON CONFLICT (player_id, ammo_type) DO UPDATE SET quantity = player_ammo.quantity + $3`,
+          [playerId, ammoReward.type, ammoReward.qty]
+        );
+      }
+
+      // Quest güncellemeleri transaction içinde
       const qRes = await glitterClient.query(
         'SELECT active_quest_id, active_quest_id2, quest_progress, quest_progress2 FROM players WHERE id = $1',
         [playerId]
@@ -166,19 +163,17 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
     } catch (txErr) {
       await glitterClient.query('ROLLBACK');
       console.error('Glitter transaction error:', txErr);
+      throw txErr;
     } finally {
       glitterClient.release();
     }
 
-    if (ammoReward) {
-      await upsertAmmo(pool, playerId, ammoReward.type, ammoReward.qty);
-    }
-
     const updatedRes = await pool.query(
-      'SELECT gold, pearl, xp, level FROM players WHERE id = $1',
+      'SELECT gold, pearl, xp, level, glitter_hour_count FROM players WHERE id = $1',
       [playerId]
     );
     const p = updatedRes.rows[0];
+    const remaining = Math.max(0, GLITTER_CONFIG.HOURLY_LIMIT - parseInt(p.glitter_hour_count || 0));
 
     const { leveledUp, newLevel } = await checkAndApplyLevelUp(pool, playerId, p.xp, p.level);
     if (leveledUp) {

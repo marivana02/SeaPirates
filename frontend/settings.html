@@ -685,7 +685,10 @@
   });
 
   // ═══ Logout ═══
-  btnLogout.addEventListener('click', () => {
+  btnLogout.addEventListener('click', async () => {
+    try {
+      await API.post('/auth/logout');
+    } catch (e) { /* ignore */ }
     localStorage.removeItem('sp_token');
     localStorage.removeItem('sp_player');
     localStorage.removeItem('sp_remember_me');

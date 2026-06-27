@@ -30,7 +30,7 @@ router.post('/buy', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Invalid item ID' });
   }
 
-  if (isNaN(qty) || qty < 1 || qty > 999999) {
+  if (isNaN(qty) || qty < 1 || qty > 9999) {
     return res.status(400).json({ error: 'Invalid quantity' });
   }
 

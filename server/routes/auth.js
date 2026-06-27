@@ -3,9 +3,11 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const DUMMY_HASH = bcrypt.hashSync('dummy_timing_attack', 10);
 const response = require('../helpers/response');
 const { validate, VALIDATORS } = require('../middleware/validate');
 const { asyncHandler } = require('../middleware/errorHandler');
+const authMiddleware = require('../middleware/auth');
 const { 
   loginRateLimiter, 
   recordFailedLogin, 
@@ -77,7 +79,7 @@ router.post('/register', registerRateLimiter, validate(registerRules), asyncHand
   const token = jwt.sign(
     { id: player.id, username: player.username, isAdmin: !!player.is_admin, session_counter: 0 },
     process.env.JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '24h' }
   );
 
   logAction(player.id, 'register', { username }, req.ip);
@@ -87,10 +89,10 @@ router.post('/register', registerRateLimiter, validate(registerRules), asyncHand
 router.post('/login', loginRateLimiter, validate(loginRules), asyncHandler(async (req, res) => {
   const { username, password, deviceId } = req.body;
   const deviceIdHeader = deviceId || req.headers['x-device-id'];
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const ip = req.ip;
 
   const result = await pool.query(
-    `SELECT id, username, display_name, email, gold, pearl, xp, level, elite_points, ship_level,
+    `SELECT id, username, display_name, gold, pearl, xp, level, elite_points, ship_level,
             hp, max_hp, vip_until, is_admin, is_banned, ban_reason, banned_at, ban_expires_at,
             password, current_map_level, has_elite_ship, active_design, created_at,
             pvp_points, dmg_pve, dmg_pvp, kill_npc, kill_pvp, dmg_amiral
@@ -98,20 +100,18 @@ router.post('/login', loginRateLimiter, validate(loginRules), asyncHandler(async
     [username]
   );
 
-  if (result.rows.length > 0 && (result.rows[0].display_name === null || result.rows[0].display_name === undefined)) {
-    await pool.query('UPDATE players SET display_name = username WHERE id = $1', [result.rows[0].id]);
-    result.rows[0].display_name = result.rows[0].username;
+  // Timing attack önlemi: her zaman aynı sürede döner
+  let player;
+  if (result.rows.length > 0) {
+    player = result.rows[0];
+    if (!player.display_name) {
+      await pool.query('UPDATE players SET display_name = username WHERE id = $1', [player.id]);
+      player.display_name = player.username;
+    }
   }
-
-  if (result.rows.length === 0) {
-    recordFailedLogin(ip);
-    return response.badRequest(res, 'User not found or incorrect password');
-  }
-
-  const player = result.rows[0];
 
   // Ban kontrolü
-  if (player.is_banned) {
+  if (player && player.is_banned) {
     if (player.ban_expires_at && new Date(player.ban_expires_at) < new Date()) {
       await pool.query(
         'UPDATE players SET is_banned = false, ban_reason = NULL, banned_at = NULL, ban_expires_at = NULL WHERE id = $1',
@@ -129,8 +129,8 @@ router.post('/login', loginRateLimiter, validate(loginRules), asyncHandler(async
     }
   }
 
-  const validPassword = await bcrypt.compare(password, player.password);
-  if (!validPassword) {
+  const validPassword = player ? await bcrypt.compare(password, player.password) : await bcrypt.compare(password, DUMMY_HASH);
+  if (!player || !validPassword) {
     recordFailedLogin(ip);
     return response.badRequest(res, 'User not found or incorrect password');
   }
@@ -153,12 +153,24 @@ router.post('/login', loginRateLimiter, validate(loginRules), asyncHandler(async
   const token = jwt.sign(
     { id: player.id, username: player.username, isAdmin: !!player.is_admin, session_counter },
     process.env.JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '24h' }
   );
 
   logAction(player.id, 'login', {}, ip);
   const { password: _, device_id: _d, banned_devices: _bd, ...playerData } = player;
   response.success(res, { token, player: playerData });
+}));
+
+// Logout: session_counter artır, eski token'ları geçersiz yap
+router.post('/logout', authMiddleware, asyncHandler(async (req, res) => {
+  try {
+    await pool.query('UPDATE players SET session_counter = COALESCE(session_counter, 0) + 1 WHERE id = $1', [req.player.id]);
+    logAction(req.player.id, 'logout', {}, req.ip);
+    response.success(res, { message: 'Logged out successfully' });
+  } catch (err) {
+    console.error('Logout error:', err);
+    response.error(res, 'Server error', 500);
+  }
 }));
 
 module.exports = router;

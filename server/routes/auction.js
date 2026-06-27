@@ -153,25 +153,27 @@ router.get('/', authMiddleware, async (req, res) => {
     const pRes = await pool.query('SELECT has_elite_ship FROM players WHERE id = $1', [req.player.id]);
     const hasEliteShip = pRes.rows.length > 0 && pRes.rows[0].has_elite_ship === true;
     
-    // Her kalemin en yüksek teklif verenin kullanıcı adını çekelim
+    // Tek sorguda tüm teklif verenlerin kullanıcı adlarını çek
+    const bidderIds = [...new Set(list.map(i => i.highest_bidder_id).filter(Boolean))];
+    const bidderMap = {};
+    if (bidderIds.length > 0) {
+      const uRes = await pool.query(
+        `SELECT id, COALESCE(display_name, username) AS name FROM players WHERE id = ANY($1)`,
+        [bidderIds]
+      );
+      uRes.rows.forEach(r => { bidderMap[r.id] = r.name; });
+    }
+    
     const formattedList = [];
     for (const item of list) {
       // Elit gemisi olan oyuncuya gemi1 görünmesin
       if (hasEliteShip && item.item_type === 'gemi1') continue;
       
-      let bidderUsername = null;
-      if (item.highest_bidder_id) {
-        const uRes = await pool.query('SELECT username, display_name FROM players WHERE id = $1', [item.highest_bidder_id]);
-        if (uRes.rows.length > 0) {
-          bidderUsername = uRes.rows[0].display_name || uRes.rows[0].username;
-        }
-      }
-      
       formattedList.push({
         id: item.id,
         key: item.item_type,
         en_yuksek: item.current_price,
-        teklif_eden: bidderUsername,
+        teklif_eden: bidderMap[item.highest_bidder_id] || null,
         expires_at: item.expires_at
       });
     }

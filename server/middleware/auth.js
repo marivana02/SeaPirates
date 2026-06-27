@@ -46,15 +46,13 @@ module.exports = async (req, res, next) => {
                 }
             }
 
-            if (decoded.session_counter !== undefined) {
-                const scRes = await pool.query(
-                    'SELECT session_counter FROM players WHERE id = $1',
-                    [decoded.id]
-                ).catch(() => ({ rows: [{ session_counter: null }] }));
-                const dbCounter = scRes.rows[0]?.session_counter;
-                if (dbCounter !== null && dbCounter !== undefined && decoded.session_counter !== dbCounter) {
-                    return res.status(401).json({ error: 'err_session_expired' });
-                }
+            const scRes = await pool.query(
+                'SELECT session_counter FROM players WHERE id = $1',
+                [decoded.id]
+            ).catch(() => ({ rows: [{ session_counter: null }] }));
+            const dbCounter = scRes.rows[0]?.session_counter;
+            if (dbCounter !== null && dbCounter !== undefined && decoded.session_counter !== undefined && decoded.session_counter !== dbCounter) {
+                return res.status(401).json({ error: 'err_session_expired' });
             }
         } catch (dbErr) {
             console.error('Auth check error:', dbErr.message);

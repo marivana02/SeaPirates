@@ -228,6 +228,12 @@ router.post('/attack', authMiddleware, async (req, res) => {
     const playerDbRes = await pool.query('SELECT username, display_name, ship_level, max_hp, hp, level, pvp_target_id FROM players WHERE id = $1', [playerId]);
     const pDbInfo = playerDbRes.rows[0];
 
+    // Oyuncu canı kontrolü — ölüyse saldırıya izin verme
+    if (parseInt(pDbInfo.hp) <= 0) {
+      releaseAttackLock(playerId);
+      return res.status(400).json({ error: 'Your ship is sunk! You cannot attack.' });
+    }
+
     // Paylaşımlı boss (Admiral/Tiamat) için can kontrolü — kaynak harcamadan önce
     if (fight.isAdmiral) {
       const aliveRes = await pool.query(
@@ -424,7 +430,7 @@ router.get('/tiamat-status', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/boss-rewards', async (req, res) => {
+router.get('/boss-rewards', authMiddleware, async (req, res) => {
   try {
     res.json(await getWeeklyBossRewards());
   } catch (err) {

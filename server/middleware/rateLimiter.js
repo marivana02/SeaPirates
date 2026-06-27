@@ -8,7 +8,7 @@ const MAX_API_ENTRIES = 10000;
 
 // General login rate limiter and brute force protection
 const loginRateLimiter = (req, res, next) => {
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const ip = req.ip;
   const now = Date.now();
 
   if (loginAttempts.has(ip)) {
@@ -60,7 +60,7 @@ const recordSuccessfulLogin = (ip) => {
 
 // Registration rate limiter (max 5 accounts per hour per IP)
 const registerRateLimiter = (req, res, next) => {
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const ip = req.ip;
   const now = Date.now();
   const ONE_HOUR = 3600000;
 
@@ -92,7 +92,7 @@ const apiCalls = new Map();
 
 function createApiRateLimiter(maxRequests, windowMs, name = 'api') {
   return (req, res, next) => {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const ip = req.ip;
     const now = Date.now();
     const key = `${name}:${ip}`;
 

@@ -12,7 +12,7 @@ const QUESTS = require('../../config/questsData');
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, username, display_name, email, gold, pearl, xp, level, 
+      `SELECT id, username, display_name, gold, pearl, xp, level, 
               elite_points, ship_level, has_elite_ship, hp, max_hp, vip_until, created_at, last_tower_attack, tower_level,
               pvp_points, pvp_target_id, pvp_changes_left, last_pvp_reset, active_design,
               current_map_level, visual_ship_level

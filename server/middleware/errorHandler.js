@@ -15,7 +15,7 @@ function errorHandler(err, req, res, _next) {
   }
 
   if (err.code && err.code.startsWith('235')) {
-    return response.badRequest(res, 'Database constraint violation');
+    return response.badRequest(res, 'Server error');
   }
 
   response.error(res, 'Server error', 500);

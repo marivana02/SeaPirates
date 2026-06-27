@@ -106,56 +106,70 @@ router.post('/daily-reward/claim', authMiddleware, async (req, res) => {
     let items = [];
     let rewardsList = [];
 
-    if (type === 'vip') {
-      if (!isVip) {
-        return res.status(400).json({ error: 'err_daily_vip_not_active' });
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      if (type === 'vip') {
+        if (!isVip) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ error: 'err_daily_vip_not_active' });
+        }
+        const upRes = await client.query(
+          `UPDATE players SET claimed_vip_days = array_append(claimed_vip_days, $1) WHERE id = $2 AND NOT ($1 = ANY(claimed_vip_days))`,
+          [today, playerId]
+        );
+        if (upRes.rowCount === 0) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ error: 'err_daily_vip_already_claimed' });
+        }
+        const r = VIP_DAILY_REWARDS[rewardDay];
+        if (!r) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'err_daily_no_reward' }); }
+        if (r.gold) goldReward += r.gold;
+        if (r.pearl) pearlReward += r.pearl;
+        if (r.ammo) ammos.push(r.ammo);
+        if (r.items) items.push(...r.items);
+        rewardsList.push(r.name);
+      } else {
+        const upRes = await client.query(
+          `UPDATE players SET claimed_daily_days = array_append(claimed_daily_days, $1) WHERE id = $2 AND NOT ($1 = ANY(claimed_daily_days))`,
+          [today, playerId]
+        );
+        if (upRes.rowCount === 0) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ error: 'err_daily_already_claimed' });
+        }
+        const r = DAILY_REWARDS[rewardDay];
+        if (!r) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'err_daily_no_reward' }); }
+        if (r.gold) goldReward += r.gold;
+        if (r.pearl) pearlReward += r.pearl;
+        if (r.ammo) ammos.push(r.ammo);
+        if (r.items) items.push(...r.items);
+        rewardsList.push(r.name);
       }
-      if (claimedVip.includes(today)) {
-        return res.status(400).json({ error: 'err_daily_vip_already_claimed' });
+
+      if (goldReward > 0 || pearlReward > 0) {
+        await client.query(
+          'UPDATE players SET gold = gold + $1, pearl = pearl + $2 WHERE id = $3',
+          [goldReward, pearlReward, playerId]
+        );
       }
-      const r = VIP_DAILY_REWARDS[rewardDay];
-      if (!r) return res.status(400).json({ error: 'err_daily_no_reward' });
-      if (r.gold) goldReward += r.gold;
-      if (r.pearl) pearlReward += r.pearl;
-      if (r.ammo) ammos.push(r.ammo);
-      if (r.items) items.push(...r.items);
-      rewardsList.push(r.name);
 
-      await pool.query(
-        'UPDATE players SET claimed_vip_days = array_append(claimed_vip_days, $1) WHERE id = $2',
-        [today, playerId]
-      );
-    } else {
-      if (claimedNormal.includes(today)) {
-        return res.status(400).json({ error: 'err_daily_already_claimed' });
+      for (const am of ammos) {
+        await upsertAmmo(client, playerId, am.type, am.qty);
       }
-      const r = DAILY_REWARDS[rewardDay];
-      if (!r) return res.status(400).json({ error: 'err_daily_no_reward' });
-      if (r.gold) goldReward += r.gold;
-      if (r.pearl) pearlReward += r.pearl;
-      if (r.ammo) ammos.push(r.ammo);
-      if (r.items) items.push(...r.items);
-      rewardsList.push(r.name);
 
-      await pool.query(
-        'UPDATE players SET claimed_daily_days = array_append(claimed_daily_days, $1) WHERE id = $2',
-        [today, playerId]
-      );
-    }
+      for (const it of items) {
+        await upsertItem(client, playerId, it.type, it.qty);
+      }
 
-    if (goldReward > 0 || pearlReward > 0) {
-      await pool.query(
-        'UPDATE players SET gold = gold + $1, pearl = pearl + $2 WHERE id = $3',
-        [goldReward, pearlReward, playerId]
-      );
-    }
-
-    for (const am of ammos) {
-      await upsertAmmo(pool, playerId, am.type, am.qty);
-    }
-
-    for (const it of items) {
-      await upsertItem(pool, playerId, it.type, it.qty);
+      await client.query('COMMIT');
+    } catch (txErr) {
+      await client.query('ROLLBACK');
+      console.error('Daily reward transaction error:', txErr);
+      return res.status(500).json({ error: 'Server error' });
+    } finally {
+      client.release();
     }
 
     res.json({

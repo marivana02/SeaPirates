@@ -17,7 +17,7 @@ const API = (() => {
   const BASE = (window.__API_URL__ || window.location.origin) + '/api';
   function getToken() { return localStorage.getItem('sp_token'); }
   function getHeaders(extra = {}) {
-    const headers = { 'Content-Type': 'application/json', ...extra };
+    const headers = { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', ...extra };
     const token = getToken();
     if (token) headers['Authorization'] = 'Bearer ' + token;
     return headers;

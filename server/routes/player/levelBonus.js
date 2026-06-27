@@ -59,56 +59,74 @@ router.post('/level-bonus/claim', authMiddleware, validate(levelClaimRules), asy
     return response.badRequest(res, `You must reach level ${lvlNum} to claim this reward`);
   }
 
-  if (type === 'vip') {
-    if (!isVip) {
-      return response.badRequest(res, 'VIP membership must be active to claim VIP level rewards');
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    if (type === 'vip') {
+      if (!isVip) {
+        await client.query('ROLLBACK');
+        return response.badRequest(res, 'VIP membership must be active to claim VIP level rewards');
+      }
+      const upRes = await client.query(
+        `UPDATE players SET claimed_vip_levels = array_append(claimed_vip_levels, $1) WHERE id = $2 AND NOT ($1 = ANY(claimed_vip_levels))`,
+        [lvlNum, playerId]
+      );
+      if (upRes.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return response.badRequest(res, 'You have already claimed this VIP level reward');
+      }
+    } else {
+      const upRes = await client.query(
+        `UPDATE players SET claimed_normal_levels = array_append(claimed_normal_levels, $1) WHERE id = $2 AND NOT ($1 = ANY(claimed_normal_levels))`,
+        [lvlNum, playerId]
+      );
+      if (upRes.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return response.badRequest(res, 'You have already claimed this normal level reward');
+      }
     }
-    if (claimedVip.includes(lvlNum)) {
-      return response.badRequest(res, 'You have already claimed this VIP level reward');
+
+    const normalRewards = LEVEL_REWARDS;
+    const vipRewards = VIP_LEVEL_REWARDS;
+
+    const reward = type === 'vip' ? vipRewards[lvlNum] : normalRewards[lvlNum];
+    if (!reward) {
+      await client.query('ROLLBACK');
+      return response.badRequest(res, 'Invalid level reward request');
     }
-  } else {
-    if (claimedNormal.includes(lvlNum)) {
-      return response.badRequest(res, 'You have already claimed this normal level reward');
+
+    let goldReward = reward.gold || 0;
+    let pearlReward = reward.pearl || 0;
+    let ammos = [];
+    let items = [];
+    if (reward.ammo) ammos.push(reward.ammo);
+    if (reward.items) items.push(...reward.items);
+
+    if (goldReward > 0 || pearlReward > 0) {
+      await client.query(
+        'UPDATE players SET gold = gold + $1, pearl = pearl + $2 WHERE id = $3',
+        [goldReward, pearlReward, playerId]
+      );
     }
+
+    for (const am of ammos) {
+      await upsertAmmo(client, playerId, am.type, am.qty);
+    }
+
+    for (const it of items) {
+      await upsertItem(client, playerId, it.type, it.qty);
+    }
+
+    await client.query('COMMIT');
+    response.success(res, { success: true, message: `${reward.name} has been added to your account!`, reward });
+  } catch (txErr) {
+    await client.query('ROLLBACK');
+    console.error('Level bonus transaction error:', txErr);
+    response.error(res, 'Server error', 500);
+  } finally {
+    client.release();
   }
-
-  const normalRewards = LEVEL_REWARDS;
-  const vipRewards = VIP_LEVEL_REWARDS;
-
-  const reward = type === 'vip' ? vipRewards[lvlNum] : normalRewards[lvlNum];
-  if (!reward) {
-    return response.badRequest(res, 'Invalid level reward request');
-  }
-
-  let goldReward = reward.gold || 0;
-  let pearlReward = reward.pearl || 0;
-  let ammos = [];
-  let items = [];
-  if (reward.ammo) ammos.push(reward.ammo);
-  if (reward.items) items.push(...reward.items);
-
-  if (goldReward > 0 || pearlReward > 0) {
-    await pool.query(
-      'UPDATE players SET gold = gold + $1, pearl = pearl + $2 WHERE id = $3',
-      [goldReward, pearlReward, playerId]
-    );
-  }
-
-  for (const am of ammos) {
-    await upsertAmmo(pool, playerId, am.type, am.qty);
-  }
-
-  for (const it of items) {
-    await upsertItem(pool, playerId, it.type, it.qty);
-  }
-
-  if (type === 'vip') {
-    await pool.query('UPDATE players SET claimed_vip_levels = array_append(claimed_vip_levels, $1) WHERE id = $2', [lvlNum, playerId]);
-  } else {
-    await pool.query('UPDATE players SET claimed_normal_levels = array_append(claimed_normal_levels, $1) WHERE id = $2', [lvlNum, playerId]);
-  }
-
-  response.success(res, { success: true, message: `${reward.name} has been added to your account!`, reward });
 }));
 
 module.exports = router;

@@ -49,6 +49,17 @@
     API.post('/player/ping').catch(() => {});
   }, 60000);
 
+  // Sayfa/tab kapanırken logout çağır (fetch keepalive destekler)
+  window.addEventListener('beforeunload', function() {
+    if (window.Auth && Auth.isLoggedIn()) {
+      var t = Auth.getToken();
+      if (t) {
+        var url = (window.__API_URL__ || window.location.origin) + '/api/auth/logout';
+        fetch(url, { method: 'POST', headers: { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' }, body: '{}', keepalive: true });
+      }
+    }
+  });
+
   /* Android geri tuşu — savaş blokajı + ana sayfa çift basış */
   var _tr = function(key, fallback) {
     return (typeof t === 'function' ? t(key) : null) || fallback;
@@ -90,8 +101,16 @@
         exitConfirm.style.display = 'none';
       });
       document.getElementById('sp-exit-yes').addEventListener('click', function() {
+        // Hesabı temizle ve logout yap, sonra kapat
+        API.post('/auth/logout').catch(function() {});
+        localStorage.removeItem('sp_token');
+        localStorage.removeItem('sp_player');
+        localStorage.removeItem('sp_remember_me');
+        sessionStorage.removeItem('sp_session_active');
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
-          window.Capacitor.Plugins.App.exitApp();
+          setTimeout(function() {
+            window.Capacitor.Plugins.App.exitApp();
+          }, 500);
         }
       });
       exitConfirm.addEventListener('click', function(e) {
@@ -111,6 +130,18 @@
           var outcomeEl = document.getElementById('outcome');
           if (!outcomeEl || !outcomeEl.classList.contains('show')) {
             return; // hiçbir şey yapma, navigasyon olmasın
+          }
+        }
+
+        // 1b. HARİTA — NPC aranıyor veya NPC kartı açıksa bloke et
+        if (page === 'map.html') {
+          var npcPanel = document.getElementById('npc-info-panel');
+          if (npcPanel && npcPanel.style.display === 'flex') {
+            return; // NPC kartı açıkken geri tuşu çalışmasın
+          }
+          var btnSearch = document.getElementById('btn-search');
+          if (btnSearch && btnSearch.classList.contains('searching')) {
+            return; // NPC aranırken geri tuşu çalışmasın
           }
         }
 

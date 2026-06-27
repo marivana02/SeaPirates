@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const pool = require('../config/db');
 
 let io = null;
 
@@ -6,7 +7,7 @@ function initSocketIO(server) {
   const { Server } = require('socket.io');
   io = new Server(server, {
     cors: {
-      origin: process.env.CORS_ORIGIN || '*',
+      origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
       methods: ['GET', 'POST']
     }
   });
@@ -26,6 +27,15 @@ function initSocketIO(server) {
     }
   });
 
+  // Periyodik temizlik: 5 dakikadır ping atmayanları offline yap
+  setInterval(async () => {
+    try {
+      await pool.query(
+        "UPDATE players SET is_online = false, last_seen = NOW() WHERE is_online = true AND (last_seen IS NULL OR EXTRACT(EPOCH FROM (NOW() - last_seen)) > 300)"
+      );
+    } catch (e) { /* silent */ }
+  }, 60000);
+
   io.on('connection', (socket) => {
     socket.on('join:boss', (mapLevel) => {
       const room = `boss:${mapLevel}`;
@@ -37,9 +47,18 @@ function initSocketIO(server) {
       socket.leave(room);
     });
 
-    socket.on('disconnect', () => {
-      // Bağlantı kesildiğinde odayı temizleme veya loglama yapılabilir
-      console.log(`[Socket] Oyuncu ayrıldı: ${socket.username} (${socket.playerId})`);
+    socket.on('disconnect', async () => {
+      const playerId = socket.playerId;
+      console.log(`[Socket] Oyuncu ayrıldı: ${socket.username} (${playerId})`);
+      if (playerId) {
+        try {
+          await pool.query(
+            'UPDATE players SET is_online = false, last_seen = NOW() WHERE id = $1',
+            [playerId]
+          );
+          await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+        } catch (e) { /* silent */ }
+      }
     });
   });
 
