@@ -112,7 +112,7 @@ window.t = window.t || function(key, vars) {
     ban_notification_title: 'Hesabınız banlanmış!', ban_reason_label: 'Sebep:',
     ban_expires_label: 'Bitiş:', ban_permanent_label: 'Kalıcı ban',
     ban_date_label: 'Tarih:',
-    forgot_error_nouser: 'Kullanıcı adı girin.', forgot_success: 'Şifre sıfırlama maili gönderildi.',
+
     modal_terms_title: '⚓ KULLANIM ŞARTLARI', modal_privacy_title: '🔒 GİZLİLİK POLİTİKASI'
   };
   var msg = texts[key] || key;
@@ -550,7 +550,6 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
             <input type="checkbox" id="remember"/>
             <span data-i18n="remember_me" data-i18n-text>Beni hatırla</span>
           </label>
-          <a href="#" class="forgot" onclick="forgotPass(event)"><span data-i18n="forgot_password" data-i18n-text>Şifremi unuttum</span></a>
         </div>
 
         <div class="form-msg" id="l-msg"></div>
@@ -794,14 +793,6 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         }
       }
       setLoading('reg-btn',false);
-    }
-
-    /* ── FORGOT ── */
-    function forgotPass(e){
-      e.preventDefault();
-      const u=document.getElementById('l-user').value.trim();
-      if(!u){showFormMsg(t('forgot_error_nouser'),'err');return;}
-      showFormMsg(t('forgot_success'),'ok');
     }
 
     /* ── MODAL TERMS & PRIVACY ── */
