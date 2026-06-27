@@ -13,12 +13,6 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/config.js"></script>
   <script>
-    /* APK auto-update: local dosyadan yüklendiyse server'a yönlendir */
-    if (window.__API_URL__ && window.location.origin !== window.__API_URL__) {
-      window.location.replace(window.__API_URL__);
-    }
-  </script>
-  <script>
 const API = (() => {
   const BASE = (window.__API_URL__ || window.location.origin) + '/api';
   function getToken() { return localStorage.getItem('sp_token'); }

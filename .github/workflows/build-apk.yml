@@ -55,17 +55,8 @@ jobs:
           mkdir -p www/js
           cp -r *.html *.js *.css js/ assets/ effects/ manifest.json sw.js www/
 
-          # API_URL config dosyasını oluştur (tüm sayfalar tarafından yüklenir)
+          # API_URL config dosyasını oluştur (config.js üzerinden tüm sayfalara aktarılır)
           echo "window.__API_URL__ = '$URL';" > www/js/config.js
-
-          # Tüm JS dosyalarının başına __API_URL__ config'ini ekle
-          for f in www/js/api.js www/js/map.js www/js/fight-shared.js www/js/fight-pvp.js; do
-            if [ -f "$f" ]; then
-              echo "window.__API_URL__ = window.__API_URL__ || '$URL';" > www/api_temp.js
-              cat "$f" >> www/api_temp.js
-              mv www/api_temp.js "$f"
-            fi
-          done
 
           ls -la www/
           ls -la www/js/
