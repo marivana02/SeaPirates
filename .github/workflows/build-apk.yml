@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       server_url:
-        description: 'Server URL (boş bırakılırsa capacitor.config.json kullanılır)'
+        description: 'Server URL (boş = http://192.168.1.5:3000)'
         required: false
         default: ''
 
@@ -55,8 +55,11 @@ jobs:
           mkdir -p www/js
           cp -r *.html *.js *.css js/ assets/ effects/ manifest.json sw.js www/
 
-          # API_URL config dosyasını oluştur (config.js üzerinden tüm sayfalara aktarılır)
+          # Fallback icin www/config.js'ye server URL'ini yaz
           echo "window.__API_URL__ = '$URL';" > www/js/config.js
+
+          # server.url olarak capacitor.config.json'a URL'i yaz
+          sed -i "s|__SERVER_URL__|$URL|g" capacitor.config.json
 
           ls -la www/
           ls -la www/js/
@@ -73,16 +76,28 @@ jobs:
           cd frontend
           npx cap sync android
 
-      - name: Enable cleartext traffic in AndroidManifest
+      - name: Enable cleartext traffic (network config + manifest)
         run: |
+          # Network Security Config — HttpURLConnection dahil tum cleartext trafigine izin ver
+          RES_DIR="frontend/android/app/src/main/res/xml"
+          mkdir -p "$RES_DIR"
+          cat > "$RES_DIR/network_security_config.xml" << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <network-security-config>
+              <base-config cleartextTrafficPermitted="true">
+                  <trust-anchors>
+                      <certificates src="system" />
+                  </trust-anchors>
+              </base-config>
+          </network-security-config>
+          EOF
+
+          # AndroidManifest'e networkSecurityConfig + usesCleartextTraffic ekle
           MANIFEST="frontend/android/app/src/main/AndroidManifest.xml"
-          if grep -q 'usesCleartextTraffic' "$MANIFEST"; then
-            echo "usesCleartextTraffic already set"
-          else
-            echo "Adding android:usesCleartextTraffic=\"true\" to <application>"
-            sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
-            grep 'usesCleartextTraffic' "$MANIFEST"
+          if ! grep -q 'networkSecurityConfig' "$MANIFEST"; then
+            sed -i 's|<application|<application android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="true"|' "$MANIFEST"
           fi
+          grep -E 'networkSecurityConfig|usesCleartextTraffic' "$MANIFEST"
 
       - name: Build APK
         run: |
