@@ -657,19 +657,52 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         document.getElementById('remember').checked = true;
       }
 
-      // 4. Tanı: origin ve fetch testi
+      // 4. Tanı: origin + fetch + XHR + Image test
       (async function() {
         const el = document.getElementById('diag-origin');
         const origin = window.location.origin;
-        let status = origin;
+        let lines = [origin];
+
+        // Test 1: fetch
         try {
           const r = await fetch(origin + '/api/debug/info');
           const d = await r.json();
-          status += ' | FETCH OK';
+          lines.push('FETCH✅');
         } catch(e) {
-          status += ' | FETCH FAIL: ' + e.message;
+          lines.push('FETCH❌ ' + e.message.substring(0,60));
         }
-        if (el) el.textContent = status;
+
+        // Test 2: XMLHttpRequest
+        try {
+          const x = new XMLHttpRequest();
+          const p = new Promise((ok, fail) => {
+            x.onload = () => ok();
+            x.onerror = () => fail(new Error('XHR onerror'));
+            x.ontimeout = () => fail(new Error('XHR timeout'));
+            x.open('GET', origin + '/api/debug/info');
+            x.send();
+          });
+          await p;
+          lines.push('XHR✅');
+        } catch(e) {
+          lines.push('XHR❌ ' + e.message.substring(0,60));
+        }
+
+        // Test 3: Image yükleme
+        try {
+          const img = new Image();
+          const p = new Promise((ok, fail) => {
+            img.onload = () => ok();
+            img.onerror = () => fail(new Error('IMG onerror'));
+            img.src = origin + '/assets/ui/login.png';
+          });
+          await p;
+          lines.push('IMG✅');
+        } catch(e) {
+          lines.push('IMG❌ ' + e.message.substring(0,60));
+        }
+
+        if (el) el.innerHTML = lines.join('<br>');
       })();
     };
 
