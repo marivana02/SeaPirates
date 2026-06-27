@@ -65,11 +65,11 @@ app.use(cors({
   credentials: true
 }));
 
-// CSRF koruması: state değiştiren POST isteklerinde X-Requested-With zorunlu
+// CSRF koruması: state değiştiren POST isteklerinde X-Requested-With zorunlu (400 = global 401/403 override'ı tetiklemez)
 app.use('/api', (req, res, next) => {
   if (req.method === 'POST' && !req.path.startsWith('/auth/')) {
     if (req.headers['x-requested-with'] !== 'XMLHttpRequest') {
-      return res.status(403).json({ error: 'CSRF protection: missing X-Requested-With header' });
+      return res.status(400).json({ error: 'CSRF protection: missing X-Requested-With header' });
     }
   }
   next();

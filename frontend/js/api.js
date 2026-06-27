@@ -133,6 +133,19 @@ window.clearAuth = function() {
 
   const origFetch = window.fetch;
   window.fetch = function() {
+    var input = arguments[0];
+    var init = arguments[1];
+    var method = init && init.method;
+    if (typeof input === 'string' && input.includes('/api/') && !input.includes('/auth/') && (!init || !method || method === 'POST')) {
+      if (!init) { init = {}; }
+      init.headers = init.headers || {};
+      if (init.headers instanceof Headers) {
+        if (!init.headers.has('X-Requested-With')) init.headers.set('X-Requested-With', 'XMLHttpRequest');
+      } else {
+        init.headers['X-Requested-With'] = 'XMLHttpRequest';
+      }
+      arguments = [input, init];
+    }
     return origFetch.apply(this, arguments).then(function(res) {
       if ((res.status === 401 || res.status === 403) && localStorage.getItem('sp_token')) {
         window.clearAuth();
