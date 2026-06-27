@@ -1152,8 +1152,13 @@
         const desc = document.getElementById('ev-desc');
         const badge = document.getElementById('ev-badge');
         if (ev.icon) icon.textContent = ev.icon;
-        if (ev.name) name.textContent = ev.name;
-        if (ev.desc) desc.textContent = ev.desc;
+        if (ev.type) {
+          name.textContent = t('event_' + ev.type + '_name') || ev.name;
+          desc.textContent = t('event_' + ev.type + '_desc') || ev.desc;
+        } else {
+          if (ev.name) name.textContent = ev.name;
+          if (ev.desc) desc.textContent = ev.desc;
+        }
         if (ev.mult) badge.textContent = '×' + ev.mult;
         banner.classList.remove('hidden');
       } catch (e) { /* silent */ }
