@@ -60,6 +60,15 @@ jobs:
             "
           fi
 
+      - name: Copy frontend to www
+        run: |
+          cd frontend
+          rm -rf www
+          mkdir -p www
+          # Tüm frontend dosyalarını www/ altına kopyala (js/, assets/ alt dizinleri dahil)
+          cp -r *.html *.js *.css js/ assets/ effects/ manifest.json sw.js www/
+          ls -la www/
+
       - name: Add Android platform
         run: |
           cd frontend
