@@ -3,7 +3,6 @@
   "appName": "SeaPirates",
   "webDir": "www",
   "server": {
-    "url": "__SERVER_URL__",
     "androidScheme": "http",
     "cleartext": true
   }
