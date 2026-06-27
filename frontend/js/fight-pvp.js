@@ -1,7 +1,7 @@
     /* ══════════════════════════════════════════════
        PvP ATTACK API OVERRIDE
     ══════════════════════════════════════════════ */
-    ATTACK_API_URL = window.location.origin + '/api/combat/pvp';
+    ATTACK_API_URL = (window.__API_URL__ || window.location.origin) + '/api/combat/pvp';
 
     /* ══════════════════════════════════════════════
        PvP NPC SETUP

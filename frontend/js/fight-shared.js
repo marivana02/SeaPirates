@@ -1198,8 +1198,9 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
     renderSlots();
 
     /* Combat API */
-    var ATTACK_API_URL = window.location.origin + '/api/combat';
-    const SHARED_API_URL = window.location.origin + '/api/combat';
+    const ORIGIN = window.__API_URL__ || window.location.origin;
+    var ATTACK_API_URL = ORIGIN + '/api/combat';
+    const SHARED_API_URL = ORIGIN + '/api/combat';
     const token = localStorage.getItem('sp_token');
     if (!token) goTo('index.html');
 
@@ -1301,7 +1302,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
     function startAdmiralStatusTracking() {
       fetchAdmiralStatus();
       if (bossSocket && bossSocket.connected) return;
-      bossSocket = io(window.location.origin, {
+      bossSocket = io(ORIGIN, {
         auth: { token }
       });
       bossSocket.on('connect', () => {

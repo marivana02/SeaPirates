@@ -5,8 +5,6 @@ const authMiddleware = require('../../middleware/auth');
 const response = require('../../helpers/response');
 const { validate, VALIDATORS } = require('../../middleware/validate');
 const { asyncHandler } = require('../../middleware/errorHandler');
-const jwt = require('jsonwebtoken');
-
 const displayNameRules = {
   newDisplayName: [
     (v) => (v && typeof v === 'string' && v.trim().length >= 3 && v.trim().length <= 30) || 'Display name must be 3-30 characters'
@@ -20,7 +18,7 @@ router.post('/settings/change-username', authMiddleware, validate(displayNameRul
   const trimmedName = newDisplayName.trim();
 
   if (!/^[a-zA-Z0-9_ğüşıöçĞÜŞİÖÇ ]+$/.test(trimmedName)) {
-    return response.badRequest(res, 'Username can only contain letters, numbers, spaces and underscores');
+    return response.badRequest(res, 'Display name can only contain letters, numbers, spaces and underscores');
   }
 
   const pRes = await pool.query('SELECT username, display_name, last_username_change FROM players WHERE id = $1', [playerId]);
@@ -38,30 +36,22 @@ router.post('/settings/change-username', authMiddleware, validate(displayNameRul
   }
 
   const uniqueRes = await pool.query(
-    'SELECT id FROM players WHERE (LOWER(username) = LOWER($1) OR LOWER(display_name) = LOWER($1)) AND id <> $2',
+    'SELECT id FROM players WHERE LOWER(display_name) = LOWER($1) AND id <> $2',
     [trimmedName, playerId]
   );
   if (uniqueRes.rows.length > 0) {
-    return response.badRequest(res, 'This username is already taken by another player');
+    return response.badRequest(res, 'This display name is already taken by another player');
   }
 
   await pool.query(
-    'UPDATE players SET username = $1, display_name = $1, last_username_change = CURRENT_TIMESTAMP WHERE id = $2',
+    'UPDATE players SET display_name = $1, last_username_change = CURRENT_TIMESTAMP WHERE id = $2',
     [trimmedName, playerId]
-  );
-
-  const newToken = jwt.sign(
-    { id: playerId, username: trimmedName },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
   );
 
   response.success(res, {
     success: true,
-    message: 'Your username has been changed successfully!',
-    display_name: trimmedName,
-    new_username: trimmedName,
-    token: newToken
+    message: 'Your display name has been changed successfully!',
+    display_name: trimmedName
   });
 }));
 

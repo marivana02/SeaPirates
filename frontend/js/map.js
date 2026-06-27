@@ -22,6 +22,8 @@
     var tiamatAvailable = false;
     var tiamatRespawnAt = null;
 
+    const ROOT = window.__API_URL__ || '';
+
     var uiLocked = false;
     var isRepairing = false;
     var repairInterval = null;
@@ -146,7 +148,7 @@
         clearInterval(countInterval);
         const token = localStorage.getItem('sp_token');
         try {
-          const res = await fetch('/api/maps/change', {
+          const res = await fetch(ROOT + '/api/maps/change', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -286,7 +288,7 @@
     async function fetchMapNpcs() {
       const token = localStorage.getItem('sp_token');
       try {
-        const res = await fetch('/api/maps/npcs', {
+        const res = await fetch(ROOT + '/api/maps/npcs', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const d = await res.json();
@@ -308,7 +310,7 @@
       const token = localStorage.getItem('sp_token');
       if (!token) return;
       try {
-        const res = await fetch('/api/maps/admiral-spawns', {
+        const res = await fetch(ROOT + '/api/maps/admiral-spawns', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) return;
@@ -348,7 +350,7 @@
 
       // Aktif savaş kontrolü
       try {
-        const activeRes = await fetch('/api/combat/active', {
+        const activeRes = await fetch(ROOT + '/api/combat/active', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (activeRes.ok) {
@@ -392,7 +394,7 @@
       }
 
       try {
-        const res = await fetch('/api/player/panel', { 
+        const res = await fetch(ROOT + '/api/player/panel', { 
           headers: { 'Authorization': `Bearer ${token}` } 
         });
         const d = await res.json();
@@ -427,7 +429,7 @@
 
       // Fetch map position separately so a failure here doesn't lose player data
       try {
-        const mapRes = await fetch('/api/maps', { 
+        const mapRes = await fetch(ROOT + '/api/maps', { 
           headers: { 'Authorization': `Bearer ${token}` } 
         });
         const mData = await mapRes.json();
@@ -471,7 +473,7 @@
       // Top kontrolü — top yoksa NPC aranamaz
       const token = localStorage.getItem('sp_token');
       try {
-        const checkRes = await fetch('/api/player/cannons/check', {
+        const checkRes = await fetch(ROOT + '/api/player/cannons/check', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const checkData = await checkRes.json();
@@ -661,7 +663,7 @@
       // Cache weekly boss rewards from server
       if (!bossRewardsCache) {
         try {
-          const r = await fetch('/api/combat/boss-rewards');
+          const r = await fetch(ROOT + '/api/combat/boss-rewards');
           bossRewardsCache = await r.json();
         } catch(e) {
           console.error('Failed to fetch boss rewards:', e);
@@ -677,7 +679,7 @@
       
       const token = localStorage.getItem('sp_token');
       try {
-        const res = await fetch('/api/combat/boss/status', {
+        const res = await fetch(ROOT + '/api/combat/boss/status', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -919,7 +921,7 @@
 
       const token = localStorage.getItem('sp_token');
       try {
-        const res = await fetch('/api/player/repair', { 
+        const res = await fetch(ROOT + '/api/player/repair', { 
           method: 'POST', 
           headers: { 'Authorization': `Bearer ${token}` } 
         });
