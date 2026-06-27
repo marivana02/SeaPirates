@@ -48,9 +48,9 @@
       position: relative;
       z-index: 10;
       display: grid;
-      grid-template-columns: 130px 1fr 130px;
+      grid-template-columns: 110px 1fr 110px;
       align-items: center;
-      padding: 14px 16px;
+      padding: 14px 12px;
       background: linear-gradient(180deg, rgba(10, 5, 2, 0.95) 0%, rgba(10, 5, 2, 0.6) 80%, transparent 100%);
       border-bottom: 1.5px solid rgba(200, 150, 42, 0.25);
     }
@@ -994,6 +994,20 @@
     @keyframes popIn {
       from { transform: scale(0.9); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 420px) {
+      .top-header { grid-template-columns: 90px 1fr 90px; padding: 10px 8px; }
+      .map-coordinate-title { font-size: 1.4rem; }
+      .nav-arrow-btn { font-size: 0.5rem; padding: 5px 6px; }
+      .action-row { gap: 3px; padding: 0 4px; }
+      .action-card { padding: 8px 2px; }
+      .action-card-icon { font-size: 1rem; }
+      .action-card-lbl { font-size: 0.48rem; }
+      .dashboard-panel { margin: 0 6px 8px; padding: 8px; }
+      .nav-actions-stack { min-width: 70px; padding-left: 6px; gap: 3px; }
+      .panel-bottom-row { gap: 8px; }
+      .xp-strip-full { padding: 4px 6px; }
     }
   </style>
 </head>
