@@ -55,6 +55,15 @@ jobs:
           cp -r *.html *.js *.css js/ assets/ effects/ manifest.json sw.js www/
           echo "window.__API_URL__ = '$URL';" > www/js/config.js
 
+          # Ana JS dosyalarinin basina __API_URL__ fallback ekle (tum sayfalarda gecerli olsun)
+          for f in www/js/api.js www/js/map.js www/js/fight-shared.js www/js/fight-pvp.js; do
+            if [ -f "$f" ]; then
+              echo "window.__API_URL__ = window.__API_URL__ || '$URL';" > www/api_temp.js
+              cat "$f" >> www/api_temp.js
+              mv www/api_temp.js "$f"
+            fi
+          done
+
       - name: Add Android platform
         run: |
           cd frontend

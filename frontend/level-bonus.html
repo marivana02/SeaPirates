@@ -990,8 +990,8 @@
       const token = localStorage.getItem('token');
       if (!token) return;
       const [res, curRes] = await Promise.all([
-        fetch('/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })
+        fetch((window.__API_URL__ || window.location.origin) + '/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch((window.__API_URL__ || window.location.origin) + '/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })
       ]);
       if (!res.ok || !curRes.ok) return;
       const p = await res.json();

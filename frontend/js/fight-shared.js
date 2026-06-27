@@ -850,7 +850,7 @@
 
     async function fetchPlayerData() {
       try {
-        const res = await fetch('/api/player/me', {
+        const res = await fetch((window.__API_URL__ || window.location.origin) + '/api/player/me', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('sp_token')}` }
         });
         if (res.ok) {

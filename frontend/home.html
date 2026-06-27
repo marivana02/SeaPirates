@@ -1248,8 +1248,8 @@
         const token = localStorage.getItem('sp_token');
         if (!token) return;
         const [res, curRes] = await Promise.all([
-          fetch('/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })
+          fetch((window.__API_URL__ || window.location.origin) + '/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
+          fetch((window.__API_URL__ || window.location.origin) + '/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })
         ]);
         if (!res.ok || !curRes.ok) return;
         const p = await res.json();
@@ -1321,7 +1321,7 @@
         const packId = this.dataset.pack;
         try {
           const token = localStorage.getItem('sp_token');
-          const res = await fetch('/api/starter/buy', {
+          const res = await fetch((window.__API_URL__ || window.location.origin) + '/api/starter/buy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
             body: JSON.stringify({ packId })

@@ -746,7 +746,7 @@
           applicationServerKey: 'BFkQZIfl5cEmn4HIUU1omIKOQkerzjIQQrFXn1XIq5A1e5peKe-Gvh1rNPp1XTwd3X_x30GiJpFX1VSib-0Q5Kc'
         });
         function buf2base(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
-        await fetch('/api/notifications/subscribe', {
+        await fetch((window.__API_URL__ || window.location.origin) + '/api/notifications/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({

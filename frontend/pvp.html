@@ -594,7 +594,7 @@
     if (btnPvpSaldırEl) btnPvpSaldırEl.disabled = true;
     
     try {
-      const res = await fetch('/api/player/pvp/status', {
+      const res = await fetch((window.__API_URL__ || window.location.origin) + '/api/player/pvp/status', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -709,7 +709,7 @@
       if (btnPvpChange.disabled) return;
       
       try {
-        const res = await fetch('/api/player/pvp/change', {
+        const res = await fetch((window.__API_URL__ || window.location.origin) + '/api/player/pvp/change', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         });
