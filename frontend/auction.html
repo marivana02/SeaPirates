@@ -315,7 +315,7 @@ var ITEMS = {
 var TUR_SURE = 3600;
 var KEY = 'sp_auc_v4';
 
-const API_URL = window.location.origin + '/api';
+const API_URL = (window.__API_URL__ || window.location.origin) + '/api';
 const token = localStorage.getItem('sp_token');
 
 if (!token) {

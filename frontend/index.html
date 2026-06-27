@@ -11,9 +11,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <script src="js/config.js"></script>
   <script>
 const API = (() => {
-  const BASE = window.location.origin + '/api';
+  const BASE = (window.__API_URL__ || window.location.origin) + '/api';
   function getToken() { return localStorage.getItem('sp_token'); }
   function getHeaders(extra = {}) {
     const headers = { 'Content-Type': 'application/json', ...extra };
@@ -612,10 +613,6 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
     </div>
 
-    <div id="diag-box" style="margin-top:8px;padding:6px;background:#1a0e05;border:1px solid #c8962a;border-radius:6px;font-size:10px;color:#f5e6c8;text-align:center;word-break:break-all;max-width:340px;margin-left:auto;margin-right:auto;">
-      Origin: <span id="diag-origin">yükleniyor...</span>
-    </div>
-
   </div>
 
   <!-- MODAL OVERLAY -->
@@ -657,53 +654,6 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         document.getElementById('remember').checked = true;
       }
 
-      // 4. Tanı: origin + fetch + XHR + Image test
-      (async function() {
-        const el = document.getElementById('diag-origin');
-        const origin = window.location.origin;
-        let lines = [origin];
-
-        // Test 1: fetch
-        try {
-          const r = await fetch(origin + '/api/debug/info');
-          const d = await r.json();
-          lines.push('FETCH✅');
-        } catch(e) {
-          lines.push('FETCH❌ ' + e.message.substring(0,60));
-        }
-
-        // Test 2: XMLHttpRequest
-        try {
-          const x = new XMLHttpRequest();
-          const p = new Promise((ok, fail) => {
-            x.onload = () => ok();
-            x.onerror = () => fail(new Error('XHR onerror'));
-            x.ontimeout = () => fail(new Error('XHR timeout'));
-            x.open('GET', origin + '/api/debug/info');
-            x.send();
-          });
-          await p;
-          lines.push('XHR✅');
-        } catch(e) {
-          lines.push('XHR❌ ' + e.message.substring(0,60));
-        }
-
-        // Test 3: Image yükleme
-        try {
-          const img = new Image();
-          const p = new Promise((ok, fail) => {
-            img.onload = () => ok();
-            img.onerror = () => fail(new Error('IMG onerror'));
-            img.src = origin + '/assets/ui/login.png';
-          });
-          await p;
-          lines.push('IMG✅');
-        } catch(e) {
-          lines.push('IMG❌ ' + e.message.substring(0,60));
-        }
-
-        if (el) el.innerHTML = lines.join('<br>');
-      })();
     };
 
     /* ── TAB ── */

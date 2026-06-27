@@ -597,7 +597,7 @@
 
     var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
-    const EVENTS_API = window.location.origin + '/api';
+    const EVENTS_API = (window.__API_URL__ || window.location.origin) + '/api';
 
     function fmtHMS(s) {
       if (!s || isNaN(s) || s <= 0) return '00:00:00';

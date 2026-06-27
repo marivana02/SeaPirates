@@ -743,7 +743,7 @@
 </div>
 
 <script>
-  const API_URL = window.location.origin + '/api/player';
+  const API_URL = (window.__API_URL__ || window.location.origin) + '/api/player';
   const token = localStorage.getItem('sp_token');
 
   let playerLv = parseInt(localStorage.getItem('sp_level')) || 1;

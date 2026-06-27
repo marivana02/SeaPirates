@@ -11,7 +11,7 @@ function generateDeviceId() {
 }
 
 const API = (() => {
-  const BASE = window.location.origin + '/api';
+  const BASE = (window.__API_URL__ || window.location.origin) + '/api';
 
   function getToken() {
     return localStorage.getItem('sp_token');

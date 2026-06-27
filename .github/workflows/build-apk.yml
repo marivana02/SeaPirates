@@ -39,35 +39,32 @@ jobs:
           npm install
           npx cap --version
 
-      - name: Set server URL in config
+      - name: Set server URL and inject config
         run: |
           URL="${{ github.event.inputs.server_url }}"
           if [ -z "$URL" ]; then
-            echo "Using URL from capacitor.config.json"
+            URL="http://192.168.1.5:3000"
+            echo "Using default URL: $URL"
           else
             echo "Using server URL: $URL"
-            cd frontend
-            node -e "
-              const fs = require('fs');
-              const cfg = JSON.parse(fs.readFileSync('capacitor.config.json', 'utf8'));
-              const isHttps = '$URL'.startsWith('https://');
-              cfg.server.url = '$URL';
-              cfg.server.androidScheme = isHttps ? 'https' : 'http';
-              cfg.server.cleartext = !isHttps;
-              cfg.appId = 'com.seapirates.app';
-              cfg.appName = 'SeaPirates';
-              fs.writeFileSync('capacitor.config.json', JSON.stringify(cfg, null, 2));
-            "
           fi
 
-      - name: Copy frontend to www
-        run: |
           cd frontend
+          # www/ dizinini oluştur ve frontend dosyalarını kopyala
           rm -rf www
-          mkdir -p www
-          # Tüm frontend dosyalarını www/ altına kopyala (js/, assets/ alt dizinleri dahil)
+          mkdir -p www/js
           cp -r *.html *.js *.css js/ assets/ effects/ manifest.json sw.js www/
+
+          # API_URL config dosyasını oluştur (tüm sayfalar tarafından yüklenir)
+          echo "window.__API_URL__ = '$URL';" > www/js/config.js
+
+          # js/api.js'in başına config'i ekle (yedek: config.js yüklenmezse çalışır)
+          echo "window.__API_URL__ = window.__API_URL__ || '$URL';" > www/api_temp.js
+          cat www/js/api.js >> www/api_temp.js
+          mv www/api_temp.js www/js/api.js
+
           ls -la www/
+          ls -la www/js/
 
       - name: Add Android platform
         run: |
