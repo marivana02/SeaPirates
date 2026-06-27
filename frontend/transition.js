@@ -59,7 +59,10 @@
         } else if (page !== 'home.html' && page !== 'index.html') {
           window.goTo('home.html');
         } else {
-          /* Ana sayfada çıkış onayı göster */
+          /* Ana sayfada çıkış onayı göster (çoklu dil) */
+          function _tr(key, fallback) {
+            return (typeof t === 'function' ? t(key) : null) || fallback;
+          }
           var exitConfirm = document.getElementById('sp-exit-confirm');
           if (!exitConfirm) {
             exitConfirm = document.createElement('div');
@@ -68,11 +71,11 @@
             exitConfirm.innerHTML = [
               '<div style="background:linear-gradient(145deg,#1a0e05,#2d1a08);border:2px solid #c8962a;border-radius:16px;padding:28px 22px;max-width:320px;width:90%;text-align:center;box-shadow:0 0 40px rgba(200,150,42,0.3);">',
               '<div style="font-size:40px;margin-bottom:6px;">🚪</div>',
-              '<div style="font-family:\'Cinzel\',serif;font-size:17px;color:#f0c040;margin-bottom:8px;">UYGULAMADAN ÇIK</div>',
-              '<div style="color:#b8956a;font-size:13px;margin-bottom:16px;">Çıkmak istediğinize emin misiniz?</div>',
+              '<div style="font-family:\'Cinzel\',serif;font-size:17px;color:#f0c040;margin-bottom:8px;">' + _tr('exit_confirm_title', 'UYGULAMADAN ÇIK') + '</div>',
+              '<div style="color:#b8956a;font-size:13px;margin-bottom:16px;">' + _tr('exit_confirm_msg', 'Çıkmak istediğinize emin misiniz?') + '</div>',
               '<div style="display:flex;gap:8px;">',
-              '<button id="sp-exit-cancel" style="flex:1;padding:10px;background:rgba(90,53,24,0.5);border:1px solid #5c3518;border-radius:10px;color:#b8956a;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">HAYIR</button>',
-              '<button id="sp-exit-yes" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b2500,#c0392b);border:2px solid #e74c3c;border-radius:10px;color:#fff;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">EVET</button>',
+              '<button id="sp-exit-cancel" style="flex:1;padding:10px;background:rgba(90,53,24,0.5);border:1px solid #5c3518;border-radius:10px;color:#b8956a;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">' + _tr('exit_confirm_no', 'HAYIR') + '</button>',
+              '<button id="sp-exit-yes" style="flex:1;padding:10px;background:linear-gradient(135deg,#8b2500,#c0392b);border:2px solid #e74c3c;border-radius:10px;color:#fff;font-family:\'Cinzel\',serif;font-size:13px;font-weight:700;cursor:pointer;">' + _tr('exit_confirm_yes', 'EVET') + '</button>',
               '</div></div>'
             ].join('');
             document.body.appendChild(exitConfirm);

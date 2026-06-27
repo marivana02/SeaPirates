@@ -297,6 +297,13 @@ const I18N_DATA = {
     bottom_privacy: 'Gizlilik Politikası',
     bottom_terms: 'Kullanım Şartları',
     modal_close: 'Tamam',
+
+    // Exit Confirm
+    exit_confirm_title: 'UYGULAMADAN ÇIK',
+    exit_confirm_msg: 'Çıkmak istediğinize emin misiniz?',
+    exit_confirm_yes: 'EVET',
+    exit_confirm_no: 'HAYIR',
+
     modal_terms_title: '⚓ KULLANIM ŞARTLARI',
     modal_privacy_title: '🛡️ GİZLİLİK POLİTİKASI',
 
@@ -971,6 +978,13 @@ const I18N_DATA = {
     bottom_privacy: 'Privacy Policy',
     bottom_terms: 'Terms of Service',
     modal_close: 'OK',
+
+    // Exit Confirm
+    exit_confirm_title: 'EXIT APP',
+    exit_confirm_msg: 'Are you sure you want to exit?',
+    exit_confirm_yes: 'YES',
+    exit_confirm_no: 'NO',
+
     modal_terms_title: '⚓ TERMS OF SERVICE',
     modal_privacy_title: '🛡️ PRIVACY POLICY',
     quest_accepted: 'Quest accepted!',
@@ -1621,6 +1635,12 @@ const I18N_DATA = {
     bottom_privacy: 'Datenschutz',
     bottom_terms: 'Nutzungsbedingungen',
     modal_close: 'OK',
+
+    // Exit Confirm
+    exit_confirm_title: 'APP VERLASSEN',
+    exit_confirm_msg: 'Sind Sie sicher, dass Sie die App verlassen möchten?',
+    exit_confirm_yes: 'JA',
+    exit_confirm_no: 'NEIN',
     modal_terms_title: '⚓ NUTZUNGSBEDINGUNGEN',
     modal_privacy_title: '🛡️ DATENSCHUTZ',
     quest_accepted: 'Quest angenommen!',
@@ -2212,6 +2232,12 @@ const I18N_DATA = {
     bottom_privacy: 'Política de Privacidade',
     bottom_terms: 'Termos de Uso',
     modal_close: 'OK',
+
+    // Exit Confirm
+    exit_confirm_title: 'SAIR DO APP',
+    exit_confirm_msg: 'Tem certeza de que deseja sair?',
+    exit_confirm_yes: 'SIM',
+    exit_confirm_no: 'NÃO',
     modal_terms_title: '⚓ TERMOS DE USO',
     modal_privacy_title: '🛡️ POLÍTICA DE PRIVACIDADE',
     quest_accepted: 'Missão aceita!',
@@ -2804,6 +2830,12 @@ const I18N_DATA = {
     bottom_privacy: 'Política de Privacidad',
     bottom_terms: 'Términos de Uso',
     modal_close: 'OK',
+
+    // Exit Confirm
+    exit_confirm_title: 'SALIR DE LA APP',
+    exit_confirm_msg: '¿Estás seguro de que deseas salir?',
+    exit_confirm_yes: 'SÍ',
+    exit_confirm_no: 'NO',
     modal_terms_title: '⚓ TÉRMINOS DE USO',
     modal_privacy_title: '🛡️ POLÍTICA DE PRIVACIDAD',
     quest_accepted: '¡Misión aceptada!',
@@ -3396,6 +3428,12 @@ const I18N_DATA = {
     bottom_privacy: 'Polityka Prywatności',
     bottom_terms: 'Warunki Korzystania',
     modal_close: 'OK',
+
+    // Exit Confirm
+    exit_confirm_title: 'WYJŚCIE Z APLIKACJI',
+    exit_confirm_msg: 'Czy na pewno chcesz wyjść?',
+    exit_confirm_yes: 'TAK',
+    exit_confirm_no: 'NIE',
     modal_terms_title: '⚓ WARUNKI KORZYSTANIA',
     modal_privacy_title: '🛡️ POLITYKA PRYWATNOŚCI',
     quest_accepted: 'Zadanie przyjęte!',
