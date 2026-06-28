@@ -74,6 +74,17 @@ jobs:
           cd frontend
           npx cap sync android
 
+      - name: Disable WebView state restoration (APK kill = fresh start)
+        run: |
+          MAIN_ACTIVITY="frontend/android/app/src/main/java/com/seapirates/app/MainActivity.java"
+          if [ -f "$MAIN_ACTIVITY" ]; then
+            sed -i 's/super.onCreate(savedInstanceState)/super.onCreate(null)/' "$MAIN_ACTIVITY"
+            echo "Patched MainActivity.java: onCreate(null) → state restoration disabled"
+          else
+            echo "MainActivity.java not found!"
+            find frontend/android -name "MainActivity.java"
+          fi
+
       - name: Enable cleartext traffic in AndroidManifest
         run: |
           MANIFEST="frontend/android/app/src/main/AndroidManifest.xml"
