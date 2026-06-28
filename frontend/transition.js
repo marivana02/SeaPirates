@@ -45,13 +45,15 @@
     alertOverlay.classList.add('show');
   };
 
-  /* Kalp atışı (1sn) — HB güncelle + bayat kontrolü */
+  /* Kalp atışı (1sn) — HB güncelle + freeze/timer-throttle kontrolü */
   setInterval(function() {
-    var now = Date.now();
-    var lastHb = sessionStorage.getItem('sp_hb');
-    sessionStorage.setItem('sp_hb', now.toString());
-    if (lastHb && localStorage.getItem('sp_token') && !localStorage.getItem('sp_remember_me') &&
-        now - parseInt(lastHb) > 60000) {
+    var now = Date.now(), perf = performance.now();
+    var lastTime = sessionStorage.getItem('sp_hb_time');
+    sessionStorage.setItem('sp_hb_time', now.toString());
+    sessionStorage.setItem('sp_hb_perf', perf.toString());
+    /* Timer-throttle koruması: 60sn aşımı */
+    if (lastTime && localStorage.getItem('sp_token') && !localStorage.getItem('sp_remember_me') &&
+        now - parseInt(lastTime) > 60000) {
       localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
       localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
       sessionStorage.removeItem('sp_session_active');
@@ -66,12 +68,12 @@
     }).catch(function() {});
   }, 60000);
 
-  /* focus + visibilitychange → timer'dan ÖNCE çalışır */
+  /* focus + visibilitychange → perf vs realtime karşılaştırması (freeze tespiti) */
   function onReopen() {
-    if (localStorage.getItem('sp_remember_me')) return;
-    if (!localStorage.getItem('sp_token')) return;
-    var lastHb = sessionStorage.getItem('sp_hb');
-    if (lastHb && Date.now() - parseInt(lastHb) > 4000) {
+    if (!localStorage.getItem('sp_token') || localStorage.getItem('sp_remember_me')) return;
+    var t = sessionStorage.getItem('sp_hb_time');
+    var p = sessionStorage.getItem('sp_hb_perf');
+    if (t && p && Date.now() - parseInt(t) > performance.now() - parseFloat(p) + 5000) {
       localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
       localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
       sessionStorage.removeItem('sp_session_active');
@@ -192,13 +194,8 @@
     }
   }
 
-  /* pageshow — bfcache/WebView state restore tespiti */
+  /* pageshow — bfcache/WebView state restore */
   window.addEventListener('pageshow', function(ev) {
-    if (ev.persisted && localStorage.getItem('sp_token') && !localStorage.getItem('sp_remember_me')) {
-      localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
-      localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
-      sessionStorage.removeItem('sp_session_active');
-      if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
-    }
+    if (ev.persisted) onReopen();
   });
 })();
