@@ -45,12 +45,30 @@
     alertOverlay.classList.add('show');
   };
 
+  /* Her saniye kalp atışı — APK kill tespiti için */
+  setInterval(function() {
+    sessionStorage.setItem('sp_hb', Date.now().toString());
+  }, 1000);
+
   setInterval(function() {
     if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) return;
     API.post('/player/ping').then(function() {
       if (typeof Auth.touch === 'function') Auth.touch();
     }).catch(function() {});
   }, 60000);
+
+  /* visibilitychange — background/kill ayırt et */
+  window.addEventListener('visibilitychange', function() {
+    if (document.hidden) { return; }
+    if (typeof Auth === 'undefined' || localStorage.getItem('sp_remember_me')) return;
+    var lastHb = sessionStorage.getItem('sp_hb');
+    if (lastHb && Date.now() - parseInt(lastHb) > 3000) {
+      Auth.logout();
+      if (window.location.href.indexOf('index.html') === -1) {
+        window.location.href = 'index.html';
+      }
+    }
+  });
 
   /* Android geri tuşu — savaş blokajı + ana sayfa çift basış */
   var _tr = function(key, fallback) {
@@ -95,10 +113,7 @@
       document.getElementById('sp-exit-yes').addEventListener('click', function() {
         // Hesabı temizle ve logout yap, sonra kapat
         API.post('/auth/logout').catch(function() {});
-        localStorage.removeItem('sp_token');
-        localStorage.removeItem('sp_player');
-        localStorage.removeItem('sp_remember_me');
-        sessionStorage.removeItem('sp_session_active');
+        if (typeof Auth !== 'undefined') Auth.logout();
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
           setTimeout(function() {
             window.Capacitor.Plugins.App.exitApp();
@@ -161,4 +176,14 @@
       /* Capacitor backButton plugin yoksa sessizce geç */
     }
   }
+
+  /* pageshow — bfcache/WebView state restore tespiti */
+  window.addEventListener('pageshow', function(ev) {
+    if (ev.persisted && typeof Auth !== 'undefined' && !localStorage.getItem('sp_remember_me')) {
+      Auth.logout();
+      if (window.location.href.indexOf('index.html') === -1) {
+        window.location.href = 'index.html';
+      }
+    }
+  });
 })();
