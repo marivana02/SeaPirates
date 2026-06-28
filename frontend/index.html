@@ -61,7 +61,8 @@ window.API = API;
   </script>
   <script>
 const Auth = (() => {
-  const TOKEN_KEY = 'sp_token', PLAYER_KEY = 'sp_player', REMEMBER_KEY = 'sp_remember_me', SESSION_KEY = 'sp_session_active';
+  const TOKEN_KEY = 'sp_token', PLAYER_KEY = 'sp_player', REMEMBER_KEY = 'sp_remember_me', SESSION_KEY = 'sp_session_active', TS_KEY = 'sp_session_ts';
+  const SESSION_MAX_MS = 600000;
   return {
     getToken() { return localStorage.getItem(TOKEN_KEY); },
     getPlayer() {
@@ -77,21 +78,30 @@ const Auth = (() => {
       if (!token) return false;
       const remember = localStorage.getItem(REMEMBER_KEY);
       const session = sessionStorage.getItem(SESSION_KEY);
-      if (!remember && !session) { this.logout(); return false; }
+      if (remember) return true;
+      if (!session) { this.logout(); return false; }
+      const ts = parseInt(localStorage.getItem(TS_KEY) || '0');
+      if (ts > 0 && Date.now() - ts > SESSION_MAX_MS) { this.logout(); return false; }
       return true;
     },
     login(token, player, remember = false) {
       localStorage.setItem(TOKEN_KEY, token); this.setPlayer(player);
       if (remember) { localStorage.setItem(REMEMBER_KEY, 'true'); sessionStorage.removeItem(SESSION_KEY); }
       else { sessionStorage.setItem(SESSION_KEY, 'true'); localStorage.removeItem(REMEMBER_KEY); }
+      localStorage.setItem(TS_KEY, Date.now().toString());
+    },
+    touch() {
+      if (this.getToken() && !localStorage.getItem(REMEMBER_KEY)) localStorage.setItem(TS_KEY, Date.now().toString());
     },
     logout() {
       localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(PLAYER_KEY);
-      localStorage.removeItem(REMEMBER_KEY); sessionStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(REMEMBER_KEY); localStorage.removeItem(TS_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
     },
     redirectToLogin() { this.logout(); window.goTo('index.html'); }
   };
 })();
+if (!Auth.isLoggedIn()) Auth.logout();
   </script>
   <script>
 window.t = window.t || function(key, vars) {

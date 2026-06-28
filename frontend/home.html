@@ -1347,10 +1347,11 @@
     // 60 saniyede bir playtime (oyun süresi) arttırmak için sunucuyu pingle
     setInterval(async () => {
       try {
-        await fetch(`${API_URL}/ping`, {
+        const r = await fetch(`${API_URL}/ping`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (r.ok) localStorage.setItem('sp_session_ts', Date.now().toString());
       } catch (err) {
         console.error("Playtime ping error:", err);
       }

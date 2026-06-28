@@ -44,9 +44,11 @@
     alertOverlay.classList.add('show');
   };
 
-  setInterval(() => {
-    if (!window.Auth || !Auth.isLoggedIn()) return;
-    API.post('/player/ping').catch(() => {});
+  setInterval(function() {
+    if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) return;
+    API.post('/player/ping').then(function() {
+      if (typeof Auth.touch === 'function') Auth.touch();
+    }).catch(function() {});
   }, 60000);
 
   /* Android geri tuşu — savaş blokajı + ana sayfa çift basış */

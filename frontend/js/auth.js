@@ -3,6 +3,8 @@ const Auth = (() => {
   const PLAYER_KEY = 'sp_player';
   const REMEMBER_KEY = 'sp_remember_me';
   const SESSION_KEY = 'sp_session_active';
+  const TS_KEY = 'sp_session_ts';
+  const SESSION_MAX_MS = 600000; // 10 dakika
 
   return {
     getToken() {
@@ -28,7 +30,13 @@ const Auth = (() => {
       if (!token) return false;
       const remember = localStorage.getItem(REMEMBER_KEY);
       const session = sessionStorage.getItem(SESSION_KEY);
-      if (!remember && !session) {
+      if (remember) return true;
+      if (!session) {
+        this.logout();
+        return false;
+      }
+      const ts = parseInt(localStorage.getItem(TS_KEY) || '0');
+      if (ts > 0 && Date.now() - ts > SESSION_MAX_MS) {
         this.logout();
         return false;
       }
@@ -45,6 +53,13 @@ const Auth = (() => {
         sessionStorage.setItem(SESSION_KEY, 'true');
         localStorage.removeItem(REMEMBER_KEY);
       }
+      localStorage.setItem(TS_KEY, Date.now().toString());
+    },
+
+    touch() {
+      if (this.getToken() && !localStorage.getItem(REMEMBER_KEY)) {
+        localStorage.setItem(TS_KEY, Date.now().toString());
+      }
     },
 
     logout() {
@@ -52,6 +67,7 @@ const Auth = (() => {
       localStorage.removeItem(PLAYER_KEY);
       localStorage.removeItem(REMEMBER_KEY);
       localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(TS_KEY);
       sessionStorage.removeItem(SESSION_KEY);
     },
 
@@ -61,3 +77,4 @@ const Auth = (() => {
     }
   };
 })();
+Auth.isLoggedIn();
