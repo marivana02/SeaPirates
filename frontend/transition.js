@@ -4,6 +4,7 @@
 
   window.goTo = function (url) {
     if (!url || url === '#' || url.startsWith('javascript:')) return;
+    sessionStorage.setItem('sp_navigating', '1');
     window.location.href = url;
   };
 

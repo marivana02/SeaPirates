@@ -584,7 +584,7 @@
 
   <script>
     var token = localStorage.getItem('sp_token');
-    if (!token) window.location.href = 'home.html';
+    if (!token) { sessionStorage.setItem('sp_navigating','1'); window.location.href = 'home.html'; }
 
     var ROTATION = [
       { type: 'npc_reward', icon: '💰' },

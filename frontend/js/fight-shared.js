@@ -1419,7 +1419,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
       }).catch(e => console.error('handleReturn end error:', e))
-        .finally(() => window.location.replace('map.html'));
+        .finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace('map.html'); });
     }
 
     async function doAttack() {

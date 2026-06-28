@@ -108,17 +108,13 @@ window.clearAuth = function() {
   sessionStorage.removeItem('sp_session_active');
 };
 
-/* Session sağlık kontrolü — tüm sayfalarda çalışır (auth.js yüklenmeyen sayfalar için) */
+/* Session kontrolü: APK yeniden açılınca direkt logout (Beni Hatırla hariç) */
 (function() {
-  var token = localStorage.getItem('sp_token');
-  var remember = localStorage.getItem('sp_remember_me');
-  var session = sessionStorage.getItem('sp_session_active');
-  var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
-  if (token && !remember && !session) {
-    localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
-    localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
-    sessionStorage.removeItem('sp_session_active');
-  } else if (token && !remember && session && ts > 0 && Date.now() - ts > 600000) {
+  if (!localStorage.getItem('sp_token')) return;
+  if (localStorage.getItem('sp_remember_me')) return;
+  var navigating = sessionStorage.getItem('sp_navigating');
+  sessionStorage.removeItem('sp_navigating');
+  if (!navigating) {
     localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
     localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
     sessionStorage.removeItem('sp_session_active');

@@ -185,7 +185,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
       }).catch(e => console.error('handleReturn end error:', e))
-        .finally(() => window.location.replace(pvpWon ? 'pvp.html' : 'map.html'));
+        .finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace(pvpWon ? 'pvp.html' : 'map.html'); });
     };
 
     startCombat();

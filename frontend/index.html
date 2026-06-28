@@ -101,7 +101,8 @@ const Auth = (() => {
     redirectToLogin() { this.logout(); window.goTo('index.html'); }
   };
 })();
-if (!Auth.isLoggedIn()) Auth.logout();
+// APK her açıldığında login sayfası gelsin (Beni Hatırla yoksa)
+if (!localStorage.getItem('sp_remember_me')) { Auth.logout(); }
   </script>
   <script>
 window.t = window.t || function(key, vars) {
@@ -125,7 +126,7 @@ window.t = window.t || function(key, vars) {
 };
   </script>
   <script>
-window.goTo = window.goTo || function(url) { if (url && url !== '#') window.location.href = url; };
+window.goTo = window.goTo || function(url) { if (url && url !== '#') { sessionStorage.setItem('sp_navigating','1'); window.location.href = url; } };
 window.showAlert = window.showAlert || function(msg) { alert(msg); };
   </script>
   <script src="js/lang.js?v=1"></script>
