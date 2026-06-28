@@ -45,9 +45,18 @@
     alertOverlay.classList.add('show');
   };
 
-  /* Her saniye kalp atışı — APK kill tespiti için */
+  /* Kalp atışı (1sn) — HB güncelle + bayat kontrolü */
   setInterval(function() {
-    sessionStorage.setItem('sp_hb', Date.now().toString());
+    var now = Date.now();
+    var lastHb = sessionStorage.getItem('sp_hb');
+    sessionStorage.setItem('sp_hb', now.toString());
+    if (lastHb && localStorage.getItem('sp_token') && !localStorage.getItem('sp_remember_me') &&
+        now - parseInt(lastHb) > 60000) {
+      localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
+      localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
+      sessionStorage.removeItem('sp_session_active');
+      if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
+    }
   }, 1000);
 
   setInterval(function() {
@@ -57,17 +66,21 @@
     }).catch(function() {});
   }, 60000);
 
-  /* visibilitychange — background/kill ayırt et */
-  window.addEventListener('visibilitychange', function() {
-    if (document.hidden) { return; }
-    if (typeof Auth === 'undefined' || localStorage.getItem('sp_remember_me')) return;
+  /* focus + visibilitychange → timer'dan ÖNCE çalışır */
+  function onReopen() {
+    if (localStorage.getItem('sp_remember_me')) return;
+    if (!localStorage.getItem('sp_token')) return;
     var lastHb = sessionStorage.getItem('sp_hb');
-    if (lastHb && Date.now() - parseInt(lastHb) > 3000) {
-      Auth.logout();
-      if (window.location.href.indexOf('index.html') === -1) {
-        window.location.href = 'index.html';
-      }
+    if (lastHb && Date.now() - parseInt(lastHb) > 4000) {
+      localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
+      localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
+      sessionStorage.removeItem('sp_session_active');
+      if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
     }
+  }
+  window.addEventListener('focus', onReopen);
+  window.addEventListener('visibilitychange', function() {
+    if (!document.hidden) onReopen();
   });
 
   /* Android geri tuşu — savaş blokajı + ana sayfa çift basış */
@@ -113,7 +126,9 @@
       document.getElementById('sp-exit-yes').addEventListener('click', function() {
         // Hesabı temizle ve logout yap, sonra kapat
         API.post('/auth/logout').catch(function() {});
-        if (typeof Auth !== 'undefined') Auth.logout();
+        localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
+        localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
+        sessionStorage.removeItem('sp_session_active');
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
           setTimeout(function() {
             window.Capacitor.Plugins.App.exitApp();
@@ -179,11 +194,11 @@
 
   /* pageshow — bfcache/WebView state restore tespiti */
   window.addEventListener('pageshow', function(ev) {
-    if (ev.persisted && typeof Auth !== 'undefined' && !localStorage.getItem('sp_remember_me')) {
-      Auth.logout();
-      if (window.location.href.indexOf('index.html') === -1) {
-        window.location.href = 'index.html';
-      }
+    if (ev.persisted && localStorage.getItem('sp_token') && !localStorage.getItem('sp_remember_me')) {
+      localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
+      localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
+      sessionStorage.removeItem('sp_session_active');
+      if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
     }
   });
 })();
