@@ -84,6 +84,10 @@
   window.addEventListener('visibilitychange', function() {
     if (!document.hidden) onReopen();
   });
+  /* Capacitor native appStateChange — Java katmanından gelir, WebView serialize'ından etkilenmez */
+  if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
+    try { Capacitor.Plugins.App.addListener('appStateChange', function(s) { if (s.isActive) onReopen(); }); } catch(e) {}
+  }
 
   /* Android geri tuşu — savaş blokajı + ana sayfa çift basış */
   var _tr = function(key, fallback) {
