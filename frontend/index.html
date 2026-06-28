@@ -62,7 +62,7 @@ window.API = API;
   <script>
 const Auth = (() => {
   const TOKEN_KEY = 'sp_token', PLAYER_KEY = 'sp_player', REMEMBER_KEY = 'sp_remember_me', SESSION_KEY = 'sp_session_active', TS_KEY = 'sp_session_ts';
-  const SESSION_MAX_MS = 600000;
+  const SESSION_MAX_MS = 1800000;
   return {
     getToken() { return localStorage.getItem(TOKEN_KEY); },
     getPlayer() {

@@ -45,22 +45,13 @@
     alertOverlay.classList.add('show');
   };
 
-  /* Kalp atışı (1sn) — HB güncelle + freeze/timer-throttle kontrolü */
+  /* Kalp atışı (1sn) — sp_hb_time güncelle (30dk kontrolü ve timer-throttle için) */
   setInterval(function() {
-    var now = Date.now(), perf = performance.now();
-    var lastTime = sessionStorage.getItem('sp_hb_time');
+    var now = Date.now();
     sessionStorage.setItem('sp_hb_time', now.toString());
-    sessionStorage.setItem('sp_hb_perf', perf.toString());
-    /* Timer-throttle koruması: 60sn aşımı */
-    if (lastTime && localStorage.getItem('sp_token') && !localStorage.getItem('sp_remember_me') &&
-        now - parseInt(lastTime) > 60000) {
-      localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
-      localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
-      sessionStorage.removeItem('sp_session_active');
-      if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
-    }
   }, 1000);
 
+  /* Ping (60sn) — sunucu last_seen güncelle + sp_session_ts yenile */
   setInterval(function() {
     if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) return;
     API.post('/player/ping').then(function() {
@@ -68,22 +59,17 @@
     }).catch(function() {});
   }, 60000);
 
-  /* focus + visibilitychange → perf vs realtime karşılaştırması (freeze tespiti) */
-  function onReopen() {
+  /* 30 DAKİKA TIMEOUT — her 10sn kontrol et, sp_session_ts >30dk ise logout */
+  setInterval(function sessionTimeout() {
     if (!localStorage.getItem('sp_token') || localStorage.getItem('sp_remember_me')) return;
-    var t = sessionStorage.getItem('sp_hb_time');
-    var p = sessionStorage.getItem('sp_hb_perf');
-    if (t && p && Date.now() - parseInt(t) > performance.now() - parseFloat(p) + 5000) {
+    var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
+    if (ts > 0 && Date.now() - ts > 1800000) {
       localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
       localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
       sessionStorage.removeItem('sp_session_active');
       if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
     }
-  }
-  window.addEventListener('focus', onReopen);
-  window.addEventListener('visibilitychange', function() {
-    if (!document.hidden) onReopen();
-  });
+  }, 10000);
   /* Capacitor native appStateChange — Java katmanından gelir, WebView serialize'ından etkilenmez */
   if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
     try { Capacitor.Plugins.App.addListener('appStateChange', function(s) { if (s.isActive) onReopen(); }); } catch(e) {}
