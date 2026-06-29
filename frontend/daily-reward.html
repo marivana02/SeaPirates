@@ -246,30 +246,24 @@
     .day-card.done .day-num{color:#6a5a4a;}
     .day-card.missed .day-num{color:#8a3030;}
 
+    .day-part{
+      display:flex;align-items:center;gap:3px;width:100%;
+      justify-content:center;
+    }
     .day-rwd-img{
-      width:32px;height:32px;flex-shrink:0;
+      width:18px;height:18px;flex-shrink:0;
       object-fit:contain;
       filter:drop-shadow(0 2px 4px rgba(0,0,0,0.9)) brightness(1.05);
     }
-    .day-card.milestone .day-rwd-img{width:32px;height:32px;}
-
-    .day-rwd-imgs{
-      display:flex;align-items:center;justify-content:center;gap:3px;flex-shrink:0;
+    .day-part .day-rwd-txt{
+      font-size:0.55rem;font-weight:700;
+      color:#fff5e8;text-shadow:0 1px 4px rgba(0,0,0,0.8);
+      white-space:nowrap;
     }
-    .day-rwd-imgs .day-rwd-img{width:24px;height:24px;}
-
-    .day-rwd-text{
-      font-size:0.65rem;font-weight:700;
-      color:#fff5e8;line-height:1.25;
-      text-shadow:0 1px 4px rgba(0,0,0,0.8);
-      text-align:center;
-      width:100%;
-      word-break:break-word;overflow-wrap:break-word;
-    }
-    .day-card.done .day-rwd-text{color:#a09080;}
-    .day-card.missed .day-rwd-text{color:#6a4040;}
-    .day-card.milestone .day-rwd-text{color:#ffd700;}
-    .day-card.vip.milestone .day-rwd-text{color:#f0b870;}
+    .day-card.done .day-part .day-rwd-txt{color:#a09080;}
+    .day-card.missed .day-part .day-rwd-txt{color:#6a4040;}
+    .day-card.milestone .day-part .day-rwd-txt{color:#ffd700;}
+    .day-card.vip.milestone .day-part .day-rwd-txt{color:#f0b870;}
 
     .day-check{
       flex-shrink:0;width:14px;text-align:center;
@@ -507,69 +501,69 @@
   };
 
   const D_NORMAL = [
-    { d:1,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'2,000'} },
-    { d:2,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'100'} },
-    { d:3,  imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'1,000'} },
-    { d:4,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'5,000'} },
-    { d:5,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'200 ★'} },
-    { d:6,  imgs:[ICONS.barut], lk:'item_gunpowder_amount', lp:{val:'100'} },
-    { d:7,  imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'2,000'} },
-    { d:8,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'8,000'} },
-    { d:9,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'200'} },
-    { d:10, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'500', e:'200 ★'} },
-    { d:11, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'10,000'} },
-    { d:12, imgs:[ICONS.zirh], lk:'item_armor_amount', lp:{val:'15'} },
-    { d:13, imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'3,000'} },
-    { d:14, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'300'} },
-    { d:15, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'800', e:'300 ★'} },
-    { d:16, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'20,000'} },
-    { d:17, imgs:[ICONS.barut,ICONS.zirh], lk:'item_gunpowder_armor', lp:{val:'100'} },
-    { d:18, imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'4,000'} },
-    { d:19, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'500'} },
-    { d:20, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'1,000', e:'400 ★'} },
-    { d:21, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'25,000'} },
-    { d:22, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'500'} },
-    { d:23, imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'5,000'} },
-    { d:24, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'600'} },
-    { d:25, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'1,500', e:'600 ★'} },
-    { d:26, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'35,000'} },
-    { d:27, imgs:[ICONS.barut,ICONS.zirh], lk:'item_gunpowder_armor', lp:{val:'100'} },
-    { d:28, imgs:[ICONS.oyuk], lk:'item_hollow_amount', lp:{val:'7,000'} },
-    { d:29, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'800'} },
-    { d:30, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'3,000', e:'1,000 👑'} }
+    { d:1,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'2,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'100'}}] },
+    { d:2,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'1,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'50'}}] },
+    { d:3,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'3,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'150'}}] },
+    { d:4,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'2,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'100'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'30'}}] },
+    { d:5,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'5,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'50'}}] },
+    { d:6,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'3,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'200'}}] },
+    { d:7,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'8,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'250'}}] },
+    { d:8,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'75'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'50'}}] },
+    { d:9,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'10,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'300'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}] },
+    { d:10, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'350'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'80'}}] },
+    { d:11, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}] },
+    { d:12, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'6,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'50'}}] },
+    { d:13, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'15,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'150'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'80'}}] },
+    { d:14, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'400'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'500'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}] },
+    { d:15, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'20,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'120'}}] },
+    { d:16, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'100'}}] },
+    { d:17, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'25,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'250'}}] },
+    { d:18, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'10,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'700'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'150'}}] },
+    { d:19, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'30,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'600'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'150'}}] },
+    { d:20, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },
+    { d:21, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'35,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },
+    { d:22, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'15,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,200'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'250'}}] },
+    { d:23, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'40,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'250'}}] },
+    { d:24, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'18,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,500'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'300'}}] },
+    { d:25, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'50,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'300'}}] },
+    { d:26, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'20,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },
+    { d:27, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'60,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,500'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'250'}}] },
+    { d:28, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'25,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,500'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'500'}}] },
+    { d:29, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'80,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'300'}}] },
+    { d:30, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'100,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'5,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'3,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'500'}}] }
   ];
 
   const D_VIP = [
-    { d:1,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'8,000'} },
-    { d:2,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'400'} },
-    { d:3,  imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'500'} },
-    { d:4,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'20,000'} },
-    { d:5,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'800 ★'} },
-    { d:6,  imgs:[ICONS.barut], lk:'item_gunpowder_amount', lp:{val:'300'} },
-    { d:7,  imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'1,000'} },
-    { d:8,  imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'32,000'} },
-    { d:9,  imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'800'} },
-    { d:10, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'2,000', e:'1,000 ★'} },
-    { d:11, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'40,000'} },
-    { d:12, imgs:[ICONS.zirh], lk:'item_armor_amount', lp:{val:'60'} },
-    { d:13, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'1,500'} },
-    { d:14, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'1,200'} },
-    { d:15, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'3,200', e:'1,800 ★'} },
-    { d:16, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'80,000'} },
-    { d:17, imgs:[ICONS.barut,ICONS.zirh], lk:'item_gunpowder_armor', lp:{val:'300'} },
-    { d:18, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'2,000'} },
-    { d:19, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'2,000'} },
-    { d:20, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'4,000', e:'2,000 ★'} },
-    { d:21, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'100,000'} },
-    { d:22, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'2,000'} },
-    { d:23, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'2,500'} },
-    { d:24, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'2,400'} },
-    { d:25, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'6,000', e:'3,000 ★'} },
-    { d:26, imgs:[ICONS.gold], lk:'item_gold_amount', lp:{val:'140,000'} },
-    { d:27, imgs:[ICONS.barut,ICONS.zirh], lk:'item_gunpowder_armor', lp:{val:'300'} },
-    { d:28, imgs:[ICONS.patlayan], lk:'item_explosive_amount', lp:{val:'3,500'} },
-    { d:29, imgs:[ICONS.pearl], lk:'item_pearl_amount', lp:{val:'3,200'} },
-    { d:30, imgs:[ICONS.pearl,ICONS.patlayan], lk:'item_mixed_rewards', lp:{p:'12,000', e:'4,000 👑'} }
+    { d:1,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}] },
+    { d:2,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },
+    { d:3,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'12,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'600'}}] },
+    { d:4,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'120'}}] },
+    { d:5,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'20,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },
+    { d:6,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'800'}}] },
+    { d:7,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'32,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,000'}}] },
+    { d:8,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'16,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'300'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },
+    { d:9,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'40,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}] },
+    { d:10, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'320'}}] },
+    { d:11, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'48,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,600'}}] },
+    { d:12, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'24,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },
+    { d:13, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'60,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'320'}}] },
+    { d:14, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,600'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}] },
+    { d:15, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'80,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'480'}}] },
+    { d:16, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'32,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'400'}}] },
+    { d:17, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'100,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}] },
+    { d:18, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'40,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'600'}}] },
+    { d:19, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'120,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'2,400'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'600'}}] },
+    { d:20, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'48,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'4,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'800'}}] },
+    { d:21, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'140,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'3,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'800'}}] },
+    { d:22, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'60,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'4,800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,000'}}] },
+    { d:23, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'160,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}] },
+    { d:24, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'72,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'6,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,200'}}] },
+    { d:25, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'200,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'4,800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,200'}}] },
+    { d:26, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'80,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'8,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'800'}}] },
+    { d:27, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'240,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'6,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,000'}}] },
+    { d:28, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'100,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'10,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'2,000'}}] },
+    { d:29, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'320,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'8,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,200'}}] },
+    { d:30, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'400,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'20,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'12,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'4,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'2,000'}}] }
   ];
 
   let today = 1;
@@ -693,20 +687,15 @@
   }
 
   function renderCardInner(card, r, dayNum, isMs, state) {
-    const imgsHTML = r.imgs.length === 1
-      ? `<img src="${r.imgs[0]}" class="day-rwd-img">`
-      : `<div class="day-rwd-imgs">${r.imgs.map(s => `<img src="${s}" class="day-rwd-img">`).join('')}</div>`;
-
     let badge = '';
     if (state === 'claimed') badge = '<span class="day-check claimed">✓</span>';
     else if (state === 'missed') badge = '<span class="day-check missed-icon">✕</span>';
     else if (state === 'available-normal' || state === 'available-vip') badge = '<span class="day-check" style="color:var(--gold)">⚡</span>';
     else badge = '<span class="day-check locked">🔒</span>';
 
-    // Localize reward text
-    let displayTxt = r.txt;
-    if (r.lk) {
-        displayTxt = t(r.lk, r.lp || {});
+    let partsHTML = '';
+    for (const p of r.parts) {
+      partsHTML += `<div class="day-part"><img src="${p.img}" class="day-rwd-img"><span class="day-rwd-txt">${t(p.lk, p.lp || {})}</span></div>`;
     }
 
     card.innerHTML = `
@@ -714,8 +703,7 @@
         <div class="day-num">${dayNum}</div>
         ${badge}
       </div>
-      ${imgsHTML}
-      <div class="day-rwd-text">${displayTxt}</div>
+      ${partsHTML}
     `;
   }
 

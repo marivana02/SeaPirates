@@ -898,6 +898,7 @@
           }
           const playerShipImg = document.querySelector('.player-wrap .ship-img');
           if (playerShipImg) {
+            playerShipImg.onload = repositionFires;
             playerShipImg.src = shipImgSrc;
           }
 
@@ -1008,6 +1009,7 @@
           const target = (pp <= 50) ? '11.png' : '3.png';
           if (last !== target) {
             parts[parts.length - 1] = target;
+            playerShipImg.onload = repositionFires;
             playerShipImg.src = parts.join('/');
           }
         }
@@ -1021,7 +1023,30 @@
 
     function fmt(n) { return Number(n).toLocaleString('en-US'); }
     function toggleSmoke(id, on) { const el = document.getElementById(id); if (on) { el.classList.add('visible'); el.style.opacity = '1'; } else { el.classList.remove('visible'); el.style.opacity = '0'; } }
-    function toggleFire(id, on) { const el = document.getElementById(id); if (el) { el.style.opacity = on ? '0.75' : '0'; } }
+    function toggleFire(id, on) {
+      if (isTiamat && id === 'npc-fire') return;
+      const el = document.getElementById(id);
+      if (el) { el.style.opacity = on ? '0.75' : '0'; }
+    }
+
+    function repositionFires() {
+      ['player', 'npc'].forEach(side => {
+        const wrap = document.querySelector(`.${side}-wrap`);
+        const img = wrap ? wrap.querySelector('.ship-img') : null;
+        const fire = document.getElementById(`${side}-fire`);
+        if (!wrap || !img || !fire) return;
+        const wr = wrap.getBoundingClientRect();
+        const ir = img.getBoundingClientRect();
+        const rw = ir.width;
+        const rh = ir.height;
+        if (rw === 0 || rh === 0) return;
+        fire.style.left = (ir.left - wr.left) + 'px';
+        fire.style.top = (ir.top - wr.top + Math.round(rh * 0.15)) + 'px';
+        fire.style.width = rw + 'px';
+        fire.style.height = Math.round(rh * 0.85) + 'px';
+        fire.style.transform = 'none';
+      });
+    }
 
     /* Flash — küçük (Kullanıcı isteğiyle kapatıldı) */
     function flash(who) {
@@ -1456,6 +1481,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           // Sunucudan dönen yeni can değerlerini geçici değişkenlerde sakla
           const nextPlayerHp = data.playerHp;
           const nextNpcHp = data.npcHp;
+          if (data.npcMaxHp) npc.maxHp = data.npcMaxHp;
 
           const TRAVEL_MS = 1620; // Delta-time bazlı 1500ms gülle uçuşuna göre tam senkronize süre
 
@@ -1470,15 +1496,18 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           // Oyuncu güllesi NPC'ye çarptığı an (t = TRAVEL_MS) - Sadece atış yapıldıysa hasar efekti tetiklenir
           const isBarutUsed = data.consumed && data.consumed.barut > 0;
           const isNpcZirhUsed = data.opponentConsumed && data.opponentConsumed.zirh > 0;
-          if (data.playerDamage && hasAmmo) {
+          const shouldShowDmg = (data.playerDamage || data.state === 'won' || data.state === 'lost') && hasAmmo;
+          if (shouldShowDmg) {
             let pIcons = '';
             if (isBarutUsed) pIcons += '<img src="assets/items/shop/barut-fight.png" style="width:24px;height:24px;object-fit:contain;">';
             if (isNpcZirhUsed) pIcons += '<img src="assets/items/shop/zırh-fghit.png" style="width:24px;height:24px;object-fit:contain;">';
             const pIcon = pIcons ? '<span style="display:inline-flex;align-items:center;gap:3px;">' + pIcons + '</span>' : null;
+            const oldNpcHp = npc.hp;
             setTimeout(() => {
               if (!active) return;
+              const dmg = data.playerDamage || Math.max(0, oldNpcHp - nextNpcHp);
               npc.hp = nextNpcHp; // Yeni canı darbe anında uygula!
-              spawnDmg('npc-node', data.playerDamage, '#ff4757', pIcon);
+              spawnDmg('npc-node', dmg, '#ff4757', pIcon);
               playHitAnim('npc-node');
               refreshHP(); // HP barı düşer, sails (yelken) düşme kontrolü tam bu saniye gerçekleşir!
             }, TRAVEL_MS);
@@ -1566,9 +1595,34 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
             if (typeof renderSlots === 'function') renderSlots();
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+        if (!active) return;
+        const overlay = document.getElementById('disconnect-overlay');
+        if (overlay && !overlay.classList.contains('show')) {
+          overlay.classList.add('show');
+          clearInterval(attackInterval);
+          if (opponentInterval) clearInterval(opponentInterval);
+          const retry = () => {
+            fetch(`${ATTACK_API_URL}/attack`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ ammoId: player.ammo, useBarut: player.barut, useZirh: player.zirh })
+            }).then(r => {
+              if (r.ok || r.status === 400) {
+                overlay.classList.remove('show');
+                document.getElementById('disconnect-sub').textContent = 'Yeniden bağlanılıyor...';
+                attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
+              } else {
+                setTimeout(retry, 3000);
+              }
+            }).catch(() => setTimeout(retry, 3000));
+          };
+          document.getElementById('disconnect-sub').textContent = 'Bağlantı gitti, yeniden deneniyor...';
+          setTimeout(retry, 3000);
+        }
+      }
     }
-
 
     (function () {
       const cfg = [

@@ -571,7 +571,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="r-user" placeholder="Username (3–20 characters)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" maxlength="20" oninput="liveValidUser(this)"/>
+          <input type="text" id="r-user" placeholder="Username (5-12 characters)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" minlength="5" maxlength="12" oninput="liveValidUser(this)"/>
         </div>
         <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 characters, use letters/numbers/_.</span>
 
@@ -698,7 +698,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     /* ── LIVE USERNAME VALIDATE ── */
     function liveValidUser(el){
       const v=el.value.trim();
-      if(v&&!/^[a-zA-Z0-9_]{3,20}$/.test(v)) showErr('r-user-err', t('reg_error_username'));
+      if(v&&!/^[a-zA-Z0-9_]{5,12}$/.test(v)) showErr('r-user-err', t('reg_error_username'));
       else hideErr('r-user-err');
     }
 

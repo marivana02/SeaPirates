@@ -5,13 +5,13 @@ const { validate, VALIDATORS } = require('../middleware/validate');
 test('VALIDATORS.username accepts valid names', () => {
   assert.ok(VALIDATORS.username('player1'));
   assert.ok(VALIDATORS.username('test_user'));
-  assert.ok(VALIDATORS.username('abc'));
-  assert.ok(VALIDATORS.username('x'.repeat(20)));
+  assert.ok(VALIDATORS.username('abcde'));
+  assert.ok(VALIDATORS.username('x'.repeat(12)));
 });
 
 test('VALIDATORS.username rejects invalid names', () => {
   assert.equal(VALIDATORS.username('ab'), false);  // too short
-  assert.equal(VALIDATORS.username('x'.repeat(21)), false);  // too long
+  assert.equal(VALIDATORS.username('x'.repeat(13)), false);  // too long
   assert.equal(VALIDATORS.username('user name'), false);  // space
   assert.equal(VALIDATORS.username('user-name'), false);  // hyphen
   assert.equal(VALIDATORS.username(''), false);  // empty

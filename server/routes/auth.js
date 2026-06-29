@@ -26,7 +26,7 @@ async function logAction(playerId, action, details = {}, ip = null) {
 
 const registerRules = {
   username: [
-    (v) => VALIDATORS.username(v) || 'Username must be 3-20 characters (letters, numbers, underscore)'
+    (v) => VALIDATORS.username(v) || 'Username must be 5-12 characters (letters, numbers, underscore)'
   ],
   email: [
     (v) => VALIDATORS.email(v) || 'Invalid email format'

@@ -59,6 +59,36 @@
     }).catch(function() {});
   }, 60000);
 
+  /* İNTERNET KESİNTİSİ — offline olunca 30sn sayaç, dolunca logout */
+  var _offlineTimer = null;
+  var _offlineCountdown = 30;
+  function startOfflineTimer() {
+    if (_offlineTimer) return;
+    _offlineCountdown = 30;
+    showToast('Bağlantı kesildi! ' + _offlineCountdown + 'sn içinde çıkış yapılacak...');
+    _offlineTimer = setInterval(function() {
+      _offlineCountdown--;
+      if (_offlineCountdown <= 0) {
+        clearInterval(_offlineTimer);
+        _offlineTimer = null;
+        showAlert('İnternet bağlantınız 30 saniye boyunca gelmedi. Güvenlik nedeniyle çıkış yapıldı.', 'BAĞLANTI KESİLDİ', true);
+        API.post('/auth/logout').catch(function() {});
+        localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
+        localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
+        sessionStorage.removeItem('sp_session_active');
+        setTimeout(function() { window.location.href = 'index.html'; }, 2000);
+      }
+    }, 1000);
+  }
+  function clearOfflineTimer() {
+    if (_offlineTimer) {
+      clearInterval(_offlineTimer);
+      _offlineTimer = null;
+    }
+  }
+  window.addEventListener('offline', startOfflineTimer);
+  window.addEventListener('online', clearOfflineTimer);
+
   /* 30 DAKİKA TIMEOUT — her 10sn kontrol et, sp_session_ts >30dk ise logout */
   setInterval(function sessionTimeout() {
     if (!localStorage.getItem('sp_token') || localStorage.getItem('sp_remember_me')) return;

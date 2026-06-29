@@ -154,22 +154,6 @@
       filter: drop-shadow(0 0 10px #ff4500) saturate(1.4);
     }
 
-    .player-wrap .fire-effect {
-      width: 58px; /* Yoğun ve dengeli alev genişliği */
-      height: 58px;
-      left: 36%; /* Isometric açı gereği sola kaydırılarak gövdenin tam üstüne hizalandı */
-      transform: translateX(-50%);
-      top: 22px; /* Masta gölge düşürmez, ahşap gövdede yanma hissi verir */
-    }
- 
-    .npc-wrap .fire-effect {
-      width: 38px; /* Sınır kutusu içindeki NPC boyutuyla uyumlu */
-      height: 38px;
-      left: 44%; /* Isometric açı gereği hafif sola kaydırılarak güverteye oturtuldu */
-      transform: translateX(-50%);
-      top: 14px; /* Düşman güvertesine tam milimetrik oturuş */
-    }
-
     /* Flash — küçük ve sade */
     .flash {
       position: absolute;
@@ -291,8 +275,8 @@
       object-fit: contain;
     }
     .rank-icon.right {
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
     }
 
     .rank-icon {
@@ -884,6 +868,24 @@
           <div class="outcome-rewards" id="outcome-rewards"></div>
           <button class="btn-return" onclick="handleReturn()" data-i18n="fight_btn_go_back">Go Back</button>
         </div>
+      </div>
+
+      <!-- DISCONNECT OVERLAY -->
+      <style>
+        .disconnect-overlay {
+          position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;
+          background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;
+          flex-direction:column;
+        }
+        .disconnect-overlay.show { display:flex; }
+        .disconnect-icon { font-size:3rem;margin-bottom:12px; }
+        .disconnect-title { font-size:1rem;font-weight:900;color:#e74c3c;text-shadow:0 0 20px rgba(231,76,60,0.4); }
+        .disconnect-sub { font-size:0.75rem;color:#c0a890;margin-top:6px; }
+      </style>
+      <div class="disconnect-overlay" id="disconnect-overlay">
+        <div class="disconnect-icon">🌊</div>
+        <div class="disconnect-title">BAĞLANTI KESİLDİ</div>
+        <div class="disconnect-sub" id="disconnect-sub">Yeniden bağlanılıyor...</div>
       </div>
 
       <!-- NO-CANNON MODAL -->

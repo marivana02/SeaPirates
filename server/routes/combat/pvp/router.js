@@ -136,6 +136,20 @@ router.post('/attack', authMiddleware, async (req, res) => {
     }
 
     const simResult = await simulatePvPOpponent(pool, opponentId, pDbInfo.level || 1, currentEvent, playerId);
+
+    // Opponent throttle: use opponent's own reload speed
+    const opponentReloadMs = opponentId === -1 ? simResult.npcReloadMs : (await getOpponentReloadMs(pool, opponentId));
+    const now = Date.now();
+    const lastOpp = lastOpponentAttack.get(playerId) || 0;
+    if (now - lastOpp < opponentReloadMs) {
+      simResult.npcDamage = 0;
+      simResult.npcUseBarut = false;
+      simResult.npcUseZirh = false;
+      simResult.npcAmmoId = null;
+    } else {
+      lastOpponentAttack.set(playerId, now);
+    }
+
     const pd = await calculatePlayerDamage(pool, playerId, ammoId);
 
     const dm = await applyPvPDamageModifiers(pool, playerId, pd, simResult, { useBarut, useZirh, currentEvent, ammoId });
@@ -174,7 +188,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
     }
 
     res.json({
-      state: 'ongoing', npcHp: fight.npcHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: npcDamage,
+      state: 'ongoing', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: npcDamage,
       elpGained: gainedElp, weeklyBossDamageDealt: 0,
       consumed: { ammo: pd.actualCannonsFired, barut: (useBarut && pd.actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
       opponentConsumed: { barut: simResult.npcUseBarut ? 1 : 0, zirh: simResult.npcUseZirh ? 1 : 0, ammoId: simResult.npcAmmoId },

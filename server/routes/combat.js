@@ -243,7 +243,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
       const bossHp = aliveRes.rows[0] ? parseInt(aliveRes.rows[0].boss_current_hp) : 0;
       if (bossHp <= 0) {
         return res.json({
-          state: 'boss_defeated', npcHp: 0, playerHp: fight.playerHp,
+          state: 'boss_defeated', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp,
           playerDamage: 0, npcDamage: 0, elpGained: 0,
           message: 'This boss has already been defeated!'
         });
@@ -255,7 +255,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
       const bossHp = aliveRes.rows[0] ? parseInt(aliveRes.rows[0].current_hp) : 0;
       if (bossHp <= 0) {
         return res.json({
-          state: 'boss_defeated', npcHp: 0, playerHp: fight.playerHp,
+          state: 'boss_defeated', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp,
           playerDamage: 0, npcDamage: 0, elpGained: 0,
           message: 'Tiamat has already been defeated!'
         });
@@ -316,7 +316,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
     if (fight.npcHp === 0) {
       await updateQuestProgress(pool, playerId, { type: 'kill', npcNameStr, amount: 1, npcObj });
       const evMult = currentEvent.type === 'npc_reward' ? currentEvent.mult : 1;
-      const rewardResult = await grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBoss, evMult, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh });
+      const rewardResult = await grantRewards(pool, { fight, playerId, playerDamage: actualHpLost, npcObj, isBoss, evMult, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh });
       return res.json(rewardResult);
     }
 
@@ -373,7 +373,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
       [fight.npcHp, fight.playerHp, fight.weeklyBossDamageDealt, playerId, npcCanAttack]);
 
     res.json({
-      state: 'ongoing', npcHp: fight.npcHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: actualNpcDamage,
+      state: 'ongoing', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: actualNpcDamage,
       elpGained: gainedElp, weeklyBossDamageDealt: fight.weeklyBossDamageDealt || 0,
       consumed: { ammo: pd.actualCannonsFired, barut: (useBarut && pd.actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
       targetHit: targetHitUsername, isAdmiral: fight.isAdmiral, isTiamat: fight.isTiamat

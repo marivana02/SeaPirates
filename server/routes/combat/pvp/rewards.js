@@ -25,7 +25,7 @@ async function grantPvPRewards(pool, { fight, playerId, playerDamage, gainedElp,
 
   await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
   return {
-    state: 'won', npcHp: 0, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
+    state: 'won', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
     isPvP: true,
     rewards: { gold: 0, xp: 0, pearl: 0, elp: gainedElp, pvpPoints: 3 },
     consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
@@ -99,7 +99,7 @@ async function handlePvPPlayerDeath(pool, { fight, playerId, playerDamage, gaine
 
   await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
   return {
-    state: 'lost', npcHp: fight.npcHp, playerHp: respawnHp, playerDamage: 0, npcDamage: actualNpcDamage,
+    state: 'lost', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: respawnHp, playerDamage: 0, npcDamage: actualNpcDamage,
     isPvP: true,
     rewards: { gold: 0, xp: 0, pearl: 0, elp: gainedElp, pvpPoints: 0 },
     consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },

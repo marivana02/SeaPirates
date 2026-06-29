@@ -31,6 +31,7 @@
 
       const npcImgEl = document.getElementById('npc-img');
       if (npcImgEl) {
+        npcImgEl.onload = repositionFires;
         npcImgEl.src = src;
         if (isTowerMode) {
           npcImgEl.style.maxWidth = '90px';

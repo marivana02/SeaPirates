@@ -237,8 +237,8 @@ CREATE OR REPLACE FUNCTION give_starter_pack()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO player_cannons (player_id, cannon_type, quantity, equipped) VALUES
-        (NEW.id, 1, 5, 5),
-        (NEW.id, 2, 1, 1);
+        (NEW.id, 1, 5, 0),
+        (NEW.id, 2, 1, 0);
     INSERT INTO player_ammo (player_id, ammo_type, quantity) VALUES
         (NEW.id, 1, 2000),
         (NEW.id, 2, 1000),
@@ -247,7 +247,7 @@ BEGIN
         (NEW.id, 'barut', 100),
         (NEW.id, 'zirh', 100);
     INSERT INTO player_planks (player_id, plank_type, quantity, equipped) VALUES
-        (NEW.id, 'tahta', 10, 5);
+        (NEW.id, 'tahta', 10, 0);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

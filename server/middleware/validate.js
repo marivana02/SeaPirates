@@ -2,7 +2,7 @@ const response = require('../helpers/response');
 
 const VALIDATORS = {
   username(v) {
-    return typeof v === 'string' && /^[a-zA-Z0-9_]{3,20}$/.test(v);
+    return typeof v === 'string' && /^[a-zA-Z0-9_]{5,12}$/.test(v);
   },
   password(v) {
     return typeof v === 'string' && v.length >= 8 && v.length <= 100;

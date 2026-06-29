@@ -144,7 +144,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
 
     const { leveledUp: admiralLeveledUp, newLevel: admiralNewLevel } = await checkLevelUp(pool, playerId);
     return {
-      state: 'won', npcHp: 0, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
+      state: 'won', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
       rewards: rewardsGiven ? { gold: 0, pearl: rewAdmPearl, xp: rewAdmXp } : { gold: 0, pearl: 0, xp: 0 },
       consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
       leveledUp: admiralLeveledUp,
@@ -168,7 +168,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
 
     const { leveledUp, newLevel } = await checkLevelUp(pool, playerId);
     return {
-      state: 'won', npcHp: 0, playerHp: respawnHp, playerDamage: 0, npcDamage: 0,
+      state: 'won', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: respawnHp, playerDamage: 0, npcDamage: 0,
       rewards: { gold: 0, pearl: tiamatRewards.pearl, xp: tiamatRewards.xp },
       consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
       leveledUp,
@@ -260,7 +260,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
 
   await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
   return {
-    state: 'won', npcHp: 0, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
+    state: 'won', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
     rewards: { gold: rewGold, xp: rewXp, pearl: rewPearl },
     consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
     leveledUp,
@@ -319,7 +319,7 @@ async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, 
     );
     await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
     return {
-      state: 'lost', npcHp: fight.npcHp, playerHp: 0, playerDamage: 0, npcDamage: actualNpcDamage,
+      state: 'lost', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: 0, playerDamage: 0, npcDamage: actualNpcDamage,
       isWeeklyBoss: true,
       weeklyBossDamageDealt: totalSessionDmg,
       rewards: { gold: 0, xp: 0, pearl: 0 },
@@ -341,7 +341,7 @@ async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, 
     );
     await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
     return {
-      state: 'lost', npcHp: fight.npcHp, playerHp: respawnHp, playerDamage: 0, npcDamage: actualNpcDamage,
+      state: 'lost', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: respawnHp, playerDamage: 0, npcDamage: actualNpcDamage,
       consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
       targetHit: targetHitUsername,
       isTiamat: true,
@@ -360,7 +360,7 @@ async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, 
   }
   await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
   return {
-    state: 'lost', npcHp: fight.npcHp, playerHp: respawnHp, playerDamage: 0, npcDamage: actualNpcDamage,
+    state: 'lost', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: respawnHp, playerDamage: 0, npcDamage: actualNpcDamage,
     consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
     targetHit: targetHitUsername,
     beamsBroken

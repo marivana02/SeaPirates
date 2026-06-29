@@ -52,9 +52,9 @@ async function giveItems(playerId) {
   const maxEquip = 60;
   await pool.query(
     `INSERT INTO player_cannons (player_id, cannon_type, quantity, equipped) VALUES
-     ($1, 1, ${maxEquip + 100}, ${maxEquip}),
-     ($1, 2, ${maxEquip + 100}, ${maxEquip}),
-     ($1, 3, ${maxEquip + 100}, ${maxEquip})`,
+     ($1, 1, ${maxEquip + 100}, 0),
+     ($1, 2, ${maxEquip + 100}, 0),
+     ($1, 3, ${maxEquip + 100}, 0)`,
     [playerId]
   );
 
@@ -75,8 +75,8 @@ async function giveItems(playerId) {
 
   await pool.query(
     `INSERT INTO player_planks (player_id, plank_type, quantity, equipped) VALUES
-     ($1, 'tahta', 125, 25),
-     ($1, 'elit', 125, 25)`,
+     ($1, 'tahta', 125, 0),
+     ($1, 'elit', 125, 0)`,
     [playerId]
   );
 }

@@ -599,6 +599,12 @@
     function closeNoCannon() {
       document.getElementById('nocannon-modal').style.display = 'none';
     }
+    document.addEventListener('DOMContentLoaded', () => {
+      const ncEquipBtn = document.getElementById('nocannon-goto-equip');
+      if (ncEquipBtn) ncEquipBtn.addEventListener('click', () => goTo('equipment.html'));
+      const ncCloseBtn = document.getElementById('nocannon-close');
+      if (ncCloseBtn) ncCloseBtn.addEventListener('click', closeNoCannon);
+    });
 
     // Start normal NPC battle
     let admiralWarningResolve = null;

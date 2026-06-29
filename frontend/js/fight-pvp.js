@@ -21,6 +21,7 @@
 
       const npcImgEl = document.getElementById('npc-img');
       if (npcImgEl) {
+        npcImgEl.onload = repositionFires;
         npcImgEl.src = src;
         npcImgEl.style.maxWidth = '90px';
         npcImgEl.style.maxHeight = '90px';
@@ -54,6 +55,7 @@
 
             const npcImgEl = document.getElementById('npc-img');
             if (npcImgEl) {
+              npcImgEl.onload = repositionFires;
               npcImgEl.src = data.fullImg;
               npcImgEl.style.maxWidth = '90px';
               npcImgEl.style.maxHeight = '90px';
