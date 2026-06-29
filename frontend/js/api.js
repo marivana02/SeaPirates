@@ -108,17 +108,6 @@ window.clearAuth = function() {
   sessionStorage.removeItem('sp_session_active');
 };
 
-/* Session kontrolü: sayfa yüklenince 30dk aşımı kontrolü */
-(function() {
-  if (!localStorage.getItem('sp_token')) return;
-  var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
-  if (ts > 0 && Date.now() - ts > 60000) {
-    localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
-    localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
-    sessionStorage.removeItem('sp_session_active');
-  }
-})();
-
 /* Global fetch override — catches 401/403 from ANY fetch call, not just API.* */
 (function() {
   let sessionExpiredShown = false;
