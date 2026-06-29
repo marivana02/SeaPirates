@@ -28,11 +28,6 @@ const Auth = (() => {
     isLoggedIn() {
       const token = this.getToken();
       if (!token) return false;
-      const session = sessionStorage.getItem(SESSION_KEY);
-      if (!session) {
-        this.logout();
-        return false;
-      }
       const ts = parseInt(localStorage.getItem(TS_KEY) || '0');
       if (ts > 0 && Date.now() - ts > SESSION_MAX_MS) {
         this.logout();
