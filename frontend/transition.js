@@ -45,11 +45,13 @@
     alertOverlay.classList.add('show');
   };
 
-  /* Kalp atışı (1sn) — sp_hb_time güncelle + session timestamp tazele (app kill tespiti için) */
+  /* Kalp atışı (1sn) — sp_session_ts her zaman tazele (auth.js olmayan sayfalar için de) */
   setInterval(function() {
     var now = Date.now();
     sessionStorage.setItem('sp_hb_time', now.toString());
-    if (typeof Auth !== 'undefined' && typeof Auth.touch === 'function') Auth.touch();
+    if (localStorage.getItem('sp_token')) {
+      localStorage.setItem('sp_session_ts', now.toString());
+    }
   }, 1000);
 
   /* Ping (60sn) — sunucu last_seen güncelle + sp_session_ts yenile */
