@@ -45,10 +45,11 @@
     alertOverlay.classList.add('show');
   };
 
-  /* Kalp atışı (1sn) — sp_hb_time güncelle (30dk kontrolü ve timer-throttle için) */
+  /* Kalp atışı (1sn) — sp_hb_time güncelle + session timestamp tazele (app kill tespiti için) */
   setInterval(function() {
     var now = Date.now();
     sessionStorage.setItem('sp_hb_time', now.toString());
+    if (typeof Auth !== 'undefined' && typeof Auth.touch === 'function') Auth.touch();
   }, 1000);
 
   /* Ping (60sn) — sunucu last_seen güncelle + sp_session_ts yenile */
@@ -89,17 +90,17 @@
   window.addEventListener('offline', startOfflineTimer);
   window.addEventListener('online', clearOfflineTimer);
 
-  /* 30 DAKİKA TIMEOUT — her 10sn kontrol et, sp_session_ts >30dk ise logout */
+  /* APP KILL TESPİTİ — her 3sn kontrol et, sp_session_ts >60sn ise logout */
   setInterval(function sessionTimeout() {
     if (!localStorage.getItem('sp_token') || localStorage.getItem('sp_remember_me')) return;
     var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
-    if (ts > 0 && Date.now() - ts > 1800000) {
+    if (ts > 0 && Date.now() - ts > 60000) {
       localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
       localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
       sessionStorage.removeItem('sp_session_active');
       if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
     }
-  }, 10000);
+  }, 3000);
   /* Uygulama geri geldiğinde session'ı tazele (30dk timeout mekanizması yeterli) */
   window.onReopen = function() {
     if (typeof Auth !== 'undefined' && typeof Auth.touch === 'function') Auth.touch();

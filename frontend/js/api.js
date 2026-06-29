@@ -113,7 +113,7 @@ window.clearAuth = function() {
   if (!localStorage.getItem('sp_token')) return;
   if (localStorage.getItem('sp_remember_me')) return;
   var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
-  if (ts > 0 && Date.now() - ts > 1800000) {
+  if (ts > 0 && Date.now() - ts > 60000) {
     localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
     localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
     sessionStorage.removeItem('sp_session_active');

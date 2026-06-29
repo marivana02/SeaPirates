@@ -4,7 +4,7 @@ const Auth = (() => {
   const REMEMBER_KEY = 'sp_remember_me';
   const SESSION_KEY = 'sp_session_active';
   const TS_KEY = 'sp_session_ts';
-  const SESSION_MAX_MS = 1800000; // 30 dakika
+  const SESSION_MAX_MS = 60000; // 60 saniye (app kill tespiti için kısa tutulur)
 
   return {
     getToken() {
