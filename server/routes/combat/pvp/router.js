@@ -148,9 +148,6 @@ router.post('/attack', authMiddleware, async (req, res) => {
     const lastOpp = lastOpponentAttack.get(playerId) || 0;
     if (now - lastOpp < opponentReloadMs) {
       simResult.npcDamage = 0;
-      simResult.npcUseBarut = false;
-      simResult.npcUseZirh = false;
-      simResult.npcAmmoId = null;
     } else {
       lastOpponentAttack.set(playerId, now);
       await deductOpponentInventory(pool, opponentId, simResult);
