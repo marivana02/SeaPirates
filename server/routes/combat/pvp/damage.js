@@ -26,18 +26,27 @@ async function calculateOpponentDamage(pool, opponentId) {
     remainingSlots -= usable;
   }
 
-  let ammoId = 3;
+  let ammoId = 1;
   let ammoDamage = 0;
-  let givesElp = true;
-  const ammoRes = await pool.query(
-    'SELECT damage_bonus as damage FROM ammo WHERE id = 3'
-  );
-  if (ammoRes.rows.length > 0) {
-    ammoDamage = ammoRes.rows[0].damage;
+  let givesElp = false;
+  const ammoPriorities = [3, 2, 1];
+  for (const at of ammoPriorities) {
+    const ammoRes = await pool.query(
+      'SELECT pa.quantity, a.damage_bonus as damage FROM player_ammo pa JOIN ammo a ON pa.ammo_type = a.id WHERE pa.player_id = $1 AND pa.ammo_type = $2 AND pa.quantity >= $3',
+      [opponentId, at, totalCannons]
+    );
+    if (ammoRes.rows.length > 0) {
+      ammoId = at;
+      ammoDamage = ammoRes.rows[0].damage;
+      if (at === 3) givesElp = true;
+      break;
+    }
   }
 
-  const useBarut = true;
-  const useZirh = true;
+  const barutRes = await pool.query("SELECT quantity FROM player_items WHERE player_id = $1 AND item_type = 'barut' AND quantity >= 1", [opponentId]);
+  const zirhRes = await pool.query("SELECT quantity FROM player_items WHERE player_id = $1 AND item_type = 'zirh' AND quantity >= 1", [opponentId]);
+  const useBarut = barutRes.rows.length > 0;
+  const useZirh = zirhRes.rows.length > 0;
 
   let damage = totalCannonDamage + (totalCannons * ammoDamage);
 
