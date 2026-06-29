@@ -100,6 +100,11 @@
       if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
     }
   }, 10000);
+  /* Uygulama geri geldiğinde session'ı tazele (30dk timeout mekanizması yeterli) */
+  window.onReopen = function() {
+    if (typeof Auth !== 'undefined' && typeof Auth.touch === 'function') Auth.touch();
+  };
+
   /* Capacitor native appStateChange — Java katmanından gelir, WebView serialize'ından etkilenmez */
   if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
     try { Capacitor.Plugins.App.addListener('appStateChange', function(s) { if (s.isActive) onReopen(); }); } catch(e) {}

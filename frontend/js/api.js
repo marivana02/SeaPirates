@@ -108,20 +108,12 @@ window.clearAuth = function() {
   sessionStorage.removeItem('sp_session_active');
 };
 
-/* Session kontrolü: sayfa yüklenince 30dk aşımı veya sp_navigating yoksa logout */
+/* Session kontrolü: sayfa yüklenince 30dk aşımı kontrolü */
 (function() {
   if (!localStorage.getItem('sp_token')) return;
   if (localStorage.getItem('sp_remember_me')) return;
   var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
   if (ts > 0 && Date.now() - ts > 1800000) {
-    localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
-    localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
-    sessionStorage.removeItem('sp_session_active');
-    return;
-  }
-  var navigating = sessionStorage.getItem('sp_navigating');
-  sessionStorage.removeItem('sp_navigating');
-  if (!navigating) {
     localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
     localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');
     sessionStorage.removeItem('sp_session_active');

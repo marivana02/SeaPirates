@@ -124,7 +124,7 @@ async function botTick() {
     );
     if (after.rows.length > 0 && after.rows[0].current_hp !== null && parseInt(after.rows[0].current_hp) <= 0) {
       const { distributeTiamatRewards } = require('../helpers/combat');
-      distributeTiamatRewards()
+      distributeTiamatRewards(null)
         .then(() => console.log(`[BOT TIAMAT] Tiamat killed — rewards distributed`))
         .catch(err => console.error(`[BOT TIAMAT] Reward error:`, err.message));
     }

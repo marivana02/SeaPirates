@@ -356,7 +356,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
     }
 
     if (fight.playerHp === 0) {
-      const deathResult = await handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, isBoss, gainedElp, isWeeklyBoss: npcObj.isWeeklyBoss, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh, npcUseBarut: false, npcUseZirh: false, npcAmmoId: null, actualNpcDamage, targetHitUsername });
+      const deathResult = await handlePlayerDeath(pool, { fight, playerId, playerDamage: actualHpLost, npcObj, isBoss, gainedElp, isWeeklyBoss: npcObj.isWeeklyBoss, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh, npcUseBarut: false, npcUseZirh: false, npcAmmoId: null, actualNpcDamage, targetHitUsername });
       return res.json(deathResult);
     }
 
@@ -365,9 +365,9 @@ router.post('/attack', authMiddleware, async (req, res) => {
     } else if (fight.isAdmiral || fight.isTiamat) {
       await pool.query('UPDATE players SET hp = $1 WHERE id = $2', [fight.playerHp, playerId]);
     } else if (isBoss) {
-      await pool.query('UPDATE players SET hp = $1, dmg_amiral = dmg_amiral + $2 WHERE id = $3', [fight.playerHp, playerDamage, playerId]);
+      await pool.query('UPDATE players SET hp = $1, dmg_amiral = dmg_amiral + $2 WHERE id = $3', [fight.playerHp, actualHpLost, playerId]);
     } else {
-      await pool.query('UPDATE players SET hp = $1, dmg_pve = dmg_pve + $2 WHERE id = $3', [fight.playerHp, playerDamage, playerId]);
+      await pool.query('UPDATE players SET hp = $1, dmg_pve = dmg_pve + $2 WHERE id = $3', [fight.playerHp, actualHpLost, playerId]);
     }
     await pool.query(`UPDATE active_fights SET npc_hp = $1, player_hp = $2, weekly_boss_damage_dealt = $3, last_activity = CURRENT_TIMESTAMP, last_npc_attack = CASE WHEN $5 THEN CURRENT_TIMESTAMP ELSE last_npc_attack END WHERE player_id = $4`,
       [fight.npcHp, fight.playerHp, fight.weeklyBossDamageDealt, playerId, npcCanAttack]);

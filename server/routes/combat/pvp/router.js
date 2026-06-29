@@ -12,6 +12,28 @@ const { getOpponentReloadMs } = require('../../../helpers/combatRoute');
 
 // Opponent attack throttle (in-memory, limits to 1 attack per 2s per player)
 const lastOpponentAttack = new Map();
+
+async function deductOpponentInventory(pool, opponentId, simResult) {
+  if (opponentId <= 0) return;
+  if (simResult.npcAmmoId && simResult.npcCannons > 0) {
+    await pool.query(
+      'UPDATE player_ammo SET quantity = GREATEST(0, quantity - $1) WHERE player_id = $2 AND ammo_type = $3',
+      [simResult.npcCannons, opponentId, simResult.npcAmmoId]
+    );
+  }
+  if (simResult.npcUseBarut) {
+    await pool.query(
+      "UPDATE player_items SET quantity = GREATEST(0, quantity - 1) WHERE player_id = $1 AND item_type = 'barut' AND quantity >= 1",
+      [opponentId]
+    );
+  }
+  if (simResult.npcUseZirh) {
+    await pool.query(
+      "UPDATE player_items SET quantity = GREATEST(0, quantity - 1) WHERE player_id = $1 AND item_type = 'zirh' AND quantity >= 1",
+      [opponentId]
+    );
+  }
+}
 const { applyPvPDamageModifiers } = require('./damage');
 const { grantPvPRewards, handlePvPPlayerDeath } = require('./rewards');
 const { initPvPTarget } = require('./target');
@@ -120,12 +142,13 @@ router.post('/attack', authMiddleware, async (req, res) => {
       const lastOpp = lastOpponentAttack.get(playerId) || 0;
       if (now - lastOpp < opponentReloadMs) {
         releaseAttackLock(playerId);
-        return res.json({ state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, opponentConsumed: { barut: 0, zirh: 0, ammoId: null } });
+        return res.json({ state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), npcMaxHp: parseInt(fightRow.npc_max_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, opponentConsumed: { barut: 0, zirh: 0, ammoId: null } });
       }
       lastOpponentAttack.set(playerId, now);
+      await deductOpponentInventory(pool, opponentId, simResult);
       await pool.query('UPDATE active_fights SET last_activity = CURRENT_TIMESTAMP WHERE player_id = $1', [playerId]);
       res.json({
-        state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: simResult.npcDamage,
+        state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), npcMaxHp: parseInt(fightRow.npc_max_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: simResult.npcDamage,
         elpGained: 0,
         consumed: { ammo: 0, barut: 0, zirh: 0 },
         opponentConsumed: { barut: simResult.npcUseBarut ? 1 : 0, zirh: simResult.npcUseZirh ? 1 : 0, ammoId: simResult.npcAmmoId },
@@ -148,6 +171,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
       simResult.npcAmmoId = null;
     } else {
       lastOpponentAttack.set(playerId, now);
+      await deductOpponentInventory(pool, opponentId, simResult);
     }
 
     const pd = await calculatePlayerDamage(pool, playerId, ammoId);

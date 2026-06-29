@@ -324,7 +324,7 @@
       const nr = img ? img.getBoundingClientRect() : (node ? node.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 });
       
       const isWeeklyBoss = localStorage.getItem('sp_combat_is_weekly_boss') === 'true';
-      const isAdmiral = npc && npc.name && npc.name.includes('Admiral');
+      const isAdmiral = npc && npc.name && npc.name.toLowerCase().includes('admiral');
       const isTiamatCenter = localStorage.getItem('sp_combat_is_tiamat') === 'true';
       
       let yFactor = 0.5;
@@ -1521,7 +1521,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           }
 
           // t=600ms: NPC karşı ateş açar
-          const isAdmiral = npc.name && npc.name.includes('Admiral');
+          const isAdmiral = npc.name && npc.name.toLowerCase().includes('admiral');
           const isDataTiamat = data.isTiamat || isTiamat;
           const isGlobalBoss = isAdmiral || isDataTiamat;
           const shouldNpcAttackPlayer = isGlobalBoss || ((!npc.isPvP || (data.npcDamage && data.npcDamage > 0)) && (data.npcDamage && data.npcDamage > 0));

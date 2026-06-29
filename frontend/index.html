@@ -540,7 +540,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false"/>
+          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>
         </div>
         <span class="err" id="l-user-err" data-i18n="login_error_fields">Username is required.</span>
 

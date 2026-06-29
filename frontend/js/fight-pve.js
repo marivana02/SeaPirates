@@ -55,7 +55,7 @@
               npcInfoEl.classList.add('boss-decor');
             }
           }
-        } else if (npc.name && npc.name.includes('Admiral')) {
+        } else if (npc.name && npc.name.toLowerCase().includes('admiral')) {
           npcImgEl.style.maxWidth = '135px';
           npcImgEl.style.maxHeight = '135px';
           npcImgEl.style.mixBlendMode = 'normal';
@@ -223,7 +223,7 @@
       const rewardsEl = document.getElementById('outcome-rewards');
 
       const isTower = localStorage.getItem('sp_combat_is_tower') === 'true';
-      const isAdmiral = npc.name && npc.name.includes('Admiral');
+      const isAdmiral = npc.name && npc.name.toLowerCase().includes('admiral');
       let titleText, subText;
 
       if (isWeeklyBoss) {

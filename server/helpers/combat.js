@@ -112,7 +112,7 @@ async function distributeAdmiralRewards(mapLevel) {
     }
 }
 
-async function distributeTiamatRewards(playerId) {
+async function distributeTiamatRewards(playerId = null) {
     const client = await pool.connect();
     let myRewards = { pearl: 0, xp: 0 };
     try {
