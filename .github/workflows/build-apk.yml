@@ -97,13 +97,7 @@ jobs:
           # Adaptive icon support (Android 8+) — use same icon as fallback
           ADAPTIVE_DIR="$ANDROID_RES/mipmap-anydpi-v26"
           mkdir -p "$ADAPTIVE_DIR"
-          cat > "$ADAPTIVE_DIR/ic_launcher.xml" << 'XMLEOF'
-<?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@mipmap/ic_launcher_background"/>
-    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
-</adaptive-icon>
-XMLEOF
+          printf '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@mipmap/ic_launcher_background"/>\n    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\n</adaptive-icon>\n' > "$ADAPTIVE_DIR/ic_launcher.xml"
           cp "$ADAPTIVE_DIR/ic_launcher.xml" "$ADAPTIVE_DIR/ic_launcher_round.xml"
           # Generate foreground (icon art) and background (solid color)
           convert "$SRC" -gravity center -extent 1:1 -resize 108x108 "$ANDROID_RES/mipmap-anydpi-v26/ic_launcher_foreground.png"
