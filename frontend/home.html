@@ -1198,13 +1198,14 @@
       let html = '';
       lbData.forEach((row, i) => {
         const rank = i + 1;
-        const isMe = row.username === (playerData.display_name || playerData.username);
+        const rowName = row.display_name || row.username;
+        const isMe = rowName === (playerData.display_name || playerData.username);
         const badge = row.rankBadge || 13;
         const rbClass = badge === 1 ? 'r1' : (badge === 2 || badge === 3) ? 'r2-3' : badge <= 10 ? 'r4-10' : 'r-low';
 
         html += `<div class="lb-row${isMe ? ' me' : ''}">
       <div class="sira">${rank}</div>
-      <span class="nick">${esc(row.username)}</span>
+      <span class="nick">${esc(rowName)}</span>
       <div class="rutbe-col">
         <span class="rutbe-puan">${fmt(row.score || 0)}</span>
       </div>
@@ -1214,7 +1215,7 @@
     </div>`;
       });
 
-      const inList = lbData.some(r => r.username === (playerData.display_name || playerData.username));
+      const inList = lbData.some(r => (r.display_name || r.username) === (playerData.display_name || playerData.username));
       if (!inList) {
         const badge = playerData.rankBadge || 13;
         const rbClass = badge === 1 ? 'r1' : (badge === 2 || badge === 3) ? 'r2-3' : badge <= 10 ? 'r4-10' : 'r-low';
