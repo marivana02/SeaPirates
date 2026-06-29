@@ -28,9 +28,7 @@ const Auth = (() => {
     isLoggedIn() {
       const token = this.getToken();
       if (!token) return false;
-      const remember = localStorage.getItem(REMEMBER_KEY);
       const session = sessionStorage.getItem(SESSION_KEY);
-      if (remember) return true;
       if (!session) {
         this.logout();
         return false;
@@ -57,7 +55,7 @@ const Auth = (() => {
     },
 
     touch() {
-      if (this.getToken() && !localStorage.getItem(REMEMBER_KEY)) {
+      if (this.getToken()) {
         localStorage.setItem(TS_KEY, Date.now().toString());
       }
     },

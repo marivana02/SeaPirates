@@ -76,9 +76,7 @@ const Auth = (() => {
     isLoggedIn() {
       const token = this.getToken();
       if (!token) return false;
-      const remember = localStorage.getItem(REMEMBER_KEY);
       const session = sessionStorage.getItem(SESSION_KEY);
-      if (remember) return true;
       if (!session) { this.logout(); return false; }
       const ts = parseInt(localStorage.getItem(TS_KEY) || '0');
       if (ts > 0 && Date.now() - ts > SESSION_MAX_MS) { this.logout(); return false; }
@@ -91,7 +89,7 @@ const Auth = (() => {
       localStorage.setItem(TS_KEY, Date.now().toString());
     },
     touch() {
-      if (this.getToken() && !localStorage.getItem(REMEMBER_KEY)) localStorage.setItem(TS_KEY, Date.now().toString());
+      if (this.getToken()) localStorage.setItem(TS_KEY, Date.now().toString());
     },
     logout() {
       localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(PLAYER_KEY);
@@ -649,15 +647,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         localStorage.removeItem('sp_remember_me');
       }
 
-      // 2. Token kontrolü (otomatik giriş)
-      const token = localStorage.getItem('sp_token');
-      if (token) {
-        // Token varsa direkt home.html'e git
-        goTo('home.html');
-        return;
-      }
-      
-      // 3. Beni Hatırla kullanıcı adı ve şifre doldurma
+      // 2. Beni Hatırla kullanıcı adı ve şifre doldurma (otomatik giriş yok)
       const rememberedUser = localStorage.getItem('sp_remembered_username');
       const rememberedPass = localStorage.getItem('sp_remembered_password');
       if (rememberedUser) {

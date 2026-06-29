@@ -92,7 +92,7 @@
 
   /* APP KILL TESPİTİ — her 3sn kontrol et, sp_session_ts >60sn ise logout */
   setInterval(function sessionTimeout() {
-    if (!localStorage.getItem('sp_token') || localStorage.getItem('sp_remember_me')) return;
+    if (!localStorage.getItem('sp_token')) return;
     var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
     if (ts > 0 && Date.now() - ts > 60000) {
       localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');

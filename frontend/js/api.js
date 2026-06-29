@@ -111,7 +111,6 @@ window.clearAuth = function() {
 /* Session kontrolü: sayfa yüklenince 30dk aşımı kontrolü */
 (function() {
   if (!localStorage.getItem('sp_token')) return;
-  if (localStorage.getItem('sp_remember_me')) return;
   var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
   if (ts > 0 && Date.now() - ts > 60000) {
     localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
