@@ -669,7 +669,10 @@
       // Cache weekly boss rewards from server
       if (!bossRewardsCache) {
         try {
-          const r = await fetch(ROOT + '/api/combat/boss-rewards');
+          const token = localStorage.getItem('sp_token');
+          const r = await fetch(ROOT + '/api/combat/boss-rewards', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
           bossRewardsCache = await r.json();
         } catch(e) {
           console.error('Failed to fetch boss rewards:', e);
