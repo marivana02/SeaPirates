@@ -71,15 +71,17 @@ jobs:
 
       - name: Generate app icons from login.png
         run: |
+          set -e
           SRC="frontend/assets/ui/login.png"
           ANDROID_RES="frontend/android/app/src/main/res"
           echo "Generating icons from $SRC ..."
-          if [ ! -f "$SRC" ]; then exit 1; fi
+          if [ ! -f "$SRC" ]; then echo "ERROR: $SRC not found"; exit 1; fi
           # Install imagemagick
           if ! command -v convert &>/dev/null; then
+            echo "Installing imagemagick..."
             sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
           fi
-          # Generate each Android mipmap density (icon + round icon)
+          # Generate each Android mipmap density
           for SIZE in 48 72 96 144 192; do
             case $SIZE in
               48)  DENSITY="mdpi" ;;
@@ -94,17 +96,9 @@ jobs:
             cp "$OUT_DIR/ic_launcher.png" "$OUT_DIR/ic_launcher_round.png"
             echo "  $DENSITY → ${SIZE}x${SIZE}"
           done
-          # Adaptive icon support (Android 8+) — use same icon as fallback
-          ADAPTIVE_DIR="$ANDROID_RES/mipmap-anydpi-v26"
-          mkdir -p "$ADAPTIVE_DIR"
-          printf '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@mipmap/ic_launcher_background"/>\n    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\n</adaptive-icon>\n' > "$ADAPTIVE_DIR/ic_launcher.xml"
-          cp "$ADAPTIVE_DIR/ic_launcher.xml" "$ADAPTIVE_DIR/ic_launcher_round.xml"
-          # Generate foreground (icon art) and background (solid color)
-          convert "$SRC" -gravity center -extent 1:1 -resize 108x108 "$ANDROID_RES/mipmap-anydpi-v26/ic_launcher_foreground.png"
-          # Extract dominant background color from image edge
-          BG_COLOR=$(convert "$SRC" -gravity center -extent 1:1 -resize 1x1 -format "%[hex:u.p{0,0}]" info:- 2>/dev/null || echo "1a0a00")
-          convert -size 108x108 "xc:#${BG_COLOR}" "$ANDROID_RES/mipmap-anydpi-v26/ic_launcher_background.png"
-          echo "  Adaptive icons created (foreground + background #${BG_COLOR})"
+          # Remove adaptive icon dir (API 26+) to avoid broken XML references
+          rm -rf "$ANDROID_RES/mipmap-anydpi-v26"
+          echo "  Removed adaptive icon fallback (using density-based icons)"
           # Play Store icon
           convert "$SRC" -gravity center -extent 1:1 -resize 512x512 frontend/playstore-icon.png
           echo "  playstore-icon.png → 512x512"
