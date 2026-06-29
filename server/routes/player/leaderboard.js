@@ -7,7 +7,7 @@ const { calculateAllPlayerRanks } = require('../../helpers/rank');
 router.get('/leaderboard', async (req, res) => {
   try {
     const allRanks = await calculateAllPlayerRanks(pool);
-    const top100 = allRanks.slice(0, 100).map(r => ({
+    const leaderboard = allRanks.map(r => ({
       id: r.id,
       username: r.login_username,
       display_name: r.username,
@@ -18,7 +18,7 @@ router.get('/leaderboard', async (req, res) => {
       rankName: r.rankName,
       rankKey: r.rankKey
     }));
-    res.json(top100);
+    res.json(leaderboard);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
