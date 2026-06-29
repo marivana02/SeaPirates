@@ -932,7 +932,7 @@
             <span class="s-val gc" id="p-gold">0</span>
           </div>
           <div class="vip-row">
-            <span class="vip-badge off" id="vip-badge">VIP Sahip Değilsin</span>
+            <span class="vip-badge off" id="vip-badge" data-i18n="vip_status_off">Not VIP</span>
           </div>
           <div class="s-row">
             <span class="s-key">ELP:</span>
@@ -1190,7 +1190,7 @@
         const b = document.getElementById('vip-badge');
         b.className = 'vip-badge on';
         const daysLeft = Math.ceil((new Date(playerData.vip_until) - new Date()) / 86400000);
-        b.textContent = daysLeft > 0 ? 'VIP · ' + daysLeft + ' ' + t('daily_day') : '👑 VIP';
+        b.textContent = daysLeft > 0 ? '👑 VIP \u00b7 ' + daysLeft + ' ' + t('daily_day') : '👑 VIP';
       }
 
       // Render Leaderboard

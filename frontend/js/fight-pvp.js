@@ -185,7 +185,7 @@
       localStorage.removeItem('sp_boss_dmg_dealt');
       fetch(`${SHARED_API_URL}/end`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'X-Requested-With': 'XMLHttpRequest' }
       }).catch(e => console.error('handleReturn end error:', e))
         .finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace(pvpWon ? 'pvp.html' : 'map.html'); });
     };

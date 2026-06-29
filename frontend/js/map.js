@@ -208,7 +208,7 @@
         if (player.vip_until) {
           vipB.className = 'vip-badge on';
           const daysLeft = Math.ceil((new Date(player.vip_until) - new Date()) / 86400000);
-          vipB.textContent = daysLeft > 0 ? 'VIP · ' + daysLeft + ' ' + t('daily_day') : '👑 VIP';
+          vipB.textContent = daysLeft > 0 ? '👑 VIP \u00b7 ' + daysLeft + ' ' + t('daily_day') : '👑 VIP';
         } else {
           vipB.className = 'vip-badge off';
           vipB.textContent = t('vip_status_off');

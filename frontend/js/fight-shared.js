@@ -1442,7 +1442,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       // Güvenlik: Sunucudaki active_fights satırını temizle
       fetch(`${SHARED_API_URL}/end`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'X-Requested-With': 'XMLHttpRequest' }
       }).catch(e => console.error('handleReturn end error:', e))
         .finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace('map.html'); });
     }

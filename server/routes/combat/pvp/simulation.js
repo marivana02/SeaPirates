@@ -16,10 +16,9 @@ function generateBotLoadout(playerLevel) {
     ((primaryCount * primaryType.reloadMs) + (secondaryCount * secondaryType.reloadMs)) / totalCannons
   );
 
-  const ammoRoll = Math.random();
-  const ammoType = ammoRoll < 0.3 ? BOT_AMMO_TYPES[0] : ammoRoll < 0.6 ? BOT_AMMO_TYPES[1] : BOT_AMMO_TYPES[2];
-  const useBarut = Math.random() < 0.7;
-  const useZirh = Math.random() < 0.5;
+  const ammoType = BOT_AMMO_TYPES.find(function(a) { return a.id === 3; }) || BOT_AMMO_TYPES[2];
+  const useBarut = true;
+  const useZirh = true;
 
   return {
     totalCannons,

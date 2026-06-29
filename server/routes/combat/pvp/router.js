@@ -13,26 +13,8 @@ const { getOpponentReloadMs } = require('../../../helpers/combatRoute');
 // Opponent attack throttle (in-memory, limits to 1 attack per 2s per player)
 const lastOpponentAttack = new Map();
 
-async function deductOpponentInventory(pool, opponentId, simResult) {
-  if (opponentId <= 0) return;
-  if (simResult.npcAmmoId && simResult.npcCannons > 0) {
-    await pool.query(
-      'UPDATE player_ammo SET quantity = GREATEST(0, quantity - $1) WHERE player_id = $2 AND ammo_type = $3',
-      [simResult.npcCannons, opponentId, simResult.npcAmmoId]
-    );
-  }
-  if (simResult.npcUseBarut) {
-    await pool.query(
-      "UPDATE player_items SET quantity = GREATEST(0, quantity - 1) WHERE player_id = $1 AND item_type = 'barut' AND quantity >= 1",
-      [opponentId]
-    );
-  }
-  if (simResult.npcUseZirh) {
-    await pool.query(
-      "UPDATE player_items SET quantity = GREATEST(0, quantity - 1) WHERE player_id = $1 AND item_type = 'zirh' AND quantity >= 1",
-      [opponentId]
-    );
-  }
+async function deductOpponentInventory() {
+  // Rakip envanterinden düşme yapılmaz (barut/zırh/mermi sabit kabul edilir)
 }
 const { applyPvPDamageModifiers } = require('./damage');
 const { grantPvPRewards, handlePvPPlayerDeath } = require('./rewards');
