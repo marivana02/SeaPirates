@@ -47,9 +47,9 @@ const I18N_DATA = {
     battle_points: 'Savaş Puanı',
     rank_label: 'Rütbe',
     starter_pack: 'STARTER PAKETİ',
-    pack_name_baslangic: 'Başlangıç Paketi',
-    pack_name_korsan: 'Korsan Paketi',
-    pack_name_kaptan: 'Kaptan Paketi',
+    pack_name_baslangic: '🌟 Tayfa Paketi',
+    pack_name_korsan: '⚓ Korsan Kaptanı Paketi',
+    pack_name_kaptan: '👑 Deniz Lordu Paketi',
     pack_baslangic_1: '20.000 🪙 Altın + 1.000 💎 İnci',
     pack_baslangic_2: '1.000 Barut + 1.000 Zırh',
     pack_baslangic_3: '5.000 Oyuk + 2.000 Patlayan',
@@ -61,7 +61,7 @@ const I18N_DATA = {
     pack_kaptan_2: '8.000 Barut + 8.000 Zırh',
     pack_kaptan_3: '35.000 Oyuk + 18.000 Patlayan',
     pack_kaptan_4: '3× 60 Kalibre Top + 10× Elit Kiriş',
-    pack_kaptan_5: '🚢 Seahawk Tasarımı',
+    pack_kaptan_5: 'Seahawk Tasarımı',
     vip_pack: 'VIP PAKETLER',
     buy_now: 'SATIN AL',
 
@@ -189,6 +189,7 @@ const I18N_DATA = {
     stat_mast_slots: 'Direk Yuvası: {val}',
     stat_skin: 'Görünüm: {val}',
     stat_note_cosmetic: 'Not: Sadece görünüm',
+    stat_explosive_mult: '×1.6 Çarpan',
 
     // Shop item names - TR
     shop_name_30_pounder: '30 Kiloluk',
@@ -637,6 +638,7 @@ const I18N_DATA = {
     stat_mast_slots: 'Direk Yuvası: {val}',
     stat_skin: 'Görünüm: {val}',
     stat_note_cosmetic: 'Sadece görsel değişiklik sağlar.',
+    stat_explosive_mult: '×1.6 Çarpan',
 
     // Ranks - TR
     rank_1: 'Denizlerin Hükümdarı',
@@ -711,7 +713,24 @@ const I18N_DATA = {
     item_gunpowder_amount: '{val}x Barut',
     item_armor_amount: '{val}x Zırh Plakası',
     item_mixed_rewards: '{p} İnci + {e} Patlayan',
-    item_gunpowder_armor: '{val}x Barut & Zırh Plakası'
+    item_gunpowder_armor: '{val}x Barut & Zırh Plakası',
+
+    // Missing keys
+    home_title: 'Ana Sayfa',
+    events_placeholder_name: 'Etkinlik',
+    events_placeholder_desc: 'Açıklama',
+    starter_pack_title: 'STARTER PAKETİ',
+    pack_subtitle: 'Yeni korsanlar için tek seferlik fırsat!',
+    btn_buy: 'Satın Al',
+    rank_default: 'Kara Adamı',
+    alt_current_rank: 'Mevcut Rütbe',
+    alt_next_rank: 'Sonraki Rütbe',
+    alt_ship: 'Gemi',
+    disconnect_title: 'BAĞLANTI KESİLDİ',
+    disconnect_sub: 'Yeniden bağlanılıyor...',
+    level_label: '⭐ Seviye',
+    alt_gold: 'Altın',
+    menu_title: 'Menü'
   },
 
   en: {
@@ -753,9 +772,9 @@ const I18N_DATA = {
     battle_points: 'Battle Points',
     rank_label: 'Rank',
     starter_pack: 'STARTER PACK',
-    pack_name_baslangic: 'Starter Pack',
-    pack_name_korsan: 'Pirate Pack',
-    pack_name_kaptan: 'Captain Pack',
+    pack_name_baslangic: '🌟 Crew Pack',
+    pack_name_korsan: '⚓ Captain\'s Pack',
+    pack_name_kaptan: '👑 Sea Lord Pack',
     pack_baslangic_1: '20,000 🪙 Gold + 1,000 💎 Pearl',
     pack_baslangic_2: '1,000 Gunpowder + 1,000 Armor',
     pack_baslangic_3: '5,000 Hollow Shot + 2,000 Explosive Shot',
@@ -767,7 +786,7 @@ const I18N_DATA = {
     pack_kaptan_2: '8,000 Gunpowder + 8,000 Armor',
     pack_kaptan_3: '35,000 Hollow Shot + 18,000 Explosive Shot',
     pack_kaptan_4: '3× 60-Pounder Cannon + 10× Elite Beam',
-    pack_kaptan_5: '🚢 Seahawk Design',
+    pack_kaptan_5: 'Seahawk Design',
     vip_pack: 'VIP PACKS',
     buy_now: 'BUY NOW',
     searching: '🔍 SEARCHING...',
@@ -890,6 +909,7 @@ const I18N_DATA = {
     stat_mast_slots: 'Mast Slots: {val}',
     stat_skin: 'Skin: {val}',
     stat_note_cosmetic: 'Note: Cosmetic only',
+    stat_explosive_mult: '×1.6 Multiplier',
 
     // Shop item names - EN
     shop_name_30_pounder: '30 Pounder',
@@ -1410,6 +1430,7 @@ const I18N_DATA = {
     stat_mast_slots: 'Mast Slots: {val}',
     stat_skin: 'Skin: {val}',
     stat_note_cosmetic: 'Cosmetic only change.',
+    stat_explosive_mult: '×1.6 Multiplier',
 
     // Ranks - EN
     rank_1: 'Ruler of the Seas',
@@ -1484,7 +1505,23 @@ const I18N_DATA = {
     item_gunpowder_amount: '{val}x Gunpowder',
     item_armor_amount: '{val}x Armor Plate',
     item_mixed_rewards: '{p} Pearl + {e} Explosive',
-    item_gunpowder_armor: '{val}x Gunpowder & Armor Plate'
+    item_gunpowder_armor: '{val}x Gunpowder & Armor Plate',
+
+    home_title: 'Home',
+    events_placeholder_name: 'Event',
+    events_placeholder_desc: 'Description',
+    starter_pack_title: 'STARTER PACK',
+    pack_subtitle: 'One-time opportunity for new pirates!',
+    btn_buy: 'Buy',
+    rank_default: 'Landlubber',
+    alt_current_rank: 'Current Rank',
+    alt_next_rank: 'Next Rank',
+    alt_ship: 'Ship',
+    disconnect_title: 'CONNECTION LOST',
+    disconnect_sub: 'Reconnecting...',
+    level_label: '⭐ Level',
+    alt_gold: 'Gold',
+    menu_title: 'Menu'
   },
 
   de: {
@@ -1526,9 +1563,9 @@ const I18N_DATA = {
     battle_points: 'Kampfpunkte',
     rank_label: 'Rang',
     starter_pack: 'STARTER PAKET',
-    pack_name_baslangic: 'Starter Pack',
-    pack_name_korsan: 'Pirate Pack',
-    pack_name_kaptan: 'Captain Pack',
+    pack_name_baslangic: '🌟 Crew-Paket',
+    pack_name_korsan: '⚓ Kapitänspaket',
+    pack_name_kaptan: '👑 Meereslord-Paket',
     pack_baslangic_1: '20,000 🪙 Gold + 1,000 💎 Pearl',
     pack_baslangic_2: '1,000 Gunpowder + 1,000 Armor',
     pack_baslangic_3: '5,000 Hollow Shot + 2,000 Explosive Shot',
@@ -1540,7 +1577,7 @@ const I18N_DATA = {
     pack_kaptan_2: '8,000 Gunpowder + 8,000 Armor',
     pack_kaptan_3: '35,000 Hollow Shot + 18,000 Explosive Shot',
     pack_kaptan_4: '3× 60-Pounder Cannon + 10× Elite Beam',
-    pack_kaptan_5: '🚢 Seahawk Design',
+    pack_kaptan_5: 'Seahawk Design',
     vip_pack: 'VIP PAKETE',
     buy_now: 'JETZT KAUFEN',
     searching: '🔍 SUCHE...',
@@ -1791,6 +1828,7 @@ const I18N_DATA = {
     stat_mast_slots: 'Balkenplätze: {val}',
     stat_skin: 'Design: {val}',
     stat_note_cosmetic: 'Hinweis: Nur Kosmetik',
+    stat_explosive_mult: '×1.6 Multiplikator',
 
     // Shop item names - DE
     shop_name_30_pounder: '30-Pfünder',
@@ -2086,7 +2124,23 @@ const I18N_DATA = {
     item_gunpowder_amount: '{val}x Schießpulver',
     item_armor_amount: '{val}x Panzerplatte',
     item_mixed_rewards: '{p} Perle + {e} Explosiv',
-    item_gunpowder_armor: '{val}x Schießpulver & Panzerplatte'
+    item_gunpowder_armor: '{val}x Schießpulver & Panzerplatte',
+
+    home_title: 'Startseite',
+    events_placeholder_name: 'Ereignis',
+    events_placeholder_desc: 'Beschreibung',
+    starter_pack_title: 'STARTER PAKET',
+    pack_subtitle: 'Einmalige Chance für neue Piraten!',
+    btn_buy: 'Kaufen',
+    rank_default: 'Landratte',
+    alt_current_rank: 'Aktueller Rang',
+    alt_next_rank: 'Nächster Rang',
+    alt_ship: 'Schiff',
+    disconnect_title: 'VERBINDUNG GETRENNT',
+    disconnect_sub: 'Wiederverbinden...',
+    level_label: '⭐ Level',
+    alt_gold: 'Gold',
+    menu_title: 'Menü'
   },
 
   pt: {
@@ -2127,9 +2181,9 @@ const I18N_DATA = {
     battle_points: 'Pontos de Batalha',
     rank_label: 'Ranking',
     starter_pack: 'PACOTE INICIANTE',
-    pack_name_baslangic: 'Starter Pack',
-    pack_name_korsan: 'Pirate Pack',
-    pack_name_kaptan: 'Captain Pack',
+    pack_name_baslangic: '🌟 Pacote Tripulação',
+    pack_name_korsan: '⚓ Pacote do Capitão',
+    pack_name_kaptan: '👑 Pacote Senhor do Mar',
     pack_baslangic_1: '20,000 🪙 Gold + 1,000 💎 Pearl',
     pack_baslangic_2: '1,000 Gunpowder + 1,000 Armor',
     pack_baslangic_3: '5,000 Hollow Shot + 2,000 Explosive Shot',
@@ -2141,7 +2195,7 @@ const I18N_DATA = {
     pack_kaptan_2: '8,000 Gunpowder + 8,000 Armor',
     pack_kaptan_3: '35,000 Hollow Shot + 18,000 Explosive Shot',
     pack_kaptan_4: '3× 60-Pounder Cannon + 10× Elite Beam',
-    pack_kaptan_5: '🚢 Seahawk Design',
+    pack_kaptan_5: 'Seahawk Design',
     vip_pack: 'PACOTES VIP',
     buy_now: 'COMPRAR AGORA',
     searching: '🔍 BUSCANDO...',
@@ -2392,6 +2446,7 @@ const I18N_DATA = {
     stat_mast_slots: 'Espaços de Viga: {val}',
     stat_skin: 'Aparência: {val}',
     stat_note_cosmetic: 'Nota: Apenas cosmético',
+    stat_explosive_mult: '×1.6 Multiplicador',
 
     // Shop item names - PT
     shop_name_30_pounder: '30 Libras',
@@ -2687,7 +2742,23 @@ const I18N_DATA = {
     item_gunpowder_amount: '{val}x Pólvora',
     item_armor_amount: '{val}x Placa de Armadura',
     item_mixed_rewards: '{p} Pérola + {e} Explosiva',
-    item_gunpowder_armor: '{val}x Pólvora & Placa de Armadura'
+    item_gunpowder_armor: '{val}x Pólvora & Placa de Armadura',
+
+    home_title: 'Início',
+    events_placeholder_name: 'Evento',
+    events_placeholder_desc: 'Descrição',
+    starter_pack_title: 'PACOTE INICIANTE',
+    pack_subtitle: 'Oportunidade única para novos piratas!',
+    btn_buy: 'Comprar',
+    rank_default: 'Terra-firme',
+    alt_current_rank: 'Rank Atual',
+    alt_next_rank: 'Próximo Rank',
+    alt_ship: 'Navio',
+    disconnect_title: 'CONEXÃO PERDIDA',
+    disconnect_sub: 'Reconectando...',
+    level_label: '⭐ Nível',
+    alt_gold: 'Ouro',
+    menu_title: 'Menu'
   },
 
   es: {
@@ -2729,9 +2800,9 @@ const I18N_DATA = {
     battle_points: 'Puntos de Batalla',
     rank_label: 'Rango',
     starter_pack: 'PAQUETE INICIAL',
-    pack_name_baslangic: 'Starter Pack',
-    pack_name_korsan: 'Pirate Pack',
-    pack_name_kaptan: 'Captain Pack',
+    pack_name_baslangic: '🌟 Paquete Tripulación',
+    pack_name_korsan: '⚓ Paquete del Capitán',
+    pack_name_kaptan: '👑 Paquete Señor del Mar',
     pack_baslangic_1: '20,000 🪙 Gold + 1,000 💎 Pearl',
     pack_baslangic_2: '1,000 Gunpowder + 1,000 Armor',
     pack_baslangic_3: '5,000 Hollow Shot + 2,000 Explosive Shot',
@@ -2743,7 +2814,7 @@ const I18N_DATA = {
     pack_kaptan_2: '8,000 Gunpowder + 8,000 Armor',
     pack_kaptan_3: '35,000 Hollow Shot + 18,000 Explosive Shot',
     pack_kaptan_4: '3× 60-Pounder Cannon + 10× Elite Beam',
-    pack_kaptan_5: '🚢 Seahawk Design',
+    pack_kaptan_5: 'Seahawk Design',
     vip_pack: 'PAQUETES VIP',
     buy_now: 'COMPRAR AHORA',
     searching: '🔍 BUSCANDO...',
@@ -2994,6 +3065,7 @@ const I18N_DATA = {
     stat_mast_slots: 'Espacios de Viga: {val}',
     stat_skin: 'Apariencia: {val}',
     stat_note_cosmetic: 'Nota: Solo cosmético',
+    stat_explosive_mult: '×1.6 Multiplicador',
 
     // Shop item names - ES
     shop_name_30_pounder: '30 Libras',
@@ -3289,7 +3361,23 @@ const I18N_DATA = {
     item_gunpowder_amount: '{val}x Pólvora',
     item_armor_amount: '{val}x Placa de Armadura',
     item_mixed_rewards: '{p} Perla + {e} Explosiva',
-    item_gunpowder_armor: '{val}x Pólvora y Placa de Armadura'
+    item_gunpowder_armor: '{val}x Pólvora y Placa de Armadura',
+
+    home_title: 'Inicio',
+    events_placeholder_name: 'Evento',
+    events_placeholder_desc: 'Descripción',
+    starter_pack_title: 'PAQUETE INICIAL',
+    pack_subtitle: '¡Oportunidad única para nuevos piratas!',
+    btn_buy: 'Comprar',
+    rank_default: 'Tierra',
+    alt_current_rank: 'Rango Actual',
+    alt_next_rank: 'Siguiente Rango',
+    alt_ship: 'Barco',
+    disconnect_title: 'CONEXIÓN PERDIDA',
+    disconnect_sub: 'Reconectando...',
+    level_label: '⭐ Nivel',
+    alt_gold: 'Oro',
+    menu_title: 'Menú'
   },
 
   pl: {
@@ -3331,9 +3419,9 @@ const I18N_DATA = {
     battle_points: 'Punkty Walki',
     rank_label: 'Ranga',
     starter_pack: 'PAKIET STARTER',
-    pack_name_baslangic: 'Starter Pack',
-    pack_name_korsan: 'Pirate Pack',
-    pack_name_kaptan: 'Captain Pack',
+    pack_name_baslangic: '🌟 Pakiet Załogi',
+    pack_name_korsan: '⚓ Pakiet Kapitana',
+    pack_name_kaptan: '👑 Pakiet Władcy Mórz',
     pack_baslangic_1: '20,000 🪙 Gold + 1,000 💎 Pearl',
     pack_baslangic_2: '1,000 Gunpowder + 1,000 Armor',
     pack_baslangic_3: '5,000 Hollow Shot + 2,000 Explosive Shot',
@@ -3345,7 +3433,7 @@ const I18N_DATA = {
     pack_kaptan_2: '8,000 Gunpowder + 8,000 Armor',
     pack_kaptan_3: '35,000 Hollow Shot + 18,000 Explosive Shot',
     pack_kaptan_4: '3× 60-Pounder Cannon + 10× Elite Beam',
-    pack_kaptan_5: '🚢 Seahawk Design',
+    pack_kaptan_5: 'Seahawk Design',
     vip_pack: 'PAKIETY VIP',
     buy_now: 'KUP TERAZ',
     searching: '🔍 SZUKANIE...',
@@ -3596,6 +3684,7 @@ const I18N_DATA = {
     stat_mast_slots: 'Gniazda Belek: {val}',
     stat_skin: 'Wygląd: {val}',
     stat_note_cosmetic: 'Uwaga: Tylko kosmetyka',
+    stat_explosive_mult: '×1.6 Mnożnik',
 
     // Shop item names - PL
     shop_name_30_pounder: '30-funtowy',
@@ -3891,7 +3980,23 @@ const I18N_DATA = {
     item_gunpowder_amount: '{val}x Prochu',
     item_armor_amount: '{val}x Płyty Pancernej',
     item_mixed_rewards: '{p} Perły + {e} Wybuchowych',
-    item_gunpowder_armor: '{val}x Prochu i Płyty Pancernej'
+    item_gunpowder_armor: '{val}x Prochu i Płyty Pancernej',
+
+    home_title: 'Strona główna',
+    events_placeholder_name: 'Wydarzenie',
+    events_placeholder_desc: 'Opis',
+    starter_pack_title: 'PAKIET STARTOWY',
+    pack_subtitle: 'Jednorazowa okazja dla nowych piratów!',
+    btn_buy: 'Kup',
+    rank_default: 'Lądowy',
+    alt_current_rank: 'Obecna Ranga',
+    alt_next_rank: 'Następna Ranga',
+    alt_ship: 'Statek',
+    disconnect_title: 'POŁĄCZENIE PRZERWANE',
+    disconnect_sub: 'Ponowne łączenie...',
+    level_label: '⭐ Poziom',
+    alt_gold: 'Złoto',
+    menu_title: 'Menu'
   }
 };
 
@@ -3936,6 +4041,10 @@ function applyI18n() {
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
     const key = el.getAttribute('data-i18n-title');
     if (key) el.title = t(key);
+  });
+  document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+    const key = el.getAttribute('data-i18n-alt');
+    if (key) el.alt = t(key);
   });
 }
 

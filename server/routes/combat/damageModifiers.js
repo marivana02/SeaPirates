@@ -1,4 +1,4 @@
-const { BARUT_MULTIPLIER, ZIRH_MULTIPLIER } = require('./constants');
+const { BARUT_MULTIPLIER, ZIRH_MULTIPLIER, EXPLOSIVE_MULTIPLIER } = require('./constants');
 
 async function applyDamageModifiers(pool, playerId, {
   totalCannonDamage, actualCannonsFired, ammoDamage, givesElp, gainedElp
@@ -28,6 +28,10 @@ async function applyDamageModifiers(pool, playerId, {
     if (zRes.rowCount > 0) {
       finalNpcDamage = Math.floor(finalNpcDamage * ZIRH_MULTIPLIER);
     }
+  }
+
+  if (ammoId === 3 && actualCannonsFired > 0) {
+    finalDamage = Math.floor(finalDamage * EXPLOSIVE_MULTIPLIER);
   }
 
   if (currentEvent.type === 'damage' && ammoId == 3) {

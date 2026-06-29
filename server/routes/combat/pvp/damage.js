@@ -1,5 +1,5 @@
 const gameData = require('../../../config/gameData');
-const { BARUT_MULTIPLIER, ZIRH_MULTIPLIER } = require('../constants');
+const { BARUT_MULTIPLIER, ZIRH_MULTIPLIER, EXPLOSIVE_MULTIPLIER } = require('../constants');
 
 async function calculateOpponentDamage(pool, opponentId) {
   const pRes = await pool.query('SELECT ship_level FROM players WHERE id = $1', [opponentId]);
@@ -88,6 +88,10 @@ async function applyPvPDamageModifiers(pool, playerId, pd, simResult, { useBarut
     if (zRes.rowCount > 0) {
       finalNpcDamage = Math.floor(finalNpcDamage * ZIRH_MULTIPLIER);
     }
+  }
+
+  if (ammoId === 3 && pd.actualCannonsFired > 0) {
+    finalDamage = Math.floor(finalDamage * EXPLOSIVE_MULTIPLIER);
   }
 
   if (currentEvent.type === 'damage' && ammoId == 3) {
