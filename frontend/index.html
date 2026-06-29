@@ -778,7 +778,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       const pass2=document.getElementById('r-pass2').value;
       const terms=document.getElementById('terms').checked;
       let ok=true;
-      if(!username||!/^[a-zA-Z0-9_]{3,20}$/.test(username)){showErr('r-user-err');ok=false;}
+      if(!username||!/^[a-zA-Z0-9_]{5,12}$/.test(username)){showErr('r-user-err');ok=false;}
       if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('r-email-err');ok=false;}
       if(!password||password.length<6){showErr('r-pass-err');ok=false;}
       if(password!==pass2){showErr('r-pass2-err');ok=false;}
