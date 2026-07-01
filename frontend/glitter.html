@@ -151,16 +151,19 @@
       opacity: 0;
     }
 
-    @keyframes floatUp {
-      0% {
-        transform: translate(-50%, -50%) translateY(0);
-        opacity: 1;
+      @keyframes floatUp {
+        0% {
+          transform: translate(-50%, -50%) translateY(0);
+          opacity: 1;
+        }
+        70% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) translateY(-80px);
+          opacity: 0;
+        }
       }
-      100% {
-        transform: translate(-50%, -50%) translateY(-70px);
-        opacity: 0;
-      }
-    }
 
     .player-panel {
       flex-shrink: 0;
@@ -780,7 +783,7 @@
           flex-direction: column;
           gap: 2px;
           align-items: center;
-          animation: floatUp 1.3s ease-out forwards;
+          animation: floatUp 2.5s ease-out forwards;
         `;
 
         let html = '';
@@ -797,7 +800,7 @@
         tag.innerHTML = html;
         seaArea.appendChild(tag);
 
-        setTimeout(() => tag.remove(), 1300);
+        setTimeout(() => tag.remove(), 2500);
       }
 
       function renderGlitterRewards(rewards) {

@@ -7,7 +7,7 @@
        PvP NPC SETUP
     ══════════════════════════════════════════════ */
     npc.name = localStorage.getItem('sp_current_target_name') || 'Korsan';
-    npc.img = localStorage.getItem('sp_current_target_img') || '';
+    npc.img = localStorage.getItem('sp_current_target_img') || 'assets/ships/npcc/map1/1/7.png';
     npc.hp = 30000;
     npc.maxHp = 30000;
 

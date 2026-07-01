@@ -531,6 +531,7 @@
     function drawGulle(ammo, x, y, t, sx, sy) {
       const os = GULLE_OS[ammo];
       const size = GULLE_SIZE[ammo];
+      if (!os || !size) return;
       gCtx.save();
 
       gCtx.translate(x, y);
