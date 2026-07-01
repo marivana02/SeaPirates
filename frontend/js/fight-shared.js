@@ -1562,7 +1562,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
             setTimeout(() => {
               if (!active) return;
               flash('npc');
-              const npcAmmoType = isWeeklyBoss ? 4 : (data.opponentConsumed ? data.opponentConsumed.ammoId : (isDataTiamat ? 5 : 1));
+              const npcAmmoType = isWeeklyBoss ? 4 : (data.opponentConsumed && data.opponentConsumed.ammoId ? data.opponentConsumed.ammoId : (isDataTiamat ? 5 : 1));
               const npcShots = isWeeklyBoss ? 3 : (isDataTiamat ? 5 : (npc.isPvP ? (npcAmmoType === 1 ? 4 : npcAmmoType === 2 ? 5 : 3) : 1));
               const npcShotDelay = isWeeklyBoss ? 180 : (isDataTiamat ? 55 : (npc.isPvP ? 80 : 0));
               fireSalvo('npc-node', 'player-node', npcAmmoType, npcShots, npcShotDelay);
