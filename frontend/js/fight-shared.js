@@ -1517,6 +1517,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
 
           // t=0: Oyuncu ateşler (Sadece seçili gülle envanterde varsa atış yapılır!)
           const hasAmmo = data.consumed && data.consumed.ammo > 0;
+          const hasDmg = data.playerDamage > 0;
           if (hasAmmo) {
             flash('player');
             const ammoCount = player.ammo === 1 ? 4 : player.ammo === 2 ? 5 : 3;
@@ -1526,7 +1527,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           // Oyuncu güllesi NPC'ye çarptığı an (t = TRAVEL_MS) - Sadece atış yapıldıysa hasar efekti tetiklenir
           const isBarutUsed = data.consumed && data.consumed.barut > 0;
           const isNpcZirhUsed = data.opponentConsumed && data.opponentConsumed.zirh > 0;
-          const shouldShowDmg = (data.playerDamage || data.state === 'won' || data.state === 'lost') && hasAmmo;
+          const shouldShowDmg = (hasDmg || data.state === 'won' || data.state === 'lost') && (hasAmmo || hasDmg);
           if (shouldShowDmg) {
             let pIcons = '';
             if (isBarutUsed) pIcons += '<img src="assets/items/shop/barut-fight.png" style="width:24px;height:24px;object-fit:contain;">';
@@ -1598,6 +1599,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           setTimeout(() => {
             if (data.state === 'won') { endFight(true, data.rewards, data.leveledUp, data.newLevel, data.playerHp, data.note); clearInterval(attackInterval); if (opponentInterval) clearInterval(opponentInterval); }
             else if (data.state === 'lost') { endFight(false, data.rewards, false, null, data.playerHp, data.note); clearInterval(attackInterval); if (opponentInterval) clearInterval(opponentInterval); }
+            else if (data.state === 'boss_defeated') { endFight(false, null, false, null, data.playerHp, data.message || 'This boss has already been defeated!'); clearInterval(attackInterval); if (opponentInterval) clearInterval(opponentInterval); }
           }, totalDelay);
 
           if (data.consumed) {

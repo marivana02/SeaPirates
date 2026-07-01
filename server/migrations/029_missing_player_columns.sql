@@ -1,0 +1,13 @@
+-- Up
+ALTER TABLE players
+  ADD COLUMN IF NOT EXISTS glitter_hour BIGINT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS glitter_hour_count INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT false;
+
+-- Down
+ALTER TABLE players
+  DROP COLUMN IF EXISTS glitter_hour,
+  DROP COLUMN IF EXISTS glitter_hour_count,
+  DROP COLUMN IF EXISTS last_seen,
+  DROP COLUMN IF EXISTS is_online;

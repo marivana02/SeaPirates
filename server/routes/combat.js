@@ -247,6 +247,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
         return res.json({
           state: 'boss_defeated', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp,
           playerDamage: 0, npcDamage: 0, elpGained: 0,
+          consumed: { ammo: 0, barut: 0, zirh: 0 },
           message: 'This boss has already been defeated!'
         });
       }
@@ -259,6 +260,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
         return res.json({
           state: 'boss_defeated', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp,
           playerDamage: 0, npcDamage: 0, elpGained: 0,
+          consumed: { ammo: 0, barut: 0, zirh: 0 },
           message: 'Tiamat has already been defeated!'
         });
       }
@@ -378,6 +380,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
       state: 'ongoing', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: actualNpcDamage,
       elpGained: gainedElp, weeklyBossDamageDealt: fight.weeklyBossDamageDealt || 0,
       consumed: { ammo: pd.actualCannonsFired, barut: (useBarut && pd.actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
+      opponentConsumed: { barut: 0, zirh: 0, ammoId: null },
       targetHit: targetHitUsername, isAdmiral: fight.isAdmiral, isTiamat: fight.isTiamat
     });
   } catch (err) {
