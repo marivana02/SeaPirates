@@ -63,8 +63,14 @@ async function calculateAllPlayerRanks(pool) {
   players.sort((a, b) => b.score - a.score);
   const total = players.length;
 
+  let currentPos = 0;
+  let lastScore = null;
   players.forEach((p, idx) => {
-    p.position = idx + 1;
+    if (p.score !== lastScore) {
+      currentPos = idx + 1;
+      lastScore = p.score;
+    }
+    p.position = currentPos;
     p.rankBadge = getRankBadge(p.position, total);
     p.rankName = rankNames[p.rankBadge].tr;
     p.rankKey = rankNames[p.rankBadge].key;
