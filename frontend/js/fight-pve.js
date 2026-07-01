@@ -97,13 +97,13 @@
 
         let payload;
         if (isWeeklyBoss) {
-          setupIsland(0);
+          setupIsland('weeklyboss');
           payload = { isWeeklyBoss: true };
         } else if (isTiamat) {
-          setupIsland(0);
+          setupIsland('tiamat');
           payload = { isTiamat: true, mapLevel: mapLvl };
         } else if (isTower) {
-          setupIsland(0);
+          setupIsland('tower');
           payload = { isTower: true, towerId: towerId };
         } else {
           setupIsland(mapLvl);
@@ -165,7 +165,7 @@
                 fetch(`${SHARED_API_URL}/end`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-                }).catch(e => console.error('end fight error:', e))
+                }).catch(e => logError('fight-pve:end', e))
                   .finally(() => endFight(true));
               }
             }, 1000);
@@ -179,7 +179,7 @@
             goTo(isTower ? 'tower.html' : 'map.html');
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) { logError('fight-pve:attack', e); }
     }
 
     // No-cannon modal buttons
@@ -207,6 +207,7 @@
         } catch (e) {}
         bossSocket = null;
       }
+      if (bossPollInterval) { clearInterval(bossPollInterval); bossPollInterval = null; }
 
       if (player) {
         let existing = {};
@@ -234,11 +235,11 @@
         subText = 'Tiamat ' + t('victory');
       } else if (!won) {
         titleText = t('defeat');
-        subText = npc.name + ' ' + t('defeat').toLowerCase();
+        subText = t('pvp_defeat_msg', { name: npc.name });
       } else if (won) {
         if (isTower) { titleText = t('victory'); subText = t('daily_tower_title'); }
         else if (isAdmiral) { titleText = t('victory'); subText = npc.name || 'Admiral'; }
-        else { titleText = t('victory'); subText = npc.name || ''; }
+        else { titleText = t('victory'); subText = t('pvp_victory_msg', { name: npc.name }); }
       }
 
       titleEl.textContent = titleText;
@@ -267,4 +268,9 @@
       setTimeout(() => document.getElementById('outcome').classList.add('show'), 900);
     }
 
-    startCombat();
+    function showPage() {
+      const page = document.querySelector('.page');
+      if (page) setTimeout(() => page.classList.add('visible'), 350);
+    }
+
+    startCombat().finally(showPage);

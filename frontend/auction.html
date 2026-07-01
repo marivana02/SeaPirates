@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -356,7 +357,7 @@ async function loadAuction() {
       toast(t('server_error'), 'err');
     }
   } catch (err) {
-    console.error(err);
+    logError('auction:load', err);
     toast(t('connection_failed'), 'err');
   }
 }
@@ -404,12 +405,6 @@ function renderTimer(){
   if (expired) {
     barText.textContent = t('auction_ended');
     barText.className = 'timer-bar-text critical';
-  } else if (critical) {
-    barText.textContent = '⚡ ' + fmtTime(kalan);
-    barText.className = 'timer-bar-text critical';
-  } else if (urgent) {
-    barText.textContent = t('pvp_max') + ' ' + fmtTime(kalan);
-    barText.className = 'timer-bar-text urgent';
   } else {
     barText.textContent = '';
     barText.className = 'timer-bar-text';
@@ -476,7 +471,7 @@ async function teklif(idx){
 
   const pGold = getPlayerGold();
   if(miktar > pGold){
-    toast(t('insufficient_gold') + ' (' + fmtN(pGold) + ' ' + t('currency_gold') + ')','err');
+    toast(t('insufficient_gold'),'err');
     return;
   }
 
@@ -504,7 +499,7 @@ async function teklif(idx){
     inp.value = '';
     await loadAuction();
   } catch (err) {
-    console.error(err);
+    logError('auction:bid', err);
     toast('Sunucuya bağlanılamadı!', 'err');
   }
 }

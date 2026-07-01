@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
+const { broadcastBossHp } = require('../helpers/socket');
 
 const BOT_NAMES = {
   1:  ['LoneWolf','Sapphire','Crimson','IronWill','SwiftWind','RedTide','Stormy','CopperBeard','SaltyDog','BraveHeart','GoldenHawk','SilverFox','DarkOmen','FirstMate','OldSalt'],
@@ -22,33 +23,59 @@ function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const botHpState = new Map(); // botId → { currentHp, maxHp }
+const botHpState = new Map(); // botId → { currentHp, maxHp, cooldown: 0, dead: false, respawnTick: 0 }
+
+// Her harita için maksimum bot sayısı
+const MAX_BOTS_PER_MAP = [0, 2, 2, 3, 4, 5, 6, 6, 7, 8, 10]; // index = map level
+// Botların oyuna katılma süresi (tick cinsinden, 1 tick = 10sn)
+const JOIN_WINDOW = 6; // botlar 60sn içinde kademeli katılır
+
+const botJoinState = new Map(); // botId → joinTick (hangi tick'te katılacağı)
 
 function getActivityFactor(realPlayerCount) {
   if (realPlayerCount === 0) return 1.0;
-  if (realPlayerCount === 1) return 0.75;
-  if (realPlayerCount === 2) return 0.60;
-  if (realPlayerCount <= 5)  return 0.40;
-  if (realPlayerCount <= 10) return 0.20;
-  return 0.10;
+  if (realPlayerCount === 1) return 0.60;
+  if (realPlayerCount === 2) return 0.40;
+  if (realPlayerCount <= 5)  return 0.25;
+  if (realPlayerCount <= 10) return 0.15;
+  return 0.08;
+}
+
+// Global tick sayacı — bot katılımını zamanla yaymak için
+let globalTick = 0;
+
+function scheduleBotJoin(botId) {
+  const delay = rand(1, JOIN_WINDOW);
+  botJoinState.set(botId, globalTick + delay);
+}
+
+function isBotJoined(botId) {
+  const joinTick = botJoinState.get(botId);
+  return joinTick !== undefined && globalTick >= joinTick;
 }
 
 async function ensureBotAccounts() {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query(`DELETE FROM players WHERE is_bot = TRUE`);
+    await client.query(`DELETE FROM tiamat_damage WHERE player_id IN (SELECT id FROM players WHERE is_bot = TRUE OR bot_map_level IS NOT NULL)`);
+    await client.query(`DELETE FROM admiral_damage WHERE player_id IN (SELECT id FROM players WHERE is_bot = TRUE OR bot_map_level IS NOT NULL)`);
+    await client.query(`DELETE FROM active_fights WHERE player_id IN (SELECT id FROM players WHERE is_bot = TRUE OR bot_map_level IS NOT NULL)`);
 
     const hashedPassword = await bcrypt.hash('bot_admiral_2026', 10);
     let total = 0;
+    let created = 0;
+    let skipped = 0;
 
     for (let mapLevel = 1; mapLevel <= 10; mapLevel++) {
       const names = BOT_NAMES[mapLevel];
       if (!names) continue;
-      total += names.length;
+      const maxCount = MAX_BOTS_PER_MAP[mapLevel] || 5;
+      const chosenNames = names.slice(0, maxCount);
+      total += chosenNames.length;
 
-      for (let idx = 0; idx < names.length; idx++) {
-        const nick = names[idx];
+      for (let idx = 0; idx < chosenNames.length; idx++) {
+        const nick = chosenNames[idx];
         const baseLevel = Math.max(0, mapLevel - 1);
         const minLvl = Math.max(0, baseLevel - 2);
         const maxLvl = Math.min(10, baseLevel + 2);
@@ -85,8 +112,11 @@ async function ensureBotAccounts() {
           ]
         );
 
-        if (result.rows.length === 0) continue;
-        const botId = result.rows[0].id;
+        const isNew = result.rowCount > 0;
+        if (isNew) created++;
+
+        const botId = result.rows[0]?.id;
+        if (!botId) { skipped++; continue; }
 
         if (activeDesign) {
           await client.query(
@@ -152,10 +182,15 @@ async function ensureBotAccounts() {
     }
 
     await client.query('COMMIT');
-    console.log(`[BOT] ${total} admiral bot accounts ready`);
+    const botCount = await pool.query("SELECT COUNT(*) as c FROM players WHERE is_bot = TRUE");
+    console.log(`[BOT] ${total} bot accounts wanted, ${created} new created, ${total - created} already existed (total bot accounts: ${botCount.rows[0].c})`);
+    const sample = await pool.query("SELECT username FROM players WHERE is_bot = TRUE LIMIT 3");
+    if (sample.rows.length > 0) {
+      console.log('[BOT] Sample:', sample.rows.map(r => r.username).join(', '));
+    }
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('[BOT] Error creating bot accounts:', err.message);
+    console.error('[BOT] Error creating bot accounts:', err.message, err.stack ? err.stack.split('\n')[0] : '');
   } finally {
     client.release();
   }
@@ -163,87 +198,199 @@ async function ensureBotAccounts() {
 
 async function botTick() {
   try {
+    globalTick++;
+
     const spawned = await pool.query(
       `SELECT map_level, boss_current_hp, boss_max_hp
        FROM npc3_kill_counter
        WHERE is_spawned = TRUE AND boss_current_hp > 0`
     );
+    if (spawned.rows.length > 0) {
+      console.log(`[BOT] Tick ${globalTick} — ${spawned.rows.length} active admirals:`, spawned.rows.map(r => `map${r.map_level}=${r.boss_current_hp}`).join(', '));
+    }
 
     for (const map of spawned.rows) {
-      const mapLevel = map.map_level;
-      const bossHp = parseInt(map.boss_current_hp);
+      try {
+        const mapLevel = map.map_level;
+        const bossHp = parseInt(map.boss_current_hp);
 
-      if (!bossHp || bossHp <= 0) continue;
+        if (!bossHp || bossHp <= 0) continue;
 
-      const realCount = await pool.query(
-        `SELECT COUNT(*) as c FROM players
-         WHERE current_map_level = $1 AND (is_bot = FALSE OR is_bot IS NULL)`,
-        [mapLevel]
-      );
-      const realPlayers = parseInt(realCount.rows[0].c);
-      const factor = getActivityFactor(realPlayers);
+        const realCount = await pool.query(
+          `SELECT COUNT(*) as c FROM players
+           WHERE current_map_level = $1 AND (is_bot = FALSE OR is_bot IS NULL)`,
+          [mapLevel]
+        );
+        const realPlayers = parseInt(realCount.rows[0].c);
+        const factor = getActivityFactor(realPlayers);
 
-      const botRows = await pool.query(
-        `SELECT id, username, max_hp, ship_level, active_design FROM players
-         WHERE bot_map_level = $1 AND is_bot = TRUE`,
-        [mapLevel]
-      );
+        const botRows = await pool.query(
+          `SELECT p.id, p.username, p.max_hp, p.ship_level, p.active_design,
+                  COALESCE(
+                    (SELECT ROUND(SUM(pc.equipped * c.reload_time_ms)::decimal / NULLIF(SUM(pc.equipped), 0))
+                     FROM player_cannons pc
+                     JOIN cannons c ON c.id = pc.cannon_type
+                     WHERE pc.player_id = p.id AND pc.equipped > 0),
+                    2500
+                  ) as reload_ms
+           FROM players p
+           WHERE p.bot_map_level = $1 AND p.is_bot = TRUE`,
+          [mapLevel]
+        );
 
-      if (botRows.rows.length === 0) continue;
-
-      const count = Math.max(1, Math.floor(botRows.rows.length * factor));
-      const dmgFactor = count / botRows.rows.length;
-
-      for (const bot of botRows.rows) {
-        let state = botHpState.get(bot.id);
-        if (!state) {
-          state = { currentHp: bot.max_hp, maxHp: bot.max_hp };
-          botHpState.set(bot.id, state);
+        // Bot katılımını zamanla yay
+        for (const bot of botRows.rows) {
+          if (!botJoinState.has(bot.id)) {
+            scheduleBotJoin(bot.id);
+          }
         }
 
-        // Heal 3% per tick
-        state.currentHp = Math.min(state.maxHp, state.currentHp + Math.floor(state.maxHp * 0.03));
+        // Sadece katılmış ve ölmemiş botları kullan
+        let activeBots = botRows.rows.filter(b => isBotJoined(b.id));
 
-        // Admiral deals damage back
-        const admiralDmg = rand(Math.floor(bot.max_hp * 0.02), Math.floor(bot.max_hp * 0.08));
-        state.currentHp = Math.max(Math.floor(bot.max_hp * 0.01), state.currentHp - admiralDmg);
+        // Ölü botları çıkar, respawn süresi dolanları geri getir
+        activeBots = activeBots.filter(b => {
+          const s = botHpState.get(b.id);
+          if (!s) return true;
+          if (s.dead) {
+            if (globalTick >= s.respawnTick) {
+              s.dead = false;
+              s.currentHp = b.max_hp;
+              s.lastAttackTick = globalTick + rand(1, 3);
+              pool.query(
+                `UPDATE admiral_damage SET current_hp = $1, max_hp = $2 WHERE map_level = $3 AND player_id = $4`,
+                [b.max_hp, b.max_hp, mapLevel, b.id]
+              ).catch(() => {});
+              return true;
+            }
+            return false;
+          }
+          return true;
+        });
+        // Ölü bot sayısını logla
+        const deadCount = botRows.rows.filter(b => {
+          const s = botHpState.get(b.id);
+          return s && s.dead;
+        }).length;
 
-        const basePerLevel = bot.ship_level * 2500 + mapLevel * 1500;
-        const burst = Math.random() < 0.30 ? rand(2, 4) : 1;
-        const damage = Math.floor(basePerLevel * (0.5 + Math.random() * 1.5) * burst * dmgFactor);
-        if (damage <= 0) continue;
+        // Her tick farklı botlar seçilsin diye karıştır
+        const shuffled = [...activeBots].sort(() => Math.random() - 0.5);
+        const maxJoin = Math.max(1, Math.floor(MAX_BOTS_PER_MAP[mapLevel] || 5));
+        const maxActive = Math.max(1, Math.floor(maxJoin * factor));
+        const attackingBots = shuffled.slice(0, maxActive);
 
-        const updates = [
-          pool.query(
-            `UPDATE npc3_kill_counter
-             SET boss_current_hp = GREATEST(0, boss_current_hp - $1)
-             WHERE map_level = $2 AND is_spawned = TRUE`,
-            [damage, mapLevel]
-          ),
-          pool.query(
-            `INSERT INTO admiral_damage (map_level, player_id, username, ship_level, damage_dealt, current_hp, max_hp)
-             VALUES ($1,$2,$3,$4,$5,$6,$7)
-             ON CONFLICT (map_level, player_id) DO UPDATE SET
-               damage_dealt = admiral_damage.damage_dealt + $5,
-               current_hp = $6,
-               max_hp = $7,
-               ship_level = $4,
-               last_active = CURRENT_TIMESTAMP`,
-            [mapLevel, bot.id, bot.username, bot.ship_level, damage, state.currentHp, bot.max_hp]
-          )
-        ];
-        await Promise.all(updates);
-      }
+        console.log(`[BOT] Map ${mapLevel}: ${realPlayers} real, ${botRows.rows.length} total, ${activeBots.length} alive, ${deadCount} dead, ${attackingBots.length} attacking, factor=${factor}`);
 
-      const after = await pool.query(
-        `SELECT boss_current_hp FROM npc3_kill_counter WHERE map_level = $1`,
-        [mapLevel]
-      );
-      if (after.rows.length > 0 && after.rows[0].boss_current_hp !== null && parseInt(after.rows[0].boss_current_hp) <= 0) {
-        const { distributeAdmiralRewards } = require('../helpers/combat');
-        distributeAdmiralRewards(mapLevel)
-          .then(() => console.log(`[BOT] Admiral killed on map ${mapLevel} — rewards distributed`))
-          .catch(err => console.error(`[BOT] Reward error map ${mapLevel}:`, err.message));
+        if (attackingBots.length === 0) continue;
+
+        const dmgFactor = Math.max(0.3, Math.min(1.0, maxActive / (botRows.rows.length || 1)));
+
+        for (const bot of attackingBots) {
+          try {
+            let state = botHpState.get(bot.id);
+            if (!state) {
+              state = { currentHp: bot.max_hp, maxHp: bot.max_hp, lastAttackTick: 0, dead: false, respawnTick: 0 };
+              botHpState.set(bot.id, state);
+            }
+
+            // Ölü bot atlar
+            if (state.dead) continue;
+
+            // Respawn beklemesi (lastAttackTick gelecekteyse henüz hazır değil)
+            if (state.lastAttackTick > globalTick) continue;
+
+            // Reload süresine göre saldırı
+            const reloadMs = bot.reload_ms || 2500;
+            const tickMs = 10000;
+            const elapsedMs = (globalTick - state.lastAttackTick) * tickMs;
+            const attacksPerTick = Math.max(1, Math.floor(tickMs / reloadMs));
+
+            // İlk saldırı veya reload süresi dolduysa
+            if (state.lastAttackTick > 0 && elapsedMs < reloadMs) continue;
+
+            // Admiral hasarı: bot can kaybeder
+            const admiralDmg = rand(Math.floor(bot.max_hp * 0.02), Math.floor(bot.max_hp * 0.08));
+            state.currentHp -= admiralDmg;
+
+            // Bot öldü mü?
+            if (state.currentHp <= 0) {
+              state.dead = true;
+              state.respawnTick = globalTick + rand(4, 10); // 40-100sn sonra geri gel
+              state.currentHp = 0;
+              continue;
+            }
+
+            // Hafif can yenileme
+            state.currentHp = Math.min(state.maxHp, state.currentHp + Math.floor(state.maxHp * 0.02));
+
+            // Hasar: reload hızına göre tick başına atış sayısı kadar vur
+            const basePerLevel = bot.ship_level * 2500 + mapLevel * 1500;
+            const burst = Math.random() < 0.30 ? rand(2, 4) : 1;
+            const singleShot = Math.floor(basePerLevel * (0.5 + Math.random() * 1.5) * burst * dmgFactor);
+            const damage = singleShot * attacksPerTick;
+
+            if (damage <= 0) continue;
+
+            // Saldırı zamanını kaydet
+            state.lastAttackTick = globalTick;
+
+            const updates = [
+              pool.query(
+                `UPDATE npc3_kill_counter
+                 SET boss_current_hp = GREATEST(0, boss_current_hp - $1)
+                 WHERE map_level = $2 AND is_spawned = TRUE`,
+                [damage, mapLevel]
+              ),
+              pool.query(
+                `INSERT INTO admiral_damage (map_level, player_id, username, ship_level, damage_dealt, current_hp, max_hp)
+                 VALUES ($1,$2,$3,$4,$5,$6,$7)
+                 ON CONFLICT (map_level, player_id) DO UPDATE SET
+                   damage_dealt = admiral_damage.damage_dealt + $5,
+                   current_hp = $6,
+                   max_hp = $7,
+                   ship_level = $4,
+                   last_active = CURRENT_TIMESTAMP`,
+                [mapLevel, bot.id, bot.username, bot.ship_level, damage, state.currentHp, bot.max_hp]
+              )
+            ];
+            await Promise.all(updates);
+            } catch (e) {
+            console.error(`[BOT] Bot ${bot.id} damage error map ${mapLevel}:`, e.message, e.stack ? e.stack.split('\n')[0] : '');
+          }
+        }
+
+        const lbRes = await pool.query(
+          `SELECT a.player_id, a.username, a.ship_level, a.damage_dealt, a.current_hp, a.max_hp, p.active_design
+           FROM admiral_damage a
+           JOIN players p ON p.id = a.player_id
+           WHERE a.map_level = $1 AND a.player_id > 0
+           ORDER BY a.damage_dealt DESC LIMIT 30`,
+          [mapLevel]
+        );
+        console.log(`[BOT] Map ${mapLevel} leaderboard: ${lbRes.rows.length} entries`, lbRes.rows.map(r => `${r.username}=${r.damage_dealt}`).join(', '));
+        const hpRes = await pool.query(
+          `SELECT boss_current_hp FROM npc3_kill_counter WHERE map_level = $1`,
+          [mapLevel]
+        );
+        const currentHp = hpRes.rows.length > 0 ? parseInt(hpRes.rows[0].boss_current_hp) : 0;
+        broadcastBossHp(mapLevel, {
+          bossHp: currentHp,
+          bossMaxHp: parseInt(map.boss_max_hp),
+          leaderboard: lbRes.rows
+        });
+
+        const after = await pool.query(
+          `SELECT boss_current_hp FROM npc3_kill_counter WHERE map_level = $1`,
+          [mapLevel]
+        );
+        if (after.rows.length > 0 && after.rows[0].boss_current_hp !== null && parseInt(after.rows[0].boss_current_hp) <= 0) {
+          const { distributeAdmiralRewards } = require('../helpers/combat');
+          distributeAdmiralRewards(mapLevel)
+            .then(() => console.log(`[BOT] Admiral killed on map ${mapLevel} — rewards distributed`))
+            .catch(err => console.error(`[BOT] Reward error map ${mapLevel}:`, err.message));
+        }
+      } catch (e) {
+        console.error(`[BOT] Map ${map.map_level} tick error:`, e.message);
       }
     }
   } catch (err) {
@@ -254,9 +401,12 @@ async function botTick() {
 let intervalHandle = null;
 
 function startBotTicks() {
+  console.log('[BOT] startBotTicks called — creating bot accounts...');
   ensureBotAccounts().then(() => {
     console.log('[BOT] Admiral bot system started (10s interval)');
     intervalHandle = setInterval(botTick, 10000);
+  }).catch(err => {
+    console.error('[BOT] ensureBotAccounts failed:', err.message, err.stack ? err.stack.split('\n')[0] : '');
   });
 }
 

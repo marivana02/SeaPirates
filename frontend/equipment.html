@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -282,14 +283,14 @@
 <script>
   /* ── GDD'den alınan Katalog ── */
   const CANNON_CATALOG = [
-    { id: 'top1', type: 'top', name: '30 Pounder',  img: 'assets/items/toppp/top1.png', hasar: 120, atisSnr: 4 },
-    { id: 'top2', type: 'top', name: '55 Pounder',  img: 'assets/items/toppp/top2.png', hasar: 185, atisSnr: 3 },
-    { id: 'top3', type: 'top', name: '60 Pounder',  img: 'assets/items/toppp/top3.png', hasar: 260, atisSnr: 2 }
+    { id: 'top1', type: 'top', nk: 'shop_name_30_pounder', name: '30 Pounder',  img: 'assets/items/toppp/top1.png', hasar: 120, atisSnr: 4 },
+    { id: 'top2', type: 'top', nk: 'shop_name_55_pounder', name: '55 Pounder',  img: 'assets/items/toppp/top2.png', hasar: 185, atisSnr: 3 },
+    { id: 'top3', type: 'top', nk: 'shop_name_60_pounder', name: '60 Pounder',  img: 'assets/items/toppp/top3.png', hasar: 260, atisSnr: 2 }
   ];
 
   const MAST_CATALOG = [
-    { id: 'mast1', type: 'direk', name: 'Wooden Beam', img: 'assets/items/shop/tahtakiriş.png', hpBonus: 500, repairBonus: 8 },
-    { id: 'mast2', type: 'direk', name: 'Elite Beam',  img: 'assets/items/shop/elitkiriş.png', hpBonus: 1200, repairBonus: 20 }
+    { id: 'mast1', type: 'direk', nk: 'shop_name_wooden_beam', name: 'Wooden Beam', img: 'assets/items/shop/tahtakiriş.png', hpBonus: 500, repairBonus: 8 },
+    { id: 'mast2', type: 'direk', nk: 'shop_name_elite_beam', name: 'Elite Beam',  img: 'assets/items/shop/elitkiriş.png', hpBonus: 1200, repairBonus: 20 }
   ];
 
   /* ── Oyuncu durumu (API bazlı) ── */
@@ -320,15 +321,14 @@
         state = await res.json();
         render();
       } else {
-        toast('Could not load inventory!', 'err');
+        toast(t('equip_load_failed'), 'err');
       }
     } catch (err) {
-      console.error(err);
-      toast('Could not connect to server!', 'err');
+      logError('equipment:load-state', err);
+      toast(t('connection_failed'), 'err');
     }
   }
 
-  /* ── TAB ── */
   function switchTab(tab) {
     activeTab = tab;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -436,13 +436,15 @@
     const btnClass = action === 'equip' ? 'btn-equip' : 'btn-remove';
     const btnTxt   = action === 'equip' ? '›' : '‹';
 
+    const displayName = item.nk ? t(item.nk) : item.name;
+
     card.innerHTML = `
       <div class="item-img-wrap">
-        <img src="${item.img}" class="item-img" alt="${item.name}"/>
+        <img src="${item.img}" class="item-img" alt="${displayName}"/>
         <div class="item-qty-badge">×${Number(qty).toLocaleString('tr-TR')}</div>
       </div>
       <div class="item-meta">
-        <div class="item-name">${item.name}</div>
+        <div class="item-name">${displayName}</div>
         <div class="item-detail">${detail}</div>
       </div>
       <button class="${btnClass} btn-action">${btnTxt}</button>
@@ -465,14 +467,14 @@
 
       const data = await res.json();
       if (!res.ok) {
-        toast(data.error || 'Equip failed!', 'err');
+        toast(data.error || t('equip_failed'), 'err');
         return;
       }
 
       await loadState();
     } catch (err) {
-      console.error(err);
-      toast('Could not connect to server!', 'err');
+      logError('equipment:equip', err);
+      toast(t('connection_failed'), 'err');
     }
   }
 
@@ -489,14 +491,14 @@
 
       const data = await res.json();
       if (!res.ok) {
-        toast(data.error || 'Unequip failed!', 'err');
+        toast(data.error || t('unequip_failed'), 'err');
         return;
       }
 
       await loadState();
     } catch (err) {
-      console.error(err);
-      toast('Could not connect to server!', 'err');
+      logError('equipment:remove', err);
+      toast(t('connection_failed'), 'err');
     }
   }
 
@@ -513,14 +515,14 @@
 
       const data = await res.json();
       if (!res.ok) {
-        toast(data.error || 'Equip all failed!', 'err');
+        toast(data.error || t('equip_all_failed'), 'err');
         return;
       }
 
       await loadState();
     } catch (err) {
-      console.error(err);
-      toast('Sunucuya bağlanılamadı!', 'err');
+      logError('equipment:equip-all', err);
+      toast(t('connection_failed'), 'err');
     }
   }
 
@@ -537,14 +539,14 @@
 
       const data = await res.json();
       if (!res.ok) {
-        toast(data.error || 'Unequip all failed!', 'err');
+        toast(data.error || t('unequip_all_failed'), 'err');
         return;
       }
 
       await loadState();
     } catch (err) {
-      console.error(err);
-      toast('Could not connect to server!', 'err');
+      logError('equipment:unequip-all', err);
+      toast(t('connection_failed'), 'err');
     }
   }
 
@@ -556,3 +558,4 @@
 </script>
 </body>
 </html>
+

@@ -21,6 +21,15 @@ router.use('/pvp', pvpRouter);
 
 startFightCleanup(pool);
 
+// Weekly boss reward dağıtımı: her 60 saniyede bir kontrol et (GET side-effect'i yok)
+setInterval(async () => {
+  try {
+    await distributeOldWeekRewards(pool);
+  } catch (err) {
+    console.error('[WEEKLY REWARD CRON] Error:', err);
+  }
+}, 60000);
+
 router.get('/active', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   try {
@@ -45,16 +54,9 @@ router.get('/active', authMiddleware, async (req, res) => {
   }
 });
 
-const lastWeekRewardRun = {};
-
 router.get('/boss/status', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   try {
-    const ts = Date.now();
-    if (!lastWeekRewardRun.time || ts - lastWeekRewardRun.time > 60000) {
-      await distributeOldWeekRewards(pool);
-      lastWeekRewardRun.time = ts;
-    }
     const pRes = await pool.query('SELECT last_boss_attack, weekly_boss_damage, weekly_boss_week FROM players WHERE id = $1', [playerId]);
     if (pRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
     let pData = pRes.rows[0];

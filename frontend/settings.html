@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -166,7 +167,6 @@
       background:var(--card-bg);
       border:1px solid var(--card-border);
       border-radius:14px;
-      overflow:hidden;
       box-shadow:0 4px 16px rgba(0,0,0,0.5);
       position:relative;
     }
@@ -258,37 +258,35 @@
       box-shadow:0 0 8px rgba(240,192,64,0.4), 0 1px 4px rgba(0,0,0,0.5);
     }
 
-    /* ═══ LANGUAGE SELECT ═══ */
+    /* ═══ LANGUAGE SELECTOR ═══ */
     .lang-select-wrap{
-      position:relative;
-      flex-shrink:0;
+      width:100%;
+      padding:2px 14px 12px;
     }
-    .lang-select{
-      appearance:none;
-      -webkit-appearance:none;
-      background:linear-gradient(180deg,#2a1a08,#1a0e05);
-      border:1.5px solid #5a3c1a;
+    .lang-select-wrap select{
+      width:100%;padding:10px 14px;
+      background:rgba(0,0,0,0.45) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237a5a38'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 12px center;
+      background-size:18px;
+      border:1.5px solid #3a2510;
       border-radius:8px;
-      padding:8px 32px 8px 12px;
       color:var(--txt);
       font-family:'Inter',sans-serif;
-      font-size:0.78rem;font-weight:600;
+      font-size:0.82rem;font-weight:600;
       cursor:pointer;
       outline:none;
-      min-width:110px;
-      transition:all 0.2s;
+      appearance:none;
+      -webkit-appearance:none;
+      transition:border-color 0.2s;
     }
-    .lang-select:focus,
-    .lang-select:hover{
+    .lang-select-wrap select:hover,
+    .lang-select-wrap select:focus{
       border-color:var(--gold);
-      box-shadow:0 0 8px rgba(200,150,42,0.2);
     }
-    .lang-select-wrap::after{
-      content:'▾';
-      position:absolute;right:10px;top:50%;
-      transform:translateY(-50%);
-      color:var(--gold);font-size:0.7rem;
-      pointer-events:none;
+    .lang-select-wrap select option{
+      background:#1a0e05;
+      color:var(--txt);
+      padding:8px;
+      font-size:0.82rem;
     }
 
     /* ═══ FORM GROUP ═══ */
@@ -432,16 +430,18 @@
           <div class="settings-row">
             <div class="row-info">
               <div class="row-title"><span data-i18n="lang_label" data-i18n-text>Oyun Dili</span></div>
-              <div class="row-desc">Select your language</div>
+              <div class="row-desc" data-i18n="lang_desc" data-i18n-text="Oyun dilini seçin"></div>
             </div>
-            <select class="sp-select" id="lang-select" onchange="window.setLanguage(this.value)" style="padding: 8px; background: rgba(0,0,0,0.5); color: var(--gold-p); border: 1px solid var(--gold); border-radius: 6px; outline: none; font-family: 'Cinzel', serif; font-size: 0.75rem;">
-              <option value="tr">Türkçe (Turkish)</option>
-              <option value="en">English</option>
-              <option value="de">Deutsch</option>
-              <option value="pt">Português</option>
-              <option value="es">Español</option>
-              <option value="pl">Polski</option>
-            </select>
+            <div class="lang-select-wrap">
+              <select id="lang-select" onchange="selectLang(this.value)">
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="pl">🇵🇱 Polski</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -619,9 +619,9 @@
           const vDay   = String(vipDate.getDate()).padStart(2, '0');
           const vMonth = String(vipDate.getMonth() + 1).padStart(2, '0');
           const vYear  = vipDate.getFullYear();
-          pVipWrap.innerHTML = `<span class="vip-badge active">👑 VIP — ${vDay}.${vMonth}.${vYear}</span>`;
+          pVipWrap.innerHTML = `<span class="vip-badge active"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP — ${vDay}.${vMonth}.${vYear}</span>`;
         } else {
-          pVipWrap.innerHTML = `<span class="vip-badge inactive">${t('profile_vip')}: ${t('profile_vip_inactive')}</span>`;
+          pVipWrap.innerHTML = `<span class="vip-badge inactive"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> ${t('profile_vip')}: ${t('profile_vip_inactive')}</span>`;
         }
 
         // Profile Ship Image (önce aktif tasarım, yoksa ship_level, yoksa visual_ship_level)
@@ -640,7 +640,7 @@
         }
       }
     } catch (e) {
-      console.error(e);
+      logError('settings:load', e);
     }
   }
 
@@ -704,7 +704,17 @@
     window.showAlert(msg, isErr ? t('server_error') : 'SEAPIRATES', isErr);
   }
 
-  // ═══ Init ═══
+  // ═══ Language Select ═══
+  function selectLang(lang) {
+    window.setLanguage(lang);
+    document.getElementById('lang-select').value = lang;
+  }
+  window.addEventListener('languageChanged', function() {
+    const sel = document.getElementById('lang-select');
+    if (sel) sel.value = window.currentLang;
+  });
+
+  // Init
   fetchProfile();
   document.getElementById('lang-select').value = window.currentLang;
 
@@ -759,7 +769,7 @@
         });
         updateUI();
       } catch (e) {
-        console.error('Push failed:', e);
+        logError('settings:push', e);
         desc.textContent = t('notif_error') || 'Bildirim açılamadı.';
       }
     });

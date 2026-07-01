@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -164,14 +165,13 @@
     .day-card{
       position:relative;
       border-radius:6px;
-      padding:6px 4px;
-      display:flex;flex-direction:column;align-items:center;gap:3px;
+      padding:4px 4px;
+      display:flex;flex-direction:column;align-items:center;gap:2px;
       transition:all 0.18s ease;
       background:linear-gradient(145deg,#4a3020,#2a180e);
       border:1.5px solid #8a6030;
       box-shadow:0 3px 8px rgba(0,0,0,0.8), 0 0 0 1px rgba(200,150,42,0.06), inset 0 0 4px rgba(0,0,0,0.5);
       cursor:default;
-      min-height:74px;
     }
     .day-card::before{
       content:'';position:absolute;inset:0;
@@ -246,19 +246,23 @@
     .day-card.done .day-num{color:#6a5a4a;}
     .day-card.missed .day-num{color:#8a3030;}
 
+    .day-parts-grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:1px 4px;
+      width:100%;
+    }
     .day-part{
-      display:flex;align-items:center;gap:3px;width:100%;
-      justify-content:center;
+      display:flex;align-items:center;gap:2px;
+      justify-content:flex-start;width:auto;
     }
     .day-rwd-img{
-      width:18px;height:18px;flex-shrink:0;
+      width:16px;height:16px;flex-shrink:0;
       object-fit:contain;
       filter:drop-shadow(0 2px 4px rgba(0,0,0,0.9)) brightness(1.05);
     }
     .day-part .day-rwd-txt{
-      font-size:0.55rem;font-weight:700;
+      font-size:0.5rem;font-weight:700;
       color:#fff5e8;text-shadow:0 1px 4px rgba(0,0,0,0.8);
-      white-space:nowrap;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
     .day-card.done .day-part .day-rwd-txt{color:#a09080;}
     .day-card.missed .day-part .day-rwd-txt{color:#6a4040;}
@@ -601,7 +605,7 @@
         canClaimNormal = d.canClaimNormal;
         canClaimVip = d.canClaimVip;
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { logError('daily-reward:status', e); }
   }
 
   // Determine the state for a normal day card
@@ -703,7 +707,7 @@
         <div class="day-num">${dayNum}</div>
         ${badge}
       </div>
-      ${partsHTML}
+      <div class="day-parts-grid">${partsHTML}</div>
     `;
   }
 
@@ -722,7 +726,7 @@
         toast(data.error || 'err_daily_claim_failed', 'err');
       }
     } catch (e) {
-      console.error(e);
+      logError('daily-reward:claim', e);
       toast('Server error!', 'err');
     }
   }
@@ -753,7 +757,7 @@
       vipPrices = p.prices;
       vipCurrencies = p.currencies;
       currentCurrency = c.currency;
-    } catch (e) { console.error('VIP fiyat yüklenemedi:', e); }
+    } catch (e) { logError('daily-reward:vip', e); }
   }
 
   function updateVipPrices() {
@@ -791,7 +795,7 @@
 <div class="magaza-overlay" id="vip-modal-daily" onclick="if(event.target===this)this.style.display='none'">
   <div class="magaza-modal">
     <button class="magaza-close" id="btn-close-vip-daily" onclick="document.getElementById('vip-modal-daily').style.display='none'">✕</button>
-    <div class="magaza-title"><span data-i18n="vip_pack" data-i18n-text>👑 VIP PAKETLER</span></div>
+    <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack">VIP PAKETLER</span></div>
     <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
     <div class="magaza-cards">
       <div class="magaza-card">

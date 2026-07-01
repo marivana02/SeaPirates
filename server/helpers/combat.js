@@ -84,14 +84,13 @@ async function distributeAdmiralRewards(mapLevel) {
             const pct = Math.min(1.0, dmg / bossMaxHp);
             const rewardPearls = Math.floor(totalPearls * pct);
             const rewardXp = Math.floor(totalXp * pct);
-            const rewardElite = Math.floor(rewardXp * 0.5);
 
             if (pId > 0) {
                 await client.query(
-                    'UPDATE players SET pearl = pearl + $1, xp = xp + $2, elite_points = elite_points + $3 WHERE id = $4',
-                    [rewardPearls, rewardXp, rewardElite, pId]
+                    'UPDATE players SET pearl = pearl + $1, xp = xp + $2 WHERE id = $3',
+                    [rewardPearls, rewardXp, pId]
                 );
-                console.log(`[REWARD] Sent ${rewardPearls} Pearls, ${rewardXp} XP and ${rewardElite} ELP to player ID ${pId} (${row.username})`);
+                console.log(`[REWARD] Sent ${rewardPearls} Pearls and ${rewardXp} XP to player ID ${pId} (${row.username})`);
             }
         }
 

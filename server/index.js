@@ -23,6 +23,7 @@ const notificationRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/admin');
 const vipRoutes = require('./routes/vip');
 const starterRoutes = require('./routes/starter');
+const clientLogRoutes = require('./routes/clientLog');
 const pool = require('./config/db');
 const { initSocketIO } = require('./helpers/socket');
 const { startBotTicks } = require('./bots/botAdmirals');
@@ -47,7 +48,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "blob:"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
@@ -60,14 +61,14 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 }));
 
 // CSRF koruması: state değiştiren POST isteklerinde X-Requested-With zorunlu (400 = global 401/403 override'ı tetiklemez)
 app.use('/api', (req, res, next) => {
-  if (req.method === 'POST' && !req.path.startsWith('/auth/')) {
+  if (req.method === 'POST' && !req.path.startsWith('/auth/') && !req.path.startsWith('/client/')) {
     if (req.headers['x-requested-with'] !== 'XMLHttpRequest') {
       return res.status(400).json({ error: 'CSRF protection: missing X-Requested-With header' });
     }
@@ -103,6 +104,7 @@ app.use('/api/notifications', standardRateLimiter, notificationRoutes);
 app.use('/api/admin', standardRateLimiter, adminRoutes);
 app.use('/api/vip', standardRateLimiter, vipRoutes);
 app.use('/api/starter', standardRateLimiter, starterRoutes);
+app.use('/api/client', clientLogRoutes);
 
 // Combat routes - lightweight rate limiter (frequent but capped)
 const combatLimiter = createApiRateLimiter(120, 60000, 'combat'); // 120 req/min

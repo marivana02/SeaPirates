@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="js/lang.js?v=2"></script>
   <script src="transition.js?v=5"></script>
@@ -225,10 +226,10 @@ function renderPlayerList(data) {
     const isBanned = p.is_banned;
     const isVip = p.vip_until && new Date(p.vip_until) > new Date();
     const statusBadges = [];
-    if (p.is_admin) statusBadges.push('<span class="badge badge-admin">ADMIN</span>');
-    if (isBanned) statusBadges.push('<span class="badge badge-banned">BANNED</span>');
-    if (isVip) statusBadges.push('<span class="badge badge-vip">VIP</span>');
-    if (statusBadges.length === 0) statusBadges.push('<span class="badge badge-ok">AKTİF</span>');
+    if (p.is_admin) statusBadges.push('<span class="badge badge-admin">' + t('admin_badge_admin') + '</span>');
+    if (isBanned) statusBadges.push('<span class="badge badge-banned">' + t('admin_badge_banned') + '</span>');
+    if (isVip) statusBadges.push('<span class="badge badge-vip">' + t('admin_badge_vip') + '</span>');
+    if (statusBadges.length === 0) statusBadges.push('<span class="badge badge-ok">' + t('admin_badge_ok') + '</span>');
     html += `<tr>
       <td>${p.id}</td>
       <td>${esc(p.username)}</td>

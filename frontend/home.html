@@ -12,6 +12,7 @@
   <script src="js/lang.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <style>
     *,
     *::before,
@@ -73,7 +74,7 @@
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      padding: 8px 11px;
+      padding: 10px 14px;
       background: linear-gradient(180deg, #4a2c08 0%, #241204 100%);
       border: 2px solid var(--gold);
       border-radius: 8px;
@@ -89,13 +90,17 @@
     }
 
     .shop-btn-icon {
-      font-size: 1.25rem;
+      font-size: 1.4rem;
       line-height: 1;
+    }
+    .shop-btn-icon .vip-icon {
+      width: 28px;
+      height: 28px;
     }
 
     .shop-btn-lbl {
       font-family: 'Cinzel', serif;
-      font-size: 0.55rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--gold-b);
       letter-spacing: 0.07em;
@@ -881,14 +886,13 @@
     <div class="top-bar">
       <div class="top-bar-left">
         <a class="shop-btn" href="#" id="btn-starter-home">
-          <span class="shop-btn-icon">🚀</span>
-          <span class="shop-btn-lbl">Starter</span>
+          <span class="shop-btn-lbl" data-i18n="starter_pack" data-i18n-text>BAŞLANGIÇ PAKETİ</span>
         </a>
       </div>
       <div class="top-bar-right">
         <a class="shop-btn" href="#" id="btn-vip-home">
-          <span class="shop-btn-icon">👑</span>
-          <span class="shop-btn-lbl">VIP</span>
+          <span class="shop-btn-icon"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt="VIP"></span>
+          <span class="shop-btn-lbl" data-i18n="daily_vip_short">VIP</span>
         </a>
       </div>
     </div>
@@ -907,8 +911,8 @@
     <div class="ev-banner hidden" id="ev-banner" onclick="goTo('events.html')" style="cursor:pointer;">
       <span class="ev-icon" id="ev-icon">🎯</span>
       <div class="ev-info">
-        <div class="ev-name" id="ev-name" data-i18n="events_placeholder_name">Etkinlik</div>
-        <div class="ev-desc" id="ev-desc" data-i18n="events_placeholder_desc">Açıklama</div>
+        <div class="ev-name" id="ev-name">Etkinlik</div>
+        <div class="ev-desc" id="ev-desc">Açıklama</div>
       </div>
       <span class="ev-badge" id="ev-badge">×2</span>
     </div>
@@ -961,7 +965,7 @@
   <div class="magaza-overlay" id="vip-modal-home">
     <div class="magaza-modal">
       <button class="magaza-close" id="btn-close-vip-home">✕</button>
-      <div class="magaza-title"><span data-i18n="vip_pack" data-i18n-text>👑 VIP PAKETLER</span></div>
+      <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack" data-i18n-text>VIP PAKETLER</span></div>
       <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
       <div class="magaza-cards">
         <div class="magaza-card">
@@ -1125,7 +1129,7 @@
         localStorage.setItem('sp_player', JSON.stringify(data));
         return data;
       } catch (err) {
-        console.error(err);
+        logError('home:player', err);
         return JSON.parse(localStorage.getItem('sp_player') || '{}');
       }
     }
@@ -1136,7 +1140,7 @@
         const data = await res.json();
         return data;
       } catch (err) {
-        console.error(err);
+        logError('home:leaderboard', err);
         return [];
       }
     }
@@ -1155,9 +1159,11 @@
         if (ev.type) {
           name.textContent = t('event_' + ev.type + '_name') || ev.name;
           desc.textContent = t('event_' + ev.type + '_desc') || ev.desc;
+        } else if (ev.name) {
+          name.textContent = ev.name;
+          desc.textContent = ev.desc || '';
         } else {
-          if (ev.name) name.textContent = ev.name;
-          if (ev.desc) desc.textContent = ev.desc;
+          return;
         }
         if (ev.mult) badge.textContent = '×' + ev.mult;
         banner.classList.remove('hidden');
@@ -1186,11 +1192,16 @@
       const pct = Math.min(100, ((playerData.xp || 0) / xpNext) * 100);
       document.getElementById('p-lvl-fill').style.width = pct + '%';
 
-      if (playerData.vip_until) {
+      {
         const b = document.getElementById('vip-badge');
-        b.className = 'vip-badge on';
-        const daysLeft = Math.ceil((new Date(playerData.vip_until) - new Date()) / 86400000);
-        b.textContent = daysLeft > 0 ? '👑 VIP \u00b7 ' + daysLeft + ' ' + t('daily_day') : '👑 VIP';
+        if (playerData.vip_until) {
+          b.className = 'vip-badge on';
+          const daysLeft = Math.ceil((new Date(playerData.vip_until) - new Date()) / 86400000);
+          b.innerHTML = daysLeft > 0 ? '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP \u00b7 ' + daysLeft + ' ' + t('daily_day') : '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP';
+        } else {
+          b.className = 'vip-badge off';
+          b.innerHTML = '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> ' + t('vip_status_off');
+        }
       }
 
       // Render Leaderboard
@@ -1258,7 +1269,7 @@
         vipPrices = p.prices;
         vipCurrencies = p.currencies;
         currentCurrency = c.currency;
-      } catch (e) { console.error('VIP fiyat yüklenemedi:', e); }
+      } catch (e) { logError('home:vip-prices', e); }
     }
 
     function updateVipPrices() {
@@ -1354,7 +1365,7 @@
         });
         if (r.ok) localStorage.setItem('sp_session_ts', Date.now().toString());
       } catch (err) {
-        console.error("Playtime ping error:", err);
+        logError('home:ping', err);
       }
     }, 60000);
 

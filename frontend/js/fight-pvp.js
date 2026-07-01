@@ -28,8 +28,10 @@
       }
     }
 
+    setupWarBg();
+
     /* ══════════════════════════════════════════════
-       START COMBAT (PvP)
+        START COMBAT (PvP)
     ══════════════════════════════════════════════ */
     async function startCombat() {
       try {
@@ -110,7 +112,7 @@
             goTo('map.html');
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) { logError('fight-pvp:attack', e); }
     }
 
     // No-cannon modal buttons
@@ -186,8 +188,13 @@
       fetch(`${SHARED_API_URL}/end`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'X-Requested-With': 'XMLHttpRequest' }
-      }).catch(e => console.error('handleReturn end error:', e))
+      }).catch(e => logError('fight-pvp:end', e))
         .finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace(pvpWon ? 'pvp.html' : 'map.html'); });
     };
 
-    startCombat();
+    function showPage() {
+      const page = document.querySelector('.page');
+      if (page) setTimeout(() => page.classList.add('visible'), 350);
+    }
+
+    startCombat().finally(showPage);

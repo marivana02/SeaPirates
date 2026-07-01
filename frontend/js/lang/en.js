@@ -1,23 +1,4 @@
-/* ══════════════════════════════════════════════
-   SeaPirates — Global i18n Dil Sistemi (lang.js)
-   English data embedded (always available)
-   Other languages: js/lang/XX.js (lazy loaded)
-══════════════════════════════════════════════ */
-
-const I18N_DATA = {};
-
-// Prevent content flash by hiding the page until translations are applied.
-// Adds `i18n-loading` class to <html> and a small style to hide body while loading.
-(function () {
-  try {
-    if (document && document.documentElement) {
-      document.documentElement.classList.add('i18n-loading');
-      var _style = document.createElement('style');
-      _style.innerHTML = '.i18n-loading body{visibility:hidden !important;opacity:0;}';
-      (document.head || document.getElementsByTagName('head')[0]).appendChild(_style);
-    }
-  } catch (e) { /* ignore */ }
-})();
+// SeaPirates - en language data
 
 I18N_DATA['en'] = {
     btn_back: '◀ BACK',
@@ -116,6 +97,7 @@ I18N_DATA['en'] = {
     no_bids_yet: 'No bids yet',
     time_left: 'Time Left',
     auction_ended: 'ROUND ENDED',
+    // Auction item names - EN
     auc_barut_name: 'Gunpowder x100',
     auc_barut_desc: '+10% attack damage. Consumed on each shot.',
     auc_zirh_name: 'Armor x100',
@@ -130,6 +112,9 @@ I18N_DATA['en'] = {
     auc_elit_kiris_desc: '+1,200 HP bonus, Repair +20. Low break chance.',
     auc_gemi1_name: 'Elite Ship I',
     auc_gemi1_desc: '25,000 HP, 30 cannon / 10 beam slots.',
+
+    // --- MISSING KEYS ADDED ---
+    // ---------------------------
     auc_kristal_queen_name: 'Crystal Queen Design',
     auc_kristal_queen_desc: 'Cosmetic only. Gives your ship a crystal coating appearance.',
     auc_kristal_queen_design_name: 'Crystal Queen Design',
@@ -139,6 +124,9 @@ I18N_DATA['en'] = {
     buy_success: 'Purchase successful!',
     item_ships: 'SHIPS',
     item_designs: 'DESIGNS',
+
+    // Shop item names - EN
+
     settings_title: 'SETTINGS',
     section_language: 'Language Settings',
     section_general: 'General Settings',
@@ -186,18 +174,17 @@ I18N_DATA['en'] = {
     menu_clan: 'Clan',
     menu_settings: 'Settings',
     menu_admin: 'Admin',
+
+    // Admin page
     admin_tab_players: 'Players',
     admin_tab_logs: 'Logs',
     admin_col_username: 'Username',
     admin_col_status: 'Status',
-    admin_badge_admin: 'ADMIN',
-    admin_badge_banned: 'BANNED',
-    admin_badge_vip: 'VIP',
-    admin_badge_ok: 'ACTIVE',
     admin_search: 'Search',
     admin_filter: 'Filter',
     admin_log_all: 'All',
     admin_no_results: 'No results found',
+
     reg_error_username: '3–20 characters, letters/numbers/_ only.',
     reg_error_email: 'Enter a valid email address.',
     reg_error_password: 'Password must be at least 6 characters.',
@@ -216,6 +203,8 @@ I18N_DATA['en'] = {
     bottom_privacy: 'Privacy Policy',
     bottom_terms: 'Terms of Service',
     modal_close: 'OK',
+
+    // Exit Confirm
     exit_confirm_title: 'EXIT APP',
     exit_confirm_msg: 'Are you sure you want to exit?',
     exit_confirm_yes: 'YES',
@@ -223,6 +212,7 @@ I18N_DATA['en'] = {
     fight_back_title: 'FIGHT IN PROGRESS',
     fight_back_msg: 'If you leave now, your progress will be lost! Are you sure?',
     back_double_tap: 'Press back again to exit',
+
     modal_terms_title: '⚓ TERMS OF SERVICE',
     modal_privacy_title: '🛡️ PRIVACY POLICY',
     quest_accepted: 'Quest accepted!',
@@ -378,6 +368,8 @@ I18N_DATA['en'] = {
     connection_failed: 'Could not connect to server!',
     unauthorized: 'Session expired, please log in again.',
     invalid_amount: 'Enter a valid amount.',
+
+    // Quest Errors
     err_player_not_found: 'Player not found.',
     err_server: 'Server error.',
     err_quest_invalid_id: 'Invalid quest ID.',
@@ -392,8 +384,12 @@ I18N_DATA['en'] = {
     err_quest_bonus_expired: 'Bonus quest has expired!',
     err_quest_bonus_not_found: 'Bonus quest not found.',
     err_quest_bonus_objectives_pending: 'Bonus quest objectives not yet completed!',
+
+    // Glitter Errors
     err_glitter_too_fast: 'Collecting too fast! Slow down and move your mouse.',
     err_glitter_hourly_limit: 'Hourly collection limit reached! Please wait.',
+
+    // Notifications
     btn_enable_notif: '🔔 Enable Notifications',
     notif_title: '🔔 Push Notifications',
     notif_desc: 'Get notified when admiral spawns.',
@@ -402,6 +398,8 @@ I18N_DATA['en'] = {
     notif_browser_blocked: 'Notifications blocked by browser. Reset from browser settings.',
     notif_error: 'Failed to enable notifications.',
     notif_unsupported: 'This browser does not support notifications.',
+
+    // Page titles
     page_equipment: 'EQUIPMENT',
     page_ships: 'SHIPS',
     page_my_hall: 'MY HALL',
@@ -441,7 +439,6 @@ I18N_DATA['en'] = {
     pvp_max: 'MAX',
     pvp_remaining: '(Remaining: {val})',
     pvp_unknown_opponent: 'Unknown Opponent',
-    pvp_refresh: 'Refresh Opponents',
     page_glitter: 'GLITTER',
     page_map: 'MAP',
     page_fight: 'FIGHT',
@@ -451,6 +448,8 @@ I18N_DATA['en'] = {
     fight_no_cannons_desc: 'You must equip at least <b>1 cannon</b> to enter battle.<br><br>Equip cannons from the <b>Equipment</b> screen.',
     fight_btn_go_equipment: 'GO TO EQUIPMENT',
     fight_btn_go_back: 'Go Back',
+
+    // Equipment page labels
     equip_storage: 'In Storage',
     equip_equipped: 'Ship',
     equip_stats_title: 'Ship Stats',
@@ -466,6 +465,8 @@ I18N_DATA['en'] = {
     equip_unequip_all: 'Unequip All',
     equip_tab_cannons: 'CANNONS',
     equip_tab_masts: 'MASTS',
+
+    // Ships page labels
     ships_ep_label: '💎 Elite Points (ELP)',
     ships_ep_short: 'ELP',
     design_crystal_queen: 'Crystal Queen',
@@ -490,6 +491,8 @@ I18N_DATA['en'] = {
     ships_activated: 'activated ✅',
     ships_visual: 'Visual',
     ships_default_view: 'Default View',
+
+    // Daily reward labels
     daily_month_label: 'MONTH',
     daily_title: 'DAILY LOGIN',
     daily_streak: 'Streak',
@@ -514,6 +517,8 @@ I18N_DATA['en'] = {
     ban_permanent_label: 'Permanent Ban',
     ban_date_label: 'Ban Date:',
     err_daily_claim_failed: 'Could not claim reward!',
+
+    // VIP Purchase Modal
     vip_title: '⚓ VIP MEMBERSHIP',
     vip_desc: 'Get VIP to unlock premium daily rewards,<br>HP regen bonus & more!',
     vip_7day: '7 Day VIP',
@@ -531,9 +536,13 @@ I18N_DATA['en'] = {
     vip_perk_quest: '2nd Quest Slot — Take 2 quests at the same time',
     vip_perk_respawn: '+10% Respawn HP — Respawn with 10% of your max HP',
     vip_perk_shop_discount: '10% Shop Discount — 10% off on all shop items',
+
+    // Level bonus labels
     level_unlocked: 'Unlocked',
     level_vip_status: 'VIP Status',
     level_lvl: 'level',
+
+    // Tower (weekly boss) labels
     page_tower: 'DAILY TOWER',
     tower_loading: 'Loading tower data...',
     tower_todays_target: "TODAY'S TARGET",
@@ -547,6 +556,8 @@ I18N_DATA['en'] = {
     tower_daily_used: 'You have used your daily tower attack.<br>Try the next tower (<b>Lvl {val}</b>) tomorrow!',
     tower_status_info: 'Your tower level is set to <b>Lvl {val}</b>.<br>You can only attack once per day!',
     tower_status_max: '🏆 You completed the tower!<br>Keep attacking daily to earn pearls!',
+
+    // My Hall labels
     hall_today_rank: 'Today\'s Rank',
     hall_you: 'You',
     hall_calculated_as: 'Your rank is calculated as follows:',
@@ -573,11 +584,15 @@ I18N_DATA['en'] = {
     hall_calculating: '⚓ Calculating rank...',
     hall_fetch_error: '⚠️ Could not fetch rank data from server!',
     hall_connection_error: '⚠️ Server connection error!',
+
+    // Hall of Fame labels
     hof_title: 'HALL OF FAME',
     hof_my_rank: 'My Rank:',
     hof_rank_header: 'Rank',
     hof_players_header: 'Players',
     hof_score_header: 'Score',
+
+    // Hall of Fame categories - EN
     hof_cat_xp: 'Experience Points',
     hof_cat_ep: 'Elite Points',
     hof_cat_dmg_pve: 'Damage Score PvE',
@@ -587,6 +602,8 @@ I18N_DATA['en'] = {
     hof_cat_dmg_amiral: 'Admiral Damage',
     hof_cat_playtime: 'Playtime',
     hof_cat_pvp_points: 'Battle Points',
+
+    // Shop Items
     shop_name_30_pounder: '30 Pounder',
     shop_name_55_pounder: '55 Pounder',
     shop_name_60_pounder: '60 Pounder',
@@ -599,6 +616,8 @@ I18N_DATA['en'] = {
     shop_name_armor: 'Armor Plate (x100)',
     shop_name_elite_ship: 'Elite Ship I',
     shop_name_crystal_queen: 'Crystal Queen Design',
+
+    // Stats
     stat_damage: 'Damage: {val}',
     stat_reload: 'Reload: {val}s',
     stat_damage_plus: 'Damage: +{val}',
@@ -613,6 +632,8 @@ I18N_DATA['en'] = {
     stat_skin: 'Skin: {val}',
     stat_note_cosmetic: 'Cosmetic only change.',
     stat_explosive_mult: '×1.6 Multiplier',
+
+    // Ranks - EN
     rank_1: 'Ruler of the Seas',
     rank_2: 'Pirate King',
     rank_3: 'Pirate Prince',
@@ -626,6 +647,8 @@ I18N_DATA['en'] = {
     rank_11: 'Coastal Raider',
     rank_12: 'Rookie Pirate',
     rank_13: 'Sailor',
+
+    // PvP Ranks - EN
     pvp_rank_1: 'Crew',
     pvp_rank_2: 'Apprentice Sailor',
     pvp_rank_3: 'Sailor',
@@ -674,6 +697,8 @@ I18N_DATA['en'] = {
     pvp_rank_58: 'Cosmic Pirate',
     pvp_rank_59: 'Eternal Sailor',
     pvp_rank_60: 'SeaPirate Deity',
+
+    // Common Items - EN
     item_gold_amount: '{val} Gold',
     item_pearl_amount: '{val} Pearl',
     item_hollow_amount: '{val} Hollow',
@@ -682,6 +707,7 @@ I18N_DATA['en'] = {
     item_armor_amount: '{val}x Armor Plate',
     item_mixed_rewards: '{p} Pearl + {e} Explosive',
     item_gunpowder_armor: '{val}x Gunpowder & Armor Plate',
+
     home_title: 'Home',
     events_placeholder_name: 'Event',
     events_placeholder_desc: 'Description',
@@ -696,138 +722,5 @@ I18N_DATA['en'] = {
     disconnect_sub: 'Reconnecting...',
     level_label: '⭐ Level',
     alt_gold: 'Gold',
-    menu_title: 'Menu',
-    coordinate: 'Coordinate',
-    equip_all_failed: 'Failed to equip all!',
-    equip_failed: 'Failed to equip!',
-    equip_load_failed: 'Failed to load equipment!',
-    ships_load_failed: 'Failed to load ships!',
-    time_hour: 'hour',
-    unequip_all_failed: 'Failed to unequip all!',
-    unequip_failed: 'Failed to unequip!'
+    menu_title: 'Menu'
 };
-
-var currentLang = localStorage.getItem('sp_lang') || 'en';
-var _langCallbacks = [];
-var _loadingLang = null;
-
-function t(key, params) {
-  if (params === void 0) params = {};
-  var data = I18N_DATA[currentLang];
-  if (!data) data = I18N_DATA['en'];
-  var val = data ? data[key] : null;
-  if (!val && currentLang !== 'en') {
-    data = I18N_DATA['en'];
-    val = data ? data[key] : null;
-  }
-  if (!val) return key;
-  if (params && typeof val === 'string') {
-    for (var k in params) {
-      val = val.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
-    }
-  }
-  return val;
-}
-
-function loadLanguage(lang, callback) {
-  if (I18N_DATA[lang]) {
-    if (callback) callback();
-    return;
-  }
-  if (_loadingLang === lang && _langCallbacks.length > 0) {
-    if (callback) _langCallbacks.push(callback);
-    return;
-  }
-  _loadingLang = lang;
-  if (callback) _langCallbacks.push(callback);
-
-  var script = document.createElement('script');
-  script.src = 'js/lang/' + lang + '.js';
-  script.onload = function () {
-    _loadingLang = null;
-    var cbs = _langCallbacks.slice();
-    _langCallbacks = [];
-    for (var i = 0; i < cbs.length; i++) cbs[i]();
-  };
-  script.onerror = function () {
-    if (lang !== 'en') {
-      loadLanguage('en', callback);
-    } else {
-      _loadingLang = null;
-      _langCallbacks = [];
-      try { if (typeof applyI18n === 'function') applyI18n(); } catch (e) {}
-      try { document.documentElement.classList.remove('i18n-loading'); } catch (e) {}
-    }
-  };
-  document.head.appendChild(script);
-}
-
-function setLanguage(lang) {
-  if (!lang) return false;
-  currentLang = lang;
-  localStorage.setItem('sp_lang', lang);
-
-  loadLanguage(lang, function () {
-    applyI18n();
-    window.dispatchEvent(new Event('languageChanged'));
-  });
-
-  return true;
-}
-
-function applyI18n() {
-  document.querySelectorAll('[data-i18n]').forEach(function (el) {
-    var key = el.getAttribute('data-i18n');
-    if (key) {
-      var target = el.querySelector('[data-i18n-text]') || el;
-      target.innerHTML = t(key);
-    }
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
-    var key = el.getAttribute('data-i18n-placeholder');
-    if (key) el.placeholder = t(key);
-  });
-  document.querySelectorAll('[data-i18n-title]').forEach(function (el) {
-    var key = el.getAttribute('data-i18n-title');
-    if (key) el.title = t(key);
-  });
-  document.querySelectorAll('[data-i18n-alt]').forEach(function (el) {
-    var key = el.getAttribute('data-i18n-alt');
-    if (key) el.alt = t(key);
-  });
-}
-
-// After applying translations, reveal the page.
-try {
-  var _origApply = applyI18n;
-  applyI18n = function () {
-    _origApply();
-    try { document.documentElement.classList.remove('i18n-loading'); } catch (e) {}
-  };
-} catch (e) { /* ignore if reassign fails */ }
-
-window.t = t;
-window.setLanguage = setLanguage;
-window.applyI18n = applyI18n;
-try {
-  var _curDesc = Object.getOwnPropertyDescriptor(window, 'currentLang');
-  if (!_curDesc || _curDesc.configurable) {
-    Object.defineProperty(window, 'currentLang', { get: function () { return currentLang; }, configurable: true });
-  } else {
-    try {
-      // If the property exists and is not configurable, avoid redefining it.
-      // Attempt to keep the global value in sync instead.
-      window.currentLang = currentLang;
-    } catch (e) {
-      // ignore
-    }
-  }
-} catch (e) {
-  try { window.currentLang = currentLang; } catch (er) { /* ignore */ }
-}
-
-if (currentLang !== 'en') {
-  loadLanguage(currentLang, applyI18n);
-} else {
-  document.addEventListener('DOMContentLoaded', applyI18n);
-}

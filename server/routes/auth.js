@@ -33,6 +33,12 @@ const registerRules = {
   ],
   password: [
     (v) => VALIDATORS.password(v) || 'Password must be 8-100 characters'
+  ],
+  deviceId: [
+    (v) => {
+      if (v === undefined || v === null) return true;
+      return VALIDATORS.string(v, 128) || 'Invalid device ID';
+    }
   ]
 };
 

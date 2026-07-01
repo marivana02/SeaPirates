@@ -172,7 +172,7 @@
             updateMapNavigationButtons();
           }
         } catch(e) {
-          console.error("Change map failed, running fallback", e);
+          logError('map:change', e);
           currentMapLevel = targetLevel;
           currentMapSub = targetSub;
           localStorage.setItem('sp_current_map', currentMapLevel);
@@ -208,10 +208,10 @@
         if (player.vip_until) {
           vipB.className = 'vip-badge on';
           const daysLeft = Math.ceil((new Date(player.vip_until) - new Date()) / 86400000);
-          vipB.textContent = daysLeft > 0 ? '👑 VIP \u00b7 ' + daysLeft + ' ' + t('daily_day') : '👑 VIP';
+          vipB.innerHTML = daysLeft > 0 ? '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP \u00b7 ' + daysLeft + ' ' + t('daily_day') : '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP';
         } else {
           vipB.className = 'vip-badge off';
-          vipB.textContent = t('vip_status_off');
+          vipB.innerHTML = '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> ' + t('vip_status_off');
         }
       }
 
@@ -253,17 +253,17 @@
       const island = document.getElementById('island-bg');
       if (!island) return;
       
-      const islandFiles = {
-        1: { src: 'assets/effects/island/images/1_tile_57.png', bottom: '80px', left: '5px', w: '120px' },
-        2: { src: 'assets/effects/island/images/2_tile_56.png', bottom: '80px', right: '5px', w: '120px' },
-        3: { src: 'assets/effects/island/images/3_tile_55.png', bottom: '100px', left: '5px', w: '120px' },
-        4: { src: 'assets/effects/island/images/4_tile_54.png', bottom: '80px', right: '5px', w: '130px' },
-        5: { src: 'assets/effects/island/images/5_tile_53.png', bottom: '80px', right: '5px', w: '130px' },
-        6: { src: 'assets/effects/island/images/6_tile_52.png', bottom: '80px', left: '5px', w: '120px' },
-        7: { src: 'assets/effects/island/images/1_tile_51.png', bottom: '90px', right: '5px', w: '120px' },
-        8: { src: 'assets/effects/island/images/2_tile_50.png', bottom: '80px', left: '5px', w: '130px' },
-        9: { src: 'assets/effects/island/images/3_tile_49.png', bottom: '80px', right: '5px', w: '120px' },
-        10: { src: 'assets/effects/island/images/4_tile_48.png', bottom: '80px', left: '5px', w: '130px' }
+  const islandFiles = {
+    1: { src: 'assets/effects/island/images/ada-01.png', bottom: '5px', left: '5px', w: '100px' },
+    2: { src: 'assets/effects/island/images/ada-11.png', bottom: '5px', left: '5px', w: '150px' },
+    3: { src: 'assets/effects/island/images/ada-03.png', bottom: '5px', left: '5px', w: '100px' },
+    4: { src: 'assets/effects/island/images/ada-16.png', bottom: '5px', left: '5px', w: '150px' },
+    5: { src: 'assets/effects/island/images/ada-05.png', bottom: '5px', left: '5px', w: '100px' },
+    6: { src: 'assets/effects/island/images/ada-13.png', bottom: '5px', left: '5px', w: '150px' },
+    7: { src: 'assets/effects/island/images/ada-02.png', bottom: '5px', left: '5px', w: '100px' },
+    8: { src: 'assets/effects/island/images/ada-15.png', bottom: '5px', left: '5px', w: '150px' },
+    9: { src: 'assets/effects/island/images/ada-09.png', bottom: '5px', left: '5px', w: '100px' },
+    10: { src: 'assets/effects/island/images/ada-10.png', bottom: '5px', left: '5px', w: '100px' }
       };
       
       const cfg = islandFiles[mapLvl];
@@ -295,7 +295,7 @@
         mapNpcs = d.npcs || {};
         mapBoss = d.bossData || null;
       } catch(e) {
-        console.error("Failed to fetch NPCs from server", e);
+        logError('map:npcs', e);
         mapNpcs = {};
         mapBoss = null;
       }
@@ -339,7 +339,7 @@
           admiralNotifTimer = setTimeout(() => { el.style.display = 'none'; }, 20000);
         }
       } catch (e) {
-        console.error('Admiral spawn check failed:', e);
+        logError('map:admiral', e);
       }
     }
 
@@ -390,7 +390,7 @@
           }
         }
       } catch (e) {
-        console.error("Aktif savaş kontrolü başarısız:", e);
+        logError('map:active-fight', e);
       }
 
       try {
@@ -402,7 +402,7 @@
           player = d.player;
         }
       } catch(e) {
-        console.error("Player loading failed, loading mock fallback", e);
+        logError('map:player', e);
         let savedPlayer = {};
         try { savedPlayer = JSON.parse(localStorage.getItem('sp_player') || '{}'); } catch(e2) {}
         player = {
@@ -438,7 +438,7 @@
         tiamatAvailable = mData.tiamatAvailable || false;
         tiamatRespawnAt = mData.tiamatRespawnAt || null;
       } catch(e) {
-        console.error("Map loading failed, using saved/default", e);
+        logError('map:fetch', e);
         currentMapLevel = parseInt(localStorage.getItem('sp_current_map')) || 1;
         currentMapSub = currentMapLevel <= 4 ? 1 : 1;
       }
@@ -465,7 +465,7 @@
     }
 
     // "NPC ARA" click handler (3-second delay, locks UI, picks NPC)
-    if (!btnSearch) console.error('btn-search element not found');
+    if (!btnSearch) logError('map:btn-search', new Error('btn-search element not found'));
     else btnSearch.addEventListener('click', async () => {
       if (uiLocked && !foundNpc) return;
       if (isRepairing) stopRepair();
@@ -675,7 +675,7 @@
           });
           bossRewardsCache = await r.json();
         } catch(e) {
-          console.error('Failed to fetch boss rewards:', e);
+          logError('map:boss-rewards', e);
           bossRewardsCache = {};
         }
       }
@@ -781,7 +781,7 @@
         }
         listEl.innerHTML = html;
       } catch(e) {
-        console.error('Boss leaderboard fetch failed:', e);
+        logError('map:boss-leaderboard', e);
         infoEl.innerHTML = '⚠️ ' + t('connection_failed');
         listEl.innerHTML = `<div class="boss-ranking-empty" style="color:var(--gold);">${t('ranking_error')}</div>`;
       }

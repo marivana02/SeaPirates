@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <script src="effects/clouds.js?v=1"></script>
@@ -481,7 +482,7 @@
           </div>
           <div class="s-row" style="padding-top:2px;">
             <span class="s-icon" style="visibility:hidden;"><img src="assets/ui/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
-            <span class="vip-badge off" id="vip-badge" data-i18n="vip_status_off">Not VIP</span>
+            <span class="vip-badge off" id="vip-badge"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_status_off" data-i18n-text>Not VIP</span></span>
           </div>
           <div class="s-row">
             <span class="s-key">ELP:</span>
@@ -597,7 +598,7 @@
           fetchGlitterLimit();
         }
       } catch (e) {
-        console.error(e);
+        logError('glitter:player', e);
       }
     }
 
@@ -612,7 +613,7 @@
           if (lbl) lbl.textContent = `${data.remaining}/${data.limit}`;
         }
       } catch (e) {
-        console.error(e);
+        logError('glitter:limit', e);
       }
     }
 
@@ -636,10 +637,10 @@
         if (player.vip_until) {
           vipB.className = 'vip-badge on';
           const daysLeft = Math.ceil((new Date(player.vip_until) - new Date()) / 86400000);
-          vipB.textContent = daysLeft > 0 ? `👑 VIP \u00b7 ${daysLeft} ${t('daily_day')}` : '👑 VIP';
+          vipB.innerHTML = daysLeft > 0 ? `<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP \u00b7 ${daysLeft} ${t('daily_day')}` : `<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP`;
         } else {
           vipB.className = 'vip-badge off';
-          vipB.textContent = t('vip_status_off');
+          vipB.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> ' + t('vip_status_off');
         }
       }
 
@@ -749,7 +750,7 @@
               toast2(data.error || t('glitter_collect_fail'), 'err');
             }
           } catch (err) {
-            console.error(err);
+            logError('glitter:collect', err);
           } finally {
             removeGlitter(div);
           }

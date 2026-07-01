@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -734,7 +735,7 @@
       <!-- CABINET HEADERS -->
       <div class="cabinet-header">
         <div class="header-col normal-title" data-i18n="daily_normal_reward">NORMAL REWARD</div>
-        <div class="header-col vip-title" data-i18n="daily_vip_reward">👑 VIP REWARD</div>
+        <div class="header-col vip-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="daily_vip_reward">VIP REWARD</span></div>
       </div>
       <!-- GRID FOR 10 DAYS (Normal & VIP alternated) -->
       <div class="grid-wrap" id="grid-wrap"></div>
@@ -802,7 +803,7 @@
         (data.claimedVip || []).forEach(l => claimedVip[l] = true);
       }
     } catch (e) {
-      console.error("Error loading player info:", e);
+      logError('level-bonus:player-info', e);
     }
   }
 
@@ -813,7 +814,7 @@
     const vipValEl = document.getElementById('vip-val');
     const vipBoxEl = document.getElementById('vip-box');
     if (isVip) {
-      vipValEl.textContent = t('daily_vip_active') + ' 👑';
+      vipValEl.innerHTML = t('daily_vip_active') + ' <img src="assets/ui/vip-ikon.png" class="vip-icon" alt="">';
       vipBoxEl.style.borderColor = '#c8962a';
       vipBoxEl.style.background = 'rgba(66, 8, 8, 0.7)';
       vipValEl.style.color = '#ffd700';
@@ -906,7 +907,7 @@
 
       let vipBadgeHTML = '';
       if (isVipClaimed) vipBadgeHTML = `<div class="day-badge claimed">✓</div>`;
-      else if (isVipAvailable) vipBadgeHTML = `<div class="day-badge claimed" style="background:#c8962a">👑</div>`;
+      else if (isVipAvailable) vipBadgeHTML = `<div class="day-badge claimed" style="background:#c8962a"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""></div>`;
       else vipBadgeHTML = `<div class="day-badge locked-vip">🔒</div>`;
 
       // Localize text
@@ -916,7 +917,7 @@
       vipCard.innerHTML = `
         <div class="day-header">
           <div class="lv-badge"><span class="lv-num">${vip.l}</span></div>
-          <div class="lv-lbl">👑 VIP ${vip.l}</div>
+          <div class="lv-lbl"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP ${vip.l}</div>
         </div>
         <div class="lv-rwd-container">
           ${vipImgHTML}
@@ -968,7 +969,7 @@
         toast2(data.error || 'Could not claim reward!', 'err');
       }
     } catch (err) {
-      console.error(err);
+      logError('level-bonus:claim', err);
       toast2('Server error!', 'err');
     }
   }
@@ -999,7 +1000,7 @@
       vipPrices = p.prices;
       vipCurrencies = p.currencies;
       currentCurrency = c.currency;
-    } catch (e) { console.error('VIP fiyat yüklenemedi:', e); }
+    } catch (e) { logError('level-bonus:vip', e); }
   }
 
   function updateVipPrices() {
@@ -1037,7 +1038,7 @@
 <div class="magaza-overlay" id="vip-modal-level" onclick="if(event.target===this)this.style.display='none'">
   <div class="magaza-modal">
     <button class="magaza-close" id="btn-close-vip-level" onclick="document.getElementById('vip-modal-level').style.display='none'">✕</button>
-    <div class="magaza-title" data-i18n="vip_pack">👑 VIP PAKETLER</div>
+    <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack">VIP PAKETLER</span></div>
     <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
     <div class="magaza-cards">
       <div class="magaza-card">

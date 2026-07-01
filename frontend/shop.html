@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -250,8 +251,8 @@
 
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
-    <div class="page-title"><span data-i18n="shop_title" data-i18n-text>SHOP</span></div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ GERİ</span></a>
+    <div class="page-title"><span data-i18n="shop_title" data-i18n-text>DÜKKAN</span></div>
     <div style="width:60px;"></div>
   </div>
 
@@ -355,7 +356,7 @@
               <span>${discountedPrice.toLocaleString('en-US')}</span>
               <span>${isGold ? '<img src="assets/ui/gold.png" style="width:14px;vertical-align:middle;">' : '<img src="assets/ui/pearl.png" style="width:14px;vertical-align:middle;">'}</span>
             </span>
-            <span class="vip-badge" title="VIP Discount">👑 -10%</span>
+            <span class="vip-badge" title="VIP Discount"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> -10%</span>
           </div>
         `;
       } else {
@@ -415,8 +416,6 @@
         return;
       }
       
-      toast(t('buy_success'), 'ok');
-      
       // Update local storage player stats
       const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
       saved.gold = data.gold;
@@ -429,7 +428,7 @@
       updateCurrency();
       render();
     } catch (err) {
-      console.error(err);
+      logError('shop:buy', err);
       toast(t('connection_failed'), 'err');
     }
   }

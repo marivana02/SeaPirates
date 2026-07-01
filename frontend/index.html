@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/config.js"></script>
+  <script src="js/logger.js"></script>
   <script>
 const API = (() => {
   const BASE = (window.__API_URL__ || window.location.origin) + '/api';
@@ -831,7 +832,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js?v=1')
           .then(reg => console.log('Service Worker registered successfully:', reg.scope))
-          .catch(err => console.error('Service Worker registration failed:', err));
+          .catch(err => logError('index:sw', err));
       });
     }
 

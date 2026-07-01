@@ -139,12 +139,12 @@
       background: url('assets/ui/leaderboardbackground.png') center/cover;
       border: 1.5px solid #6a4218;
       border-radius: 8px;
-      padding: 10px 4px;
+      padding: 8px 3px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 4px;
       text-decoration: none;
       box-shadow: 0 4px 10px rgba(0,0,0,0.7), inset 0 0 10px rgba(0,0,0,0.6);
       transition: transform 0.15s, border-color 0.15s;
@@ -203,16 +203,19 @@
     }
     .action-card-lbl {
       font-family: 'Cinzel', serif;
-      font-size: 0.55rem;
+      font-size: 0.5rem;
       font-weight: 700;
       color: var(--txt);
-      letter-spacing: 0.05em;
+      letter-spacing: 0.03em;
       text-transform: uppercase;
       position: relative;
       z-index: 1;
       text-shadow: 0 1px 3px #000;
       overflow-wrap: break-word;
       word-break: break-word;
+      line-height: 1.15;
+      text-align: center;
+      max-width: 100%;
     }
 
     /* CENTER AREA (NPC SEARCH) */
@@ -229,12 +232,11 @@
 
     .island-bg {
       position: absolute;
-      z-index: 1;
+      z-index: 0;
       pointer-events: none;
-      opacity: 0.9;
       image-rendering: auto;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
       display: none;
+      filter: drop-shadow(0 0 8px rgba(0,0,0,0.55));
     }
 
     .ambient-ship {
@@ -768,6 +770,7 @@
       position: absolute;
       top: 12px;
       right: 14px;
+      z-index: 10;
       background: linear-gradient(180deg, #3d2108, #1e0e03);
       border: 1px solid var(--gold);
       color: var(--gold-p);
@@ -1003,7 +1006,7 @@
       .action-row { gap: 3px; padding: 0 4px; }
       .action-card { padding: 8px 2px; }
       .action-card-icon { font-size: 1rem; }
-      .action-card-lbl { font-size: 0.48rem; }
+      .action-card-lbl { font-size: 0.43rem; letter-spacing: 0.02em; }
       .dashboard-panel { margin: 0 6px 8px; padding: 8px; }
       .nav-actions-stack { min-width: 70px; padding-left: 6px; gap: 3px; }
       .panel-bottom-row { gap: 8px; }
@@ -1151,7 +1154,7 @@
           </div>
           <div class="stat-strip">
             <img src="assets/ui/gold.png" class="stat-icon-img" alt="" style="visibility:hidden;">
-            <span class="vip-badge off" id="vip-badge"><span data-i18n="vip_status_off" data-i18n-text>Not VIP</span></span>
+            <span class="vip-badge off" id="vip-badge"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_status_off" data-i18n-text>Not VIP</span></span>
           </div>
           <div class="stat-strip">
             <span class="stat-label-text">ELP:</span>
@@ -1171,7 +1174,7 @@
 
         <!-- Navigation column stack -->
         <div class="nav-actions-stack">
-          <button class="stack-btn" onclick="goTo('home.html')"><span data-i18n="btn_harbor" data-i18n-text>🏠 Liman</span></button>
+          <button class="stack-btn" onclick="goTo('home.html')"><span data-i18n="btn_harbor" data-i18n-text>🏠 Ana Sayfa</span></button>
           <button class="stack-btn" id="btn-tamir"><span data-i18n="btn_repair" data-i18n-text>🔨 Tamir</span></button>
           <button class="stack-btn" onclick="goTo('equipment.html')"><span data-i18n="btn_equipment" data-i18n-text>⚔️ Ekipman</span></button>
         </div>
@@ -1201,7 +1204,7 @@
 
 
 
-      <button class="btn-boss-saldır" id="btn-boss-saldır-real"><img src="assets/ui/actionmenu/attack.png" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;">ATTACK</button>
+      <button class="btn-boss-saldır" id="btn-boss-saldır-real"><img src="assets/ui/actionmenu/attack.png" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack">ATTACK</span></button>
     </div>
   </div>
 
@@ -1215,7 +1218,7 @@
         <div><img src="assets/ui/actionmenu/attack.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px;"> 3,800 DMG</div>
         <div><img src="assets/ui/pearl.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px;"> 38,000 Pearl</div>
       </div>
-      <button class="btn-boss-saldır" id="btn-tiamat-saldir"><img src="assets/ui/actionmenu/attack.png" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;">ATTACK</button>
+      <button class="btn-boss-saldır" id="btn-tiamat-saldir"><img src="assets/ui/actionmenu/attack.png" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack">ATTACK</span></button>
     </div>
   </div>
 
@@ -1242,14 +1245,15 @@
         Equip cannons from the <b>Equipment</b> screen.
       </div>
       <div class="nocannon-actions">
-        <button class="nocannon-btn primary" id="nocannon-goto-equip">⚔️ GO TO EQUIPMENT</button>
-        <button class="nocannon-btn secondary" id="nocannon-close">Go Back</button>
+        <button class="nocannon-btn primary" id="nocannon-goto-equip" data-i18n="fight_btn_go_equipment">⚔️ GO TO EQUIPMENT</button>
+        <button class="nocannon-btn secondary" id="nocannon-close" data-i18n="fight_btn_go_back">Go Back</button>
       </div>
     </div>
   </div>
 
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="js/map.js?v=1"></script>
   <script src="effects/clouds.js?v=1"></script>

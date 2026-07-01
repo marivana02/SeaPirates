@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -281,7 +282,7 @@
         render();
       }
     } catch (e) {
-      console.error('Quests load error:', e);
+      logError('quest:load', e);
     }
   }
 
@@ -305,7 +306,7 @@
         window.showAlert(t(data.error || 'quest_accept_failed'), t('error'), true);
       }
     } catch (err) {
-      console.error(err);
+      logError('quest:accept', err);
       window.showAlert(t('server_error'), t('error'), true);
     }
   }
@@ -326,7 +327,7 @@
         window.showAlert(t(data.error || 'quest_cancel_failed'), t('error'), true);
       }
     } catch (err) {
-      console.error(err);
+      logError('quest:cancel', err);
       window.showAlert(t('server_error'), t('error'), true);
     }
   }
@@ -347,7 +348,7 @@
         window.showAlert(t(data.error || 'quest_deliver_failed'), t('error'), true);
       }
     } catch (err) {
-      console.error(err);
+      logError('quest:deliver', err);
       window.showAlert(t('server_error'), t('error'), true);
     }
   }
@@ -429,7 +430,7 @@
         } else {
           displayVal = `${cur} / ${obj.amount}`;
         }
-        const objLabel = (currentLang === 'tr') ? (obj.label || obj.type) : (function(){ var k='obj_'+obj.type+(obj.target?'_'+obj.target:''), v=t(k); return v===k ? (obj.label||obj.type) : v; })();
+        const objLabel = (function(){ var k='obj_'+obj.type+(obj.target?'_'+obj.target:''), v=t(k); return v===k ? (obj.label||obj.type) : v; })();
         rowsHTML += `
           <div class="q-obj-row">
             <span>${objLabel}</span>
@@ -481,13 +482,13 @@
     const isSimple = q.state === 'locked' || q.state === 'completed';
     card.innerHTML = `
       <div class="q-header" style="${isBonus ? 'background:rgba(139,105,20,0.3);border-bottom-color:rgba(200,150,42,0.5);' : ''}">
-        <div class="q-title">${isBonus ? '⏱ ' : ''}${function(){ var k='q_title_'+q.id, v=t(k); return (currentLang === 'tr' || v === k) ? q.title : v; }()}</div>
+        <div class="q-title">${isBonus ? '⏱ ' : ''}${function(){ var k='q_title_'+q.id, v=t(k); return v === k ? q.title : v; }()}</div>
         <div class="q-level" style="${isBonus ? 'background:rgba(200,150,42,0.3);border-color:#c8962a;color:#f0c040;' : ''}"> ${isBonus ? t('quest_bonus_time') : t('quest_level_badge',{val:q.levelReq}) + '+'}</div>
       </div>
       ${isSimple ? '' : `
       <div class="q-body">
         ${isBonus ? timerHTML : ''}
-        <div class="q-desc">"${function(){ var k='q_desc_'+q.id, v=t(k); return (currentLang === 'tr' || v === k) ? q.desc : v; }()}"</div>
+        <div class="q-desc">"${function(){ var k='q_desc_'+q.id, v=t(k); return v === k ? q.desc : v; }()}"</div>
         ${objectivesHTML}
         <div class="q-rewards-wrap">
           ${rewardsHTML}
@@ -531,7 +532,7 @@
         window.showAlert(t(data.error || 'quest_submit_failed'), t('error'), true);
       }
     } catch (err) {
-      console.error(err);
+      logError('quest:deliver-bonus', err);
       window.showAlert(t('server_error'), t('error'), true);
     }
   }

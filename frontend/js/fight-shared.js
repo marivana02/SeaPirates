@@ -400,6 +400,7 @@
         }
 
         const startFrom = getMouthPos();
+        from = startFrom;
         const BREATH_DURATION = 1300;
         
         playFireSound(BREATH_DURATION / 1000);
@@ -467,8 +468,8 @@
           for (let i = 0; i < pCount; i++) {
             const speed = 12 + Math.random() * 12 * intensity;
             const spread = (Math.random() - 0.5) * (3 + 2 * (1 - intensity));
-            const sx = currentFrom.x + (Math.random() - 0.5) * 10 + (Math.random() - 0.5) * 6;
-            const sy = currentFrom.y + (Math.random() - 0.5) * 10 + (Math.random() - 0.5) * 6;
+            const sx = currentFrom.x + (Math.random() - 0.5) * 22 + (Math.random() - 0.5) * 12;
+            const sy = currentFrom.y + (Math.random() - 0.5) * 22 + (Math.random() - 0.5) * 12;
             const travelTime = dist / (speed + 0.1);
             const decay = 1 / (travelTime + Math.random() * 4);
             const colors = ['rgba(255,255,255,', 'rgba(255,230,60,', 'rgba(255,120,0,', 'rgba(200,40,0,'];
@@ -920,7 +921,7 @@
 
           if (typeof renderSlots === 'function') renderSlots();
         }
-      } catch (e) { console.error(e); }
+      } catch (e) { logError('fight-shared:setup', e); }
     }
     fetchPlayerData();
 
@@ -1233,6 +1234,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
     let opponentInterval;
     let lastPlayerAttack = 0;
     let bossSocket = null;
+    let bossPollInterval = null;
 
     // ── MOBİL OPTİMİZASYON: Page Visibility API ──
     // Uygulama arka plana geçtiğinde (ekran kilitlendiğinde veya başka uygulamaya geçildiğinde)
@@ -1244,7 +1246,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         // Animasyonlar requestAnimationFrame olduğu için zaten tarayıcı tarafından yavaşlatılır
       } else if (document.visibilityState === 'visible' && active) {
         // Geri gelindiğinde savaşı devam ettir (Sunucudan güncel durumu çekerek)
-        fetchPlayerData();
+    window._playerDataPromise = fetchPlayerData();
         if (!attackInterval) attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
         // Rakip saldırı aralığı sunucudan gelen veriye göre fetchPlayerData içinde veya doAttack'ta güncellenir
       }
@@ -1320,7 +1322,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           endFight(true, { gold: 0, pearl: 0, xp: 0 });
         }
       } catch(e) {
-        console.error(e);
+        logError('fight-shared:fetchAdmiral', e);
       }
     }
 
@@ -1337,6 +1339,14 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       bossSocket.on('boss:hpUpdate', (data) => {
         renderAdmiralLeaderboard(data);
       });
+      bossSocket.on('connect_error', function(err) {
+        console.error('[Socket] Admiral connect error:', err ? err.message : 'unknown');
+      });
+      bossSocket.on('error', function(err) {
+        console.error('[Socket] Admiral error:', err ? err.message : 'unknown');
+      });
+      if (bossPollInterval) clearInterval(bossPollInterval);
+      bossPollInterval = setInterval(fetchAdmiralStatus, 5000);
     }
 
     let isLeaderboardCollapsed = false;
@@ -1357,21 +1367,49 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       }
     }
 
-    function setupIsland(mapLvl) {
+    function setupIsland(type) {
       const island = document.getElementById('island-bg');
       if (!island) return;
-      
+
+      // Özel arkaplanlar (boss/tower/tiamat)
+      if (typeof type === 'string') {
+        const specialBgs = {
+          tiamat: { src: 'assets/effects/island/tiamat.png', top: '15px', left: '50%', w: '200px', translateX: '-50%' },
+          tower: { src: 'assets/effects/island/tower.png', top: '300px', left: '30px', w: '190px' },
+          weeklyboss: { src: 'assets/effects/island/weeklyboss.png', bottom: '90px', right: '5px', w: '100px' }
+        };
+        const cfg = specialBgs[type];
+        if (cfg) {
+          island.src = cfg.src;
+          island.style.display = 'block';
+          island.style.top = 'auto'; island.style.bottom = 'auto';
+          island.style.left = 'auto'; island.style.right = 'auto';
+          island.style.transform = 'none';
+          if (cfg.top) island.style.top = cfg.top;
+          if (cfg.bottom) island.style.bottom = cfg.bottom;
+          if (cfg.left) island.style.left = cfg.left;
+          if (cfg.right) island.style.right = cfg.right;
+          island.style.width = cfg.w;
+          if (cfg.translateX) island.style.transform = 'translateX(' + cfg.translateX + ')';
+        } else {
+          island.style.display = 'none';
+        }
+        return;
+      }
+
+      // Normal harita adaları (sayısal)
+      const mapLvl = type;
       const islandFiles = {
-        1: 'assets/effects/island/images/1_tile_57.png',
-        2: 'assets/effects/island/images/2_tile_56.png',
-        3: 'assets/effects/island/images/3_tile_55.png',
-        4: 'assets/effects/island/images/4_tile_54.png',
-        5: 'assets/effects/island/images/5_tile_53.png',
-        6: 'assets/effects/island/images/6_tile_52.png',
-        7: 'assets/effects/island/images/1_tile_51.png',
-        8: 'assets/effects/island/images/2_tile_50.png',
-        9: 'assets/effects/island/images/3_tile_49.png',
-        10: 'assets/effects/island/images/4_tile_48.png'
+        1: 'assets/effects/island/images/ada-01.png',
+        2: 'assets/effects/island/images/ada-11.png',
+        3: 'assets/effects/island/images/ada-03.png',
+        4: 'assets/effects/island/images/ada-16.png',
+        5: 'assets/effects/island/images/ada-05.png',
+        6: 'assets/effects/island/images/ada-13.png',
+        7: 'assets/effects/island/images/ada-02.png',
+        8: 'assets/effects/island/images/ada-15.png',
+        9: 'assets/effects/island/images/ada-09.png',
+        10: 'assets/effects/island/images/ada-10.png'
       };
       
       const file = islandFiles[mapLvl];
@@ -1379,57 +1417,49 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         island.src = file;
         island.style.display = 'block';
         
-        // Reset positions
         island.style.top = 'auto';
         island.style.bottom = 'auto';
         island.style.left = 'auto';
         island.style.right = 'auto';
+        island.style.transform = 'none';
         
-        // Savaş alanı için estetik köşe yerleşimleri (ekran içinde kalacak şekilde)
-        if (mapLvl === 1) {
-          island.style.top = '320px';
-          island.style.left = '5px';
-          island.style.width = '130px';
-        } else if (mapLvl === 2) {
-          island.style.bottom = '180px';
-          island.style.right = '5px';
-          island.style.width = '140px';
-        } else if (mapLvl === 3) {
-          island.style.top = '240px';
-          island.style.right = '5px';
-          island.style.width = '130px';
-        } else if (mapLvl === 4) {
-          island.style.bottom = '260px';
-          island.style.left = '5px';
-          island.style.width = '140px';
-        } else if (mapLvl === 5) {
-          island.style.bottom = '300px';
-          island.style.right = '5px';
-          island.style.width = '140px';
-        } else if (mapLvl === 6) {
-          island.style.top = '350px';
-          island.style.left = '5px';
-          island.style.width = '130px';
-        } else if (mapLvl === 7) {
-          island.style.bottom = '160px';
-          island.style.right = '5px';
-          island.style.width = '140px';
-        } else if (mapLvl === 8) {
-          island.style.top = '40%';
-          island.style.left = '5px';
-          island.style.width = '135px';
-        } else if (mapLvl === 9) {
-          island.style.bottom = '250px';
-          island.style.right = '5px';
-          island.style.width = '140px';
-        } else if (mapLvl === 10) {
-          island.style.bottom = '150px';
-          island.style.right = '5px';
-          island.style.width = '145px';
+        const mapPositions = {
+          1: { top: '10px', left: '5px', w: '100px' },
+          2: { top: '50px', left: '5px', w: '150px' },
+          3: { top: '10px', left: '5px', w: '100px' },
+          4: { top: '60px', left: '5px', w: '150px' },
+          5: { top: '10px', left: '5px', w: '100px' },
+          6: { top: '70px', left: '5px', w: '150px' },
+          7: { top: '10px', left: '5px', w: '100px' },
+          8: { top: '50px', left: '5px', w: '150px' },
+          9: { top: '10px', left: '5px', w: '100px' },
+          10: { top: '60px', left: '5px', w: '100px' }
+        };
+        const pos = mapPositions[mapLvl];
+        if (pos) {
+          if (pos.top) island.style.top = pos.top;
+          if (pos.bottom) island.style.bottom = pos.bottom;
+          if (pos.left) island.style.left = pos.left;
+          if (pos.right) island.style.right = pos.right;
+          island.style.width = pos.w;
         }
       } else {
         island.style.display = 'none';
       }
+    }
+
+    function setupWarBg() {
+      const WAR_IMAGES = [
+        'assets/effects/island/war-1.png',
+        'assets/effects/island/war-2.png',
+        'assets/effects/island/war-3.png'
+      ];
+      // Her savaşta random 2/3 seç
+      const shuffled = [...WAR_IMAGES].sort(() => Math.random() - 0.5);
+      const tlImg = document.getElementById('war-bg-tl');
+      const brImg = document.getElementById('war-bg-br');
+      if (tlImg) { tlImg.src = shuffled[0]; tlImg.style.display = 'block'; }
+      if (brImg) { brImg.src = shuffled[1]; brImg.style.display = 'block'; }
     }
 
     function handleReturn() {
@@ -1443,7 +1473,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       fetch(`${SHARED_API_URL}/end`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'X-Requested-With': 'XMLHttpRequest' }
-      }).catch(e => console.error('handleReturn end error:', e))
+      }).catch(e => logError('fight-shared:end', e))
         .finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace('map.html'); });
     }
 
@@ -1524,7 +1554,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           const isAdmiral = npc.name && npc.name.toLowerCase().includes('admiral');
           const isDataTiamat = data.isTiamat || isTiamat;
           const isGlobalBoss = isAdmiral || isDataTiamat;
-          const shouldNpcAttackPlayer = isGlobalBoss || ((!npc.isPvP || (data.npcDamage && data.npcDamage > 0)) && (data.npcDamage && data.npcDamage > 0));
+          const shouldNpcAttackPlayer = data.npcDamage && data.npcDamage > 0;
 
           if (shouldNpcAttackPlayer) {
             setTimeout(() => {
@@ -1596,7 +1626,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           }
         }
       } catch (e) {
-        console.error(e);
+        logError('fight-shared:attack', e);
         if (!active) return;
         const overlay = document.getElementById('disconnect-overlay');
         if (overlay && !overlay.classList.contains('show')) {

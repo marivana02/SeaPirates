@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -50,22 +51,29 @@
       display:flex;align-items:center;justify-content:space-between;
       background:linear-gradient(90deg, #111, #222, #111);
       border-bottom:1px solid rgba(255,255,255,0.1);
-      padding:5px 10px;
+      padding:8px 10px;
     }
-    .hof-current-cat{
-      font-weight:700;font-size:0.8rem;color:#fff;
-      text-shadow:1px 1px 2px #000;
+    .hof-header-left{
+      display:flex;flex-direction:column;gap:2px;
+      font-size:0.65rem;color:#aaa;
     }
-    .hof-select-wrap{
-      position:relative;width:200px;
+    .hof-header-left .cat-label{
+      font-family:'Cinzel',serif;font-size:0.85rem;
+      color:var(--gold-b);font-weight:700;
     }
-    .hof-select{
-      width:100%;padding:4px 8px;
-      background:#1a1a1a;border:1px solid #444;
-      color:var(--gold-b);font-size:0.7rem;outline:none;cursor:pointer;
-      font-family:'Inter',sans-serif;
+    .hof-header select{
+      background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:6px;
+      color:var(--gold-b);font-size:0.75rem;font-weight:600;
+      padding:6px 10px;font-family:'Cinzel',serif;
+      outline:none;cursor:pointer;min-width:140px;
+      -webkit-appearance:none;appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c8962a'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;
     }
-    .hof-select:focus{border-color:var(--gold);}
+    .hof-header select option{
+      background:#1e0e03;color:var(--gold-b);
+    }
     
     /* RANKING INFO ROW */
     .rank-info-row{
@@ -90,7 +98,7 @@
     /* TABLE */
     .table-container{
       position:relative;z-index:5;flex:1;
-      overflow-y:auto;overflow-x:auto;background:rgba(0,0,0,0.4);
+      overflow-y:auto;background:rgba(0,0,0,0.4);
     }
     .table-container::-webkit-scrollbar{width:6px;}
     .table-container::-webkit-scrollbar-thumb{background:#442a10;border-radius:3px;}
@@ -114,6 +122,7 @@
       padding:6px 10px;font-size:0.75rem;
       border-bottom:1px solid rgba(0,0,0,0.5);
       border-right:1px solid rgba(0,0,0,0.3);
+      overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
     }
     .hof-table td:last-child{border-right:none;}
     
@@ -145,9 +154,10 @@
       text-shadow:0 0 8px rgba(200,150,42,0.7);
     }
     
-    .col-rank{width:60px;text-align:center;color:var(--gold-b);font-weight:700;}
+    .col-rank{text-align:center;color:var(--gold-b);font-weight:700;}
     .col-name{color:#ddd;overflow-wrap:break-word;word-break:break-word;}
-    .col-score{text-align:right;color:var(--gold-b);width:90px;}
+    .col-score{text-align:right;color:var(--gold-b);}
+    
     
   </style>
 </head>
@@ -161,20 +171,20 @@
   </div>
 
   <div class="hof-header">
-    <div class="hof-current-cat" id="cat-title" data-i18n="hof_cat_xp">Experience Points</div>
-    <div class="hof-select-wrap">
-      <select class="hof-select" id="cat-select" onchange="changeCategory()">
-        <option value="xp" data-i18n="hof_cat_xp">Experience Points</option>
-        <option value="ep" data-i18n="hof_cat_ep">Elite Points</option>
-        <option value="dmg_pve" data-i18n="hof_cat_dmg_pve">Damage Score PvE</option>
-        <option value="dmg_pvp" data-i18n="hof_cat_dmg_pvp">Damage Score PvP</option>
-        <option value="kill_npc" data-i18n="hof_cat_kill_npc">NPCs Sunk</option>
-        <option value="kill_pvp" data-i18n="hof_cat_kill_pvp">Players Sunk</option>
-        <option value="dmg_amiral" data-i18n="hof_cat_dmg_amiral">Admiral Damage</option>
-        <option value="playtime" data-i18n="hof_cat_playtime">Playtime</option>
-        <option value="pvp_points" data-i18n="hof_cat_pvp_points">Battle Points</option>
-      </select>
+    <div class="hof-header-left">
+      <span class="cat-label" id="cat-label">Experience Points</span>
     </div>
+    <select id="cat-select" onchange="changeCategory(this.value)">
+      <option value="xp" data-i18n="hof_cat_xp">Experience Points</option>
+      <option value="ep" data-i18n="hof_cat_ep">Elite Points</option>
+      <option value="dmg_pve" data-i18n="hof_cat_dmg_pve">Damage Score PvE</option>
+      <option value="dmg_pvp" data-i18n="hof_cat_dmg_pvp">Damage Score PvP</option>
+      <option value="kill_npc" data-i18n="hof_cat_kill_npc">NPCs Sunk</option>
+      <option value="kill_pvp" data-i18n="hof_cat_kill_pvp">Players Sunk</option>
+      <option value="dmg_amiral" data-i18n="hof_cat_dmg_amiral">Admiral Damage</option>
+      <option value="playtime" data-i18n="hof_cat_playtime">Playtime</option>
+      <option value="pvp_points" data-i18n="hof_cat_pvp_points">Battle Points</option>
+    </select>
   </div>
 
   <div class="rank-info-row">
@@ -191,9 +201,9 @@
     <table class="hof-table">
       <thead>
         <tr>
-          <th class="col-rank" data-i18n="hof_rank_header">Rank</th>
+          <th class="col-rank" style="width:55px" data-i18n="hof_rank_header">Rank</th>
           <th class="col-name" data-i18n="hof_players_header">Players</th>
-          <th class="col-score" data-i18n="hof_score_header">Score</th>
+          <th class="col-score" style="width:150px" data-i18n="hof_score_header">Score</th>
         </tr>
       </thead>
       <tbody id="hof-tbody">
@@ -205,6 +215,11 @@
 
 <script>
 const CATEGORY_KEYS = ['xp','ep','dmg_pve','dmg_pvp','kill_npc','kill_pvp','dmg_amiral','playtime','pvp_points'];
+const CAT_LABELS = {
+  xp: 'hof_cat_xp', ep: 'hof_cat_ep', dmg_pve: 'hof_cat_dmg_pve', dmg_pvp: 'hof_cat_dmg_pvp',
+  kill_npc: 'hof_cat_kill_npc', kill_pvp: 'hof_cat_kill_pvp', dmg_amiral: 'hof_cat_dmg_amiral',
+  playtime: 'hof_cat_playtime', pvp_points: 'hof_cat_pvp_points'
+};
 
 const token = localStorage.getItem('sp_token');
 const API_URL = (window.__API_URL__ || window.location.origin) + '/api';
@@ -241,10 +256,10 @@ async function loadLeaderboard() {
       myRank = data.myRank || 0;
       renderTable();
     } else {
-      console.error("Hall of Fame data could not be fetched");
+      logError('hall-of-fame:data', new Error('Hall of Fame data could not be fetched'));
     }
   } catch (err) {
-    console.error("Hall of Fame load error:", err);
+    logError('hall-of-fame:load', err);
   }
 }
 
@@ -277,10 +292,10 @@ function renderTable() {
   document.getElementById('my-rank-display').textContent = t('hof_my_rank') + ' ' + (myRank > 0 ? fmtN(myRank) : '-');
 }
 
-function changeCategory() {
-  const sel = document.getElementById('cat-select');
-  currentCat = sel.value;
-  document.getElementById('cat-title').textContent = t('hof_cat_' + currentCat);
+function changeCategory(cat) {
+  currentCat = cat;
+  document.getElementById('cat-select').value = cat;
+  document.getElementById('cat-label').textContent = t(CAT_LABELS[cat]) || cat;
   currentPage = 1;
   loadLeaderboard();
 }
@@ -302,6 +317,7 @@ function nextPage() {
 }
 
 // Init
+document.getElementById('cat-label').textContent = t(CAT_LABELS[currentCat]) || currentCat;
 loadLeaderboard();
 </script>
 </body>

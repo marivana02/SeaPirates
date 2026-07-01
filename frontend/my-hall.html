@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -445,19 +446,19 @@ async function loadMyRank() {
 
       // Hesaplama Rakamları (auto-shrink ile)
       setFitText(document.getElementById('calc-dmg'), fmtN(me.dmg_pve));
-      setFitText(document.getElementById('desc-dmg'), '(DMG / 200.000)');
+      setFitText(document.getElementById('desc-dmg'), t('hall_desc_dmg'));
 
       setFitText(document.getElementById('calc-ep'), fmtN(me.elite_points));
-      setFitText(document.getElementById('desc-ep'), '(EP / 5.000)');
+      setFitText(document.getElementById('desc-ep'), t('hall_desc_ep'));
 
       setFitText(document.getElementById('calc-xp'), fmtN(me.xp));
-      setFitText(document.getElementById('desc-xp'), '(XP / 1.500)');
+      setFitText(document.getElementById('desc-xp'), t('hall_desc_xp'));
 
       setFitText(document.getElementById('calc-lvl'), fmtN(me.level));
-      setFitText(document.getElementById('desc-lvl'), '(LVL × 100)');
+      setFitText(document.getElementById('desc-lvl'), t('hall_desc_lvl'));
 
       setFitText(document.getElementById('calc-days'), fmtN(me.days));
-      setFitText(document.getElementById('desc-days'), '(DAY × 5)');
+      setFitText(document.getElementById('desc-days'), t('hall_desc_days'));
 
       document.getElementById('calc-total').textContent = fmtN(me.score);
 
@@ -506,7 +507,7 @@ async function loadMyRank() {
       document.getElementById('loading-el').textContent = t('hall_fetch_error');
     }
   } catch (err) {
-    console.error("Rank fetch error:", err);
+    logError('my-hall:rank', err);
     document.getElementById('loading-el').textContent = t('hall_connection_error');
   }
 }

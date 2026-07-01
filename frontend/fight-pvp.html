@@ -10,6 +10,7 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="js/lang.js?v=2"></script>
   <script src="transition.js?v=5"></script>
@@ -56,7 +57,10 @@
       position: relative;
       background: url('assets/ui/sea.png') repeat;
       background-size: 200px auto;
+      opacity: 0;
+      transition: opacity 0.35s ease;
     }
+    .page.visible { opacity: 1; }
 
 
     .battlefield {
@@ -78,6 +82,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      z-index: 2;
     }
 
     .player-wrap {
@@ -197,7 +202,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 0px;
       margin-top: 14px;
     }
 
@@ -270,11 +275,10 @@
     }
 
     .rank-icon {
-      width: 32px;
-      height: 32px;
       object-fit: contain;
     }
-    .rank-icon.right {
+    #player-rank-left, #npc-rank-left,
+    #player-rank-right, #npc-rank-right {
       width: 28px;
       height: 28px;
     }
@@ -297,13 +301,12 @@
     }
 
     .ship-pid {
-      font-size: 0.68rem;
+      font-size: 0.45rem;
       font-weight: 700;
       font-family: 'Cinzel', serif;
-      color: #f0c040;
+      color: #fff;
       letter-spacing: 0.12em;
-      text-shadow: 0 0 8px rgba(240, 192, 64, 0.5), 0 1px 3px #000;
-      margin-top: -3px;
+      text-shadow: 0 1px 4px #000;
     }
 
     .hp-bg {
@@ -752,13 +755,20 @@
     /* Dynamic Island Background */
     .island-bg {
       position: absolute;
+      z-index: 0;
       pointer-events: none;
-      z-index: 1;
-      opacity: 0.9;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
-      user-select: none;
-      transition: all 0.5s ease;
+      filter: drop-shadow(0 0 8px rgba(0,0,0,0.55));
     }
+
+    .war-bg {
+      position: absolute;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+      filter: drop-shadow(0 0 8px rgba(0,0,0,0.55));
+    }
+    .war-bg.tl { top: 0; left: 0; width: 170px; }
+    .war-bg.br { bottom: 80px; right: 0; width: 190px; }
 
     @keyframes tiamatPulse {
       0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)) drop-shadow(0 0 25px rgba(255,50,0,0.5)); }
@@ -813,6 +823,10 @@
         </div>
       </div>
 
+
+      <!-- War Background -->
+      <img class="war-bg tl" id="war-bg-tl" src="" alt="" style="display:none;" />
+      <img class="war-bg br" id="war-bg-br" src="" alt="" style="display:none;" />
 
       <!-- Dynamic Island Background -->
       <img id="island-bg" class="island-bg" src="" style="display:none;" />

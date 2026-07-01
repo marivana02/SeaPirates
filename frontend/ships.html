@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="transition.js?v=5"></script>
   <style>
@@ -182,14 +183,6 @@
       position:absolute;top:8px;right:8px;font-size:0.9rem;opacity:0.6;
     }
 
-    /* ── DESIGNS TAB (placeholder) ── */
-    .designs-empty{
-      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:12px;color:var(--txt-m);padding:30px;
-    }
-    .designs-empty .de-ico{font-size:3.5rem;opacity:0.15;}
-    .designs-empty .de-txt{font-family:'Cinzel',serif;font-size:0.75rem;text-align:center;opacity:0.5;}
-
   </style>
 </head>
 <body>
@@ -197,8 +190,8 @@
 
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
-    <div class="page-title"><span data-i18n="page_ships" data-i18n-text>SHIPS</span></div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ GERİ</span></a>
+    <div class="page-title"><span data-i18n="page_ships" data-i18n-text>GEMİLER</span></div>
     <div style="width:65px;"></div>
   </div>
 
@@ -210,7 +203,7 @@
         <span class="ep-val" id="ep-val">0</span>
       </div>
       <div class="ep-track"><div class="ep-fill" id="ep-fill" style="width:0%"></div></div>
-      <div class="ep-next" id="ep-next">Next: Elite I — 35,000 ELP required</div>
+      <div class="ep-next" id="ep-next">Sıradaki: Elite I — 35.000 ELP gerekli</div>
     </div>
 
     <!-- Active Ship Banner -->
@@ -218,7 +211,7 @@
       <div class="ab-img"><img id="ab-img" src="" alt=""/></div>
       <div class="ab-info">
         <div class="ab-name" id="ab-name">—</div>
-        <div class="ab-level" id="ab-level">Level 0</div>
+        <div class="ab-level" id="ab-level">Seviye 0</div>
         <div class="ab-visual" id="ab-visual" style="font-size:0.6rem;color:var(--txt-m);margin-bottom:6px;"></div>
         <div class="ab-stats">
           <div class="ab-stat"><span class="ab-stat-k" data-i18n="ships_hp_short">HP</span><span class="ab-stat-v" id="ab-hp">—</span></div>
@@ -296,22 +289,21 @@
         if (activeTab === 'elit') renderGrid();
         else renderDesigns();
       } else {
-        toast('Could not load ship data!', 'err');
+        toast(t('ships_load_failed'), 'err');
       }
     } catch (err) {
-      console.error(err);
-      toast('Could not connect to server!', 'err');
+      logError('ships:load-ships', err);
+      toast(t('connection_failed'), 'err');
     }
   }
 
-  /* ── EP BAR ── */
   function renderEPBar() {
     const next = GEMILER.find(g => g.ep > currentEP);
     document.getElementById('ep-val').textContent = fmt(currentEP) + ' ' + t('ships_ep_short');
     if (next) {
       const pct = Math.min(100, (currentEP / next.ep) * 100);
       document.getElementById('ep-fill').style.width = pct + '%';
-      document.getElementById('ep-next').textContent = t('ships_next') + ': ' + next.ad + ' — ' + fmt(next.ep) + ' ELP ' + t('ships_required');
+      document.getElementById('ep-next').textContent = t('ships_next') + ': ' + t(next.ad) + ' — ' + fmt(next.ep) + ' ' + t('ships_ep_short') + ' ' + t('ships_required');
     } else {
       document.getElementById('ep-fill').style.width = '100%';
       document.getElementById('ep-next').textContent = t('ships_all_unlocked');
@@ -328,10 +320,10 @@
 
     const design = TASARIMLAR.find(d => d.key === activeDesign);
     document.getElementById('ab-img').src = design ? design.img : (gVis.img || '');
-    document.getElementById('ab-name').textContent  = g.ad;
+    document.getElementById('ab-name').textContent  = t(g.ad);
     let levelText = t('ships_level') + ' ' + g.lv + (design ? ' [' + design.name + ']' : ' [' + t('ships_default') + ']');
     if (visualLvl !== activeShip) {
-      levelText += ' (' + t('ships_visual') + ': ' + GEMILER[visualLvl].ad + ')';
+      levelText += ' (' + t('ships_visual') + ': ' + t(GEMILER[visualLvl].ad) + ')';
     }
     document.getElementById('ab-level').textContent = levelText;
     document.getElementById('ab-hp').textContent    = fmt(g.hp);
@@ -359,7 +351,7 @@
       let badgeClass, badgeText;
       if (isActive)        { badgeClass = 'badge-active'; badgeText = t('ships_badge_selected'); }
       else if (isUnlocked) { badgeClass = 'badge-unlock'; badgeText = t('ships_badge_use'); }
-      else                 { badgeClass = 'badge-locked'; badgeText = fmt(g.ep) + ' ELP'; }
+      else                 { badgeClass = 'badge-locked'; badgeText = fmt(g.ep) + ' ' + t('ships_ep_short'); }
 
       let actionsHtml = '';
       if (!isLocked) {
@@ -377,10 +369,10 @@
         ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
         <div class="card-img">
           ${g.img
-            ? `<img src="${g.img}" alt="${g.ad}" onerror="this.parentElement.innerHTML='<span class=\\'ph\\'>${g.lv}</span>'"/>`
+            ? `<img src="${g.img}" alt="${t(g.ad)}" onerror="this.parentElement.innerHTML='<span class=\\'ph\\'>${g.lv}</span>'"/>`
             : `<span class="ph">${g.lv}</span>`}
         </div>
-        <div class="card-name">${g.ad}</div>
+        <div class="card-name">${t(g.ad)}</div>
         <div class="card-stats">
           ${t('ships_hp_short')}: ${fmt(g.hp)}<br/>
           ${t('ships_cannon_slots')}: ${g.top}  ·  ${t('ships_mast_slots')}: ${g.direk}
@@ -418,44 +410,37 @@
   function renderDesigns() {
     const content = document.getElementById('tab-content');
     content.innerHTML = '';
-
-    if (ownedDesigns.length === 0) {
-      content.innerHTML = `
-        <div class="designs-empty">
-          <div class="de-ico">🚢</div>
-          <div class="de-txt">${t('ships_no_designs')}</div>
-        </div>`;
-      return;
-    }
-
     const grid = document.createElement('div');
     grid.className = 'ship-grid';
 
-    ownedDesigns.forEach(key => {
-      const design = TASARIMLAR.find(d => d.key === key);
-      if (!design) return;
-      const isActive = key === activeDesign;
+    TASARIMLAR.forEach(design => {
+      const isOwned = ownedDesigns.includes(design.key);
+      const isActive = design.key === activeDesign;
 
       const card = document.createElement('div');
-      card.className = 'ship-card' + (isActive ? ' active-card' : '');
+      card.className = 'ship-card' + (isActive ? ' active-card' : '') + (!isOwned ? ' locked' : '');
 
       let badgeClass, badgeText;
       if (isActive) { badgeClass = 'badge-active'; badgeText = t('ships_badge_selected'); }
-      else { badgeClass = 'badge-unlock'; badgeText = t('ships_badge_use'); }
+      else if (isOwned) { badgeClass = 'badge-unlock'; badgeText = t('ships_badge_use'); }
+      else { badgeClass = 'badge-locked'; badgeText = t('ships_locked'); }
 
       card.innerHTML = `
+        ${!isOwned ? '<div class="lock-icon">🔒</div>' : ''}
         <div class="card-img">
           <img src="${design.img}" alt="${design.nk ? t(design.nk) : design.name}" onerror="this.parentElement.innerHTML='<span class=\\'ph\\'>✦</span>'"/>
         </div>
         <div class="card-name">${design.nk ? t(design.nk) : design.name}</div>
-        <div class="card-stats">${t('ships_cosmetic')}<br/></div>
+        <div class="card-stats">${t('ships_cosmetic')}</div>
         <span class="card-badge ${badgeClass}">${badgeText}</span>
       `;
 
-      card.addEventListener('click', () => {
-        if (isActive) selectDesign(null);
-        else selectDesign(design.key);
-      });
+      if (isOwned) {
+        card.addEventListener('click', () => {
+          if (isActive) selectDesign(null);
+          else selectDesign(design.key);
+        });
+      }
       grid.appendChild(card);
     });
 
@@ -478,8 +463,8 @@
       renderDesigns();
       renderBanner();
     } catch (err) {
-      console.error(err);
-      toast('Could not connect to server!', 'err');
+      logError('ships:load', err);
+        toast(t('connection_failed'), 'err');
     }
   }
 
@@ -494,7 +479,7 @@
 
   /* ── SELECT SHIP ── */
   async function selectShip(lv) {
-    if (lv === activeShip) {         toast(GEMILER[lv].ad + ' ' + t('ships_already_using'), 'err'); return; }
+    if (lv === activeShip) { return; }
     if (lv > 1 && GEMILER[lv].ep > currentEP) { toast(t('ships_insufficient_ep'), 'err'); return; }
     
     try {
@@ -515,7 +500,7 @@
 
       await loadShips();
     } catch (err) {
-      console.error(err);
+      logError('ships:select-ship', err);
       toast('Could not connect to server!', 'err');
     }
   }
@@ -542,7 +527,7 @@
       renderBanner();
       renderGrid();
     } catch (err) {
-      console.error(err);
+      logError('ships:select-visual', err);
       toast('Could not connect to server!', 'err');
     }
   }
