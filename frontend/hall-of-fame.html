@@ -318,6 +318,9 @@ function nextPage() {
 
 // Init
 document.getElementById('cat-label').textContent = t(CAT_LABELS[currentCat]) || currentCat;
+window.addEventListener('languageChanged', function () {
+  document.getElementById('cat-label').textContent = t(CAT_LABELS[currentCat]) || currentCat;
+});
 loadLeaderboard();
 </script>
 </body>
