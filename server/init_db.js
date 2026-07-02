@@ -141,36 +141,36 @@ async function seedItems(client) {
 async function seedNPCs(client) {
     console.log('  → NPC\'ler ekleniyor...');
     const npcs = [
-        [1,  1, 'Blackpearl',        6000,     90,    180,   0,   35],
-        [1,  2, 'Rackham',           12000,    150,   320,   0,   65],
-        [1,  3, 'Calicos Jack',      25000,    250,   550,   0,  120],
-        [2,  1, 'Wild 13',           12000,    160,   280,   0,   55],
-        [2,  2, 'Red Korsar',        22000,    260,   500,   0,  100],
-        [2,  3, 'Ratpack',           45000,    400,   850,   0,  185],
-        [3,  1, 'Sinclares Men',     20000,    250,   400,   0,   80],
-        [3,  2, 'Tortuga Gang',      38000,    420,   720,   0,  145],
-        [3,  3, 'Los Renegados',     80000,    600,  1200,   0,  260],
-        [4,  1, 'Ratpack',           32000,    360,   620,   0,  120],
-        [4,  2, 'Sinclares Men',     60000,    620,  1100,   0,  220],
-        [4,  3, 'Calocosmen',       120000,    900,     0,  55,  380],
-        [5,  1, 'Wild 13',           45000,    500,   920,   0,  180],
-        [5,  2, 'Los Renegados',     90000,    800,  1650,   0,  330],
-        [5,  3, 'Morgansbuccaneers',180000,   1200,     0,  85,  560],
-        [6,  1, 'Tortuga Gang',      60000,    650,  1150,   0,  225],
-        [6,  2, 'Calocosmen',       110000,   1000,  2050,   0,  415],
-        [6,  3, 'Sinclares Men',    220000,   1500,     0, 110,  700],
-        [7,  1, 'Morgansbuccaneers', 80000,    850,  1600,   0,  310],
-        [7,  2, 'Sinclares Men',    150000,   1300,  2850,   0,  580],
-        [7,  3, 'Flyingdutchman',   300000,   1900,     0, 155,  980],
-        [8,  1, 'Kiliwallis',       100000,   1050,  2000,   0,  390],
-        [8,  2, 'Flyingdutchman',   190000,   1650,  3600,   0,  720],
-        [8,  3, 'Kilimatu',         380000,   2400,     0, 195, 1220],
-        [9,  1, 'Kokelua',          120000,   1300,  2450,   0,  475],
-        [9,  2, 'Morgansbuccaneers',230000,   2100,  4350,   0,  870],
-        [9,  3, 'Kiribati',         460000,   3000,     0, 235, 1480],
-        [10, 1, 'Kilimatu',         150000,   1750,  3000,   0,  580],
-        [10, 2, 'Kiribati',         280000,   2700,  5300,   0, 1060],
-        [10, 3, 'Flyingdutchman',   560000,   3900,     0, 285, 1800],
+        [1,  1, 'Blackpearl',        10000,     90,    180,   0,   35],
+        [1,  2, 'Rackham',           22000,    150,   320,   0,   65],
+        [1,  3, 'Calicos Jack',      45000,    250,   550,   0,  120],
+        [2,  1, 'Wild 13',           25000,    160,   280,   0,   55],
+        [2,  2, 'Red Korsar',        50000,    260,   500,   0,  100],
+        [2,  3, 'Ratpack',          100000,    400,   850,   0,  185],
+        [3,  1, 'Sinclares Men',     50000,    250,   400,   0,   80],
+        [3,  2, 'Tortuga Gang',     100000,    420,   720,   0,  145],
+        [3,  3, 'Los Renegados',    200000,    600,  1200,   0,  260],
+        [4,  1, 'Ratpack',           80000,    360,   620,   0,  120],
+        [4,  2, 'Sinclares Men',    160000,    620,  1100,   0,  220],
+        [4,  3, 'Calocosmen',       300000,    900,     0,  55,  380],
+        [5,  1, 'Wild 13',          120000,    500,   920,   0,  180],
+        [5,  2, 'Los Renegados',    240000,    800,  1650,   0,  330],
+        [5,  3, 'Morgansbuccaneers',480000,   1200,     0,  85,  560],
+        [6,  1, 'Tortuga Gang',     180000,    650,  1150,   0,  225],
+        [6,  2, 'Calocosmen',       330000,   1000,  2050,   0,  415],
+        [6,  3, 'Sinclares Men',    600000,   1500,     0, 110,  700],
+        [7,  1, 'Morgansbuccaneers',250000,    850,  1600,   0,  310],
+        [7,  2, 'Sinclares Men',    500000,   1300,  2850,   0,  580],
+        [7,  3, 'Flyingdutchman',   900000,   1900,     0, 155,  980],
+        [8,  1, 'Kiliwallis',       350000,   1050,  2000,   0,  390],
+        [8,  2, 'Flyingdutchman',   650000,   1650,  3600,   0,  720],
+        [8,  3, 'Kilimatu',        1200000,   2400,     0, 195, 1220],
+        [9,  1, 'Kokelua',          450000,   1300,  2450,   0,  475],
+        [9,  2, 'Morgansbuccaneers',850000,   2100,  4350,   0,  870],
+        [9,  3, 'Kiribati',        1600000,   3000,     0, 235, 1480],
+        [10, 1, 'Kilimatu',         600000,   1750,  3000,   0,  580],
+        [10, 2, 'Kiribati',        1100000,   2700,  5300,   0, 1060],
+        [10, 3, 'Flyingdutchman',  2200000,   3900,     0, 285, 1800],
     ];
     for (const [map_level, npc_tier, name, hp, damage, gold, pearl, xp] of npcs) {
         await client.query(
@@ -188,16 +188,16 @@ async function seedNPCs(client) {
 async function seedBosses(client) {
     console.log('  → Admiral Boss\'lar ekleniyor...');
     const bosses = [
-        [1,  'Admiral Jack',      150000,    300,    180,     875,    40],
-        [2,  'Admiral Ratpack',   280000,    450,    320,    1375,    45],
-        [3,  'Admiral Renegado',  450000,    650,    520,    2125,    50],
-        [4,  'Admiral Calico',    750000,    900,   1260,    3250,    55],
-        [5,  'Admiral Morgan',   1100000,   1350,   2140,    5000,    60],
-        [6,  'Admiral Sinclare', 1600000,   1800,   3010,    7000,    65],
-        [7,  'Admiral Dutchman', 2200000,   2200,   4560,   10000,    70],
-        [8,  'Admiral Kilimatu', 2800000,   2900,   6430,   13750,    75],
-        [9,  'Admiral Kiribati', 3300000,   3600,   8860,   18000,    80],
-        [10, 'Admiral Dutchman', 4000000,   4500,  13950,   27500,    90],
+        [1,  'Admiral Jack',      250000,    300,    180,     875,    40],
+        [2,  'Admiral Ratpack',   500000,    450,    320,    1375,    45],
+        [3,  'Admiral Renegado',  900000,    650,    520,    2125,    50],
+        [4,  'Admiral Calico',   1500000,    900,   1260,    3250,    55],
+        [5,  'Admiral Morgan',   2200000,   1350,   2140,    5000,    60],
+        [6,  'Admiral Sinclare', 3500000,   1800,   3010,    7000,    65],
+        [7,  'Admiral Dutchman', 5000000,   2200,   4560,   10000,    70],
+        [8,  'Admiral Kilimatu', 7000000,   2900,   6430,   13750,    75],
+        [9,  'Admiral Kiribati', 9000000,   3600,   8860,   18000,    80],
+        [10, 'Admiral Dutchman',12000000,   4500,  13950,   27500,    90],
     ];
     for (const [map_level, name, hp, damage, pearl, xp, required_kills] of bosses) {
         await client.query(
@@ -216,7 +216,7 @@ async function seedTiamat(client) {
     console.log('  → Tiamat ekleniyor...');
     await client.query(
         `INSERT INTO tiamat (id, hp, damage, pearl, xp, spawn_min_min, spawn_max_min, current_hp)
-         VALUES (1, 12000000, 3800, 38000, 280000, 60, 180, 12000000)
+         VALUES (1, 40000000, 3800, 38000, 280000, 60, 180, 40000000)
          ON CONFLICT (id) DO UPDATE SET
            hp=EXCLUDED.hp, damage=EXCLUDED.damage, pearl=EXCLUDED.pearl,
            xp=EXCLUDED.xp, spawn_min_min=EXCLUDED.spawn_min_min, spawn_max_min=EXCLUDED.spawn_max_min,
