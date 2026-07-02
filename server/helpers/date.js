@@ -8,4 +8,9 @@ function getCurrentWeekString() {
     return `${year}-W${weekNo < 10 ? '0' + weekNo : weekNo}`;
 }
 
-module.exports = { getCurrentWeekString };
+function getLocalDateString(date) {
+  const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit', day: '2-digit' });
+  return formatter.format(date || new Date());
+}
+
+module.exports = { getCurrentWeekString, getLocalDateString };

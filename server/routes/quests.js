@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 const QUESTS = require('../config/questsData');
+const { getLocalDateString } = require('../helpers/date');
 
 const ACTIVE_SLOTS = ['active_quest_id', 'active_quest_id2'];
 
@@ -23,13 +24,15 @@ async function canAcceptAnother(pool, playerId) {
 router.get('/', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   try {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getLocalDateString();
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       const dateRes = await client.query('SELECT last_quest_reset_date FROM players WHERE id = $1 FOR UPDATE', [playerId]);
 
-      if (dateRes.rows.length > 0 && dateRes.rows[0].last_quest_reset_date !== todayStr) {
+      const lastReset = dateRes.rows.length > 0 ? dateRes.rows[0].last_quest_reset_date : null;
+      const lastResetStr = lastReset instanceof Date ? getLocalDateString(lastReset) : String(lastReset || '');
+      if (lastResetStr !== todayStr) {
         await client.query(
           `UPDATE players SET completed_quests = '{}', last_quest_reset_date = $1,
            active_quest_id = NULL, active_quest_id2 = NULL,
