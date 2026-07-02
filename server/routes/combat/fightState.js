@@ -3,6 +3,7 @@ const {
   TOWER_MIN_LEVEL, TOWER_MAX_LEVEL, TOWER_BASE_HP, TOWER_HP_PER_LEVEL,
   TOWER_BASE_DAMAGE, TOWER_DAMAGE_PER_LEVEL, TOWER_BASE_PEARL, TOWER_PEARL_PER_LEVEL
 } = require('./constants');
+const { getLocalDateString } = require('../../helpers/date');
 
 async function initTowerState(pool, playerId, towerLvl) {
   const cappedLvl = Math.min(towerLvl, TOWER_MAX_LEVEL);
@@ -160,9 +161,8 @@ async function resolveTargetNpc(pool, { mapLevel, isTower, isPvP, isWeeklyBoss, 
 
     const checkLock = await pool.query('SELECT last_tower_attack FROM players WHERE id = $1', [playerId]);
     if (checkLock.rows.length > 0 && checkLock.rows[0].last_tower_attack) {
-      const lastAttack = new Date(checkLock.rows[0].last_tower_attack).toISOString().split('T')[0];
-      const today = new Date().toISOString().split('T')[0];
-      if (lastAttack === today) {
+      const lastAttack = new Date(checkLock.rows[0].last_tower_attack).toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
+      if (lastAttack === getLocalDateString()) {
         return { error: 'You already attacked a tower today. Try again tomorrow!' };
       }
     }
@@ -179,9 +179,8 @@ async function resolveTargetNpc(pool, { mapLevel, isTower, isPvP, isWeeklyBoss, 
   if (isWeeklyBoss) {
     const checkLock = await pool.query('SELECT last_boss_attack FROM players WHERE id = $1', [playerId]);
     if (checkLock.rows.length > 0 && checkLock.rows[0].last_boss_attack) {
-      const lastAttack = new Date(checkLock.rows[0].last_boss_attack).toISOString().split('T')[0];
-      const today = new Date().toISOString().split('T')[0];
-      if (lastAttack === today) {
+      const lastAttack = new Date(checkLock.rows[0].last_boss_attack).toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
+      if (lastAttack === getLocalDateString()) {
         return { error: 'You already attacked the Boss today! Try again tomorrow.' };
       }
     }

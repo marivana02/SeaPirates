@@ -666,7 +666,7 @@
         if (!r.ok) {
           var errData;
           try { errData = await r.json(); } catch(_) {}
-          document.getElementById('root').innerHTML = '<div class="ld">❌ Server error (' + r.status + ')' + (errData && errData.error ? ': ' + errData.error : '') + '</div>';
+          document.getElementById('root').innerHTML = '<div class="ld">❌ ' + t('server_error') + ' (' + r.status + ')' + (errData && errData.error ? ': ' + errData.error : '') + '</div>';
           return;
         }
         ev = await r.json();
@@ -679,7 +679,7 @@
 
         render();
       } catch (e) {
-        document.getElementById('root').innerHTML = '<div class="ld">❌ Connection failed: ' + e.message + '</div>';
+        document.getElementById('root').innerHTML = '<div class="ld">❌ ' + t('connection_failed') + ': ' + e.message + '</div>';
       }
     }
 

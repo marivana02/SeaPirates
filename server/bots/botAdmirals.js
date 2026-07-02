@@ -334,14 +334,16 @@ async function botTick() {
             // Saldırı zamanını kaydet
             state.lastAttackTick = globalTick;
 
-            const updates = [
-              pool.query(
+            const txBot = await pool.connect();
+            try {
+              await txBot.query('BEGIN');
+              await txBot.query(
                 `UPDATE npc3_kill_counter
                  SET boss_current_hp = GREATEST(0, boss_current_hp - $1)
                  WHERE map_level = $2 AND is_spawned = TRUE`,
                 [damage, mapLevel]
-              ),
-              pool.query(
+              );
+              await txBot.query(
                 `INSERT INTO admiral_damage (map_level, player_id, username, ship_level, damage_dealt, current_hp, max_hp)
                  VALUES ($1,$2,$3,$4,$5,$6,$7)
                  ON CONFLICT (map_level, player_id) DO UPDATE SET
@@ -351,9 +353,14 @@ async function botTick() {
                    ship_level = $4,
                    last_active = CURRENT_TIMESTAMP`,
                 [mapLevel, bot.id, bot.username, bot.ship_level, damage, state.currentHp, bot.max_hp]
-              )
-            ];
-            await Promise.all(updates);
+              );
+              await txBot.query('COMMIT');
+            } catch (txErr) {
+              await txBot.query('ROLLBACK');
+              throw txErr;
+            } finally {
+              txBot.release();
+            }
             } catch (e) {
             console.error(`[BOT] Bot ${bot.id} damage error map ${mapLevel}:`, e.message, e.stack ? e.stack.split('\n')[0] : '');
           }

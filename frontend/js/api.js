@@ -42,9 +42,9 @@ const API = (() => {
     overlay.innerHTML = `
       <div style="background:linear-gradient(145deg,#1a0e05,#2d1a08);border:2px solid #c8962a;border-radius:16px;padding:32px 28px;max-width:380px;width:90%;text-align:center;box-shadow:0 0 40px rgba(200,150,42,0.3);">
         <div style="font-size:48px;margin-bottom:8px;">🚫</div>
-        <div style="font-family:'Cinzel',serif;font-size:20px;color:#f0c040;margin-bottom:12px;">OTURUM SONLANDI</div>
-        <div style="color:#f5e6c8;font-size:15px;line-height:1.5;margin-bottom:20px;">Bu hesaba başka bir cihazdan giriş yapıldı.<br>Devam etmek için tekrar giriş yapmalısın.</div>
-        <button style="width:100%;padding:12px;background:linear-gradient(135deg,#c8962a,#f0c040);border:none;border-radius:10px;color:#1a0e05;font-family:'Cinzel',serif;font-size:16px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">GİRİŞ YAP</button>
+        <div style="font-family:'Cinzel',serif;font-size:20px;color:#f0c040;margin-bottom:12px;">${t('session_expired_title')}</div>
+        <div style="color:#f5e6c8;font-size:15px;line-height:1.5;margin-bottom:20px;">${t('session_expired_msg')}</div>
+        <button style="width:100%;padding:12px;background:linear-gradient(135deg,#c8962a,#f0c040);border:none;border-radius:10px;color:#1a0e05;font-family:'Cinzel',serif;font-size:16px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">${t("session_expired_btn")}</button>
       </div>`;
     document.body.appendChild(overlay);
     overlay.querySelector('button').addEventListener('click', () => {
@@ -117,14 +117,13 @@ window.clearAuth = function() {
     const overlay = document.createElement('div');
     overlay.id = 'sp-global-session-expired';
     overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;font-family:Inter,sans-serif;';
-    overlay.innerHTML = [
-      '<div style="background:linear-gradient(145deg,#1a0e05,#2d1a08);border:2px solid #c8962a;border-radius:16px;padding:32px 28px;max-width:380px;width:90%;text-align:center;box-shadow:0 0 40px rgba(200,150,42,0.3);">',
-      '<div style="font-size:48px;margin-bottom:8px;">🚫</div>',
-      '<div style="font-family:\'Cinzel\',serif;font-size:20px;color:#f0c040;margin-bottom:12px;">OTURUM SONLANDI</div>',
-      '<div style="color:#f5e6c8;font-size:15px;line-height:1.5;margin-bottom:20px;">Bu hesaba başka bir cihazdan giriş yapıldı.<br>Devam etmek için tekrar giriş yapmalısın.</div>',
-      '<button style="width:100%;padding:12px;background:linear-gradient(135deg,#c8962a,#f0c040);border:none;border-radius:10px;color:#1a0e05;font-family:\'Cinzel\',serif;font-size:16px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">GİRİŞ YAP</button>',
-      '</div>'
-    ].join('');
+    overlay.innerHTML = `
+      <div style="background:linear-gradient(145deg,#1a0e05,#2d1a08);border:2px solid #c8962a;border-radius:16px;padding:32px 28px;max-width:380px;width:90%;text-align:center;box-shadow:0 0 40px rgba(200,150,42,0.3);">
+        <div style="font-size:48px;margin-bottom:8px;">🚫</div>
+        <div style="font-family:'Cinzel',serif;font-size:20px;color:#f0c040;margin-bottom:12px;">${t('session_expired_title')}</div>
+        <div style="color:#f5e6c8;font-size:15px;line-height:1.5;margin-bottom:20px;">${t('session_expired_msg')}</div>
+        <button style="width:100%;padding:12px;background:linear-gradient(135deg,#c8962a,#f0c040);border:none;border-radius:10px;color:#1a0e05;font-family:'Cinzel',serif;font-size:16px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">${t('session_expired_btn')}</button>
+      </div>`;
     document.body.appendChild(overlay);
     overlay.querySelector('button').addEventListener('click', function() {
       window.goTo('index.html');
@@ -150,7 +149,6 @@ window.clearAuth = function() {
       if ((res.status === 401 || res.status === 403) && localStorage.getItem('sp_token')) {
         window.clearAuth();
         showGlobalSessionExpired();
-        return new Response(JSON.stringify({}), { status: 200, headers: { 'Content-Type': 'application/json' } });
       }
       return res;
     });

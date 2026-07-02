@@ -135,6 +135,11 @@
     function endFight(won, rewards, leveledUp, newLevel, serverHp, note) {
       pvpWon = won;
       active = false;
+      if (bossSocket) {
+        try { bossSocket.disconnect(); } catch (e) {}
+        bossSocket = null;
+      }
+      if (bossPollInterval) { clearInterval(bossPollInterval); bossPollInterval = null; }
 
       if (player) {
         let existing = {};

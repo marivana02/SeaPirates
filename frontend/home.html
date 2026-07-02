@@ -1308,7 +1308,7 @@
         const type = btn.dataset.type;
         const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
         const price = vipPrices?.[plan]?.[currentCurrency] || '?';
-        alert(`🔒 ${type === 'vip' ? 'VIP' : 'Starter'} "${plan}" gün paket — ${price} ${sym}. Ödeme sistemi yakında!`);
+        alert(t('payment_coming_soon', { type: type === 'vip' ? t('vip_pack') : t('starter_pack'), plan }));
       });
     });
 

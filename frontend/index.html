@@ -648,11 +648,9 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
       // 2. Beni Hatırla kullanıcı adı ve şifre doldurma (otomatik giriş yok)
       const rememberedUser = localStorage.getItem('sp_remembered_username');
-      const rememberedPass = localStorage.getItem('sp_remembered_password');
       if (rememberedUser) {
         document.getElementById('l-user').value = rememberedUser;
         document.getElementById('remember').checked = true;
-        if (rememberedPass) document.getElementById('l-pass').value = rememberedPass;
       }
 
     };
@@ -728,7 +726,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       try {
         const data = await API.post('/auth/login', { username, password, deviceId: localStorage.getItem('sp_device_id') });
         Auth.login(data.token, data.player, remember);
-        if (remember) { localStorage.setItem('sp_remembered_username', username); localStorage.setItem('sp_remembered_password', password); }
+        if (remember) { localStorage.setItem('sp_remembered_username', username); }
         showFormMsg(t('login_welcome', { name: data.player.display_name || data.player.username }), 'ok');
         setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {

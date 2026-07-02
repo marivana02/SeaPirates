@@ -366,7 +366,13 @@ I18N_DATA['en'] = {
     error: 'Error',
     server_error: 'Server error occurred.',
     connection_failed: 'Could not connect to server!',
+    offline_title: 'CONNECTION LOST',
+    offline_msg: 'Your internet connection has been lost for 30 seconds. You have been logged out for security.',
+    offline_toast: 'Connection lost! Logging out in {seconds}sec...',
     unauthorized: 'Session expired, please log in again.',
+    session_expired_title: 'Session Ended',
+    session_expired_msg: 'Another device has logged into this account.<br>You need to log in again to continue.',
+    session_expired_btn: 'LOG IN',
     invalid_amount: 'Enter a valid amount.',
 
     // Quest Errors

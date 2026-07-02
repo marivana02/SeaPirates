@@ -500,7 +500,7 @@ async function teklif(idx){
     await loadAuction();
   } catch (err) {
     logError('auction:bid', err);
-    toast('Sunucuya bağlanılamadı!', 'err');
+    toast(t('connection_failed'), 'err');
   }
 }
 

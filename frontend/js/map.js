@@ -334,7 +334,7 @@
 
         if (newSpawns.length > 0) {
           el.style.display = 'block';
-          el.innerHTML = '⚓ ' + newSpawns.map(s => `Harita ${s.map_level}-${s.spawned_sub_map}'de ${s.name} göründü!`).join('<br>⚓ ');
+          el.innerHTML = '⚓ ' + newSpawns.map(s => t('admiral_appeared').replace('{map}', s.map_level).replace('{sub}', s.spawned_sub_map).replace('{name}', s.name)).join('<br>⚓ ');
           if (admiralNotifTimer) clearTimeout(admiralNotifTimer);
           admiralNotifTimer = setTimeout(() => { el.style.display = 'none'; }, 20000);
         }
@@ -567,7 +567,7 @@
 
         const ip3 = getNpcInfoPanel(); if (ip3) ip3.style.display = 'flex';
         
-        btnSearch.innerText = "NPC ARA";
+        btnSearch.innerText = t('btn_search');
         btnSearch.classList.remove('searching');
         // Only search + attack buttons enabled, everything else locked
         setNpcFoundLocked();

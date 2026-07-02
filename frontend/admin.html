@@ -137,7 +137,7 @@
   <!-- PLAYERS TAB -->
   <div id="panel-players" class="panel active">
     <div class="search-wrap">
-      <input type="text" id="playerSearch" placeholder="ID / kullanıcı adı / e-posta..." onkeydown="if(event.key==='Enter') searchPlayers()">
+      <input type="text" id="playerSearch" data-i18n-placeholder="admin_search_placeholder" placeholder="ID / username / email..." onkeydown="if(event.key==='Enter') searchPlayers()">
       <button class="btn" onclick="searchPlayers()">&#128269; <span data-i18n="admin_search">Ara</span></button>
     </div>
 
@@ -207,7 +207,7 @@ function searchPlayers(page = 1) {
   api('/players?search=' + encodeURIComponent(currentSearch) + '&page=' + page + '&limit=50').then(data => {
     if (data.error) { status(data.error, 'error'); return; }
     renderPlayerList(data);
-  }).catch(e => status('Bağlantı hatası', 'error'));
+  }).catch(e => status(t('admin_connection_error'), 'error'));
 }
 
 function renderPlayerList(data) {
@@ -218,8 +218,8 @@ function renderPlayerList(data) {
   }
 
   let html = `<div class="card"><div class="table-wrap"><table><thead><tr>
-    <th>ID</th><th data-i18n="admin_col_username">Kullanıcı</th><th data-i18n="admin_col_display">Görünen</th><th>Lv</th>
-    <th data-i18n="admin_col_status">Durum</th><th>Email</th><th data-i18n="admin_col_actions">İşlem</th>
+    <th>ID</th><th data-i18n="admin_col_username">Kullanıcı</th><th data-i18n="admin_col_display">Display Name</th><th>Lv</th>
+    <th data-i18n="admin_col_status">Durum</th><th>Email</th><th data-i18n="admin_col_actions">Actions</th>
   </tr></thead><tbody>`;
 
   for (const p of data.players) {
@@ -260,7 +260,7 @@ function viewPlayer(id) {
   api('/players/' + id).then(data => {
     if (data.error) { status(data.error, 'error'); return; }
     showPlayerModal(data.player, data.logs || []);
-  }).catch(e => status('Bağlantı hatası', 'error'));
+  }).catch(e => status(t('admin_connection_error'), 'error'));
 }
 
 function showPlayerModal(player, logs) {
@@ -301,7 +301,7 @@ function showPlayerModal(player, logs) {
   if (isBanned) {
     html += `<div class="label">Ban Reason</div><div class="value">${esc(player.ban_reason || '-')}</div>`;
     html += `<div class="label">Banned At</div><div class="value">${player.banned_at ? new Date(player.banned_at).toLocaleString() : '-'}</div>`;
-    html += `<div class="label">Expires</div><div class="value">${banExpired ? '<span class="badge badge-expired">SÜRESİ DOLDU</span>' : (player.ban_expires_at ? new Date(player.ban_expires_at).toLocaleString() : '<span class="badge badge-banned">KALICI</span>')}</div>`;
+    html += `<div class="label">Expires</div><div class="value">${banExpired ? '<span class="badge badge-expired">'+t('admin_ban_expired')+'</span>' : (player.ban_expires_at ? new Date(player.ban_expires_at).toLocaleString() : '<span class="badge badge-banned">'+t('admin_ban_permanent')+'</span>')}</div>`;
   }
   html += '</div>';
 
@@ -315,9 +315,9 @@ function showPlayerModal(player, logs) {
   }
 
   if (!isVip) {
-    html += `<button class="btn btn-sm btn-warn" onclick="grantVip(${player.id})">+7 Gün VIP</button>`;
+    html += `<button class="btn btn-sm btn-warn" onclick="grantVip(${player.id})">${t('admin_add_vip').replace('{days}','7')}</button>`;
   } else {
-    html += `<button class="btn btn-sm btn-warn" onclick="grantVip(${player.id})">+VIP Ekle</button>`;
+    html += `<button class="btn btn-sm btn-warn" onclick="grantVip(${player.id})">${t('admin_add_vip_more')}</button>`;
   }
 
   html += '</div>';
@@ -325,26 +325,26 @@ function showPlayerModal(player, logs) {
   // Compact ban form (hidden by default)
   html += `<div id="banForm" style="display:none;" class="card">
     <div class="flex" style="gap:6px;">
-      <input type="text" id="banReason" placeholder="Ban sebebi..." style="flex:1;">
+      <input type="text" id="banReason" data-i18n-placeholder="admin_ban_reason_placeholder" placeholder="Ban reason..." style="flex:1;">
       <select id="banDuration" class="w-auto" style="width:auto;">
-        <option value="0">Kalıcı</option>
-        <option value="1">1 saat</option>
-        <option value="6">6 saat</option>
-        <option value="24">1 gün</option>
-        <option value="72">3 gün</option>
-        <option value="168">7 gün</option>
-        <option value="720">30 gün</option>
+        <option value="0">${t('admin_ban_duration_permanent')}</option>
+        <option value="1">${t('admin_ban_duration_1h')}</option>
+        <option value="6">${t('admin_ban_duration_6h')}</option>
+        <option value="24">${t('admin_ban_duration_1d')}</option>
+        <option value="72">${t('admin_ban_duration_3d')}</option>
+        <option value="168">${t('admin_ban_duration_7d')}</option>
+        <option value="720">${t('admin_ban_duration_30d')}</option>
       </select>
     </div>
     <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:0.75rem;cursor:pointer;">
-      <input type="checkbox" id="banDevice"> Cihaz banı da ekle
+      <input type="checkbox" id="banDevice"> ${t('admin_ban_include_device')}
     </label>
-    <button class="btn btn-sm btn-danger mt-8" onclick="confirmBan(${player.id})">Ban Uygula</button>
+    <button class="btn btn-sm btn-danger mt-8" onclick="confirmBan(${player.id})">${t('admin_ban_apply')}</button>
   </div>`;
 
   // Logs
   if (logs && logs.length > 0) {
-    html += '<div class="card"><h3>Son İşlemler</h3><div class="table-wrap"><table class="logs-table"><thead><tr><th>ID</th><th>Tip</th><th>Detay</th><th>IP</th><th>Tarih</th></tr></thead><tbody>';
+    html += '<div class="card"><h3><span data-i18n="admin_recent_actions">Recent Actions</span></h3><div class="table-wrap"><table class="logs-table"><thead><tr><th>ID</th><th>Tip</th><th>Detay</th><th>IP</th><th>Tarih</th></tr></thead><tbody>';
     for (const l of logs) {
       let details = l.details;
       try { const d = JSON.parse(l.details); details = JSON.stringify(d); } catch(e) {}
@@ -364,7 +364,7 @@ function showBanForm(id, username) {
 
 function confirmBan(id) {
   const reason = document.getElementById('banReason').value.trim();
-  if (!reason) { status('Ban sebebi gerekli', 'error'); return; }
+  if (!reason) { status(t('admin_ban_reason_required'), 'error'); return; }
   const duration = parseInt(document.getElementById('banDuration').value) || 0;
   const deviceBan = document.getElementById('banDevice').checked;
 
@@ -375,29 +375,29 @@ function confirmBan(id) {
       document.getElementById('banForm').style.display = 'none';
       viewPlayer(id);
       searchPlayers(currentPage);
-    }).catch(e => status('Bağlantı hatası', 'error'));
+    }).catch(e => status(t('admin_connection_error'), 'error'));
 }
 
 function unbanPlayer(id) {
-  if (!confirm('Banı kaldırmak istediğine emin misin?')) return;
+  if (!confirm(t('admin_confirm_unban'))) return;
   api('/unban', { method: 'POST', body: { player_id: id } })
     .then(data => {
       if (data.error) { status(data.error, 'error'); return; }
       status(data.message, 'success');
       viewPlayer(id);
       searchPlayers(currentPage);
-    }).catch(e => status('Bağlantı hatası', 'error'));
+    }).catch(e => status(t('admin_connection_error'), 'error'));
 }
 
 function grantVip(id) {
-  const days = prompt('Kaç gün VIP eklemek istersin?', '7');
+  const days = prompt(t('admin_prompt_vip_days'), '7');
   if (!days || isNaN(days) || parseInt(days) < 1) return;
   api('/vip', { method: 'POST', body: { player_id: id, days: parseInt(days) } })
     .then(data => {
       if (data.error) { status(data.error, 'error'); return; }
       status(data.message, 'success');
       viewPlayer(id);
-    }).catch(e => status('Bağlantı hatası', 'error'));
+    }).catch(e => status(t('admin_connection_error'), 'error'));
 }
 
 function closeModal() {
@@ -411,13 +411,13 @@ function loadLogs(page = 1) {
   api(url).then(data => {
     if (data.error) { status(data.error, 'error'); return; }
     renderLogs(data);
-  }).catch(e => status('Bağlantı hatası', 'error'));
+  }).catch(e => status(t('admin_connection_error'), 'error'));
 }
 
 function renderLogs(data) {
   const el = document.getElementById('logsList');
   if (!data.logs || data.logs.length === 0) {
-    el.innerHTML = '<div class="card" style="text-align:center;color:var(--txt-m);padding:30px;">İşlem bulunamadı</div>';
+    el.innerHTML = `<div class="card" style="text-align:center;color:var(--txt-m);padding:30px;">${t('admin_no_results_logs')}</div>`;
     return;
   }
 

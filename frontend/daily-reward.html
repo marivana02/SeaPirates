@@ -474,7 +474,7 @@
       </div>
       <div class="info-box vip-box" id="vip-box">
         <div class="l" data-i18n="daily_vip_short">VIP</div>
-        <div class="v" id="vip-val">NOT ACTIVE</div>
+        <div class="v" id="vip-val" data-i18n="vip_status_off">NOT ACTIVE</div>
       </div>
     </div>
 
@@ -786,7 +786,7 @@
       const type = btn.dataset.type;
       const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
       const price = vipPrices?.[plan]?.[currentCurrency] || '?';
-      alert(`🔒 ${type === 'vip' ? 'VIP' : 'Starter'} "${plan}" gün paket — ${price} ${sym}. Ödeme sistemi yakında!`);
+      alert(t('payment_coming_soon', { type: type === 'vip' ? t('vip_pack') : t('starter_pack'), plan }));
     });
   });
 </script>

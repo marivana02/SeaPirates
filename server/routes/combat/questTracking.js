@@ -10,9 +10,10 @@ function checkNpcMatch(obj, npcNameStr) {
   return false;
 }
 
-async function updateQuestProgress(pool, playerId, { type, npcNameStr, amount }) {
+async function updateQuestProgress(pool, playerId, { type, npcNameStr, amount }, client) {
   try {
-    const pQuestRes = await pool.query(
+    const db = client || pool;
+    const pQuestRes = await db.query(
       'SELECT active_quest_id, active_quest_id2, quest_progress, quest_progress2 FROM players WHERE id = $1',
       [playerId]
     );
@@ -36,12 +37,12 @@ async function updateQuestProgress(pool, playerId, { type, npcNameStr, amount })
 
         if (needUpdate) {
           if (type === 'damage') {
-            await pool.query(
+            await db.query(
               'UPDATE players SET quest_progress = $1, quest_damage = quest_damage + $2 WHERE id = $3',
               [JSON.stringify(progress), amount, playerId]
             );
           } else if (type === 'kill') {
-            await pool.query(
+            await db.query(
               'UPDATE players SET quest_progress = $1, quest_kills = quest_kills + 1 WHERE id = $2',
               [JSON.stringify(progress), playerId]
             );
@@ -66,12 +67,12 @@ async function updateQuestProgress(pool, playerId, { type, npcNameStr, amount })
 
         if (needUpdate) {
           if (type === 'damage') {
-            await pool.query(
+            await db.query(
               'UPDATE players SET quest_progress2 = $1, quest_damage2 = quest_damage2 + $2 WHERE id = $3',
               [JSON.stringify(progress), amount, playerId]
             );
           } else if (type === 'kill') {
-            await pool.query(
+            await db.query(
               'UPDATE players SET quest_progress2 = $1, quest_kills2 = quest_kills2 + 1 WHERE id = $2',
               [JSON.stringify(progress), playerId]
             );

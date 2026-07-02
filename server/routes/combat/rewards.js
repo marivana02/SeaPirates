@@ -97,13 +97,14 @@ async function distributeOldWeekRewards(pool) {
   }
 }
 
-async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBoss, evMult, actualCannonsFired, useBarut, useZirh }) {
+async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBoss, evMult, actualCannonsFired, useBarut, useZirh }, client) {
+  const db = client || pool;
   let rewGold = Math.floor((npcObj.gold || 0) * evMult);
   let rewPearl = Math.floor((npcObj.pearl || 0) * evMult);
   let rewXp = Math.floor((npcObj.xp || 0) * evMult);
 
   if (npcObj.isTower) {
-    await pool.query(
+    await db.query(
       `UPDATE players 
        SET pearl = pearl + $1,
             hp = $2,
@@ -112,21 +113,20 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
       [rewPearl, fight.playerHp, playerId]
     );
   } else if (fight.isAdmiral) {
-    await pool.query(
+    await db.query(
       `UPDATE players 
        SET dmg_amiral = dmg_amiral + $1
        WHERE id = $2`,
       [playerDamage, playerId]
     );
 
-    // Oyuncunun toplam hasarını ödül dağıtımından ÖNCE al
-    const dmgRes = await pool.query(
+    const dmgRes = await db.query(
       'SELECT COALESCE(damage_dealt, 0) as dmg FROM admiral_damage WHERE player_id = $1 AND map_level = $2',
       [playerId, fight.mapLevel]
     );
     const totalDmg = parseInt(dmgRes.rows[0]?.dmg || 0) + playerDamage;
 
-    const bossRes = await pool.query('SELECT hp, pearl, xp FROM bosses WHERE map_level = $1 LIMIT 1', [fight.mapLevel]);
+    const bossRes = await db.query('SELECT hp, pearl, xp FROM bosses WHERE map_level = $1 LIMIT 1', [fight.mapLevel]);
     const bossInfo = bossRes.rows[0];
     const bossMaxHp = parseInt(bossInfo?.hp) || 150000;
     const totalPearls = parseInt(bossInfo?.pearl) || 15000;
@@ -137,12 +137,11 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
     const rewAdmXp = Math.floor(totalXp * pct);
     const rewAdmElite = Math.floor(rewAdmXp * 0.5);
 
-    // Tüm oyunculara ödülleri dağıt (killer dahil)
     const { rewardsGiven, skipReason } = await distributeAdmiralRewards(fight.mapLevel);
 
-    await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+    await db.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
 
-    const { leveledUp: admiralLeveledUp, newLevel: admiralNewLevel } = await checkLevelUp(pool, playerId);
+    const { leveledUp: admiralLeveledUp, newLevel: admiralNewLevel } = await checkLevelUp(pool, playerId, db);
     return {
       state: 'won', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
       rewards: rewardsGiven ? { gold: 0, pearl: rewAdmPearl, xp: rewAdmXp } : { gold: 0, pearl: 0, xp: 0 },
@@ -153,7 +152,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
       rewardSkipReason: skipReason || null
     };
   } else if (fight.isTiamat) {
-    await pool.query(
+    await db.query(
       `UPDATE players 
        SET dmg_amiral = dmg_amiral + $1
        WHERE id = $2`,
@@ -161,12 +160,12 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
     );
     const tiamatRewards = await distributeTiamatRewards(playerId);
 
-    await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+    await db.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
 
     const respawnHp = await getRespawnHp(pool, playerId, fight.playerMaxHp);
-    await pool.query('UPDATE players SET hp = $1 WHERE id = $2', [respawnHp, playerId]);
+    await db.query('UPDATE players SET hp = $1 WHERE id = $2', [respawnHp, playerId]);
 
-    const { leveledUp, newLevel } = await checkLevelUp(pool, playerId);
+    const { leveledUp, newLevel } = await checkLevelUp(pool, playerId, db);
     return {
       state: 'won', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: respawnHp, playerDamage: 0, npcDamage: 0,
       rewards: { gold: 0, pearl: tiamatRewards.pearl, xp: tiamatRewards.xp },
@@ -176,23 +175,23 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
       isTiamat: true
     };
   } else if (isBoss) {
-    await pool.query(
+    await db.query(
       `UPDATE players 
        SET gold = gold + $1, 
-           pearl = pearl + $2, 
-           xp = xp + $3,
-           dmg_amiral = dmg_amiral + $4
+            pearl = pearl + $2, 
+            xp = xp + $3,
+            dmg_amiral = dmg_amiral + $4
        WHERE id = $5`,
       [rewGold, rewPearl, rewXp, playerDamage, playerId]
     );
   } else {
-    await pool.query(
+    await db.query(
       `UPDATE players 
        SET gold = gold + $1, 
-           pearl = pearl + $2, 
-           xp = xp + $3,
-           dmg_pve = dmg_pve + $4,
-           kill_npc = kill_npc + 1
+            pearl = pearl + $2, 
+            xp = xp + $3,
+            dmg_pve = dmg_pve + $4,
+            kill_npc = kill_npc + 1
        WHERE id = $5`,
       [rewGold, rewPearl, rewXp, playerDamage, playerId]
     );
@@ -256,9 +255,9 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
     }
   }
 
-  const { leveledUp, newLevel } = await checkLevelUp(pool, playerId);
+  const { leveledUp, newLevel } = await checkLevelUp(pool, playerId, db);
 
-  await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+  await db.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
   return {
     state: 'won', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0,
     rewards: { gold: rewGold, xp: rewXp, pearl: rewPearl },
@@ -270,10 +269,11 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
   };
 }
 
-async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, isBoss, gainedElp, isWeeklyBoss, actualCannonsFired, useBarut, useZirh, npcUseBarut, npcUseZirh, npcAmmoId, actualNpcDamage, targetHitUsername }) {
+async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, isBoss, gainedElp, isWeeklyBoss, actualCannonsFired, useBarut, useZirh, npcUseBarut, npcUseZirh, npcAmmoId, actualNpcDamage, targetHitUsername }, client) {
+  const db = client || pool;
   let beamsBroken = [];
   try {
-    const plankRes = await pool.query(`
+    const plankRes = await db.query(`
       SELECT pp.plank_type, pp.equipped, p.break_chance, p.hp_bonus, p.name
       FROM player_planks pp
       JOIN planks p ON pp.plank_type = p.type_key
@@ -290,7 +290,7 @@ async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, 
       if (broken > 0) {
         totalHpLoss += broken * row.hp_bonus;
         beamsBroken.push({ type: row.plank_type, name: row.name, qty: broken });
-        await pool.query(
+        await db.query(
           `UPDATE player_planks
            SET equipped = GREATEST(0, equipped - $1), quantity = GREATEST(0, quantity - $1)
            WHERE player_id = $2 AND plank_type = $3`,
@@ -299,7 +299,7 @@ async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, 
       }
     }
     if (totalHpLoss > 0) {
-      await pool.query(
+      await db.query(
         `UPDATE players SET max_hp = GREATEST(100, max_hp - $1), hp = LEAST(hp, GREATEST(100, max_hp - $1)) WHERE id = $2`,
         [totalHpLoss, playerId]
       );
@@ -308,16 +308,16 @@ async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, 
     console.error('Beam break error:', beamErr.message);
   }
 
-  const pInfo = await pool.query('SELECT max_hp, vip_until FROM players WHERE id = $1', [playerId]);
+  const pInfo = await db.query('SELECT max_hp, vip_until FROM players WHERE id = $1', [playerId]);
   const respawnHp = pInfo.rows.length ? await getRespawnHp(pool, playerId, parseInt(pInfo.rows[0].max_hp)) : 1000;
 
   if (npcObj.isWeeklyBoss) {
     const totalSessionDmg = fight.weeklyBossDamageDealt || 0;
-    await pool.query(
+    await db.query(
       `UPDATE players SET hp = max_hp WHERE id = $1`,
       [playerId]
     );
-    await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+    await db.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
     return {
       state: 'lost', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: 0, playerDamage: 0, npcDamage: actualNpcDamage,
       isWeeklyBoss: true,
@@ -330,16 +330,16 @@ async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, 
   }
 
   if (fight.isAdmiral) {
-    await pool.query(
+    await db.query(
       `UPDATE players SET hp = $1, dmg_amiral = dmg_amiral + $2 WHERE id = $3`,
       [respawnHp, playerDamage, playerId]
     );
   } else if (fight.isTiamat) {
-    await pool.query(
+    await db.query(
       `UPDATE players SET hp = $1, dmg_amiral = dmg_amiral + $2 WHERE id = $3`,
       [respawnHp, playerDamage, playerId]
     );
-    await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+    await db.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
     return {
       state: 'lost', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: respawnHp, playerDamage: 0, npcDamage: actualNpcDamage,
       consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
@@ -348,17 +348,17 @@ async function handlePlayerDeath(pool, { fight, playerId, playerDamage, npcObj, 
       beamsBroken
     };
   } else if (isBoss) {
-    await pool.query(
+    await db.query(
       `UPDATE players SET hp = $1, dmg_amiral = dmg_amiral + $2 WHERE id = $3`,
       [respawnHp, playerDamage, playerId]
     );
   } else {
-    await pool.query(
+    await db.query(
       `UPDATE players SET hp = $1, dmg_pve = dmg_pve + $2 WHERE id = $3`,
       [respawnHp, playerDamage, playerId]
     );
   }
-  await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+  await db.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
   return {
     state: 'lost', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: respawnHp, playerDamage: 0, npcDamage: actualNpcDamage,
     consumed: { ammo: actualCannonsFired, barut: (useBarut && actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },

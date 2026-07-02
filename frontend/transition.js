@@ -68,13 +68,13 @@
   function startOfflineTimer() {
     if (_offlineTimer) return;
     _offlineCountdown = 30;
-    showToast('Bağlantı kesildi! ' + _offlineCountdown + 'sn içinde çıkış yapılacak...');
+    showToast(t('offline_toast').replace('{seconds}', _offlineCountdown));
     _offlineTimer = setInterval(function() {
       _offlineCountdown--;
       if (_offlineCountdown <= 0) {
         clearInterval(_offlineTimer);
         _offlineTimer = null;
-        showAlert('İnternet bağlantınız 30 saniye boyunca gelmedi. Güvenlik nedeniyle çıkış yapıldı.', 'BAĞLANTI KESİLDİ', true);
+        showAlert(t('offline_msg'), t('offline_title'), true);
         API.post('/auth/logout').catch(function() {});
         localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player');
         localStorage.removeItem('sp_remember_me'); localStorage.removeItem('sp_session_ts');

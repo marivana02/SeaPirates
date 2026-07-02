@@ -203,7 +203,7 @@
         <span class="ep-val" id="ep-val">0</span>
       </div>
       <div class="ep-track"><div class="ep-fill" id="ep-fill" style="width:0%"></div></div>
-      <div class="ep-next" id="ep-next">Sıradaki: Elite I — 35.000 ELP gerekli</div>
+      <div class="ep-next" id="ep-next">Next: Elite I — 35,000 ELP needed</div>
     </div>
 
     <!-- Active Ship Banner -->
@@ -303,7 +303,7 @@
     if (next) {
       const pct = Math.min(100, (currentEP / next.ep) * 100);
       document.getElementById('ep-fill').style.width = pct + '%';
-      document.getElementById('ep-next').textContent = t('ships_next') + ': ' + t(next.ad) + ' — ' + fmt(next.ep) + ' ' + t('ships_ep_short') + ' ' + t('ships_required');
+      document.getElementById('ep-next').textContent = t('ships_elite_next', { name: t(next.ad), amount: fmt(next.ep) });
     } else {
       document.getElementById('ep-fill').style.width = '100%';
       document.getElementById('ep-next').textContent = t('ships_all_unlocked');

@@ -56,7 +56,6 @@ function initSocketIO(server) {
             'UPDATE players SET is_online = false, last_seen = NOW() WHERE id = $1',
             [playerId]
           );
-          await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
         } catch (e) { /* silent */ }
       }
     });

@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 const { getCurrentEvent } = require('./events');
-const { getCurrentWeekString } = require('../helpers/date');
+const { getCurrentWeekString, getLocalDateString } = require('../helpers/date');
 const { getWeeklyBossRewards } = require('../helpers/combat');
 const { mapDbFightRowToFightState } = require('../helpers/combatRoute');
 const { FIGHT_TIMEOUT_MS } = require('./combat/constants');
@@ -68,9 +68,8 @@ router.get('/boss/status', authMiddleware, async (req, res) => {
     }
     let canAttack = true;
     if (pData.last_boss_attack) {
-      const lastAttack = new Date(pData.last_boss_attack).toISOString().split('T')[0];
-      const today = new Date().toISOString().split('T')[0];
-      if (lastAttack === today) canAttack = false;
+      const lastAttack = new Date(pData.last_boss_attack).toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
+      if (lastAttack === getLocalDateString()) canAttack = false;
     }
     const leaderboardRes = await pool.query(
       `SELECT COALESCE(display_name, username) AS username, weekly_boss_damage FROM players WHERE weekly_boss_week = $1 AND weekly_boss_damage > 0 ORDER BY weekly_boss_damage DESC LIMIT 100`,
@@ -209,6 +208,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   const { ammoId, useBarut, useZirh } = req.body;
   if (!acquireAttackLock(playerId)) return res.status(429).json({ error: 'Attack already in progress' });
+  let txClient = null;
   try {
     const fightRes = await pool.query('SELECT * FROM active_fights WHERE player_id = $1', [playerId]);
     if (fightRes.rows.length === 0) return res.status(400).json({ error: 'No active fight' });
@@ -266,9 +266,12 @@ router.post('/attack', authMiddleware, async (req, res) => {
       }
     }
 
-    const pd = await calculatePlayerDamage(pool, playerId, ammoId);
+    txClient = await pool.connect();
+    await txClient.query('BEGIN');
 
-    const dm = await applyDamageModifiers(pool, playerId, pd, { npcUseBarut: false, npcUseZirh: false }, fight, { useBarut, useZirh, currentEvent, ammoId });
+    const pd = await calculatePlayerDamage(pool, playerId, ammoId, txClient);
+
+    const dm = await applyDamageModifiers(pool, playerId, pd, { npcUseBarut: false, npcUseZirh: false }, fight, { useBarut, useZirh, currentEvent, ammoId }, txClient);
 
     let playerDamage = dm.finalDamage;
     let npcDamage = dm.finalNpcDamage;
@@ -277,7 +280,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
 
     // Patlayan gülle (ammo 3) kullanıldıysa ELP'yi her atışta direkt veritabanına işle
     if (gainedElp > 0) {
-      await pool.query('UPDATE players SET elite_points = elite_points + $1 WHERE id = $2', [gainedElp, playerId]);
+      await txClient.query('UPDATE players SET elite_points = elite_points + $1 WHERE id = $2', [gainedElp, playerId]);
     }
     const npcObj = fight.npc || {};
     const npcNameStr = npcObj.name || '';
@@ -288,13 +291,13 @@ router.post('/attack', authMiddleware, async (req, res) => {
     let actualNpcDamage = npcDamage;
 
     if (fight.isAdmiral) {
-      await pool.query(`INSERT INTO admiral_damage (map_level, player_id, username, ship_level, damage_dealt, current_hp, max_hp) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (map_level, player_id) DO UPDATE SET damage_dealt = admiral_damage.damage_dealt + $5`,
+      await txClient.query(`INSERT INTO admiral_damage (map_level, player_id, username, ship_level, damage_dealt, current_hp, max_hp) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (map_level, player_id) DO UPDATE SET damage_dealt = admiral_damage.damage_dealt + $5`,
         [fight.mapLevel, playerId, pDbInfo.display_name || pDbInfo.username, pDbInfo.ship_level, playerDamage, fight.playerHp, fight.playerMaxHp]);
       const result = await deductAdmiralBossHp(pool, fight.mapLevel, playerDamage, parseInt(fight.npcMaxHp));
       fight.npcHp = result.newHp;
       actualHpLost = result.actualHpLost;
     } else if (fight.isTiamat) {
-      await pool.query(`INSERT INTO tiamat_damage (player_id, username, ship_level, damage_dealt, current_hp, max_hp) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (player_id) DO UPDATE SET damage_dealt = tiamat_damage.damage_dealt + $4`,
+      await txClient.query(`INSERT INTO tiamat_damage (player_id, username, ship_level, damage_dealt, current_hp, max_hp) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (player_id) DO UPDATE SET damage_dealt = tiamat_damage.damage_dealt + $4`,
         [playerId, pDbInfo.display_name || pDbInfo.username, pDbInfo.ship_level, playerDamage, fight.playerHp, fight.playerMaxHp]);
       const result = await deductTiamatBossHp(pool, playerDamage, parseInt(fight.npcMaxHp));
       fight.npcHp = result.newHp;
@@ -307,20 +310,23 @@ router.post('/attack', authMiddleware, async (req, res) => {
     }
 
     if (playerDamage > 0 && actualHpLost > 0) {
-      await updateQuestProgress(pool, playerId, { type: 'damage', npcNameStr, amount: actualHpLost, npcObj });
+      await updateQuestProgress(pool, playerId, { type: 'damage', npcNameStr, amount: actualHpLost, npcObj }, txClient);
     }
 
     if (npcObj.isWeeklyBoss) {
       fight.npcHp = fight.npcMaxHp;
       fight.weeklyBossDamageDealt = (fight.weeklyBossDamageDealt || 0) + playerDamage;
       const currentWeekStr = getCurrentWeekString();
-      await pool.query(`UPDATE players SET weekly_boss_damage = CASE WHEN weekly_boss_week = $1 THEN weekly_boss_damage + $2 ELSE $2 END, weekly_boss_week = $1 WHERE id = $3`, [currentWeekStr, playerDamage, playerId]);
+      await txClient.query(`UPDATE players SET weekly_boss_damage = CASE WHEN weekly_boss_week = $1 THEN weekly_boss_damage + $2 ELSE $2 END, weekly_boss_week = $1 WHERE id = $3`, [currentWeekStr, playerDamage, playerId]);
     }
 
     if (fight.npcHp === 0) {
-      await updateQuestProgress(pool, playerId, { type: 'kill', npcNameStr, amount: 1, npcObj });
+      await updateQuestProgress(pool, playerId, { type: 'kill', npcNameStr, amount: 1, npcObj }, txClient);
       const evMult = currentEvent.type === 'npc_reward' ? currentEvent.mult : 1;
-      const rewardResult = await grantRewards(pool, { fight, playerId, playerDamage: actualHpLost, npcObj, isBoss, evMult, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh });
+      const rewardResult = await grantRewards(pool, { fight, playerId, playerDamage: actualHpLost, npcObj, isBoss, evMult, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh }, txClient);
+      await txClient.query('COMMIT');
+      txClient.release();
+      txClient = null;
       return res.json(rewardResult);
     }
 
@@ -356,25 +362,32 @@ router.post('/attack', authMiddleware, async (req, res) => {
     } else {
       fight.playerHp -= npcDamage;
       if (fight.playerHp < 0) fight.playerHp = 0;
-      await pool.query('UPDATE players SET hp = $1 WHERE id = $2', [fight.playerHp, playerId]);
+      await txClient.query('UPDATE players SET hp = $1 WHERE id = $2', [fight.playerHp, playerId]);
     }
 
     if (fight.playerHp === 0) {
-      const deathResult = await handlePlayerDeath(pool, { fight, playerId, playerDamage: actualHpLost, npcObj, isBoss, gainedElp, isWeeklyBoss: npcObj.isWeeklyBoss, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh, npcUseBarut: false, npcUseZirh: false, npcAmmoId: null, actualNpcDamage, targetHitUsername });
+      const deathResult = await handlePlayerDeath(pool, { fight, playerId, playerDamage: actualHpLost, npcObj, isBoss, gainedElp, isWeeklyBoss: npcObj.isWeeklyBoss, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh, npcUseBarut: false, npcUseZirh: false, npcAmmoId: null, actualNpcDamage, targetHitUsername }, txClient);
+      await txClient.query('COMMIT');
+      txClient.release();
+      txClient = null;
       return res.json(deathResult);
     }
 
     if (npcObj.isTower) {
-      await pool.query('UPDATE players SET hp = $1 WHERE id = $2', [fight.playerHp, playerId]);
+      await txClient.query('UPDATE players SET hp = $1 WHERE id = $2', [fight.playerHp, playerId]);
     } else if (fight.isAdmiral || fight.isTiamat) {
-      await pool.query('UPDATE players SET hp = $1 WHERE id = $2', [fight.playerHp, playerId]);
+      await txClient.query('UPDATE players SET hp = $1 WHERE id = $2', [fight.playerHp, playerId]);
     } else if (isBoss) {
-      await pool.query('UPDATE players SET hp = $1, dmg_amiral = dmg_amiral + $2 WHERE id = $3', [fight.playerHp, actualHpLost, playerId]);
+      await txClient.query('UPDATE players SET hp = $1, dmg_amiral = dmg_amiral + $2 WHERE id = $3', [fight.playerHp, actualHpLost, playerId]);
     } else {
-      await pool.query('UPDATE players SET hp = $1, dmg_pve = dmg_pve + $2 WHERE id = $3', [fight.playerHp, actualHpLost, playerId]);
+      await txClient.query('UPDATE players SET hp = $1, dmg_pve = dmg_pve + $2 WHERE id = $3', [fight.playerHp, actualHpLost, playerId]);
     }
-    await pool.query(`UPDATE active_fights SET npc_hp = $1, player_hp = $2, weekly_boss_damage_dealt = $3, last_activity = CURRENT_TIMESTAMP, last_npc_attack = CASE WHEN $5 THEN CURRENT_TIMESTAMP ELSE last_npc_attack END WHERE player_id = $4`,
+    await txClient.query(`UPDATE active_fights SET npc_hp = $1, player_hp = $2, weekly_boss_damage_dealt = $3, last_activity = CURRENT_TIMESTAMP, last_npc_attack = CASE WHEN $5 THEN CURRENT_TIMESTAMP ELSE last_npc_attack END WHERE player_id = $4`,
       [fight.npcHp, fight.playerHp, fight.weeklyBossDamageDealt, playerId, npcCanAttack]);
+
+    await txClient.query('COMMIT');
+    txClient.release();
+    txClient = null;
 
     res.json({
       state: 'ongoing', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: actualNpcDamage,
@@ -384,6 +397,11 @@ router.post('/attack', authMiddleware, async (req, res) => {
       targetHit: targetHitUsername, isAdmiral: fight.isAdmiral, isTiamat: fight.isTiamat
     });
   } catch (err) {
+    if (txClient) {
+      try { await txClient.query('ROLLBACK'); } catch (e) { /* silent */ }
+      txClient.release();
+      txClient = null;
+    }
     console.error(err);
     res.status(500).json({ error: 'Server error during combat' });
   } finally {

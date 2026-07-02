@@ -1024,7 +1024,7 @@
     }
 
     function fmt(n) { return Number(n).toLocaleString('en-US'); }
-    function toggleSmoke(id, on) { const el = document.getElementById(id); if (on) { el.classList.add('visible'); el.style.opacity = '1'; } else { el.classList.remove('visible'); el.style.opacity = '0'; } }
+    function toggleSmoke(id, on) { const el = document.getElementById(id); if (!el) return; if (on) { el.classList.add('visible'); el.style.opacity = '1'; } else { el.classList.remove('visible'); el.style.opacity = '0'; } }
     function toggleFire(id, on) {
       if (isTiamat && id === 'npc-fire') return;
       const el = document.getElementById(id);
@@ -1232,7 +1232,6 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
     if (!token) goTo('index.html');
 
     let attackInterval;
-    let opponentInterval;
     let lastPlayerAttack = 0;
     let bossSocket = null;
     let bossPollInterval = null;
@@ -1243,7 +1242,6 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
         if (attackInterval) { clearInterval(attackInterval); attackInterval = null; }
-        if (opponentInterval) { clearInterval(opponentInterval); opponentInterval = null; }
         // Animasyonlar requestAnimationFrame olduğu için zaten tarayıcı tarafından yavaşlatılır
       } else if (document.visibilityState === 'visible' && active) {
         // Geri gelindiğinde savaşı devam ettir (Sunucudan güncel durumu çekerek)
@@ -1500,7 +1498,6 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           if (data.error === 'No active fight') {
             active = false;
             clearInterval(attackInterval);
-            if (opponentInterval) clearInterval(opponentInterval);
           }
           return;
         }
@@ -1598,9 +1595,9 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           // Savaş bitti kontrollerini darbeden hemen sonraya ertele (Darbe hissi tam olsun)
           const totalDelay = isDataTiamat ? (600 + 1050 + 200) : (600 + TRAVEL_MS + 200);
           setTimeout(() => {
-            if (data.state === 'won') { endFight(true, data.rewards, data.leveledUp, data.newLevel, data.playerHp, data.note); clearInterval(attackInterval); if (opponentInterval) clearInterval(opponentInterval); }
-            else if (data.state === 'lost') { endFight(false, data.rewards, false, null, data.playerHp, data.note); clearInterval(attackInterval); if (opponentInterval) clearInterval(opponentInterval); }
-            else if (data.state === 'boss_defeated') { endFight(false, null, false, null, data.playerHp, data.message || 'This boss has already been defeated!'); clearInterval(attackInterval); if (opponentInterval) clearInterval(opponentInterval); }
+            if (data.state === 'won') { endFight(true, data.rewards, data.leveledUp, data.newLevel, data.playerHp, data.note); clearInterval(attackInterval); }
+            else if (data.state === 'lost') { endFight(false, data.rewards, false, null, data.playerHp, data.note); clearInterval(attackInterval); }
+            else if (data.state === 'boss_defeated') { endFight(false, null, false, null, data.playerHp, data.message || 'This boss has already been defeated!'); clearInterval(attackInterval); }
           }, totalDelay);
 
           if (data.consumed) {
@@ -1635,8 +1632,15 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         if (overlay && !overlay.classList.contains('show')) {
           overlay.classList.add('show');
           clearInterval(attackInterval);
-          if (opponentInterval) clearInterval(opponentInterval);
+          let retryCount = 0;
+          const maxRetries = 10;
           const retry = () => {
+            if (retryCount >= maxRetries) {
+              overlay.querySelector('button')?.removeAttribute('disabled');
+              document.getElementById('disconnect-sub').textContent = 'Bağlantı sağlanamadı. Geri dönmek için tıkla.';
+              return;
+            }
+            retryCount++;
             fetch(`${ATTACK_API_URL}/attack`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -1651,6 +1655,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
               }
             }).catch(() => setTimeout(retry, 3000));
           };
+          overlay.querySelector('button')?.setAttribute('disabled', 'disabled');
           document.getElementById('disconnect-sub').textContent = 'Bağlantı gitti, yeniden deneniyor...';
           setTimeout(retry, 3000);
         }

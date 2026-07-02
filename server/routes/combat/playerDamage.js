@@ -19,7 +19,7 @@ async function calculatePlayerCooldownMs(pool, playerId, isTower) {
   return cooldown;
 }
 
-async function calculatePlayerDamage(pool, playerId, ammoId) {
+async function calculatePlayerDamage(pool, playerId, ammoId, client) {
   let actualCannonsFired = 0;
   let totalCannons = 0;
   let totalCannonDamage = 0;
@@ -28,11 +28,12 @@ async function calculatePlayerDamage(pool, playerId, ammoId) {
   let gainedElp = 0;
   let playerDamage = 0;
 
-  const pRes = await pool.query('SELECT ship_level FROM players WHERE id = $1', [playerId]);
+  const db = client || pool;
+  const pRes = await db.query('SELECT ship_level FROM players WHERE id = $1', [playerId]);
   const shipLevel = pRes.rows[0]?.ship_level || 0;
   const activeShip = gameData.SHIPS.find(s => s.level === shipLevel) || gameData.SHIPS[0];
 
-  const eqCannons = await pool.query(`
+  const eqCannons = await db.query(`
     SELECT pc.equipped as equipped, c.damage 
     FROM player_cannons pc
     JOIN cannons c ON pc.cannon_type = c.id
@@ -53,7 +54,7 @@ async function calculatePlayerDamage(pool, playerId, ammoId) {
   actualCannonsFired = totalCannons;
 
   if (ammoId) {
-    const ammoRes = await pool.query(`
+    const ammoRes = await db.query(`
       SELECT pa.quantity, a.damage_bonus as damage
       FROM player_ammo pa
       JOIN ammo a ON pa.ammo_type = a.id
@@ -68,18 +69,18 @@ async function calculatePlayerDamage(pool, playerId, ammoId) {
       if (actualCannonsFired > 0) {
         ammoDamage = ammoRes.rows[0].damage;
         if (ammoId === 3) givesElp = true;
-        const ammoUpdate = await pool.query(
+        const ammoUpdate = await db.query(
           'UPDATE player_ammo SET quantity = quantity - $1 WHERE player_id = $2 AND ammo_type = $3 AND quantity >= $1',
           [actualCannonsFired, playerId, ammoId]
         );
         if (ammoUpdate.rowCount === 0) {
-          const retryRes = await pool.query(
+          const retryRes = await db.query(
             'SELECT quantity FROM player_ammo WHERE player_id = $1 AND ammo_type = $2',
             [playerId, ammoId]
           );
           if (retryRes.rows.length > 0 && retryRes.rows[0].quantity > 0) {
             actualCannonsFired = retryRes.rows[0].quantity;
-            const retryUpd = await pool.query(
+            const retryUpd = await db.query(
               'UPDATE player_ammo SET quantity = quantity - $1 WHERE player_id = $2 AND ammo_type = $3 AND quantity >= $1',
               [actualCannonsFired, playerId, ammoId]
             );

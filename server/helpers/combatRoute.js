@@ -53,12 +53,13 @@ async function getOpponentReloadMs(pool, opponentId) {
   }
 }
 
-async function checkLevelUp(pool, playerId) {
+async function checkLevelUp(pool, playerId, client) {
   let leveledUp = false;
   let newLevel = null;
   let maxIter = 20;
+  const db = client || pool;
   while (maxIter-- > 0) {
-    const lvlRes = await pool.query(
+    const lvlRes = await db.query(
       `SELECT p.level, p.xp, lr.required_xp
        FROM players p
        LEFT JOIN level_requirements lr ON lr.level = p.level + 1
@@ -68,7 +69,7 @@ async function checkLevelUp(pool, playerId) {
     if (lvlRes.rows.length === 0) break;
     const row = lvlRes.rows[0];
     if (row.required_xp === null || parseInt(row.xp) < parseInt(row.required_xp)) break;
-    const updateRes = await pool.query(
+    const updateRes = await db.query(
       'UPDATE players SET level = level + 1 WHERE id = $1 AND level = $2',
       [playerId, row.level]
     );
