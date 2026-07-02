@@ -317,10 +317,11 @@ function nextPage() {
 }
 
 // Init
-document.getElementById('cat-label').textContent = t(CAT_LABELS[currentCat]) || currentCat;
-window.addEventListener('languageChanged', function () {
+function updateCatLabel() {
   document.getElementById('cat-label').textContent = t(CAT_LABELS[currentCat]) || currentCat;
-});
+}
+if (I18N_DATA[currentLang]) updateCatLabel();
+window.addEventListener('languageChanged', updateCatLabel);
 loadLeaderboard();
 </script>
 </body>

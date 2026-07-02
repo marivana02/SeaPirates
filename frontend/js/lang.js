@@ -841,7 +841,13 @@ try {
 }
 
 if (currentLang !== 'en') {
-  loadLanguage(currentLang, applyI18n);
+  loadLanguage(currentLang, function () {
+    applyI18n();
+    window.dispatchEvent(new Event('languageChanged'));
+  });
 } else {
-  document.addEventListener('DOMContentLoaded', applyI18n);
+  document.addEventListener('DOMContentLoaded', function () {
+    applyI18n();
+    window.dispatchEvent(new Event('languageChanged'));
+  });
 }
