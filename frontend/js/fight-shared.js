@@ -1500,16 +1500,22 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           useBarut: player.barut,
           useZirh: player.zirh
         };
+        const ac = new AbortController();
+        const timeoutId = setTimeout(() => ac.abort(), 15000);
         const res = await fetch(`${ATTACK_API_URL}/attack`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: ac.signal
         });
+        clearTimeout(timeoutId);
         const data = await res.json();
         if (!res.ok) {
           if (data.error === 'No active fight') {
             active = false;
             clearInterval(attackInterval);
+          } else {
+            console.error('[ATTACK 429]', data);
           }
           return;
         }
