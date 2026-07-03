@@ -1644,10 +1644,12 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         if (overlay && !overlay.classList.contains('show')) {
           overlay.classList.add('show');
           clearInterval(attackInterval);
+          attackInterval = null;
           let retryCount = 0;
           const maxRetries = 10;
           const retry = () => {
             if (retryCount >= maxRetries) {
+              attackInterval = null;
               overlay.querySelector('button')?.removeAttribute('disabled');
               document.getElementById('disconnect-sub').textContent = 'Bağlantı sağlanamadı. Geri dönmek için tıkla.';
               return;
