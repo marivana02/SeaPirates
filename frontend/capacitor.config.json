@@ -3,7 +3,8 @@
   "appName": "SeaPirates",
   "webDir": "www",
   "server": {
-    "androidScheme": "http",
-    "cleartext": true
+    "url": "https://www.seapirates.site",
+    "androidScheme": "https",
+    "cleartext": false
   }
 }
