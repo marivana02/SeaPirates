@@ -1252,7 +1252,14 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         // Rakip saldırı aralığı sunucudan gelen veriye göre fetchPlayerData içinde veya doAttack'ta güncellenir
       }
     });
-
+    
+    // Kendi kendini onaran watchdog — eğer attackInterval kaybolursa yeniden başlat
+    setInterval(() => {
+      if (active && !attackInterval) {
+        attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
+      }
+    }, 5000);
+    
     function renderAdmiralLeaderboard(data) {
       npc.hp = data.bossHp;
       npc.maxHp = data.bossMaxHp;
