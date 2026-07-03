@@ -45,7 +45,7 @@ async function botTick() {
 
     if (botRows.rows.length === 0) return;
 
-    const activeCount = Math.max(1, Math.ceil(botRows.rows.length * factor));
+    const activeCount = Math.max(1, Math.min(3, Math.ceil(botRows.rows.length * factor)));
     const shuffled = botRows.rows.sort(() => Math.random() - 0.5).slice(0, activeCount);
 
     let totalBotDamage = 0;
