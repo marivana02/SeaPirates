@@ -2,6 +2,9 @@
    SEA PIRATE — Global Design System
    ================================================ */
 
+/* ---- Cross-Document View Transitions (native page transitions) ---- */
+@view-transition { navigation: auto; }
+
 /* ---- Mobile dokunmatik ayarlar ---- */
 * { -webkit-tap-highlight-color: transparent; outline: none; }
 html { touch-action: manipulation; }

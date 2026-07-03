@@ -342,4 +342,10 @@
       }
     } catch (e) { /* cache bozuk — sorun değil */ }
   };
+
+  /* Cross-Document View Transitions varsa revealPage/readyNow pasif */
+  if (CSS.supports && CSS.supports('view-transition-name', 'none')) {
+    window.revealPage = function () { document.body.style.visibility = 'visible'; };
+    window.readyNow = function () {};
+  }
 })();
