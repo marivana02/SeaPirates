@@ -104,7 +104,7 @@ async function seedPlanks(client) {
     console.log('  → Direkler (Kirişler) ekleniyor...');
     await client.query(
         `INSERT INTO planks (type_key, name, hp_bonus, repair_bonus, break_chance, price, currency)
-         VALUES ('tahta', 'Tahta Kiriş', 500, 8, 50, 25000, 'gold')
+         VALUES ('tahta', 'Tahta Kiriş', 500, 8, 30, 25000, 'gold')
          ON CONFLICT (type_key) DO UPDATE SET
            name=EXCLUDED.name, hp_bonus=EXCLUDED.hp_bonus, repair_bonus=EXCLUDED.repair_bonus,
            break_chance=EXCLUDED.break_chance, price=EXCLUDED.price, currency=EXCLUDED.currency`
@@ -251,22 +251,6 @@ async function seedLevelRequirements(client) {
         [8,  260000,  '8/1'],
         [9,  480000,  '9/1'],
         [10, 900000,  '10/1'],
-        [11, 1700000, '10/1, 11/1'],
-        [12, 3200000, '11/1, 12/1'],
-        [13, 6000000, '12/1, 13/1'],
-        [14, 11000000, '13/1, 14/1'],
-        [15, 20000000, '14/1, 15/1'],
-        [16, 35000000, '15/1, 16/1'],
-        [17, 60000000, '16/1, 17/1'],
-        [18, 100000000, '17/1, 18/1'],
-        [19, 160000000, '18/1, 19/1'],
-        [20, 250000000, '19/1, 20/1'],
-        [25, 500000000, '20/1'],
-        [30, 800000000, '20/1'],
-        [40, 1500000000, '20/1'],
-        [50, 2500000000, '20/1'],
-        [75, 5000000000, '20/1'],
-        [100, 10000000000, '20/1'],
     ];
     for (const [level, required_xp, unlocks_map] of levels) {
         await client.query(

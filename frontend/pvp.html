@@ -4,8 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
   <meta name="description" content="SeaPirates PvP - Düello alanında rakiplerinle çarpış, savaş puanlarını topla ve rütbeni yükselt!" />
+  <meta name="theme-color" content="#080604">
+  <style>body { visibility: hidden; background: #080604; }</style>
   <title>SeaPirates — PvP</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
@@ -678,19 +680,22 @@
         if (pvpTargetNameEl) pvpTargetNameEl.textContent = target.username;
         
         let targetImg;
+        let fightImg;
         if (target.activeDesign) {
           const df = target.activeDesign === 'kristal_queen' ? 'kristalquen' : target.activeDesign;
           targetImg = `assets/items/shop/${df}/7.png`;
+          fightImg = `assets/items/shop/${df}/1.png`;
         } else {
           const tVisLvl = target.visualShipLevel != null ? parseInt(target.visualShipLevel) : null;
           const tDispLvl = (tVisLvl != null && tVisLvl >= 0) ? tVisLvl : target.shipLevel;
           targetImg = tDispLvl > 0 ? `assets/ships/elitship/elit${tDispLvl}/images/7.png` : `assets/ships/elitship/default/7.png`;
+          fightImg = tDispLvl > 0 ? `assets/ships/elitship/elit${tDispLvl}/images/1.png` : `assets/ships/elitship/default/1.png`;
         }
         if (pvpTargetShipImgEl) pvpTargetShipImgEl.src = targetImg;
         
-        // Save parameters in local storage
+        // Save parameters in local storage (daima 1.png kullan)
         localStorage.setItem('sp_current_target_name', target.username);
-        localStorage.setItem('sp_current_target_img', targetImg);
+        localStorage.setItem('sp_current_target_img', fightImg.replace(/\/7\.png$/, '/1.png'));
         
         if (btnPvpSaldırEl) btnPvpSaldırEl.disabled = false;
       } else {
@@ -748,5 +753,6 @@
 
   loadPvPStatus();
 </script>
+ <script>revealPage();</script>
 </body>
 </html>

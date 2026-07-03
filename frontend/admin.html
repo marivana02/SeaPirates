@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0602">
+  <style>body { visibility: hidden; background: #0d0602; }</style>
   <title>Admin Panel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
@@ -460,5 +462,6 @@ document.getElementById('playerModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 </script>
+<script>document.body.style.visibility = 'visible';</script>
 </body>
 </html>

@@ -112,51 +112,35 @@ router.post('/glitter/collect', authMiddleware, async (req, res) => {
 
       // Quest güncellemeleri transaction içinde
       const qRes = await glitterClient.query(
-        'SELECT active_quest_id, active_quest_id2, quest_progress, quest_progress2 FROM players WHERE id = $1',
+        'SELECT active_quest_id, active_quest_id2, bonus_quest_id, quest_progress, quest_progress2, bonus_quest_progress FROM players WHERE id = $1',
         [playerId]
       );
       if (qRes.rows.length > 0) {
         const qRow = qRes.rows[0];
 
-        if (qRow.active_quest_id) {
-          const questDef = QUESTS[qRow.active_quest_id];
-          if (questDef && questDef.objectives) {
-            let progress = qRow.quest_progress || [];
-            let needUpdate = false;
-            questDef.objectives.forEach((obj, i) => {
-              if (obj.type === 'glitter') {
-                progress[i] = (progress[i] || 0) + 1;
-                needUpdate = true;
-              }
-            });
-            if (needUpdate) {
-              await glitterClient.query(
-                'UPDATE players SET quest_progress = $1 WHERE id = $2',
-                [JSON.stringify(progress), playerId]
-              );
+        const updateGlitterProgress = async (questId, progressArr, progressCol) => {
+          if (!questId) return;
+          const questDef = QUESTS[questId];
+          if (!questDef || !questDef.objectives) return;
+          let progress = progressArr || [];
+          let needUpdate = false;
+          questDef.objectives.forEach((obj, i) => {
+            if (obj.type === 'glitter') {
+              progress[i] = (progress[i] || 0) + 1;
+              needUpdate = true;
             }
+          });
+          if (needUpdate) {
+            await glitterClient.query(
+              `UPDATE players SET ${progressCol} = $1 WHERE id = $2`,
+              [JSON.stringify(progress), playerId]
+            );
           }
-        }
+        };
 
-        if (qRow.active_quest_id2) {
-          const questDef = QUESTS[qRow.active_quest_id2];
-          if (questDef && questDef.objectives) {
-            let progress = qRow.quest_progress2 || [];
-            let needUpdate = false;
-            questDef.objectives.forEach((obj, i) => {
-              if (obj.type === 'glitter') {
-                progress[i] = (progress[i] || 0) + 1;
-                needUpdate = true;
-              }
-            });
-            if (needUpdate) {
-              await glitterClient.query(
-                'UPDATE players SET quest_progress2 = $1 WHERE id = $2',
-                [JSON.stringify(progress), playerId]
-              );
-            }
-          }
-        }
+        await updateGlitterProgress(qRow.active_quest_id, qRow.quest_progress, 'quest_progress');
+        await updateGlitterProgress(qRow.active_quest_id2, qRow.quest_progress2, 'quest_progress2');
+        await updateGlitterProgress(qRow.bonus_quest_id, qRow.bonus_quest_progress, 'bonus_quest_progress');
       }
 
       await glitterClient.query('COMMIT');

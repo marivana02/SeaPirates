@@ -3,14 +3,22 @@ const QUESTS = require('../../config/questsData');
 function checkNpcMatch(obj, npcNameStr) {
   if (!obj.target) return true;
   if (obj.target === npcNameStr) return true;
-  const target = obj.target.toLowerCase();
-  const npc = npcNameStr.toLowerCase();
+  const target = obj.target.toLowerCase().replace(/[^a-z0-9 ]/g, '');
+  const npc = npcNameStr.toLowerCase().replace(/[^a-z0-9 ]/g, '');
   if (npc.includes(target)) return true;
-  if (target === 'admiral jack' && npc.includes('jack')) return true;
+  if (target.includes('admiral') && npc.includes(target.split(' ').pop())) return true;
   return false;
 }
 
-async function updateQuestProgress(pool, playerId, { type, npcNameStr, amount }, client) {
+function matchesObjective(obj, type, npcNameStr, itemGroup) {
+  if (obj.type !== type) return false;
+  if (type === 'buy') {
+    return obj.itemGroup === itemGroup;
+  }
+  return checkNpcMatch(obj, npcNameStr);
+}
+
+async function updateQuestProgress(pool, playerId, { type, npcNameStr, amount, itemGroup }, client) {
   try {
     const db = client || pool;
     const pQuestRes = await db.query(
@@ -21,65 +29,77 @@ async function updateQuestProgress(pool, playerId, { type, npcNameStr, amount },
 
     const pRow = pQuestRes.rows[0];
 
-    // Slot 1
-    if (pRow.active_quest_id) {
-      const quest = QUESTS[pRow.active_quest_id];
-      if (quest && quest.objectives) {
-        let progress = pRow.quest_progress || [];
-        let needUpdate = false;
+    const updateBonus = async () => {
+      const bonusRes = await db.query(
+        'SELECT bonus_quest_id, bonus_quest_progress FROM players WHERE id = $1',
+        [playerId]
+      );
+      if (bonusRes.rows.length === 0) return;
+      const bRow = bonusRes.rows[0];
+      if (!bRow.bonus_quest_id) return;
+      const quest = QUESTS[bRow.bonus_quest_id];
+      if (!quest || !quest.objectives) return;
 
-        quest.objectives.forEach((obj, i) => {
-          if (obj.type === type && checkNpcMatch(obj, npcNameStr)) {
-            progress[i] = (progress[i] || 0) + amount;
-            needUpdate = true;
-          }
-        });
+      let progress = bRow.bonus_quest_progress || [];
+      let needUpdate = false;
 
-        if (needUpdate) {
-          if (type === 'damage') {
-            await db.query(
-              'UPDATE players SET quest_progress = $1, quest_damage = quest_damage + $2 WHERE id = $3',
-              [JSON.stringify(progress), amount, playerId]
-            );
-          } else if (type === 'kill') {
-            await db.query(
-              'UPDATE players SET quest_progress = $1, quest_kills = quest_kills + 1 WHERE id = $2',
-              [JSON.stringify(progress), playerId]
-            );
-          }
+      quest.objectives.forEach((obj, i) => {
+        if (matchesObjective(obj, type, npcNameStr, itemGroup)) {
+          progress[i] = (progress[i] || 0) + amount;
+          needUpdate = true;
         }
+      });
+
+      if (needUpdate) {
+        await db.query(
+          'UPDATE players SET bonus_quest_progress = $1 WHERE id = $2',
+          [JSON.stringify(progress), playerId]
+        );
       }
-    }
+    };
 
-    // Slot 2 (VIP)
-    if (pRow.active_quest_id2) {
-      const quest = QUESTS[pRow.active_quest_id2];
-      if (quest && quest.objectives) {
-        let progress = pRow.quest_progress2 || [];
-        let needUpdate = false;
+    const updateSlot = async (questId, progressArr, progressCol, damageCol, killsCol) => {
+      if (!questId) return;
+      const quest = QUESTS[questId];
+      if (!quest || !quest.objectives) return;
 
-        quest.objectives.forEach((obj, i) => {
-          if (obj.type === type && checkNpcMatch(obj, npcNameStr)) {
-            progress[i] = (progress[i] || 0) + amount;
-            needUpdate = true;
-          }
-        });
+      let progress = progressArr || [];
+      let needUpdate = false;
+      let totalDamage = 0;
+      let totalKills = 0;
 
-        if (needUpdate) {
-          if (type === 'damage') {
-            await db.query(
-              'UPDATE players SET quest_progress2 = $1, quest_damage2 = quest_damage2 + $2 WHERE id = $3',
-              [JSON.stringify(progress), amount, playerId]
-            );
-          } else if (type === 'kill') {
-            await db.query(
-              'UPDATE players SET quest_progress2 = $1, quest_kills2 = quest_kills2 + 1 WHERE id = $2',
-              [JSON.stringify(progress), playerId]
-            );
-          }
+      quest.objectives.forEach((obj, i) => {
+        if (matchesObjective(obj, type, npcNameStr, itemGroup)) {
+          progress[i] = (progress[i] || 0) + amount;
+          needUpdate = true;
+          if (type === 'damage') totalDamage += amount;
+          if (type === 'kill') totalKills += 1;
         }
+      });
+
+      if (!needUpdate) return;
+
+      if (type === 'damage') {
+        await db.query(
+          `UPDATE players SET ${progressCol} = $1, ${damageCol} = ${damageCol} + $2 WHERE id = $3`,
+          [JSON.stringify(progress), totalDamage, playerId]
+        );
+      } else if (type === 'kill') {
+        await db.query(
+          `UPDATE players SET ${progressCol} = $1, ${killsCol} = ${killsCol} + $2 WHERE id = $3`,
+          [JSON.stringify(progress), totalKills, playerId]
+        );
+      } else {
+        await db.query(
+          `UPDATE players SET ${progressCol} = $1 WHERE id = $2`,
+          [JSON.stringify(progress), playerId]
+        );
       }
-    }
+    };
+
+    await updateSlot(pRow.active_quest_id, pRow.quest_progress, 'quest_progress', 'quest_damage', 'quest_kills');
+    await updateSlot(pRow.active_quest_id2, pRow.quest_progress2, 'quest_progress2', 'quest_damage2', 'quest_kills2');
+    await updateBonus();
   } catch (qErr) {
     console.error('Quest update error in combat:', qErr);
   }

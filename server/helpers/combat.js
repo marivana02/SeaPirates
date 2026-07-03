@@ -75,12 +75,6 @@ async function distributeAdmiralRewards(mapLevel) {
             const playerLevel = parseInt(pRes.rows[0].level);
             const isBot = pRes.rows[0].is_bot;
 
-            if (!isBot && playerLevel >= 10 && mapLevel <= 5) {
-                console.log(`[REWARD] Player ${pId} (lvl ${playerLevel}) skipped — map ${mapLevel} too low`);
-                if (pId > 0) skipReason = 'level_too_high_for_map';
-                continue;
-            }
-
             const pct = Math.min(1.0, dmg / bossMaxHp);
             const rewardPearls = Math.floor(totalPearls * pct);
             const rewardXp = Math.floor(totalXp * pct);

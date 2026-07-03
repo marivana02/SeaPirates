@@ -33,10 +33,12 @@ router.post('/start', authMiddleware, async (req, res) => {
         if (pInfo.rows.length > 0) {
           pvpResult = await resolvePvPOpponentInfo(pool, pInfo.rows[0].pvp_target_id, pInfo.rows[0].level, playerId);
         }
+        const existingFullImg = existing.full_img ? existing.full_img.replace(/\/7\.png$/, '/1.png') : null;
+        const existingDamagedImg = existing.damaged_img ? existing.damaged_img.replace(/\/7\.png$/, '/9.png') : null;
         return res.json({
           message: 'Fight ongoing', npcName: existing.npc_name, npcHp: parseInt(existing.npc_hp), npcMaxHp: parseInt(existing.npc_max_hp),
           playerHp: parseInt(existing.player_hp), playerMaxHp: parseInt(existing.player_max_hp), isTower: !!existing.is_tower,
-          isPvP: !!existing.is_pvp, fullImg: existing.full_img, damagedImg: existing.damaged_img,
+          isPvP: !!existing.is_pvp, fullImg: existingFullImg, damagedImg: existingDamagedImg,
           isAdmiral: false, isTiamat: false,
           playerCooldownMs, ...pvpResult
         });

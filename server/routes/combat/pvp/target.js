@@ -10,7 +10,7 @@ async function initPvPTarget(pool, pData) {
     const botDmg = botEquipped * BOT_BASE_DAMAGE;
     const botShipLvl = Math.min(10, Math.floor(botLvl / BOT_SHIP_LVL_DIVISOR));
 
-    const imgPath = botShipLvl > 0 ? `assets/ships/elitship/elit${botShipLvl}/images/7.png` : `assets/ships/elitship/default/7.png`;
+    const imgPath = botShipLvl > 0 ? `assets/ships/elitship/elit${botShipLvl}/images/1.png` : `assets/ships/elitship/default/1.png`;
     const imgPathDamaged = botShipLvl > 0 ? `assets/ships/elitship/elit${botShipLvl}/images/9.png` : `assets/ships/elitship/default/9.png`;
 
     return {
@@ -48,8 +48,8 @@ async function initPvPTarget(pool, pData) {
   const tDisplayLvl = tVisualLvl != null ? tVisualLvl : tShipLvl;
   const designFolder = t.active_design === 'kristal_queen' ? 'kristalquen' : t.active_design;
   const imgPath = t.active_design
-    ? `assets/items/shop/${designFolder}/7.png`
-    : tDisplayLvl > 0 ? `assets/ships/elitship/elit${tDisplayLvl}/images/7.png` : `assets/ships/elitship/default/7.png`;
+    ? `assets/items/shop/${designFolder}/1.png`
+    : tDisplayLvl > 0 ? `assets/ships/elitship/elit${tDisplayLvl}/images/1.png` : `assets/ships/elitship/default/1.png`;
   const imgPathDamaged = t.active_design
     ? `assets/items/shop/${designFolder}/9.png`
     : tDisplayLvl > 0 ? `assets/ships/elitship/elit${tDisplayLvl}/images/9.png` : `assets/ships/elitship/default/9.png`;

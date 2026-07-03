@@ -4,29 +4,33 @@
     ATTACK_API_URL = (window.__API_URL__ || window.location.origin) + '/api/combat/pvp';
 
     /* ══════════════════════════════════════════════
-       PvP NPC SETUP
+       PvP NPC SETUP - Sadece npc propert'lerini ayarla
+       Görsel işini fight-shared.js refreshHP halletsin
     ══════════════════════════════════════════════ */
     npc.name = localStorage.getItem('sp_current_target_name') || 'Korsan';
-    npc.img = localStorage.getItem('sp_current_target_img') || 'assets/ships/npcc/map1/1/7.png';
+    var pvpBasePath = (localStorage.getItem('sp_current_target_img') || 'assets/ships/elitship/default/1.png').replace(/\/\d+\.png$/, '');
+    var pvpFullImg = pvpBasePath + '/1.png';
+    var pvpDamagedImg = pvpBasePath + '/9.png';
+
+    npc.img = pvpFullImg;
+    npc.fullImg = pvpFullImg;
+    npc.damagedImg = pvpDamagedImg;
+    npc.isPvP = true;
     npc.hp = 30000;
     npc.maxHp = 30000;
 
     if (npcNameEl) npcNameEl.textContent = npc.name;
 
-    if (npc.img) {
-      let src = npc.img;
-      if (src.includes('/images/') || src.includes('elitship/')) {
-        src = src.replace(/\/\d+\.png$/, '/1.png');
+    // Override refreshHP - PvP'de scaleX(-1) transform'unu kaldır + yangın pozisyonunu güncelle
+    var _origRefreshHP1 = window.refreshHP;
+    window.refreshHP = function() {
+      if (_origRefreshHP1) _origRefreshHP1();
+      if (npc.isPvP) {
+        var el = document.getElementById('npc-img');
+        if (el) el.style.transform = 'none';
+        setTimeout(repositionFires, 50);
       }
-
-      const npcImgEl = document.getElementById('npc-img');
-      if (npcImgEl) {
-        npcImgEl.onload = repositionFires;
-        npcImgEl.src = src;
-        npcImgEl.style.maxWidth = '90px';
-        npcImgEl.style.maxHeight = '90px';
-      }
-    }
+    };
 
     setupWarBg();
 
@@ -46,28 +50,11 @@
           npc.hp = data.npcHp; npc.maxHp = data.npcMaxHp;
           player.cooldownMs = data.playerCooldownMs || 4000;
 
-          if (data.isPvP && data.fullImg) {
-            npc.isPvP = true;
-            npc.fullImg = data.fullImg;
-            npc.damagedImg = data.damagedImg;
+          if (data.isPvP) {
             if (data.npcName) {
               npc.name = data.npcName;
               document.getElementById('npc-name').textContent = data.npcName;
             }
-
-            const npcImgEl = document.getElementById('npc-img');
-            if (npcImgEl) {
-              npcImgEl.onload = repositionFires;
-              npcImgEl.src = data.fullImg;
-              npcImgEl.style.maxWidth = '90px';
-              npcImgEl.style.maxHeight = '90px';
-              npcImgEl.style.transform = 'scaleX(-1)';
-            }
-
-            const npcInfoEl2 = document.querySelector('.npc-wrap .ship-info');
-            if (npcInfoEl2) npcInfoEl2.style.marginTop = '6px';
-            const playerInfoEl2 = document.querySelector('.player-wrap .ship-info');
-            if (playerInfoEl2) playerInfoEl2.style.marginTop = '6px';
           }
 
           // PvP Opponent details (ID and Rank)

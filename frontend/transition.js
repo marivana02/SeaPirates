@@ -222,8 +222,124 @@
     }
   }
 
-  /* pageshow — bfcache/WebView state restore */
+  /* pageshow — bfcache/WebView state restore (sigorta) */
   window.addEventListener('pageshow', function(ev) {
-    if (ev.persisted) onReopen();
+    if (typeof renderFromCache === 'function') {
+      try { renderFromCache(); } catch (e) {}
+    }
+    if (document.body) document.body.style.visibility = 'visible';
+    if (ev.persisted && typeof onReopen === 'function') onReopen();
   });
+
+  /* ─── Page Reveal: API cevabını 150ms'ye kadar bekle, yoksa önbellekten göster ─── */
+  window._pageReady = false;
+
+  function _showPage() {
+    window._pageReady = true;
+    document.body.style.visibility = 'visible';
+  }
+
+  function _waitImages(cb, ms) {
+    var imgs = document.querySelectorAll('img');
+    var inc = [];
+    for (var i = 0; i < imgs.length; i++) { if (!imgs[i].complete) inc.push(imgs[i]); }
+    if (inc.length === 0) { cb(); return; }
+    var t = setTimeout(cb, ms);
+    var n = 0;
+    inc.forEach(function (img) {
+      img.addEventListener('load', done, { once: true });
+      img.addEventListener('error', done, { once: true });
+    });
+    function done() { n++; if (n >= inc.length) { clearTimeout(t); cb(); } }
+  }
+
+  window.revealPage = function () {
+    if (window._pageReady) return;
+    renderFromCache();
+    var timer = setTimeout(function () { _waitImages(_showPage, 400); }, 150);
+    window.readyNow = function () {
+      if (window._pageReady) return;
+      clearTimeout(timer);
+      _waitImages(_showPage, 400);
+    };
+  };
+
+  /* ─── Cache-First Render (önbellekten anlık doldurma) ─── */
+  window.renderFromCache = function () {
+    try {
+      var p = JSON.parse(localStorage.getItem('sp_player') || 'null');
+      if (!p) return;
+
+      var el;
+
+      // İsim
+      el = document.getElementById('p-name');
+      if (el) el.textContent = p.display_name || p.username || 'Kaptan';
+
+      // Altın
+      el = document.getElementById('p-gold') || document.getElementById('disp-gold');
+      if (el) el.textContent = Number(p.gold || 0).toLocaleString('en-US');
+
+      // İnci
+      el = document.getElementById('p-pearl') || document.getElementById('disp-pearl');
+      if (el) el.textContent = Number(p.pearl || 0).toLocaleString('en-US');
+
+      // ELP
+      el = document.getElementById('p-elp');
+      if (el) el.textContent = Number(p.elite_points || 0).toLocaleString('tr-TR');
+
+      // Level
+      el = document.getElementById('p-lvl') || document.getElementById('p-lvl-lbl');
+      if (el) el.textContent = (p.level || 1) + ' LVL';
+
+      // XP yazısı
+      el = document.getElementById('p-lvl-pct');
+      if (el && p.xp !== undefined) {
+        var xpNext = p.xpNext || 999999999;
+        el.textContent = Number(p.xp || 0).toLocaleString('tr-TR') + ' / ' + Number(xpNext).toLocaleString('tr-TR');
+      }
+
+      // XP bar
+      el = document.getElementById('p-lvl-fill');
+      if (el && p.xp !== undefined) {
+        var pct = Math.min(100, ((p.xp || 0) / (p.xpNext || 999999999)) * 100);
+        el.style.width = pct + '%';
+      }
+
+      // HP
+      el = document.getElementById('p-hp-text');
+      if (el && p.hp !== undefined) {
+        el.textContent = Number(p.hp || 0) + ' / ' + Number(p.maxHp || 0) + ' HP';
+      }
+      el = document.getElementById('p-hp-bar');
+      if (el && p.hp !== undefined && p.maxHp) {
+        el.style.width = Math.min(100, ((p.hp || 0) / p.maxHp) * 100) + '%';
+      }
+
+      // Rütbe ikonu (home.html stili)
+      el = document.getElementById('p-rank-icon');
+      if (el && p.rankBadge) {
+        el.innerHTML = '<img src="assets/ui/rank/rank' + p.rankBadge + '.png" style="width:100%;height:100%;object-fit:contain;" alt="' + (p.rankName || '') + '">';
+      }
+      // Rütbe ikonu (map.html stili)
+      el = document.getElementById('p-rank-box');
+      if (el && p.rankBadge) {
+        var img = el.querySelector('img');
+        if (img) img.src = 'assets/ui/rank/rank' + p.rankBadge + '.png';
+      }
+
+      // VIP rozeti
+      el = document.getElementById('vip-badge');
+      if (el && p.vip_until) {
+        var daysLeft = Math.ceil((new Date(p.vip_until) - new Date()) / 86400000);
+        if (daysLeft > 0) {
+          el.className = 'vip-badge on';
+          el.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP \u00b7 ' + daysLeft + ' ' + (typeof t === 'function' ? t('daily_day') : 'gün');
+        } else {
+          el.className = 'vip-badge on';
+          el.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP';
+        }
+      }
+    } catch (e) { /* cache bozuk — sorun değil */ }
+  };
 })();

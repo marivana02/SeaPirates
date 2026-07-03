@@ -80,12 +80,12 @@ app.use('/api', (req, res, next) => {
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, '../frontend'), {
   maxAge: 0,
-  etag: false,
+  etag: true,
   setHeaders: (res, path) => {
-    if (path.endsWith('.html') || path.endsWith('.js')) {
+    if (/\.(png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|eot)$/i.test(path)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    } else {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
     }
   }
 }));

@@ -985,16 +985,17 @@
           if (npcImg.src !== targetUrl) {
             npcImg.src = target;
             npcImg.style.transform = target === npc.damagedImg ? 'none' : 'scaleX(-1)';
+            npcImg.onload = repositionFires;
           }
         } else {
           const parts = npcImg.src.split('/');
           const last = parts[parts.length - 1];
           const match = last.match(/^(\d+)\.png$/);
           if (match) {
-            const isPvPMatch = npc.isPvP || localStorage.getItem('sp_combat_is_pvp') === 'true';
-            const target = isPvPMatch ? ((np <= 50) ? '15.png' : '7.png') : ((np <= 50) ? '9.png' : '1.png');
+            const target = (np <= 50) ? '9.png' : '1.png';
             if (last !== target) {
               parts[parts.length - 1] = target;
+              npcImg.onload = repositionFires;
               npcImg.src = parts.join('/');
             }
           }
@@ -1755,17 +1756,60 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       setInterval(spawn, 2000);
       setTimeout(spawn, 500);
     })();
+    // Kendi PNG karelerinle yumuşak geçişli alev animasyonu
     (function() {
-      let fireFrame = 1;
-      setInterval(() => {
-        fireFrame++;
-        if (fireFrame > 30) fireFrame = 1;
-        const path = `assets/effects/DefineSprite_61_fire/${fireFrame}.png`;
-        const playerFire = document.getElementById('player-fire');
-        const npcFire = document.getElementById('npc-fire');
-        if (playerFire) playerFire.style.backgroundImage = `url('${path}')`;
-        if (npcFire) npcFire.style.backgroundImage = `url('${path}')`;
-      }, 90);
+      var fireInterval = null;
+      var fireFrameIdx = 0;
+      var firePreloaded = [];
+      var FIRE_FRAMES = 30;
+
+      // Tüm kareleri ön yükle
+      for (var i = 1; i <= FIRE_FRAMES; i++) {
+        var img = new Image();
+        img.src = 'assets/effects/DefineSprite_61_fire/' + i + '.png';
+        firePreloaded.push(img);
+      }
+
+      function startFire() {
+        if (fireInterval) return;
+        // Her fire elementine iki katman ekle (çapraz geçiş için)
+        ['player-fire', 'npc-fire'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          if (!el.querySelector('.fire-layer-0')) {
+            for (var j = 0; j < 2; j++) {
+              var layer = document.createElement('div');
+              layer.className = 'fire-layer-' + j;
+              layer.style.cssText = 'position:absolute;inset:0;background-size:contain;background-repeat:no-repeat;background-position:center bottom;transition:opacity 0.1s ease-in-out;opacity:0';
+              el.appendChild(layer);
+            }
+          }
+        });
+        fireFrameIdx = 0;
+        fireInterval = setInterval(function() {
+          if (typeof active !== 'undefined' && !active) { stopFire(); return; }
+          fireFrameIdx = (fireFrameIdx % FIRE_FRAMES) + 1;
+          var path = 'assets/effects/DefineSprite_61_fire/' + fireFrameIdx + '.png';
+          var currentLayer = fireFrameIdx % 2;
+          var prevLayer = 1 - currentLayer;
+          ['player-fire', 'npc-fire'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (!el || el.style.opacity === '0') return;
+            var cl = el.querySelector('.fire-layer-' + currentLayer);
+            var pl = el.querySelector('.fire-layer-' + prevLayer);
+            if (cl) { cl.style.backgroundImage = 'url(' + path + ')'; cl.style.opacity = '1'; }
+            if (pl) pl.style.opacity = '0';
+          });
+        }, 100);
+      }
+
+      function stopFire() {
+        if (fireInterval) { clearInterval(fireInterval); fireInterval = null; }
+      }
+
+      window.startFire = startFire;
+      window.stopFire = stopFire;
+      startFire();
     })();
 
     /* ══════════════════════════════════════════════

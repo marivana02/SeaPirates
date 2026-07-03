@@ -80,7 +80,7 @@ async function seedPlanks(client) {
     console.log('  → Direkler (Kirişler) ekleniyor...');
     await client.query(
         `INSERT INTO planks (type_key, name, hp_bonus, repair_bonus, break_chance, price, currency)
-         VALUES ('tahta', 'Tahta Kiriş', 500, 8, 50, 25000, 'gold')
+         VALUES ('tahta', 'Tahta Kiriş', 500, 8, 30, 25000, 'gold')
          ON CONFLICT (type_key) DO UPDATE SET
            name=EXCLUDED.name, hp_bonus=EXCLUDED.hp_bonus, repair_bonus=EXCLUDED.repair_bonus,
            break_chance=EXCLUDED.break_chance, price=EXCLUDED.price, currency=EXCLUDED.currency`

@@ -370,7 +370,8 @@
             } else if (activeData.isPvP) {
               localStorage.setItem('sp_combat_is_pvp', 'true');
               localStorage.setItem('sp_current_target_name', activeData.npcName || 'Rakip');
-              localStorage.setItem('sp_current_target_img', activeData.fullImg || 'assets/ships/elitship/default/7.png');
+              const pvpFightImg = activeData.fullImg ? activeData.fullImg.replace(/\/7\.png$/, '/1.png') : 'assets/ships/elitship/default/1.png';
+              localStorage.setItem('sp_current_target_img', pvpFightImg);
               goTo('fight-pvp.html');
               return;
             } else if (activeData.isAdmiral) {

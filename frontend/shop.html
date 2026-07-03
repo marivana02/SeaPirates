@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d0702">
+  <style>body { visibility: hidden; background: #0d0702; }</style>
   <title>SeaPirates — Shop</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
@@ -274,13 +276,13 @@
 
 <script>
   const SHOP_ITEMS = [
-    { cat:'item_cannons', id:1, nk:'shop_name_30_pounder', name:'30 Pounder', stats:[{k:'stat_damage',p:{val:'120'},c:'dmg'},{k:'stat_reload',p:{val:'4'},c:'spd'}], price:10000, currency:'gold', img:'assets/items/toppp/top1.png' },
-    { cat:'item_cannons', id:2, nk:'shop_name_55_pounder', name:'55 Pounder', stats:[{k:'stat_damage',p:{val:'185'},c:'dmg'},{k:'stat_reload',p:{val:'3'},c:'spd'}], price:2000, currency:'pearl', img:'assets/items/toppp/top2.png' },
-    { cat:'item_cannons', id:3, nk:'shop_name_60_pounder', name:'60 Pounder', stats:[{k:'stat_damage',p:{val:'260'},c:'dmg'},{k:'stat_reload',p:{val:'2'},c:'spd'}], price:6000, currency:'pearl', img:'assets/items/toppp/top3.png' },
-    { cat:'item_ammo', id:10, nk:'shop_name_grapeshot', name:'Grapeshot (x100)', stats:[{k:'stat_damage_plus',p:{val:'10'},c:'dmg'}], price:3000, currency:'gold', img:'assets/items/shop/misketgülle.png' },
-    { cat:'item_ammo', id:11, nk:'shop_name_hollow_shot', name:'Hollow Shot (x100)', stats:[{k:'stat_damage_plus',p:{val:'20'},c:'dmg'}], price:6000, currency:'gold', img:'assets/items/shop/oyukgülle.png' },
-    { cat:'item_ammo', id:12, nk:'shop_name_explosive_shot', name:'Explosive Shot (x100)', stats:[{k:'stat_damage_plus',p:{val:'50'},c:'dmg'},{k:'stat_explosive_mult',p:{},c:'atk'},{k:'stat_elite_points',p:{val:'1.0'},c:'elp'}], price:280, currency:'pearl', img:'assets/items/shop/elitgülle.png' },
-    { cat:'item_beams', id:20, nk:'shop_name_wooden_beam', name:'Wooden Beam', stats:[{k:'stat_hp_plus',p:{val:'500'},c:'hp'},{k:'stat_repair_plus',p:{val:'8'},c:'repair'}], price:35000, currency:'gold', img:'assets/items/shop/tahtakiriş.png' },
+     { cat:'item_cannons', id:1, nk:'shop_name_30_pounder', name:'30 Pounder', stats:[{k:'stat_damage',p:{val:'120'},c:'dmg'},{k:'stat_reload',p:{val:'4'},c:'spd'}], price:7500, currency:'gold', img:'assets/items/toppp/top1.png' },
+     { cat:'item_cannons', id:2, nk:'shop_name_55_pounder', name:'55 Pounder', stats:[{k:'stat_damage',p:{val:'185'},c:'dmg'},{k:'stat_reload',p:{val:'3'},c:'spd'}], price:2000, currency:'pearl', img:'assets/items/toppp/top2.png' },
+     { cat:'item_cannons', id:3, nk:'shop_name_60_pounder', name:'60 Pounder', stats:[{k:'stat_damage',p:{val:'260'},c:'dmg'},{k:'stat_reload',p:{val:'2'},c:'spd'}], price:6000, currency:'pearl', img:'assets/items/toppp/top3.png' },
+     { cat:'item_ammo', id:10, nk:'shop_name_grapeshot', name:'Grapeshot (x100)', stats:[{k:'stat_damage_plus',p:{val:'10'},c:'dmg'}], price:1500, currency:'gold', img:'assets/items/shop/misketgülle.png' },
+     { cat:'item_ammo', id:11, nk:'shop_name_hollow_shot', name:'Hollow Shot (x100)', stats:[{k:'stat_damage_plus',p:{val:'20'},c:'dmg'}], price:3000, currency:'gold', img:'assets/items/shop/oyukgülle.png' },
+     { cat:'item_ammo', id:12, nk:'shop_name_explosive_shot', name:'Explosive Shot (x100)', stats:[{k:'stat_damage_plus',p:{val:'50'},c:'dmg'},{k:'stat_explosive_mult',p:{},c:'atk'},{k:'stat_elite_points',p:{val:'1.0'},c:'elp'}], price:400, currency:'pearl', img:'assets/items/shop/elitgülle.png' },
+     { cat:'item_beams', id:20, nk:'shop_name_wooden_beam', name:'Wooden Beam', stats:[{k:'stat_hp_plus',p:{val:'500'},c:'hp'},{k:'stat_repair_plus',p:{val:'8'},c:'repair'}], price:20000, currency:'gold', img:'assets/items/shop/tahtakiriş.png' },
     { cat:'item_beams', id:21, nk:'shop_name_elite_beam', name:'Elite Beam', stats:[{k:'stat_hp_plus',p:{val:'1,200'},c:'hp'},{k:'stat_repair_plus',p:{val:'20'},c:'repair'}], price:1200, currency:'pearl', img:'assets/items/shop/elitkiriş.png' },
     { cat:'item_consumables', id:30, nk:'shop_name_gunpowder', name:'Gunpowder (x100)', stats:[{k:'stat_damage_pct',p:{val:'10'},c:'atk'}], price:120, currency:'pearl', img:'assets/items/shop/barut-dükkan.png' },
     { cat:'item_consumables', id:31, nk:'shop_name_armor', name:'Armor (x100)', stats:[{k:'stat_damage_reduction',p:{val:'10'},c:'def'}], price:120, currency:'pearl', img:'assets/items/shop/zırh-dükkan.png' },
@@ -446,5 +448,6 @@
   updateCurrency();
   loadQtys().finally(render);
 </script>
+ <script>revealPage();</script>
 </body>
 </html>

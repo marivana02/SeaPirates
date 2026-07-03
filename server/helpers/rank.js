@@ -41,7 +41,7 @@ async function calculateAllPlayerRanks(pool) {
   }
 
   const result = await pool.query(
-    `SELECT id, username, display_name, xp, elite_points, dmg_pve, level, created_at FROM players WHERE (is_admin = false OR is_admin IS NULL) AND (is_bot = false OR is_bot IS NULL) AND (is_banned = false OR is_banned IS NULL)`
+    `SELECT id, username, display_name, xp, elite_points, dmg_pve, level, created_at FROM players WHERE (is_admin = false OR is_admin IS NULL) AND (is_banned = false OR is_banned IS NULL)`
   );
 
   const players = result.rows.map(p => {

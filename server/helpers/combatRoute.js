@@ -68,6 +68,7 @@ async function checkLevelUp(pool, playerId, client) {
     );
     if (lvlRes.rows.length === 0) break;
     const row = lvlRes.rows[0];
+    if (row.level >= 10) break;
     if (row.required_xp === null || parseInt(row.xp) < parseInt(row.required_xp)) break;
     const updateRes = await db.query(
       'UPDATE players SET level = level + 1 WHERE id = $1 AND level = $2',
