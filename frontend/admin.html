@@ -14,7 +14,7 @@
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="js/lang.js?v=2"></script>
-  <script src="transition.js?v=5"></script>
+  <script src="transition.js?v=6"></script>
   <style>
     :root {
       --bg: #0d0602;
@@ -411,9 +411,10 @@ function loadLogs(page = 1) {
   const type = document.getElementById('logTypeFilter').value;
   const url = '/logs?page=' + page + '&limit=100' + (type ? '&type=' + encodeURIComponent(type) : '');
   api(url).then(data => {
-    if (data.error) { status(data.error, 'error'); return; }
+    if (data.error) { status(data.error, 'error'); if (typeof readyNow === 'function') readyNow(); return; }
     renderLogs(data);
-  }).catch(e => status(t('admin_connection_error'), 'error'));
+    if (typeof readyNow === 'function') readyNow();
+  }).catch(e => { status(t('admin_connection_error'), 'error'); if (typeof readyNow === 'function') readyNow(); });
 }
 
 function renderLogs(data) {
@@ -462,6 +463,6 @@ document.getElementById('playerModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 </script>
-<script>document.body.style.visibility = 'visible';</script>
+<script>renderFromCache(); revealPage();</script>
 </body>
 </html>

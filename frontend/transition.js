@@ -309,11 +309,11 @@
       // HP
       el = document.getElementById('p-hp-text');
       if (el && p.hp !== undefined) {
-        el.textContent = Number(p.hp || 0) + ' / ' + Number(p.maxHp || 0) + ' HP';
+        el.textContent = Number(p.hp || 0) + ' / ' + Number(p.max_hp || 0) + ' HP';
       }
       el = document.getElementById('p-hp-bar');
-      if (el && p.hp !== undefined && p.maxHp) {
-        el.style.width = Math.min(100, ((p.hp || 0) / p.maxHp) * 100) + '%';
+      if (el && p.hp !== undefined && p.max_hp) {
+        el.style.width = Math.min(100, ((p.hp || 0) / p.max_hp) * 100) + '%';
       }
 
       // Rütbe ikonu (home.html stili)
@@ -343,9 +343,18 @@
     } catch (e) { /* cache bozuk — sorun değil */ }
   };
 
-  /* Cross-Document View Transitions varsa revealPage/readyNow pasif */
+  /* Cross-Document View Transitions varsa page'i readyNow() göstersin (2sn safety timeout) */
   if (CSS.supports && CSS.supports('view-transition-name', 'none')) {
-    window.revealPage = function () { document.body.style.visibility = 'visible'; };
-    window.readyNow = function () {};
+    window.revealPage = function () {
+      if (window._pageReady) return;
+      renderFromCache();
+      setTimeout(function () {
+        if (!window._pageReady) _showPage();
+      }, 2000);
+    };
+    window.readyNow = function () {
+      if (window._pageReady) return;
+      _showPage();
+    };
   }
 })();

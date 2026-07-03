@@ -269,8 +269,9 @@
     }
 
     function showPage() {
+      if (typeof readyNow === 'function') readyNow();
       const page = document.querySelector('.page');
-      if (page) setTimeout(() => page.classList.add('visible'), 350);
+      if (page) page.classList.add('visible');
     }
 
     startCombat().finally(showPage);

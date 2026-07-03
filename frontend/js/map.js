@@ -401,6 +401,7 @@
         const d = await res.json();
         if (d.success) {
           player = d.player;
+          if (typeof Auth !== 'undefined' && Auth.setPlayer) Auth.setPlayer(d.player);
         }
       } catch(e) {
         logError('map:player', e);
@@ -463,6 +464,7 @@
           audio.pause();
         }
       }
+      if (typeof readyNow === 'function') readyNow();
     }
 
     // "NPC ARA" click handler (3-second delay, locks UI, picks NPC)

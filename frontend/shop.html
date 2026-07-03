@@ -12,7 +12,7 @@
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="transition.js?v=5"></script>
+  <script src="transition.js?v=6"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -315,6 +315,7 @@
       localStorage.setItem('sp_player', JSON.stringify(saved));
       updateCurrency();
     } catch (e) {}
+    if (typeof readyNow === 'function') readyNow();
   }
 
   function getQty(shopId) {

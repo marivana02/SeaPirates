@@ -1257,10 +1257,40 @@
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="js/map.js?v=1"></script>
+  <script src="js/map.js?v=2"></script>
   <script src="effects/clouds.js?v=1"></script>
   <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
-  <script src="transition.js?v=5"></script>
-  <script>renderFromCache(); revealPage();</script>
+  <script src="transition.js?v=6"></script>
+  <script>
+    try {
+      var _cp = JSON.parse(localStorage.getItem('sp_player') || 'null');
+      if (_cp) {
+        player = {
+          display_name: _cp.display_name || _cp.username,
+          username: _cp.username,
+          level: _cp.level != null ? _cp.level : 1,
+          gold: _cp.gold != null ? _cp.gold : 0,
+          pearl: _cp.pearl != null ? _cp.pearl : 0,
+          elite_points: _cp.elite_points != null ? _cp.elite_points : 0,
+          xp: _cp.xp != null ? _cp.xp : 0,
+          xpNext: _cp.xpNext != null ? _cp.xpNext : 8000,
+          hp: _cp.hp != null ? _cp.hp : 10000,
+          max_hp: _cp.max_hp != null ? _cp.max_hp : 10000,
+          rankBadge: _cp.rankBadge || 13,
+          rankName: _cp.rankName || '',
+          vip_until: _cp.vip_until || null,
+          activeQuestId: null, activeQuestId2: null,
+          hasActiveQuest: false, hasRedeemableQuest: false, questsAvailable: true
+        };
+        currentMapLevel = parseInt(localStorage.getItem('sp_current_map')) || 1;
+        currentMapSub = currentMapLevel <= 4 ? 1 : 1;
+        drawStats();
+        setupIsland(currentMapLevel);
+        updateMapNavigationButtons();
+      }
+    } catch (e) {}
+    renderFromCache();
+    revealPage();
+  </script>
 </body>
 </html>

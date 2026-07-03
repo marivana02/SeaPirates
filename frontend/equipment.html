@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
   <meta name="theme-color" content="#080502">
   <style>body { visibility: hidden; background: #080502; }</style>
-  <title>SeaPirates — Equipment</title>
+  <title>SeaPirates ï¿½ Equipment</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="transition.js?v=5"></script>
+  <script src="transition.js?v=6"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -240,7 +240,7 @@
           <span data-i18n="equip_storage">In Storage</span>
           <span class="col-sub" id="storage-count">0 <span data-i18n="equip_pcs">pcs</span></span>
         </div>
-        <button class="btn-bulk btn-bulk-equip-pos" id="btn-bulk-equip" data-i18n-title="equip_equip_all" title="Equip All" onclick="doEquipAll()">»</button>
+        <button class="btn-bulk btn-bulk-equip-pos" id="btn-bulk-equip" data-i18n-title="equip_equip_all" title="Equip All" onclick="doEquipAll()">ï¿½</button>
       </div>
       <div class="col-body" id="storage-list"></div>
     </div>
@@ -248,7 +248,7 @@
     <!-- GEMIDE -->
     <div class="col">
       <div class="col-header">
-        <button class="btn-bulk btn-bulk-remove btn-bulk-unequip-pos" id="btn-bulk-unequip" data-i18n-title="equip_unequip_all" title="Unequip All" onclick="doUnequipAll()">«</button>
+        <button class="btn-bulk btn-bulk-remove btn-bulk-unequip-pos" id="btn-bulk-unequip" data-i18n-title="equip_unequip_all" title="Unequip All" onclick="doUnequipAll()">ï¿½</button>
         <div>
           <span data-i18n="equip_equipped">Equipped</span>
           <span class="col-sub" id="equipped-count">0 / 30 <span data-i18n="equip_slot">slot</span></span>
@@ -272,7 +272,7 @@
       </div>
       <div class="stat-box">
         <span class="stat-k" data-i18n="equip_stat_reload">Reload Speed</span>
-        <span class="stat-v" id="stat-reload">—</span>
+        <span class="stat-v" id="stat-reload">ï¿½</span>
       </div>
       <div class="stat-box">
         <span class="stat-k" data-i18n="equip_stat_repair">Repair Bonus</span>
@@ -329,6 +329,7 @@
       logError('equipment:load-state', err);
       toast(t('connection_failed'), 'err');
     }
+    if (typeof readyNow === 'function') readyNow();
   }
 
   function switchTab(tab) {
@@ -364,8 +365,8 @@
     });
 
     document.getElementById('stat-hp').textContent    = (state.baseHp + hpBonus).toLocaleString('en-US');
-    document.getElementById('stat-dmg').textContent   = totalDmg > 0 ? totalDmg.toLocaleString('en-US') : '—';
-    document.getElementById('stat-reload').textContent = atisSure > 0 ? atisSure.toFixed(2) + ' sn' : '—';
+    document.getElementById('stat-dmg').textContent   = totalDmg > 0 ? totalDmg.toLocaleString('en-US') : 'ï¿½';
+    document.getElementById('stat-reload').textContent = atisSure > 0 ? atisSure.toFixed(2) + ' sn' : 'ï¿½';
     document.getElementById('stat-repair').textContent = repairBonus > 0 ? '+' + repairBonus : '+0';
 
     if (activeTab === 'top') {
@@ -382,7 +383,7 @@
     const catalog = activeTab === 'top' ? CANNON_CATALOG : MAST_CATALOG;
     const equippedKey  = activeTab === 'top' ? 'equipped'      : 'equippedMasts';
 
-    // En güçlüden zayifa sirala
+    // En gï¿½ï¿½lï¿½den zayifa sirala
     const sortedCatalog = [...catalog].sort((a, b) => {
       const aStr = a.hasar || a.hpBonus || 0;
       const bStr = b.hasar || b.hpBonus || 0;
@@ -436,14 +437,14 @@
     if (item.repairBonus) detail += `${t('stat_repair_plus',{val:item.repairBonus})}`;
 
     const btnClass = action === 'equip' ? 'btn-equip' : 'btn-remove';
-    const btnTxt   = action === 'equip' ? '›' : '‹';
+    const btnTxt   = action === 'equip' ? 'ï¿½' : 'ï¿½';
 
     const displayName = item.nk ? t(item.nk) : item.name;
 
     card.innerHTML = `
       <div class="item-img-wrap">
         <img src="${item.img}" class="item-img" alt="${displayName}"/>
-        <div class="item-qty-badge">×${Number(qty).toLocaleString('tr-TR')}</div>
+        <div class="item-qty-badge">ï¿½${Number(qty).toLocaleString('tr-TR')}</div>
       </div>
       <div class="item-meta">
         <div class="item-name">${displayName}</div>

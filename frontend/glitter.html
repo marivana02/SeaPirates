@@ -15,7 +15,7 @@
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="transition.js?v=5"></script>
+  <script src="transition.js?v=6"></script>
   <script src="effects/clouds.js?v=1"></script>
   <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
   <style>
@@ -605,6 +605,7 @@
       } catch (e) {
         logError('glitter:player', e);
       }
+      if (typeof readyNow === 'function') readyNow();
     }
 
     async function fetchGlitterLimit() {

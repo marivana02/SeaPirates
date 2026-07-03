@@ -128,7 +128,7 @@ window.goTo = window.goTo || function(url) { if (url && url !== '#') { sessionSt
 window.showAlert = window.showAlert || function(msg) { alert(msg); };
   </script>
   <script src="js/lang.js?v=2"></script>
-  <script src="transition.js?v=5"></script>
+  <script src="transition.js?v=6"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -845,6 +845,6 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       }
     });
   </script>
-  <script>document.body.style.visibility = 'visible';</script>
+  <script>renderFromCache(); revealPage(); readyNow();</script>
 </body>
 </html>
