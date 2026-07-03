@@ -1664,9 +1664,9 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           document.getElementById('disconnect-sub').textContent = 'Bağlantı gitti, yeniden deneniyor...';
           setTimeout(retry, 3000);
         }
+      } finally {
+        _attackInFlight = false;
       }
-    } finally {
-      _attackInFlight = false;
     }
 
     (function () {
