@@ -1255,9 +1255,13 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
     });
     
     // Kendi kendini onaran watchdog — eğer attackInterval kaybolursa yeniden başlat
+    // (overlay görünürken retry devam ediyordur, karışma)
     setInterval(() => {
       if (active && !attackInterval) {
-        attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
+        const overlay = document.getElementById('disconnect-overlay');
+        if (!overlay || !overlay.classList.contains('show')) {
+          attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
+        }
       }
     }, 5000);
     
@@ -1669,7 +1673,9 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
               if (r.ok || r.status === 400) {
                 overlay.classList.remove('show');
                 document.getElementById('disconnect-sub').textContent = 'Yeniden bağlanılıyor...';
-                attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
+                if (!attackInterval) {
+                  attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
+                }
               } else {
                 setTimeout(retry, 3000);
               }
