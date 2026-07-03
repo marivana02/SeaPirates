@@ -1665,11 +1665,16 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
               return;
             }
             retryCount++;
+            // doAttack hala devam ediyorsa (lock'ta) bekle
+            if (_attackInFlight) {
+              setTimeout(retry, 3000);
+              return;
+            }
             fetch(`${ATTACK_API_URL}/attack`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
               body: JSON.stringify({ ammoId: player.ammo, useBarut: player.barut, useZirh: player.zirh })
-            }).then(r => {
+            }).then(async r => {
               if (r.ok || r.status === 400) {
                 overlay.classList.remove('show');
                 document.getElementById('disconnect-sub').textContent = 'Yeniden bağlanılıyor...';
@@ -1677,6 +1682,8 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
                   attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
                 }
               } else {
+                const body = await r.json().catch(() => ({}));
+                console.error('[RETRY 429]', body);
                 setTimeout(retry, 3000);
               }
             }).catch(() => setTimeout(retry, 3000));
