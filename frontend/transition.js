@@ -340,6 +340,25 @@
           el.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP';
         }
       }
+
+      // Gemi görseli (önbellekten) - fight sayfaları için
+      var shipImg = document.querySelector('.player-wrap .ship-img');
+      if (shipImg) {
+        var shipLvl = parseInt(p.ship_level) || 0;
+        var visLvl = p.visual_ship_level != null ? parseInt(p.visual_ship_level) : null;
+        var displayLvl = (visLvl != null && visLvl >= 0) ? visLvl : shipLvl;
+        var activeDesign = p.active_design;
+        var shipImgSrc;
+        if (activeDesign) {
+          var designFolder = activeDesign === 'kristal_queen' ? 'kristalquen' : activeDesign;
+          shipImgSrc = 'assets/items/shop/' + designFolder + '/3.png';
+        } else if (displayLvl > 0) {
+          shipImgSrc = 'assets/ships/elitship/elit' + displayLvl + '/images/3.png';
+        } else {
+          shipImgSrc = 'assets/ships/elitship/default/3.png';
+        }
+        shipImg.src = shipImgSrc;
+      }
     } catch (e) { /* cache bozuk — sorun değil */ }
   };
 
