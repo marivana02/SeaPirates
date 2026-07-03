@@ -1084,6 +1084,9 @@
       setTimeout(() => el.remove(), 1600);
     }
 
+    /* Preload one hit frame (cache için) */
+    (function() { var _ = new Image(); _.src = 'assets/effects/fight/atack/1.png'; })();
+
     function playHitAnim(nodeId) {
       let imgEl;
       if (nodeId === 'npc-node') imgEl = document.getElementById('npc-img');
@@ -1100,14 +1103,12 @@
       el.style.width = animSize + 'px';
       el.style.height = animSize + 'px';
       parent.appendChild(el);
-      const frames = [];
-      for (let i = 1; i <= 47; i += 2) frames.push(i);
-      let idx = 0;
+      var idx = 0;
       function nextFrame() {
-        if (idx >= frames.length || !active) { el.remove(); return; }
-        el.src = 'assets/effects/fight/atack/' + frames[idx] + '.png?' + Date.now();
+        if (idx >= 24 || !active) { el.remove(); return; }
+        el.src = 'assets/effects/fight/atack/' + (idx * 2 + 1) + '.png';
         idx++;
-        setTimeout(nextFrame, 40);
+        el.onload = el.onerror = function() { setTimeout(nextFrame, 40); };
       }
       nextFrame();
     }
