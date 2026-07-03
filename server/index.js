@@ -48,8 +48,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     useDefaults: false,
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "blob:"],
+      defaultSrc: ["'self'", "https://static.cloudflareinsights.com", "https://cloudflareinsights.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "blob:", "https://static.cloudflareinsights.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
