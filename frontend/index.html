@@ -1,1 +1,851 @@
-<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8"/>  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>  <meta name="theme-color" content="#0d0702">  <style>body { visibility: hidden; background: #0d0702; }</style>  <title>SeaPirates — Login</title>  <link rel="manifest" href="manifest.json">  <meta name="apple-mobile-web-app-capable" content="yes">  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">  <link rel="preconnect" href="https://fonts.googleapis.com"/>  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600&display=optional" rel="stylesheet" />  <link rel="stylesheet" href="style.css">  <script src="js/config.js"></script>  <script src="js/logger.js"></script>  <script>const API = (() => {  const BASE = (window.__API_URL__ || window.location.origin) + '/api';  function getToken() { return localStorage.getItem('sp_token'); }  function getHeaders(extra = {}) {    const headers = { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', ...extra };    const token = getToken();    if (token) headers['Authorization'] = 'Bearer ' + token;    return headers;  }  function handleError(res) {    if (res.status === 401 || res.status === 403) {      if (getToken()) {        localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player'); localStorage.removeItem('sp_remember_me'); sessionStorage.removeItem('sp_session_active');        window.goTo('index.html'); return null;      }    }    return res;  }  async function request(method, path, body = null) {    const url = BASE + path;    const options = { method, headers: getHeaders() };    if (body !== null) options.body = JSON.stringify(body);    try {      const res = await fetch(url, options);      if (!handleError(res)) return null;      const data = await res.json();      if (!res.ok) throw new APIError(data.error || 'Request failed', res.status, data);      return data;    } catch (err) {      if (err instanceof APIError) throw err;      throw new APIError('Network error - ' + err.message, 0);    }  }  class APIError extends Error {    constructor(message, status, data = null) { super(message); this.name = 'APIError'; this.status = status; this.data = data; }  }  return {    get(path) { return request('GET', path); },    post(path, body) { return request('POST', path, body); },    put(path, body) { return request('PUT', path, body); },    del(path) { return request('DELETE', path); },    getToken, isAuthenticated() { return !!getToken(); }, APIError  };})();window.API = API;  </script>  <script>const Auth = (() => {  const TOKEN_KEY = 'sp_token', PLAYER_KEY = 'sp_player', REMEMBER_KEY = 'sp_remember_me', SESSION_KEY = 'sp_session_active', TS_KEY = 'sp_session_ts';  const SESSION_MAX_MS = 60000;  return {    getToken() { return localStorage.getItem(TOKEN_KEY); },    getPlayer() {      const raw = localStorage.getItem(PLAYER_KEY);      try { return raw ? JSON.parse(raw) : null; } catch { return null; }    },    setPlayer(data) {      if (data) localStorage.setItem(PLAYER_KEY, JSON.stringify(data));      else localStorage.removeItem(PLAYER_KEY);    },    isLoggedIn() {      const token = this.getToken();      if (!token) return false;      const ts = parseInt(localStorage.getItem(TS_KEY) || '0');      if (ts > 0 && Date.now() - ts > SESSION_MAX_MS) { this.logout(); return false; }      return true;    },    login(token, player, remember = false) {      localStorage.setItem(TOKEN_KEY, token); this.setPlayer(player);      if (remember) { localStorage.setItem(REMEMBER_KEY, 'true'); sessionStorage.removeItem(SESSION_KEY); }      else { sessionStorage.setItem(SESSION_KEY, 'true'); localStorage.removeItem(REMEMBER_KEY); }      localStorage.setItem(TS_KEY, Date.now().toString());    },    touch() {      if (this.getToken()) localStorage.setItem(TS_KEY, Date.now().toString());    },    logout() {      localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(PLAYER_KEY);      localStorage.removeItem(REMEMBER_KEY); localStorage.removeItem(TS_KEY);      sessionStorage.removeItem(SESSION_KEY);    },    redirectToLogin() { this.logout(); window.goTo('index.html'); }  };})();// APK her açildiginda login sayfasi gelsin (Beni Hatirla yoksa)if (!localStorage.getItem('sp_remember_me')) { Auth.logout(); }  </script>  <script>window.t = window.t || function(key, vars) {  var texts = {    login_welcome: '? Welcome aboard, Captain!', register_welcome: '? Welcome aboard, Captain!',    connection_failed: 'Connection failed', btn_login: '? Set Sail',    login_title: '? Login', register_title: '? Register',    username_label: 'Username', password_label: 'Password',    strength_weak: 'Weak', strength_medium: 'Medium', strength_good: 'Good', strength_strong: 'Strong',    reg_error_username: '3–20 characters, use letters/numbers/_.',    modal_close: 'Close', error: 'Error',    ban_notification_title: 'Your account has been banned!', ban_reason_label: 'Reason:',    ban_expires_label: 'Expires:', ban_permanent_label: 'Permanent ban',    ban_date_label: 'Date:',    modal_terms_title: '? TERMS OF SERVICE', modal_privacy_title: '?? PRIVACY POLICY'  };  var msg = texts[key] || key;  if (vars && vars.name) msg = msg.replace('{name}', vars.name);  return msg;};  </script>  <script>window.goTo = window.goTo || function(url) { if (url && url !== '#') { sessionStorage.setItem('sp_navigating','1'); window.location.href = url; } };window.showAlert = window.showAlert || function(msg) { alert(msg); };  </script>  <script src="js/lang.js?v=2"></script>  <script src="transition.js?v=8"></script>  <style>    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}    :root{      --wood-dark:   #1a0e05;      --wood-mid:    #2d1a08;      --wood-warm:   #3d2410;      --wood-light:  #7a4a22;      --gold-bright: #f0c040;      --gold-pale:   #fde68a;      --rope:        #8b6340;      --rust:        #8b3a1a;      --text-light:  #f5e6c8;      --text-dim:    #b8956a;      --text-muted:  #7a5a38;      --shadow:      0 8px 32px rgba(0,0,0,0.7);      --r-md:        10px;      --r-lg:        16px;    }    html,body{      width:100%;min-height:100dvh;      background:#0d0702;      font-family:'Inter',sans-serif;      color:var(--text-light);      overflow-x:hidden;    }    /* -- FULL BACKGROUND -- */    .page-bg{      position:fixed;inset:0;z-index:0;      background:        radial-gradient(ellipse at 50% 0%, rgba(90,50,10,0.55) 0%, transparent 65%),        linear-gradient(180deg,#0d0702 0%,#1a0e05 40%,#0a0500 100%);    }    /* Wooden texture overlay via repeating-linear-gradient */    .page-bg::before{      content:'';position:absolute;inset:0;      background-image:        repeating-linear-gradient(90deg,rgba(255,255,255,0.012) 0px,transparent 2px,transparent 60px,rgba(255,255,255,0.012) 62px),        repeating-linear-gradient(0deg,rgba(0,0,0,0.18) 0px,transparent 1px,transparent 40px,rgba(0,0,0,0.18) 41px);      pointer-events:none;    }    /* Vignette */    .page-bg::after{      content:'';position:absolute;inset:0;      background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.65) 100%);      pointer-events:none;    }    /* -- FRAME -- */    .frame{      position:relative;z-index:10;      max-width:430px;margin:0 auto;      min-height:100dvh;      display:flex;flex-direction:column;      align-items:center;      padding:0 20px calc(40px + env(safe-area-inset-bottom, 0px));    }    /* -- LOGO -- */    .logo-wrap{      width:100%;max-width:280px;      margin:32px auto 24px;      position:relative;    }    .logo-wrap img{      width:100%;border-radius:12px;      filter:drop-shadow(0 0 28px rgba(200,150,42,0.6));    }    /* -- BOARD (main card) -- */    .board{      width:100%;      background: linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);      background-clip: padding-box;      border: 24px solid transparent;      border-radius: var(--r-lg);      box-shadow:        var(--shadow),        inset 0 1px 0 rgba(200,150,42,0.15),        inset 0 -1px 0 rgba(0,0,0,0.5);      position:relative;      overflow:visible;    }    /* premium wood border frame */    .board::before{      content: "";      position: absolute;      inset: -24px;      pointer-events: none;      z-index: 5;      background-image:         url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');      background-position:        top left,        top right,        bottom left,        bottom right,        top left,        bottom left,        top left,        top right;      background-size:        110px 110px,        110px 110px,        110px 110px,        110px 110px,        100% 24px,        100% 24px,        24px 100%,        24px 100%;      background-repeat:        no-repeat,        no-repeat,        no-repeat,        no-repeat,        repeat-x,        repeat-x,        repeat-y,        repeat-y;    }    /* plank lines on card */    .board::after{      content:'';position:absolute;inset:0;      background:repeating-linear-gradient(        180deg,        transparent 0px,transparent 38px,        rgba(0,0,0,0.22) 38px,rgba(0,0,0,0.22) 40px      );      pointer-events:none;z-index:1;      border-radius:var(--r-lg);    }    /* -- TABS -- */    .tabs{      display:flex;position:relative;z-index:2;      border-bottom:2px solid var(--wood-plank);    }    .tab-btn{      flex:1;padding:14px 0;      background:transparent;border:none;cursor:pointer;      font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;      letter-spacing:0.08em;text-transform:uppercase;      color:var(--text-muted);      transition:all 0.25s;      position:relative;    }    .tab-btn.active{color:var(--gold-bright);}    .tab-btn.active::after{      content:'';position:absolute;bottom:-2px;left:10%;right:10%;height:2px;      background:linear-gradient(90deg,transparent,var(--gold-bright),transparent);    }    .tab-btn:not(.active):hover{color:var(--text-dim);}    /* Divider between tabs */    .tabs .tab-btn:first-child{border-right:1px solid var(--wood-plank);}    /* -- PANELS -- */    .panel{display:none;flex-direction:column;gap:14px;padding:24px 20px;position:relative;z-index:2;}    .panel.active{display:flex;animation:fadeUp 0.28s ease;}    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}    /* -- INPUT -- */    .field{position:relative;}    .field-icon{      position:absolute;left:13px;top:50%;transform:translateY(-50%);      font-size:1rem;color:var(--text-muted);pointer-events:none;      transition:color 0.2s;    }    .field input{      width:100%;padding:14px 14px 14px 42px;      background:rgba(0,0,0,0.45);      border:1.5px solid var(--wood-plank);      border-radius:var(--r-md);      color:var(--text-light);      font-family:'Inter',sans-serif;font-size:0.92rem;      outline:none;transition:border-color 0.2s,box-shadow 0.2s;    }    .field input::placeholder{color:var(--text-muted);}    .field input:focus{      border-color:var(--gold);      box-shadow:0 0 0 3px rgba(200,150,42,0.15);    }    .field:focus-within .field-icon{color:var(--gold);}    /* -- ERROR -- */    .err{font-size:0.74rem;color:#e05a3a;padding-left:4px;display:none;}    .err.show{display:block;}    /* -- PASSWORD STRENGTH -- */    .strength{display:none;gap:4px;flex-direction:column;}    .strength.show{display:flex;}    .s-bars{display:flex;gap:4px;}    .s-bar{flex:1;height:3px;border-radius:2px;background:var(--wood-plank);transition:background 0.3s;}    .s-bar.weak{background:#e05a3a;}    .s-bar.mid{background:#d4a12a;}    .s-bar.strong{background:#4caf7a;}    .s-txt{font-size:0.7rem;color:var(--text-muted);}    .s-txt.weak{color:#e05a3a;} .s-txt.mid{color:#d4a12a;} .s-txt.strong{color:#4caf7a;}    /* -- TERMS -- */    .terms{display:flex;align-items:flex-start;gap:9px;font-size:0.78rem;color:var(--text-dim);line-height:1.45;cursor:pointer;}    .terms input{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer;}    .terms a{color:var(--gold-pale);text-decoration:none;}    /* -- BUTTON -- */    .btn{      width:100%;padding:15px;border:none;border-radius:var(--r-md);cursor:pointer;      font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;      letter-spacing:0.07em;text-transform:uppercase;      display:flex;align-items:center;justify-content:center;gap:8px;      transition:all 0.2s;position:relative;overflow:hidden;    }    .btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.07);opacity:0;transition:opacity 0.2s;}    .btn:hover::after{opacity:1;}    .btn:active{transform:scale(0.97);}    .btn-primary{      background:linear-gradient(135deg,#b8851e 0%,#f0c040 50%,#b8851e 100%);      background-size:200% auto;      color:#1a0e05;      box-shadow:0 4px 18px rgba(200,150,42,0.45),inset 0 1px 0 rgba(255,255,255,0.2);      animation:shine 3s linear infinite;    }    @keyframes shine{0%{background-position:0% center}100%{background-position:200% center}}    .btn-primary:hover{box-shadow:0 6px 26px rgba(200,150,42,0.65);transform:translateY(-1px);}    .btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}    /* spinner */    .spinner{width:17px;height:17px;border:2px solid rgba(26,14,5,0.4);border-top-color:#1a0e05;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}    .btn.loading .btn-txt{display:none;} .btn.loading .spinner{display:block;}    @keyframes spin{to{transform:rotate(360deg)}}    /* -- ROPE DIVIDER -- */    .rope-div{      display:flex;align-items:center;gap:10px;      color:var(--text-muted);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;    }    .rope-div::before,.rope-div::after{      content:'';flex:1;height:1px;      background:repeating-linear-gradient(90deg,var(--wood-plank) 0px,var(--wood-plank) 4px,transparent 4px,transparent 7px);    }    /* -- FORGOT -- */    .meta-row{display:flex;align-items:center;justify-content:space-between;}    .remember{display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--text-dim);cursor:pointer;}    .remember input{accent-color:var(--gold);}    .forgot{font-size:0.78rem;color:var(--text-muted);text-decoration:none;transition:color 0.2s;}    .forgot:hover{color:var(--gold-bright);}    /* -- NAIL DECORATIONS -- */    .nail{      position:absolute;width:10px;height:10px;border-radius:50%;      background:radial-gradient(circle at 35% 35%,#8a7060,#3a2510);      box-shadow:inset 0 1px 2px rgba(255,255,255,0.2),0 1px 3px rgba(0,0,0,0.6);    }    .nail.tl{top:10px;left:10px;} .nail.tr{top:10px;right:10px;}    .nail.bl{bottom:10px;left:10px;} .nail.br{bottom:10px;right:10px;}    /* -- BOTTOM LINK -- */    .bottom-note{      margin-top:16px;text-align:center;font-size:0.75rem;color:var(--text-muted);    }    .bottom-note a{color:var(--text-dim);text-decoration:none;}    .bottom-note a:hover{color:var(--gold-bright);}    /* -- CORNER ORNAMENTS -- */    .corner-ornament{      position:absolute;width:40px;height:40px;      border-color:var(--gold);border-style:solid;opacity:0.35;    }    .corner-ornament.tl{top:0;left:0;border-width:2px 0 0 2px;border-radius:6px 0 0 0;}    .corner-ornament.tr{top:0;right:0;border-width:2px 2px 0 0;border-radius:0 6px 0 0;}    .corner-ornament.bl{bottom:0;left:0;border-width:0 0 2px 2px;border-radius:0 0 0 6px;}    .corner-ornament.br{bottom:0;right:0;border-width:0 2px 2px 0;border-radius:0 0 6px 0;}    /* -- MODAL OVERLAY & CONTENT -- */    .modal-overlay {      position: fixed;      inset: 0;      background: rgba(0, 0, 0, 0.85);      backdrop-filter: blur(4px);      z-index: 10000;      display: none;      align-items: center;      justify-content: center;      padding: 20px;    }    .modal-content {      background: linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);      border: 2px solid var(--gold);      border-radius: var(--r-lg);      max-width: 400px;      width: 100%;      padding: 24px;      position: relative;      box-shadow: var(--shadow);      color: var(--text-light);    }    .modal-header {      font-family: 'Cinzel', serif;      font-size: 1.1rem;      color: var(--gold-bright);      margin-bottom: 16px;      border-bottom: 1px solid var(--wood-plank);      padding-bottom: 8px;      text-align: center;    }    .modal-body {      font-size: 0.85rem;      line-height: 1.6;      max-height: 280px;      overflow-y: auto;      margin-bottom: 20px;      color: var(--text-dim);      padding-right: 4px;    }    .modal-body p {      margin-bottom: 12px;    }    .modal-body::-webkit-scrollbar {      width: 6px;    }    .modal-body::-webkit-scrollbar-thumb {      background: var(--wood-plank);      border-radius: 3px;    }    .modal-body::-webkit-scrollbar-thumb:hover {      background: var(--gold);    }    .modal-close-btn {      width: 100%;      padding: 12px;      background: var(--wood-plank);      border: 1px solid var(--wood-light);      color: var(--text-light);      font-family: 'Cinzel', serif;      font-weight: 700;      border-radius: var(--r-md);      cursor: pointer;      text-transform: uppercase;      letter-spacing: 0.05em;      transition: all 0.2s;    }    .form-msg {      text-align: center;      font-size: 0.75rem;      padding: 6px 10px;      margin: 6px 0;      border-radius: var(--r-sm);      display: none;    }    .form-msg.show {      display: block;    }    .form-msg.err {      background: rgba(200, 50, 30, 0.2);      border: 1px solid #c0392b;      color: #ffb0a0;    }    .form-msg.ok {      background: rgba(40, 120, 60, 0.2);      border: 1px solid #27ae60;      color: #b0e0c0;    }    .modal-close-btn:hover {      background: var(--wood-light);      border-color: var(--gold);      color: var(--gold-bright);    }  </style></head><body>  <div class="page-bg"></div>  <div class="frame">    <!-- LOGO -->    <div class="logo-wrap">      <img src="assets/ui/login.png" alt="SeaPirates" id="logo-img"/>    </div>    <!-- BOARD CARD -->    <div class="board" style="position:relative;">      <div class="nail tl"></div><div class="nail tr"></div>      <div class="nail bl"></div><div class="nail br"></div>      <div class="corner-ornament tl"></div>      <div class="corner-ornament tr"></div>      <div class="corner-ornament bl"></div>      <div class="corner-ornament br"></div>      <!-- TABS -->      <div class="tabs">        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')"><span data-i18n="login_title" data-i18n-text>? Login</span></button>        <button class="tab-btn" id="tab-register" onclick="switchTab('register')"><span data-i18n="register_title" data-i18n-text>? Register</span></button>      </div>      <!-- LOGIN PANEL -->      <div class="panel active" id="panel-login">        <div class="field">          <span class="field-icon">??</span>          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>        </div>        <span class="err" id="l-user-err" data-i18n="login_error_fields">Username is required.</span>        <div class="field">          <span class="field-icon">??</span>          <input type="password" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" autocomplete="current-password"/>        </div>        <span class="err" id="l-pass-err" data-i18n="login_error_fields">Password is required.</span>        <div class="meta-row">          <label class="remember">            <input type="checkbox" id="remember"/>            <span data-i18n="remember_me" data-i18n-text>Remember me</span>          </label>        </div>        <div class="form-msg" id="l-msg"></div>        <button class="btn btn-primary" id="login-btn" onclick="doLogin()">          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>? &nbsp;Set Sail</span></span>          <div class="spinner"></div>        </button>      </div>      <!-- REGISTER PANEL -->      <div class="panel" id="panel-register">        <div class="field">          <span class="field-icon">??</span>          <input type="text" id="r-user" placeholder="Username (5-12 characters)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" minlength="5" maxlength="12" oninput="liveValidUser(this)"/>        </div>        <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 characters, use letters/numbers/_.</span>        <div class="field">          <span class="field-icon">??</span>          <input type="email" id="r-email" placeholder="Email address" data-i18n-placeholder="email_placeholder" autocomplete="email"/>        </div>        <span class="err" id="r-email-err" data-i18n="reg_error_email">Enter a valid email address.</span>        <div class="field">          <span class="field-icon">??</span>          <input type="password" id="r-pass" placeholder="Password (min. 6 chars)" data-i18n-placeholder="password_placeholder" autocomplete="new-password" oninput="checkStrength(this.value)"/>        </div>        <span class="err" id="r-pass-err" data-i18n="reg_error_password">Password must be at least 6 characters.</span>        <div class="strength" id="strength">          <div class="s-bars">            <div class="s-bar" id="sb1"></div><div class="s-bar" id="sb2"></div>            <div class="s-bar" id="sb3"></div><div class="s-bar" id="sb4"></div>          </div>          <span class="s-txt" id="s-label">Weak</span>        </div>        <div class="field">          <span class="field-icon">??</span>          <input type="password" id="r-pass2" placeholder="Confirm password" data-i18n-placeholder="repassword_placeholder" autocomplete="new-password"/>        </div>        <span class="err" id="r-pass2-err" data-i18n="reg_error_pass2">Passwords do not match.</span>        <label class="terms">          <input type="checkbox" id="terms"/>          <span><a href="#" onclick="openModal('terms'); return false;"><span data-i18n="terms_link" data-i18n-text>Terms of Service</span></a> <span data-i18n="accept_terms" data-i18n-text>I accept.</span></span>        </label>        <span class="err" id="terms-err" data-i18n="reg_error_terms">You must accept the terms.</span>        <div class="form-msg" id="r-msg"></div>        <button class="btn btn-primary" id="reg-btn" onclick="doRegister()">          <span class="btn-txt"><span data-i18n="btn_register" data-i18n-text>? &nbsp;Become a Pirate</span></span>          <div class="spinner"></div>        </button>      </div>    </div>    <div class="bottom-note">      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Privacy Policy</span></a> &nbsp;·&nbsp;      <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Terms of Service</span></a><br/>      <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>    </div>  </div>  <!-- MODAL OVERLAY -->  <div class="modal-overlay" id="sp-modal" onclick="closeModal()">    <div class="modal-content" onclick="event.stopPropagation()">      <div class="modal-header" id="modal-title">? TERMS OF SERVICE</div>      <div class="modal-body" id="modal-body">        <!-- Dinamik içerik buraya yüklenecek -->      </div>      <button class="modal-close-btn" onclick="closeModal()"><span data-i18n="modal_close" data-i18n-text>OK</span></button>    </div>  </div>  <script>    /* -- PAGE LOAD CHECK -- */    window.onload = () => {      // 1. Session/Beni Hatirla dogrulamasi      const isRemembered = localStorage.getItem('sp_remember_me') === 'true';      const isSessionActive = sessionStorage.getItem('sp_session_active') === 'true';            if (localStorage.getItem('sp_token') && !isRemembered && !isSessionActive) {        localStorage.removeItem('sp_token');        localStorage.removeItem('sp_player');        localStorage.removeItem('sp_remember_me');      }      // 2. Beni Hatirla kullanici adi ve sifre doldurma (otomatik giris yok)      const rememberedUser = localStorage.getItem('sp_remembered_username');      if (rememberedUser) {        document.getElementById('l-user').value = rememberedUser;        document.getElementById('remember').checked = true;      }    };    /* -- TAB -- */    function switchTab(t){      ['login','register'].forEach(id=>{        document.getElementById('tab-'+id).classList.toggle('active', id===t);        document.getElementById('panel-'+id).classList.toggle('active', id===t);      });      clearErrs();    }    /* -- MESAJ -- */    function showFormMsg(msg, type) {      const activePanel = document.querySelector('.panel.active');      if (!activePanel) return;      const el = activePanel.querySelector('.form-msg');      if (!el) return;      el.textContent = msg;      el.className = 'form-msg show ' + type;    }    function clearFormMsg() {      document.querySelectorAll('.form-msg').forEach(e => { e.className = 'form-msg'; e.textContent = ''; });    }    /* -- ERRORS -- */    function showErr(id,msg){const e=document.getElementById(id);if(msg)e.textContent=msg;e.classList.add('show');}    function hideErr(id){document.getElementById(id).classList.remove('show');}    function clearErrs(){document.querySelectorAll('.err').forEach(e=>e.classList.remove('show'));}    /* -- LIVE USERNAME VALIDATE -- */    function liveValidUser(el){      const v=el.value.trim();      if(v&&!/^[a-zA-Z0-9_]{5,12}$/.test(v)) showErr('r-user-err', t('reg_error_username'));      else hideErr('r-user-err');    }    /* -- PASSWORD STRENGTH -- */    function checkStrength(v){      const w=document.getElementById('strength');      const bars=[document.getElementById('sb1'),document.getElementById('sb2'),document.getElementById('sb3'),document.getElementById('sb4')];      const lbl=document.getElementById('s-label');      if(!v){w.classList.remove('show');return;}      w.classList.add('show');      let sc=0;      if(v.length>=6)sc++;      if(v.length>=10)sc++;      if(/[A-Z]/.test(v)&&/[a-z]/.test(v))sc++;      if(/[0-9]/.test(v)||/[^a-zA-Z0-9]/.test(v))sc++;      const cls=sc<=1?'weak':sc<=2?'mid':'strong';      const txt=sc<=1?t('strength_weak'):sc<=2?t('strength_medium'):sc===3?t('strength_good'):t('strength_strong');      bars.forEach((b,i)=>{b.className='s-bar';if(i<sc)b.classList.add(cls);});      lbl.className='s-txt '+cls; lbl.textContent=txt;    }    /* -- LOADING -- */    function setLoading(id,on){      const b=document.getElementById(id);      b.classList.toggle('loading',on); b.disabled=on;    }    /* -- LOGIN -- */    async function doLogin(){      clearErrs();      clearFormMsg();      const username=document.getElementById('l-user').value.trim();      const password=document.getElementById('l-pass').value;      const remember=document.getElementById('remember').checked;      if(!username){showErr('l-user-err');return;}      if(!password){showErr('l-pass-err');return;}      setLoading('login-btn',true);      try {        const data = await API.post('/auth/login', { username, password, deviceId: localStorage.getItem('sp_device_id') });        Auth.login(data.token, data.player, remember);        if (remember) { localStorage.setItem('sp_remembered_username', username); }        showFormMsg(t('login_welcome', { name: data.player.display_name || data.player.username }), 'ok');        setTimeout(()=>goTo('home.html'),1500);      } catch (err) {          if (err.status === 403 && err.message === 'err_device_banned') {            showFormMsg('?? ' + t('ban_notification_title') + '\n' + t('ban_reason_label') + ' This device is banned.', 'err');          } else if (err.status === 403 && err.message === 'err_account_banned' && err.data) {          const d = err.data;          let banMsg = '?? ' + t('ban_notification_title');          if (d.ban_reason) banMsg += '\n?? ' + t('ban_reason_label') + ' ' + d.ban_reason;          if (d.ban_expires_at) {            const expires = new Date(d.ban_expires_at);            banMsg += '\n? ' + t('ban_expires_label') + ' ' + expires.toLocaleDateString() + ' ' + expires.toLocaleTimeString();          } else {            banMsg += '\n? ' + t('ban_permanent_label');          }          if (d.banned_at) {            const banned = new Date(d.banned_at);            banMsg += '\n?? ' + t('ban_date_label') + ' ' + banned.toLocaleDateString() + ' ' + banned.toLocaleTimeString();          }          showFormMsg(banMsg, 'err');        } else {          const detail = err.message + ' (status:' + err.status + ')';          showFormMsg(detail || t('connection_failed'), 'err');        }      }      setLoading('login-btn',false);    }    /* -- REGISTER -- */    async function doRegister(){      clearErrs();      clearFormMsg();      const username=document.getElementById('r-user').value.trim();      const email=document.getElementById('r-email').value.trim();      const password=document.getElementById('r-pass').value;      const pass2=document.getElementById('r-pass2').value;      const terms=document.getElementById('terms').checked;      let ok=true;      if(!username||!/^[a-zA-Z0-9_]{5,12}$/.test(username)){showErr('r-user-err');ok=false;}      if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('r-email-err');ok=false;}      if(!password||password.length<6){showErr('r-pass-err');ok=false;}      if(password!==pass2){showErr('r-pass2-err');ok=false;}      if(!terms){showErr('terms-err');ok=false;}      if(!ok)return;      setLoading('reg-btn',true);      try {        const data = await API.post('/auth/register', { username, email, password, deviceId: localStorage.getItem('sp_device_id') });        Auth.login(data.token, data.player, true);        showFormMsg(t('register_welcome', { name: data.player.display_name || data.player.username }), 'ok');        setTimeout(()=>goTo('home.html'),1500);      } catch (err) {        if (err.status === 403 && err.message === 'err_device_banned') {          showFormMsg('?? This device is banned. Registration not allowed.', 'err');        } else {          const detail = err.message + ' (status:' + err.status + ')';          showFormMsg(detail || t('connection_failed'), 'err');        }      }      setLoading('reg-btn',false);    }    /* -- MODAL TERMS & PRIVACY -- */    function openModal(type) {      const modal = document.getElementById('sp-modal');      const title = document.getElementById('modal-title');      const body = document.getElementById('modal-body');      if (!modal) return;      if (type === 'terms') {        title.innerHTML = t('modal_terms_title');        body.innerHTML = `          <p><strong>1. Acceptance of Terms:</strong> SeaPirates is a web-based clicker-RPG game. By registering, you agree to all rules and terms stated herein.</p>          <p><strong>2. Account Security:</strong> You are responsible for keeping your password secure. Sharing your password with third parties is prohibited.</p>          <p><strong>3. Prohibition of Cheating & Exploitation:</strong> The use of automated bots, exploits, and software that sends fraudulent requests to the database is strictly forbidden. Detected accounts will be permanently closed.</p>          <p><strong>4. Virtual Currency:</strong> In-game gold and pearl currencies cannot be exchanged for real money or transferred under any circumstances.</p>          <p><strong>5. Age Requirement:</strong> You must be at least 13 years old to play this game.</p>        `;      } else {        title.innerHTML = t('modal_privacy_title');        body.innerHTML = `          <p><strong>1. Data Collected:</strong> The username, email address, and password (securely encrypted) you provide during registration are stored on our server.</p>          <p><strong>2. Use of Data:</strong> Your information is used solely to allow you to log in and save your game progress.</p>          <p><strong>3. Sharing with Third Parties:</strong> SeaPirates does not share your data with advertising companies or third parties under any circumstances.</p>          <p><strong>4. Data Storage:</strong> Session data is stored locally to keep you logged in. Your password is never stored in plain text.</p>        `;      }      modal.style.display = 'flex';    }    function closeModal() {      const modal = document.getElementById('sp-modal');      if (modal) modal.style.display = 'none';    }    /* -- UTIL -- */    function delay(ms){return new Promise(r=>setTimeout(r,ms));}    /* Service Worker Registration for PWA */    if ('serviceWorker' in navigator) {      window.addEventListener('load', () => {        navigator.serviceWorker.register('sw.js?v=1')          .then(reg => console.log('Service Worker registered successfully:', reg.scope))          .catch(err => logError('index:sw', err));      });    }    /* Enter key */    document.addEventListener('keydown',e=>{      if(e.key==='Enter'){        if(document.getElementById('panel-login').classList.contains('active')) doLogin();        else doRegister();      }    });  </script>  <script>renderFromCache(); revealPage(); readyNow();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d0702">
+  <style>body { visibility: hidden; background: #0d0702; }</style>
+  <title>SeaPirates — Login</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600&display=optional" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <script src="js/config.js"></script>
+  <script src="js/logger.js"></script>
+  <script>
+const API = (() => {
+  const BASE = (window.__API_URL__ || window.location.origin) + '/api';
+  function getToken() { return localStorage.getItem('sp_token'); }
+  function getHeaders(extra = {}) {
+    const headers = { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', ...extra };
+    const token = getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return headers;
+  }
+  function handleError(res) {
+    if (res.status === 401 || res.status === 403) {
+      if (getToken()) {
+        localStorage.removeItem('sp_token'); localStorage.removeItem('sp_player'); localStorage.removeItem('sp_remember_me'); sessionStorage.removeItem('sp_session_active');
+        window.goTo('index.html'); return null;
+      }
+    }
+    return res;
+  }
+  async function request(method, path, body = null) {
+    const url = BASE + path;
+    const options = { method, headers: getHeaders() };
+    if (body !== null) options.body = JSON.stringify(body);
+    try {
+      const res = await fetch(url, options);
+      if (!handleError(res)) return null;
+      const data = await res.json();
+      if (!res.ok) throw new APIError(data.error || 'Request failed', res.status, data);
+      return data;
+    } catch (err) {
+      if (err instanceof APIError) throw err;
+      throw new APIError('Network error - ' + err.message, 0);
+    }
+  }
+  class APIError extends Error {
+    constructor(message, status, data = null) { super(message); this.name = 'APIError'; this.status = status; this.data = data; }
+  }
+  return {
+    get(path) { return request('GET', path); },
+    post(path, body) { return request('POST', path, body); },
+    put(path, body) { return request('PUT', path, body); },
+    del(path) { return request('DELETE', path); },
+    getToken, isAuthenticated() { return !!getToken(); }, APIError
+  };
+})();
+window.API = API;
+  </script>
+  <script>
+const Auth = (() => {
+  const TOKEN_KEY = 'sp_token', PLAYER_KEY = 'sp_player', REMEMBER_KEY = 'sp_remember_me', SESSION_KEY = 'sp_session_active', TS_KEY = 'sp_session_ts';
+  const SESSION_MAX_MS = 60000;
+  return {
+    getToken() { return localStorage.getItem(TOKEN_KEY); },
+    getPlayer() {
+      const raw = localStorage.getItem(PLAYER_KEY);
+      try { return raw ? JSON.parse(raw) : null; } catch { return null; }
+    },
+    setPlayer(data) {
+      if (data) localStorage.setItem(PLAYER_KEY, JSON.stringify(data));
+      else localStorage.removeItem(PLAYER_KEY);
+    },
+    isLoggedIn() {
+      const token = this.getToken();
+      if (!token) return false;
+      const ts = parseInt(localStorage.getItem(TS_KEY) || '0');
+      if (ts > 0 && Date.now() - ts > SESSION_MAX_MS) { this.logout(); return false; }
+      return true;
+    },
+    login(token, player, remember = false) {
+      localStorage.setItem(TOKEN_KEY, token); this.setPlayer(player);
+      if (remember) { localStorage.setItem(REMEMBER_KEY, 'true'); sessionStorage.removeItem(SESSION_KEY); }
+      else { sessionStorage.setItem(SESSION_KEY, 'true'); localStorage.removeItem(REMEMBER_KEY); }
+      localStorage.setItem(TS_KEY, Date.now().toString());
+    },
+    touch() {
+      if (this.getToken()) localStorage.setItem(TS_KEY, Date.now().toString());
+    },
+    logout() {
+      localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(PLAYER_KEY);
+      localStorage.removeItem(REMEMBER_KEY); localStorage.removeItem(TS_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+    },
+    redirectToLogin() { this.logout(); window.goTo('index.html'); }
+  };
+})();
+// APK her açildiginda login sayfasi gelsin (Beni Hatirla yoksa)
+if (!localStorage.getItem('sp_remember_me')) { Auth.logout(); }
+  </script>
+  <script>
+window.t = window.t || function(key, vars) {
+  var texts = {
+    login_welcome: '? Welcome aboard, Captain!', register_welcome: '? Welcome aboard, Captain!',
+    connection_failed: 'Connection failed', btn_login: '? Set Sail',
+    login_title: '? Login', register_title: '? Register',
+    username_label: 'Username', password_label: 'Password',
+    strength_weak: 'Weak', strength_medium: 'Medium', strength_good: 'Good', strength_strong: 'Strong',
+    reg_error_username: '3–20 characters, use letters/numbers/_.',
+    modal_close: 'Close', error: 'Error',
+    ban_notification_title: 'Your account has been banned!', ban_reason_label: 'Reason:',
+    ban_expires_label: 'Expires:', ban_permanent_label: 'Permanent ban',
+    ban_date_label: 'Date:',
+
+    modal_terms_title: '? TERMS OF SERVICE', modal_privacy_title: '?? PRIVACY POLICY'
+  };
+  var msg = texts[key] || key;
+  if (vars && vars.name) msg = msg.replace('{name}', vars.name);
+  return msg;
+};
+  </script>
+  <script>
+window.goTo = window.goTo || function(url) { if (url && url !== '#') { sessionStorage.setItem('sp_navigating','1'); window.location.href = url; } };
+window.showAlert = window.showAlert || function(msg) { alert(msg); };
+  </script>
+  <script src="js/lang.js?v=2"></script>
+  <script src="transition.js?v=8"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+      --wood-dark:   #1a0e05;
+      --wood-mid:    #2d1a08;
+      --wood-warm:   #3d2410;
+      --wood-light:  #7a4a22;
+      --gold-bright: #f0c040;
+      --gold-pale:   #fde68a;
+      --rope:        #8b6340;
+      --rust:        #8b3a1a;
+      --text-light:  #f5e6c8;
+      --text-dim:    #b8956a;
+      --text-muted:  #7a5a38;
+      --shadow:      0 8px 32px rgba(0,0,0,0.7);
+      --r-md:        10px;
+      --r-lg:        16px;
+    }
+
+    html,body{
+      width:100%;min-height:100dvh;
+      background:#0d0702;
+      font-family:'Inter',sans-serif;
+      color:var(--text-light);
+      overflow-x:hidden;
+    }
+
+    /* -- FULL BACKGROUND -- */
+    .page-bg{
+      position:fixed;inset:0;z-index:0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(90,50,10,0.55) 0%, transparent 65%),
+        linear-gradient(180deg,#0d0702 0%,#1a0e05 40%,#0a0500 100%);
+    }
+    /* Wooden texture overlay via repeating-linear-gradient */
+    .page-bg::before{
+      content:'';position:absolute;inset:0;
+      background-image:
+        repeating-linear-gradient(90deg,rgba(255,255,255,0.012) 0px,transparent 2px,transparent 60px,rgba(255,255,255,0.012) 62px),
+        repeating-linear-gradient(0deg,rgba(0,0,0,0.18) 0px,transparent 1px,transparent 40px,rgba(0,0,0,0.18) 41px);
+      pointer-events:none;
+    }
+    /* Vignette */
+    .page-bg::after{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.65) 100%);
+      pointer-events:none;
+    }
+
+    /* -- FRAME -- */
+    .frame{
+      position:relative;z-index:10;
+      max-width:430px;margin:0 auto;
+      min-height:100dvh;
+      display:flex;flex-direction:column;
+      align-items:center;
+      padding:0 20px calc(40px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* -- LOGO -- */
+    .logo-wrap{
+      width:100%;max-width:280px;
+      margin:32px auto 24px;
+      position:relative;
+    }
+    .logo-wrap img{
+      width:100%;border-radius:12px;
+      filter:drop-shadow(0 0 28px rgba(200,150,42,0.6));
+    }
+
+    /* -- BOARD (main card) -- */
+    .board{
+      width:100%;
+      background: linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);
+      background-clip: padding-box;
+      border: 24px solid transparent;
+      border-radius: var(--r-lg);
+      box-shadow:
+        var(--shadow),
+        inset 0 1px 0 rgba(200,150,42,0.15),
+        inset 0 -1px 0 rgba(0,0,0,0.5);
+      position:relative;
+      overflow:visible;
+    }
+    /* premium wood border frame */
+    .board::before{
+      content: "";
+      position: absolute;
+      inset: -24px;
+      pointer-events: none;
+      z-index: 5;
+      background-image: 
+        url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),
+        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),
+        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),
+        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),
+        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),
+        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),
+        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),
+        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');
+      background-position:
+        top left,
+        top right,
+        bottom left,
+        bottom right,
+        top left,
+        bottom left,
+        top left,
+        top right;
+      background-size:
+        110px 110px,
+        110px 110px,
+        110px 110px,
+        110px 110px,
+        100% 24px,
+        100% 24px,
+        24px 100%,
+        24px 100%;
+      background-repeat:
+        no-repeat,
+        no-repeat,
+        no-repeat,
+        no-repeat,
+        repeat-x,
+        repeat-x,
+        repeat-y,
+        repeat-y;
+    }
+    /* plank lines on card */
+    .board::after{
+      content:'';position:absolute;inset:0;
+      background:repeating-linear-gradient(
+        180deg,
+        transparent 0px,transparent 38px,
+        rgba(0,0,0,0.22) 38px,rgba(0,0,0,0.22) 40px
+      );
+      pointer-events:none;z-index:1;
+      border-radius:var(--r-lg);
+    }
+
+    /* -- TABS -- */
+    .tabs{
+      display:flex;position:relative;z-index:2;
+      border-bottom:2px solid var(--wood-plank);
+    }
+    .tab-btn{
+      flex:1;padding:14px 0;
+      background:transparent;border:none;cursor:pointer;
+      font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;
+      letter-spacing:0.08em;text-transform:uppercase;
+      color:var(--text-muted);
+      transition:all 0.25s;
+      position:relative;
+    }
+    .tab-btn.active{color:var(--gold-bright);}
+    .tab-btn.active::after{
+      content:'';position:absolute;bottom:-2px;left:10%;right:10%;height:2px;
+      background:linear-gradient(90deg,transparent,var(--gold-bright),transparent);
+    }
+    .tab-btn:not(.active):hover{color:var(--text-dim);}
+
+    /* Divider between tabs */
+    .tabs .tab-btn:first-child{border-right:1px solid var(--wood-plank);}
+
+    /* -- PANELS -- */
+    .panel{display:none;flex-direction:column;gap:14px;padding:24px 20px;position:relative;z-index:2;}
+    .panel.active{display:flex;animation:fadeUp 0.28s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* -- INPUT -- */
+    .field{position:relative;}
+    .field-icon{
+      position:absolute;left:13px;top:50%;transform:translateY(-50%);
+      font-size:1rem;color:var(--text-muted);pointer-events:none;
+      transition:color 0.2s;
+    }
+    .field input{
+      width:100%;padding:14px 14px 14px 42px;
+      background:rgba(0,0,0,0.45);
+      border:1.5px solid var(--wood-plank);
+      border-radius:var(--r-md);
+      color:var(--text-light);
+      font-family:'Inter',sans-serif;font-size:0.92rem;
+      outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+    }
+    .field input::placeholder{color:var(--text-muted);}
+    .field input:focus{
+      border-color:var(--gold);
+      box-shadow:0 0 0 3px rgba(200,150,42,0.15);
+    }
+    .field:focus-within .field-icon{color:var(--gold);}
+
+    /* -- ERROR -- */
+    .err{font-size:0.74rem;color:#e05a3a;padding-left:4px;display:none;}
+    .err.show{display:block;}
+
+    /* -- PASSWORD STRENGTH -- */
+    .strength{display:none;gap:4px;flex-direction:column;}
+    .strength.show{display:flex;}
+    .s-bars{display:flex;gap:4px;}
+    .s-bar{flex:1;height:3px;border-radius:2px;background:var(--wood-plank);transition:background 0.3s;}
+    .s-bar.weak{background:#e05a3a;}
+    .s-bar.mid{background:#d4a12a;}
+    .s-bar.strong{background:#4caf7a;}
+    .s-txt{font-size:0.7rem;color:var(--text-muted);}
+    .s-txt.weak{color:#e05a3a;} .s-txt.mid{color:#d4a12a;} .s-txt.strong{color:#4caf7a;}
+
+    /* -- TERMS -- */
+    .terms{display:flex;align-items:flex-start;gap:9px;font-size:0.78rem;color:var(--text-dim);line-height:1.45;cursor:pointer;}
+    .terms input{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer;}
+    .terms a{color:var(--gold-pale);text-decoration:none;}
+
+    /* -- BUTTON -- */
+    .btn{
+      width:100%;padding:15px;border:none;border-radius:var(--r-md);cursor:pointer;
+      font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;
+      letter-spacing:0.07em;text-transform:uppercase;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:all 0.2s;position:relative;overflow:hidden;
+    }
+    .btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.07);opacity:0;transition:opacity 0.2s;}
+    .btn:hover::after{opacity:1;}
+    .btn:active{transform:scale(0.97);}
+    .btn-primary{
+      background:linear-gradient(135deg,#b8851e 0%,#f0c040 50%,#b8851e 100%);
+      background-size:200% auto;
+      color:#1a0e05;
+      box-shadow:0 4px 18px rgba(200,150,42,0.45),inset 0 1px 0 rgba(255,255,255,0.2);
+      animation:shine 3s linear infinite;
+    }
+    @keyframes shine{0%{background-position:0% center}100%{background-position:200% center}}
+    .btn-primary:hover{box-shadow:0 6px 26px rgba(200,150,42,0.65);transform:translateY(-1px);}
+    .btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+    /* spinner */
+    .spinner{width:17px;height:17px;border:2px solid rgba(26,14,5,0.4);border-top-color:#1a0e05;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+    .btn.loading .btn-txt{display:none;} .btn.loading .spinner{display:block;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* -- ROPE DIVIDER -- */
+    .rope-div{
+      display:flex;align-items:center;gap:10px;
+      color:var(--text-muted);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
+    }
+    .rope-div::before,.rope-div::after{
+      content:'';flex:1;height:1px;
+      background:repeating-linear-gradient(90deg,var(--wood-plank) 0px,var(--wood-plank) 4px,transparent 4px,transparent 7px);
+    }
+
+    /* -- FORGOT -- */
+    .meta-row{display:flex;align-items:center;justify-content:space-between;}
+    .remember{display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--text-dim);cursor:pointer;}
+    .remember input{accent-color:var(--gold);}
+    .forgot{font-size:0.78rem;color:var(--text-muted);text-decoration:none;transition:color 0.2s;}
+    .forgot:hover{color:var(--gold-bright);}
+
+    /* -- NAIL DECORATIONS -- */
+    .nail{
+      position:absolute;width:10px;height:10px;border-radius:50%;
+      background:radial-gradient(circle at 35% 35%,#8a7060,#3a2510);
+      box-shadow:inset 0 1px 2px rgba(255,255,255,0.2),0 1px 3px rgba(0,0,0,0.6);
+    }
+    .nail.tl{top:10px;left:10px;} .nail.tr{top:10px;right:10px;}
+    .nail.bl{bottom:10px;left:10px;} .nail.br{bottom:10px;right:10px;}
+
+    /* -- BOTTOM LINK -- */
+    .bottom-note{
+      margin-top:16px;text-align:center;font-size:0.75rem;color:var(--text-muted);
+    }
+    .bottom-note a{color:var(--text-dim);text-decoration:none;}
+    .bottom-note a:hover{color:var(--gold-bright);}
+
+    /* -- CORNER ORNAMENTS -- */
+    .corner-ornament{
+      position:absolute;width:40px;height:40px;
+      border-color:var(--gold);border-style:solid;opacity:0.35;
+    }
+    .corner-ornament.tl{top:0;left:0;border-width:2px 0 0 2px;border-radius:6px 0 0 0;}
+    .corner-ornament.tr{top:0;right:0;border-width:2px 2px 0 0;border-radius:0 6px 0 0;}
+    .corner-ornament.bl{bottom:0;left:0;border-width:0 0 2px 2px;border-radius:0 0 0 6px;}
+    .corner-ornament.br{bottom:0;right:0;border-width:0 2px 2px 0;border-radius:0 0 6px 0;}
+
+    /* -- MODAL OVERLAY & CONTENT -- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-content {
+      background: linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);
+      border: 2px solid var(--gold);
+      border-radius: var(--r-lg);
+      max-width: 400px;
+      width: 100%;
+      padding: 24px;
+      position: relative;
+      box-shadow: var(--shadow);
+      color: var(--text-light);
+    }
+    .modal-header {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--gold-bright);
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--wood-plank);
+      padding-bottom: 8px;
+      text-align: center;
+    }
+    .modal-body {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      max-height: 280px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      color: var(--text-dim);
+      padding-right: 4px;
+    }
+    .modal-body p {
+      margin-bottom: 12px;
+    }
+    .modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-body::-webkit-scrollbar-thumb {
+      background: var(--wood-plank);
+      border-radius: 3px;
+    }
+    .modal-body::-webkit-scrollbar-thumb:hover {
+      background: var(--gold);
+    }
+    .modal-close-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--wood-plank);
+      border: 1px solid var(--wood-light);
+      color: var(--text-light);
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      border-radius: var(--r-md);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .form-msg {
+      text-align: center;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      margin: 6px 0;
+      border-radius: var(--r-sm);
+      display: none;
+    }
+    .form-msg.show {
+      display: block;
+    }
+    .form-msg.err {
+      background: rgba(200, 50, 30, 0.2);
+      border: 1px solid #c0392b;
+      color: #ffb0a0;
+    }
+    .form-msg.ok {
+      background: rgba(40, 120, 60, 0.2);
+      border: 1px solid #27ae60;
+      color: #b0e0c0;
+    }
+    .modal-close-btn:hover {
+      background: var(--wood-light);
+      border-color: var(--gold);
+      color: var(--gold-bright);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-bg"></div>
+
+  <div class="frame">
+
+    <!-- LOGO -->
+    <div class="logo-wrap">
+      <img src="assets/ui/login.png" alt="SeaPirates" id="logo-img"/>
+    </div>
+
+    <!-- BOARD CARD -->
+    <div class="board" style="position:relative;">
+      <div class="nail tl"></div><div class="nail tr"></div>
+      <div class="nail bl"></div><div class="nail br"></div>
+      <div class="corner-ornament tl"></div>
+      <div class="corner-ornament tr"></div>
+      <div class="corner-ornament bl"></div>
+      <div class="corner-ornament br"></div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')"><span data-i18n="login_title" data-i18n-text>? Login</span></button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')"><span data-i18n="register_title" data-i18n-text>? Register</span></button>
+      </div>
+
+      <!-- LOGIN PANEL -->
+      <div class="panel active" id="panel-login">
+
+        <div class="field">
+          <span class="field-icon">??</span>
+          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>
+        </div>
+        <span class="err" id="l-user-err" data-i18n="login_error_fields">Username is required.</span>
+
+        <div class="field">
+          <span class="field-icon">??</span>
+          <input type="password" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" autocomplete="current-password"/>
+        </div>
+        <span class="err" id="l-pass-err" data-i18n="login_error_fields">Password is required.</span>
+
+        <div class="meta-row">
+          <label class="remember">
+            <input type="checkbox" id="remember"/>
+            <span data-i18n="remember_me" data-i18n-text>Remember me</span>
+          </label>
+        </div>
+
+        <div class="form-msg" id="l-msg"></div>
+
+        <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
+          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>? &nbsp;Set Sail</span></span>
+          <div class="spinner"></div>
+        </button>
+
+      </div>
+
+      <!-- REGISTER PANEL -->
+      <div class="panel" id="panel-register">
+
+        <div class="field">
+          <span class="field-icon">??</span>
+          <input type="text" id="r-user" placeholder="Username (5-12 characters)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" minlength="5" maxlength="12" oninput="liveValidUser(this)"/>
+        </div>
+        <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 characters, use letters/numbers/_.</span>
+
+        <div class="field">
+          <span class="field-icon">??</span>
+          <input type="email" id="r-email" placeholder="Email address" data-i18n-placeholder="email_placeholder" autocomplete="email"/>
+        </div>
+        <span class="err" id="r-email-err" data-i18n="reg_error_email">Enter a valid email address.</span>
+
+        <div class="field">
+          <span class="field-icon">??</span>
+          <input type="password" id="r-pass" placeholder="Password (min. 6 chars)" data-i18n-placeholder="password_placeholder" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+        </div>
+        <span class="err" id="r-pass-err" data-i18n="reg_error_password">Password must be at least 6 characters.</span>
+
+        <div class="strength" id="strength">
+          <div class="s-bars">
+            <div class="s-bar" id="sb1"></div><div class="s-bar" id="sb2"></div>
+            <div class="s-bar" id="sb3"></div><div class="s-bar" id="sb4"></div>
+          </div>
+          <span class="s-txt" id="s-label">Weak</span>
+        </div>
+
+        <div class="field">
+          <span class="field-icon">??</span>
+          <input type="password" id="r-pass2" placeholder="Confirm password" data-i18n-placeholder="repassword_placeholder" autocomplete="new-password"/>
+        </div>
+        <span class="err" id="r-pass2-err" data-i18n="reg_error_pass2">Passwords do not match.</span>
+
+        <label class="terms">
+          <input type="checkbox" id="terms"/>
+          <span><a href="#" onclick="openModal('terms'); return false;"><span data-i18n="terms_link" data-i18n-text>Terms of Service</span></a> <span data-i18n="accept_terms" data-i18n-text>I accept.</span></span>
+        </label>
+        <span class="err" id="terms-err" data-i18n="reg_error_terms">You must accept the terms.</span>
+
+        <div class="form-msg" id="r-msg"></div>
+
+        <button class="btn btn-primary" id="reg-btn" onclick="doRegister()">
+          <span class="btn-txt"><span data-i18n="btn_register" data-i18n-text>? &nbsp;Become a Pirate</span></span>
+          <div class="spinner"></div>
+        </button>
+
+      </div>
+    </div>
+
+    <div class="bottom-note">
+      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Privacy Policy</span></a> &nbsp;·&nbsp;
+      <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Terms of Service</span></a><br/>
+      <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
+    </div>
+
+  </div>
+
+  <!-- MODAL OVERLAY -->
+  <div class="modal-overlay" id="sp-modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header" id="modal-title">? TERMS OF SERVICE</div>
+      <div class="modal-body" id="modal-body">
+        <!-- Dinamik içerik buraya yüklenecek -->
+      </div>
+      <button class="modal-close-btn" onclick="closeModal()"><span data-i18n="modal_close" data-i18n-text>OK</span></button>
+    </div>
+  </div>
+
+  <script>
+    /* -- PAGE LOAD CHECK -- */
+    window.onload = () => {
+      // 1. Session/Beni Hatirla dogrulamasi
+      const isRemembered = localStorage.getItem('sp_remember_me') === 'true';
+      const isSessionActive = sessionStorage.getItem('sp_session_active') === 'true';
+      
+      if (localStorage.getItem('sp_token') && !isRemembered && !isSessionActive) {
+        localStorage.removeItem('sp_token');
+        localStorage.removeItem('sp_player');
+        localStorage.removeItem('sp_remember_me');
+      }
+
+      // 2. Beni Hatirla kullanici adi ve sifre doldurma (otomatik giris yok)
+      const rememberedUser = localStorage.getItem('sp_remembered_username');
+      if (rememberedUser) {
+        document.getElementById('l-user').value = rememberedUser;
+        document.getElementById('remember').checked = true;
+      }
+
+    };
+
+    /* -- TAB -- */
+    function switchTab(t){
+      ['login','register'].forEach(id=>{
+        document.getElementById('tab-'+id).classList.toggle('active', id===t);
+        document.getElementById('panel-'+id).classList.toggle('active', id===t);
+      });
+      clearErrs();
+    }
+
+    /* -- MESAJ -- */
+    function showFormMsg(msg, type) {
+      const activePanel = document.querySelector('.panel.active');
+      if (!activePanel) return;
+      const el = activePanel.querySelector('.form-msg');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'form-msg show ' + type;
+    }
+    function clearFormMsg() {
+      document.querySelectorAll('.form-msg').forEach(e => { e.className = 'form-msg'; e.textContent = ''; });
+    }
+
+    /* -- ERRORS -- */
+    function showErr(id,msg){const e=document.getElementById(id);if(msg)e.textContent=msg;e.classList.add('show');}
+    function hideErr(id){document.getElementById(id).classList.remove('show');}
+    function clearErrs(){document.querySelectorAll('.err').forEach(e=>e.classList.remove('show'));}
+
+    /* -- LIVE USERNAME VALIDATE -- */
+    function liveValidUser(el){
+      const v=el.value.trim();
+      if(v&&!/^[a-zA-Z0-9_]{5,12}$/.test(v)) showErr('r-user-err', t('reg_error_username'));
+      else hideErr('r-user-err');
+    }
+
+    /* -- PASSWORD STRENGTH -- */
+    function checkStrength(v){
+      const w=document.getElementById('strength');
+      const bars=[document.getElementById('sb1'),document.getElementById('sb2'),document.getElementById('sb3'),document.getElementById('sb4')];
+      const lbl=document.getElementById('s-label');
+      if(!v){w.classList.remove('show');return;}
+      w.classList.add('show');
+      let sc=0;
+      if(v.length>=6)sc++;
+      if(v.length>=10)sc++;
+      if(/[A-Z]/.test(v)&&/[a-z]/.test(v))sc++;
+      if(/[0-9]/.test(v)||/[^a-zA-Z0-9]/.test(v))sc++;
+      const cls=sc<=1?'weak':sc<=2?'mid':'strong';
+      const txt=sc<=1?t('strength_weak'):sc<=2?t('strength_medium'):sc===3?t('strength_good'):t('strength_strong');
+      bars.forEach((b,i)=>{b.className='s-bar';if(i<sc)b.classList.add(cls);});
+      lbl.className='s-txt '+cls; lbl.textContent=txt;
+    }
+
+    /* -- LOADING -- */
+    function setLoading(id,on){
+      const b=document.getElementById(id);
+      b.classList.toggle('loading',on); b.disabled=on;
+    }
+
+    /* -- LOGIN -- */
+    async function doLogin(){
+      clearErrs();
+      clearFormMsg();
+      const username=document.getElementById('l-user').value.trim();
+      const password=document.getElementById('l-pass').value;
+      const remember=document.getElementById('remember').checked;
+      if(!username){showErr('l-user-err');return;}
+      if(!password){showErr('l-pass-err');return;}
+      setLoading('login-btn',true);
+      try {
+        const data = await API.post('/auth/login', { username, password, deviceId: localStorage.getItem('sp_device_id') });
+        Auth.login(data.token, data.player, remember);
+        if (remember) { localStorage.setItem('sp_remembered_username', username); }
+        showFormMsg(t('login_welcome', { name: data.player.display_name || data.player.username }), 'ok');
+        setTimeout(()=>goTo('home.html'),1500);
+      } catch (err) {
+          if (err.status === 403 && err.message === 'err_device_banned') {
+            showFormMsg('?? ' + t('ban_notification_title') + '\n' + t('ban_reason_label') + ' This device is banned.', 'err');
+          } else if (err.status === 403 && err.message === 'err_account_banned' && err.data) {
+          const d = err.data;
+          let banMsg = '?? ' + t('ban_notification_title');
+          if (d.ban_reason) banMsg += '\n?? ' + t('ban_reason_label') + ' ' + d.ban_reason;
+          if (d.ban_expires_at) {
+            const expires = new Date(d.ban_expires_at);
+            banMsg += '\n? ' + t('ban_expires_label') + ' ' + expires.toLocaleDateString() + ' ' + expires.toLocaleTimeString();
+          } else {
+            banMsg += '\n? ' + t('ban_permanent_label');
+          }
+          if (d.banned_at) {
+            const banned = new Date(d.banned_at);
+            banMsg += '\n?? ' + t('ban_date_label') + ' ' + banned.toLocaleDateString() + ' ' + banned.toLocaleTimeString();
+          }
+          showFormMsg(banMsg, 'err');
+        } else {
+          const detail = err.message + ' (status:' + err.status + ')';
+          showFormMsg(detail || t('connection_failed'), 'err');
+        }
+      }
+      setLoading('login-btn',false);
+    }
+
+    /* -- REGISTER -- */
+    async function doRegister(){
+      clearErrs();
+      clearFormMsg();
+      const username=document.getElementById('r-user').value.trim();
+      const email=document.getElementById('r-email').value.trim();
+      const password=document.getElementById('r-pass').value;
+      const pass2=document.getElementById('r-pass2').value;
+      const terms=document.getElementById('terms').checked;
+      let ok=true;
+      if(!username||!/^[a-zA-Z0-9_]{5,12}$/.test(username)){showErr('r-user-err');ok=false;}
+      if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('r-email-err');ok=false;}
+      if(!password||password.length<6){showErr('r-pass-err');ok=false;}
+      if(password!==pass2){showErr('r-pass2-err');ok=false;}
+      if(!terms){showErr('terms-err');ok=false;}
+      if(!ok)return;
+
+      setLoading('reg-btn',true);
+      try {
+        const data = await API.post('/auth/register', { username, email, password, deviceId: localStorage.getItem('sp_device_id') });
+        Auth.login(data.token, data.player, true);
+        showFormMsg(t('register_welcome', { name: data.player.display_name || data.player.username }), 'ok');
+        setTimeout(()=>goTo('home.html'),1500);
+      } catch (err) {
+        if (err.status === 403 && err.message === 'err_device_banned') {
+          showFormMsg('?? This device is banned. Registration not allowed.', 'err');
+        } else {
+          const detail = err.message + ' (status:' + err.status + ')';
+          showFormMsg(detail || t('connection_failed'), 'err');
+        }
+      }
+      setLoading('reg-btn',false);
+    }
+
+    /* -- MODAL TERMS & PRIVACY -- */
+    function openModal(type) {
+      const modal = document.getElementById('sp-modal');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      if (!modal) return;
+
+      if (type === 'terms') {
+        title.innerHTML = t('modal_terms_title');
+        body.innerHTML = `
+          <p><strong>1. Acceptance of Terms:</strong> SeaPirates is a web-based clicker-RPG game. By registering, you agree to all rules and terms stated herein.</p>
+          <p><strong>2. Account Security:</strong> You are responsible for keeping your password secure. Sharing your password with third parties is prohibited.</p>
+          <p><strong>3. Prohibition of Cheating & Exploitation:</strong> The use of automated bots, exploits, and software that sends fraudulent requests to the database is strictly forbidden. Detected accounts will be permanently closed.</p>
+          <p><strong>4. Virtual Currency:</strong> In-game gold and pearl currencies cannot be exchanged for real money or transferred under any circumstances.</p>
+          <p><strong>5. Age Requirement:</strong> You must be at least 13 years old to play this game.</p>
+        `;
+      } else {
+        title.innerHTML = t('modal_privacy_title');
+        body.innerHTML = `
+          <p><strong>1. Data Collected:</strong> The username, email address, and password (securely encrypted) you provide during registration are stored on our server.</p>
+          <p><strong>2. Use of Data:</strong> Your information is used solely to allow you to log in and save your game progress.</p>
+          <p><strong>3. Sharing with Third Parties:</strong> SeaPirates does not share your data with advertising companies or third parties under any circumstances.</p>
+          <p><strong>4. Data Storage:</strong> Session data is stored locally to keep you logged in. Your password is never stored in plain text.</p>
+        `;
+      }
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('sp-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    /* -- UTIL -- */
+    function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+    /* Service Worker Registration for PWA */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js?v=1')
+          .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+          .catch(err => logError('index:sw', err));
+      });
+    }
+
+
+
+    /* Enter key */
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        if(document.getElementById('panel-login').classList.contains('active')) doLogin();
+        else doRegister();
+      }
+    });
+  </script>
+  <script>renderFromCache(); revealPage(); readyNow();</script>
+</body>
+</html>
+

@@ -1,1 +1,850 @@
-<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8" />  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />  <meta name="theme-color" content="#071428">  <style>body { visibility: hidden; background: #071428; }</style>  <title>SeaPirates — Glitter Sea</title>  <link    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional"    rel="stylesheet" />  <link rel="stylesheet" href="style.css">  <script src="js/lang.js?v=2"></script>  <script src="js/api.js?v=4"></script>  <script src="js/logger.js"></script>  <script src="js/auth.js?v=2"></script>  <script src="transition.js?v=8"></script>  <script src="effects/clouds.js?v=1"></script>  <script>document.addEventListener('DOMContentLoaded', startClouds);</script>  <style>    *,    *::before,    *::after {      box-sizing: border-box;      margin: 0;      padding: 0;    }    :root {      --hp-green: #27ae60;    }    html,    body {      width: 100%;      height: 100dvh;      overflow: hidden;      background: #071428;      font-family: 'Inter', sans-serif;      color: var(--txt);      user-select: none;    }    .page {      max-width: 430px;      margin: 0 auto;      height: 100dvh;      display: flex;      flex-direction: column;      position: relative;      background: url('assets/ui/sea.png') repeat;      background-size: 200px auto;          padding-bottom: env(safe-area-inset-bottom, 0px);      box-sizing: border-box;    }    .glitter-header {      position: relative;      z-index: 10;      display: flex;      align-items: center;      justify-content: space-between;      padding: 14px 16px;      background: linear-gradient(180deg, rgba(5, 2, 0, 0.9) 0%, transparent 100%);    }    .back-btn {      display: inline-flex;      align-items: center;      gap: 6px;      padding: 6px 12px;      background: linear-gradient(180deg, #3d2108, #1e0e03);      border: 1px solid var(--gold);      border-radius: 6px;      font-family: 'Cinzel', serif;      font-size: 0.72rem;      font-weight: 700;      color: var(--gold-p);      cursor: pointer;      text-decoration: none;      transition: all 0.15s;    }    .back-btn:hover {      border-color: var(--gold-b);      box-shadow: 0 0 8px rgba(200, 150, 42, 0.45);    }    .title-wrap {      font-family: 'Cinzel', serif;      font-size: 1rem;      font-weight: 900;      color: var(--gold-b);      text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(200, 150, 42, 0.35);      letter-spacing: 0.08em;      overflow-wrap: break-word;      word-break: break-word;    }    .glitter-limit-wrap {      display: flex;      align-items: center;      justify-content: center;      min-width: 90px;    }    .glitter-limit-lbl {      font-family: 'Inter', sans-serif;      font-size: 0.72rem;      font-weight: 600;      color: var(--txt-d);      background: rgba(0,0,0,0.4);      border: 1px solid rgba(255,255,255,0.08);      border-radius: 4px;      padding: 3px 8px;      white-space: nowrap;    }    .sea-area {      flex: 1;      position: relative;      overflow: hidden;    }    .sea-water-effect {      position: absolute;      inset: 0;      background: rgba(5, 2, 0, 0.15);      pointer-events: none;    }    .glitter-item {      position: absolute;      width: 42px;      height: 42px;      cursor: pointer;      z-index: 2;      transform: translate(-50%, -50%);      transition: transform 0.2s ease, opacity 0.3s ease;      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) drop-shadow(0 0 12px rgba(255,255,255,0.75));    }    .glitter-item img {      width: 100%;      height: 100%;      object-fit: contain;    }    .glitter-item:hover {      transform: translate(-50%, -50%) scale(1.22);    }    .glitter-item.collecting {      pointer-events: none;      transform: translate(-50%, -50%) scale(0);      opacity: 0;    }      @keyframes floatUp {        0% {          transform: translate(-50%, -50%) translateY(0);          opacity: 1;        }        70% {          opacity: 1;        }        100% {          transform: translate(-50%, -50%) translateY(-80px);          opacity: 0;        }      }    .player-panel {      flex-shrink: 0;      margin: 0 10px 10px;      background: linear-gradient(135deg, #180d04 0%, #0d0602 100%);      border: 1px solid var(--gold);      border-radius: 10px;      box-shadow: 0 4px 15px rgba(0,0,0,0.85);      display: flex;      flex-direction: column;      overflow: hidden;      position: relative;      z-index: 5;    }    .p-rewards {      display: flex;      align-items: center;      justify-content: space-between;      padding: 6px 12px;      background: rgba(0, 0, 0, 0.4);      border-bottom: 1px solid rgba(200, 150, 42, 0.12);      min-height: 32px;      font-size: 0.72rem;    }    .p-rewards-title {      font-family: 'Cinzel', serif;      font-weight: 700;      color: var(--gold-p);      letter-spacing: 0.05em;      white-space: nowrap;    }    .p-rewards-list {      display: flex;      align-items: center;      gap: 12px;      color: var(--txt);      font-weight: 600;    }    .p-reward-item {      display: flex;      align-items: center;      gap: 3px;    }    .p-reward-item img {      width: 14px;      height: 14px;      object-fit: contain;    }    .p-reward-empty {      font-style: italic;      color: var(--txt-m);      font-size: 0.65rem;      overflow-wrap: break-word;      word-break: break-word;    }    .pinfo-top {      display: flex;      align-items: center;      gap: 10px;      padding: 10px 12px;      border-bottom: 1px solid rgba(200, 150, 42, 0.15);      position: relative;    }    .pinfo-top::before {      content: '';      position: absolute;      inset: 0;      background: rgba(5, 2, 0, 0.5);      pointer-events: none;    }    .p-rank-icon {      width: 44px;      height: 44px;      border-radius: 8px;      border: 1px solid rgba(200, 150, 42, 0.6);      background: radial-gradient(circle, rgba(120, 95, 50, 0.45) 0%, rgba(12, 6, 3, 0.98) 100%);      flex-shrink: 0;      box-shadow: inset 0 0 6px rgba(200, 150, 42, 0.25), 0 0 6px rgba(200, 150, 42, 0.2);      display: flex;      align-items: center;      justify-content: center;      overflow: visible;      position: relative;      z-index: 1;    }    .p-rank-icon img {      width: 100%;      height: 100%;      object-fit: contain;      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 3px rgba(200, 150, 42, 0.35)) brightness(1.22) contrast(1.1);    }    .p-name-wrap {      position: relative;      z-index: 1;      display: flex;      flex-direction: column;      flex: 1;      overflow: hidden;    }    .p-name {      font-family: 'Inter', sans-serif;      font-weight: 700;      font-size: 0.88rem;      color: var(--txt);      white-space: nowrap;      overflow: hidden;      text-overflow: ellipsis;    }    .hp-row {      display: flex;      align-items: center;      gap: 6px;      margin-top: 2px;    }    .hp-track {      flex: 1;      height: 14px;      background: rgba(0, 0, 0, 0.7);      border: 1px solid #5a3a15;      border-radius: 4px;      overflow: hidden;      position: relative;    }    .hp-fill {      height: 100%;      background: linear-gradient(90deg, #27ae60, #2ecc71);      transition: width 0.3s, background 0.3s;    }    .hp-txt {      position: absolute;      inset: 0;      display: flex;      align-items: center;      justify-content: center;      font-size: 0.65rem;      font-weight: 700;      color: #fff;      text-shadow: 0 1px 2px #000;      white-space: nowrap;    }    .pinfo-body {      position: relative;      display: flex;      background: rgba(0, 0, 0, 0.3);    }    .pinfo-body::before {      content: '';      position: absolute;      inset: 0;      background: rgba(5, 2, 0, 0.55);      pointer-events: none;      z-index: 0;    }    .p-stats {      flex: 1;      position: relative;      z-index: 1;      padding: 10px 12px;      display: grid;      grid-template-columns: 1fr 1fr;      gap: 6px 14px;    }    .s-row {      display: flex;      align-items: center;      gap: 6px;    }    .s-icon {      font-size: 0.95rem;      flex-shrink: 0;    }    .s-val {      font-size: 0.82rem;      font-weight: 700;      color: var(--txt);      overflow-wrap: break-word;      word-break: break-word;    }    .s-val.gc { color: var(--gold-b); }    .s-val.pc { color: #b8f0e8; }    .s-key {      font-size: 0.6rem;      color: var(--txt-m);      text-transform: uppercase;      letter-spacing: 0.06em;    }    .lvl-row {      grid-column: 1/-1;      display: flex;      align-items: center;      gap: 7px;      padding-top: 2px;    }    .lvl-lbl {      font-family: 'Cinzel', serif;      font-size: 0.68rem;      font-weight: 700;      color: var(--txt-d);      white-space: nowrap;    }    .lvl-track {      flex: 1;      height: 14px;      background: rgba(0, 0, 0, 0.65);      border: 1px solid #5a3a15;      border-radius: 4px;      overflow: hidden;      position: relative;    }    .lvl-fill {      height: 100%;      background: linear-gradient(90deg, #154360, #2980b9);      transition: width .5s ease;    }    .lvl-track .xp-lbl {      position: absolute;      left: 5px;      top: 50%;      transform: translateY(-50%);      font-size: 0.55rem;      font-weight: 700;      color: rgba(255,255,255,0.5);      z-index: 1;      pointer-events: none;    }    .lvl-pct {      position: absolute;      inset: 0;      display: flex;      align-items: center;      justify-content: center;      font-size: 0.62rem;      font-weight: 700;      color: #fff;      text-shadow: 0 1px 2px #000;      white-space: nowrap;    }    .vip-badge {      display: inline-flex;      align-items: center;      gap: 4px;      padding: 3px 10px;      border-radius: 20px;      font-family: 'Cinzel', serif;      font-weight: 700;      font-size: 0.62rem;      letter-spacing: 0.04em;    }    .vip-badge.on {      background: linear-gradient(135deg, #b8860b, #f0c040);      color: #1a0e05;      box-shadow: 0 1px 8px rgba(200, 150, 42, 0.5);    }    .vip-badge.off {      background: rgba(20, 10, 2, 0.7);      border: 1px solid #5c3518;      color: var(--txt-m);    }  </style></head><body>  <div class="page">    <div class="glitter-header">      <a href="map.html" class="back-btn">        <img src="assets/ui/ikon/images/195_ico_safehaven.png" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;filter:brightness(1.1);" />        <span data-i18n="glitter_back" data-i18n-text>BACK TO MAP</span>      </a>      <div class="title-wrap" data-i18n="glitter_title">GLITTER</div>      <div class="glitter-limit-wrap">        <span class="glitter-limit-lbl" id="glitter-limit-lbl">0/0</span>      </div>    </div>    <div class="sea-area">      <div class="sea-water-effect"></div>    </div>    <div class="player-panel">      <div class="p-rewards">        <span class="p-rewards-title" data-i18n="glitter_reward">? Reward:</span>        <div class="p-rewards-list" id="p-rewards-list">          <span class="p-reward-empty" data-i18n="glitter_empty">Collect glitter from the sea to earn rewards!</span>        </div>      </div>      <div class="pinfo-top">        <div class="p-rank-icon" id="p-rank-icon">?</div>        <div class="p-name-wrap">          <span class="p-name" id="p-name">Kaptan...</span>          <div class="hp-row">            <div class="hp-track">              <div class="hp-fill" id="p-hp-fill" style="width:100%"></div>              <span class="hp-txt" id="p-hp-txt">0 / 0</span>            </div>          </div>        </div>      </div>      <div class="pinfo-body">        <div class="p-stats">          <div class="s-row">            <span class="s-icon"><img src="assets/ui/pearl.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>            <span class="s-val pc" id="p-pearl">0</span>          </div>          <div class="s-row">            <span class="s-icon"><img src="assets/ui/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>            <span class="s-val gc" id="p-gold">0</span>          </div>          <div class="s-row" style="padding-top:2px;">            <span class="s-icon" style="visibility:hidden;"><img src="assets/ui/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>            <span class="vip-badge off" id="vip-badge"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_status_off" data-i18n-text>Not VIP</span></span>          </div>          <div class="s-row">            <span class="s-key">ELP:</span>            <span class="s-val" id="p-elp">0</span>          </div>          <div class="lvl-row">            <span class="lvl-lbl" id="p-lvl">1 LVL</span>            <div class="lvl-track">              <span class="xp-lbl">XP</span>              <div class="lvl-fill" id="p-lvl-fill" style="width:0%"></div>              <span class="lvl-pct" id="p-lvl-pct">0 / 0</span>            </div>          </div>        </div>      </div>    </div>  </div>  <script>    const API_URL = (window.__API_URL__ || window.location.origin) + '/api';    const token = localStorage.getItem('sp_token');    if (!token) {      goTo('index.html');    }    let player = {};    function ammoLabel(type) {      const map = {        1: t('ammo_name_grapeshot'),        2: t('ammo_name_hollow'),        3: t('ammo_name_explosive')      };      return map[type] || 'Ammo';    }    function fmt(n) { return Number(n).toLocaleString('en-US'); }    function hpColor(pct) {      if (pct > 60) return 'linear-gradient(90deg,#1a7a2e,#27ae60,#2ecc71)';      if (pct > 30) return 'linear-gradient(90deg,#7a5a00,#e6a817,#f1c40f)';      if (pct > 15) return 'linear-gradient(90deg,#7a2500,#e05010,#e67e22)';      return 'linear-gradient(90deg,#7a0a0a,#c0392b,#e74c3c)';    }    function toast2(msg, type = 'ok') {      window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');    }    // -- Mouse tracking for anti-bot --    let lastMouseX = 0;    let lastMouseY = 0;    let accumulatedMouseDelta = 0;    document.addEventListener('mousemove', (e) => {      if (lastMouseX === 0 && lastMouseY === 0) {        lastMouseX = e.clientX;        lastMouseY = e.clientY;        return;      }      const dx = e.clientX - lastMouseX;      const dy = e.clientY - lastMouseY;      accumulatedMouseDelta += Math.sqrt(dx * dx + dy * dy);      lastMouseX = e.clientX;      lastMouseY = e.clientY;    });    document.addEventListener('touchmove', (e) => {      const t = e.touches[0];      if (!t) return;      if (lastMouseX === 0 && lastMouseY === 0) {        lastMouseX = t.clientX;        lastMouseY = t.clientY;        return;      }      const dx = t.clientX - lastMouseX;      const dy = t.clientY - lastMouseY;      accumulatedMouseDelta += Math.sqrt(dx * dx + dy * dy);      lastMouseX = t.clientX;      lastMouseY = t.clientY;    });    function getAndResetMouseDelta() {      const val = accumulatedMouseDelta;      accumulatedMouseDelta = 0;      return Math.round(val);    }    async function fetchPlayerData() {      try {        const res = await fetch(`${API_URL}/player/me`, {          headers: { 'Authorization': `Bearer ${token}` }        });        if (res.ok) {          const data = await res.json();          player = {            name: data.display_name || data.username,            level: data.level,            xp: data.xp,            xpNext: data.xpNext,            gold: data.gold,            pearl: data.pearl,            elp: data.elite_points,            hp: data.hp,            hpMax: data.max_hp,            rankBadge: data.rankBadge,            rankName: data.rankName,            rankKey: data.rankKey,            vip_until: data.vip_until          };          initPlayerUI();          fetchGlitterLimit();        }      } catch (e) {        logError('glitter:player', e);      }      if (typeof readyNow === 'function') readyNow();    }    async function fetchGlitterLimit() {      try {        const res = await fetch(`${API_URL}/player/glitter/status`, {          headers: { 'Authorization': `Bearer ${token}` }        });        if (res.ok) {          const data = await res.json();          const lbl = document.getElementById('glitter-limit-lbl');          if (lbl) lbl.textContent = `${data.remaining}/${data.limit}`;        }      } catch (e) {        logError('glitter:limit', e);      }    }    function initPlayerUI() {      document.getElementById('p-name').textContent = player.name;      const rankIconEl = document.getElementById('p-rank-icon');      if (rankIconEl) {        const rankLabel = t(player.rankKey || 'rank_13');        rankIconEl.innerHTML = `<img src="assets/ui/rank/rank${player.rankBadge || 13}.png" style="width: 100%; height: 100%; object-fit: contain;" alt="${rankLabel}" title="${rankLabel}">`;      }      document.getElementById('p-pearl').textContent = fmt(player.pearl);      document.getElementById('p-gold').textContent = fmt(player.gold);      document.getElementById('p-elp').textContent = fmt(player.elp);      document.getElementById('p-lvl').textContent = t('level_label',{val:player.level});      document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);      const vipB = document.getElementById('vip-badge');      if (vipB) {        if (player.vip_until) {          vipB.className = 'vip-badge on';          const daysLeft = Math.ceil((new Date(player.vip_until) - new Date()) / 86400000);          vipB.innerHTML = daysLeft > 0 ? `<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP \u00b7 ${daysLeft} ${t('daily_day')}` : `<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP`;        } else {          vipB.className = 'vip-badge off';          vipB.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> ' + t('vip_status_off');        }      }      const xpPct = Math.min(100, (player.xp / player.xpNext) * 100);      document.getElementById('p-lvl-fill').style.width = xpPct + '%';      const hpPct = Math.min(100, Math.max(0, (player.hp / player.hpMax) * 100));      const hpFill = document.getElementById('p-hp-fill');      hpFill.style.width = hpPct + '%';      hpFill.style.background = hpColor(hpPct);      document.getElementById('p-hp-txt').textContent = fmt(player.hp) + ' / ' + fmt(player.hpMax);    }    function updatePlayerUI(data) {      player.gold = data.gold;      player.pearl = data.pearl;      player.xp = data.xp;      player.level = data.level;      player.xpNext = data.xpNext;      document.getElementById('p-gold').textContent = fmt(player.gold);      document.getElementById('p-pearl').textContent = fmt(player.pearl);      document.getElementById('p-lvl').textContent = t('level_label',{val:player.level});      document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);      const xpPct = Math.min(100, (player.xp / player.xpNext) * 100);      document.getElementById('p-lvl-fill').style.width = xpPct + '%';    }    // -- GLITTER SPARK ENGINE --    (function() {      const seaArea = document.querySelector('.sea-area');      const maxGlitters = 3;      let activeGlitters = [];      function startGlitterLoop() {        const interval = Math.random() * 1500 + 2000;        setTimeout(() => {          if (activeGlitters.length < maxGlitters) {            spawnGlitter();          }          startGlitterLoop();        }, interval);      }      function spawnGlitter() {        const div = document.createElement('div');        div.className = 'glitter-item';        const leftPercent = Math.random() * 80 + 10;        const topPercent = Math.random() * 60 + 20;        div.style.left = `${leftPercent}%`;        div.style.top = `${topPercent}%`;        const img = document.createElement('img');        div.appendChild(img);        seaArea.appendChild(div);        activeGlitters.push(div);        let frame = 1;        img.src = `assets/effects/glitter/${frame}.png`;        const animInterval = setInterval(() => {          frame++;          if (frame > 22) frame = 1;          img.src = `assets/effects/glitter/${frame}.png`;        }, 80);        const selfDestruct = setTimeout(() => {          clearInterval(animInterval);          removeGlitter(div);        }, 3000);        div.onclick = async (e) => {          e.stopPropagation();          clearTimeout(selfDestruct);          clearInterval(animInterval);          div.classList.add('collecting');          const mouseDelta = getAndResetMouseDelta();          const rect = div.getBoundingClientRect();          const clickX = Math.round(rect.left + rect.width / 2);          const clickY = Math.round(rect.top + rect.height / 2);          try {            const res = await fetch(`${API_URL}/player/glitter/collect`, {              method: 'POST',              headers: {                'Content-Type': 'application/json',                'Authorization': `Bearer ${token}`              },              body: JSON.stringify({ clickX, clickY, mouseDelta })            });            const data = await res.json();            if (res.ok) {              renderGlitterRewards(data.rewards);              createFloatText(data.rewards, div.offsetLeft, div.offsetTop);              updatePlayerUI(data.player);              if (data.glitterRemaining !== undefined) {                const lbl = document.getElementById('glitter-limit-lbl');                if (lbl) lbl.textContent = `${data.glitterRemaining}/200`;              }              if (data.leveledUp) {                toast2(`?? LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');              }            } else if (data.error !== 'err_glitter_too_fast' && data.error !== 'err_glitter_hourly_limit') {              toast2(data.error || t('glitter_collect_fail'), 'err');            }          } catch (err) {            logError('glitter:collect', err);          } finally {            removeGlitter(div);          }        };      }      function removeGlitter(el) {        activeGlitters = activeGlitters.filter(g => g !== el);        if (el.parentNode) el.parentNode.removeChild(el);      }      function createFloatText(rewards, x, y) {        const tag = document.createElement('div');        tag.style.cssText = `          position: absolute;          left: ${x}px;          top: ${y}px;          transform: translate(-50%, -50%);          font-family: 'Cinzel', serif;          font-size: 0.78rem;          font-weight: 900;          color: #fde68a;          text-shadow: 0 2px 5px #000, 0 0 8px #c8962a;          z-index: 100;          pointer-events: none;          display: flex;          flex-direction: column;          gap: 2px;          align-items: center;          animation: floatUp 2.5s ease-out forwards;        `;        let html = '';        if (rewards.gold > 0) {          html = `<div style="display: flex; align-items: center; gap: 4px;"><img src="assets/ui/gold.png" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle;"> +${fmt(rewards.gold)} Gold</div>`;        } else if (rewards.pearl > 0) {          html = `<div style="display: flex; align-items: center; gap: 4px; color:#b8f0e8;"><img src="assets/ui/pearl.png" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle;"> +${fmt(rewards.pearl)} Pearl</div>`;        } else if (rewards.xp > 0) {          html = `<div style="color:#a4b0be;">+${fmt(rewards.xp)} XP</div>`;        } else if (rewards.ammo) {          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">?? +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;        }        tag.innerHTML = html;        seaArea.appendChild(tag);        setTimeout(() => tag.remove(), 2500);      }      function renderGlitterRewards(rewards) {        const list = document.getElementById('p-rewards-list');        let html = '';        if (rewards.gold > 0) {          html = `            <span class="p-reward-item" style="color:var(--gold-b);">              <img src="assets/ui/gold.png" alt="Gold"> +${fmt(rewards.gold)}            </span>          `;        } else if (rewards.pearl > 0) {          html = `            <span class="p-reward-item" style="color:#b8f0e8;">              <img src="assets/ui/pearl.png" alt="Pearl"> +${fmt(rewards.pearl)}            </span>          `;        } else if (rewards.xp > 0) {          html = `            <span class="p-reward-item" style="color:#a4b0be;">              +${fmt(rewards.xp)} XP            </span>          `;        } else if (rewards.ammo) {          html = `            <span class="p-reward-item" style="color:#3498db;">              ?? +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}            </span>          `;        }        list.innerHTML = html;      }      startGlitterLoop();    })();    fetchPlayerData();</script><script>renderFromCache(); revealPage();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
+  <meta name="theme-color" content="#071428">
+  <style>body { visibility: hidden; background: #071428; }</style>
+  <title>SeaPirates — Glitter Sea</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=2"></script>
+  <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="transition.js?v=8"></script>
+  <script src="effects/clouds.js?v=1"></script>
+  <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --hp-green: #27ae60;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #071428;
+      font-family: 'Inter', sans-serif;
+      color: var(--txt);
+      user-select: none;
+    }
+
+    .page {
+      max-width: 430px;
+      margin: 0 auto;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: url('assets/ui/sea.png') repeat;
+      background-size: 200px auto;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+    }
+
+    .glitter-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(5, 2, 0, 0.9) 0%, transparent 100%);
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: linear-gradient(180deg, #3d2108, #1e0e03);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--gold-p);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .back-btn:hover {
+      border-color: var(--gold-b);
+      box-shadow: 0 0 8px rgba(200, 150, 42, 0.45);
+    }
+
+    .title-wrap {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--gold-b);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(200, 150, 42, 0.35);
+      letter-spacing: 0.08em;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .glitter-limit-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 90px;
+    }
+    .glitter-limit-lbl {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--txt-d);
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+
+    .sea-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sea-water-effect {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 2, 0, 0.15);
+      pointer-events: none;
+    }
+
+    .glitter-item {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      cursor: pointer;
+      z-index: 2;
+      transform: translate(-50%, -50%);
+      transition: transform 0.2s ease, opacity 0.3s ease;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) drop-shadow(0 0 12px rgba(255,255,255,0.75));
+    }
+    .glitter-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .glitter-item:hover {
+      transform: translate(-50%, -50%) scale(1.22);
+    }
+    .glitter-item.collecting {
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+    }
+
+      @keyframes floatUp {
+        0% {
+          transform: translate(-50%, -50%) translateY(0);
+          opacity: 1;
+        }
+        70% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) translateY(-80px);
+          opacity: 0;
+        }
+      }
+
+    .player-panel {
+      flex-shrink: 0;
+      margin: 0 10px 10px;
+      background: linear-gradient(135deg, #180d04 0%, #0d0602 100%);
+      border: 1px solid var(--gold);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      z-index: 5;
+    }
+
+    .p-rewards {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid rgba(200, 150, 42, 0.12);
+      min-height: 32px;
+      font-size: 0.72rem;
+    }
+    .p-rewards-title {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      color: var(--gold-p);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .p-rewards-list {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--txt);
+      font-weight: 600;
+    }
+    .p-reward-item {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .p-reward-item img {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+    }
+    .p-reward-empty {
+      font-style: italic;
+      color: var(--txt-m);
+      font-size: 0.65rem;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .pinfo-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(200, 150, 42, 0.15);
+      position: relative;
+    }
+    .pinfo-top::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 2, 0, 0.5);
+      pointer-events: none;
+    }
+
+    .p-rank-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid rgba(200, 150, 42, 0.6);
+      background: radial-gradient(circle, rgba(120, 95, 50, 0.45) 0%, rgba(12, 6, 3, 0.98) 100%);
+      flex-shrink: 0;
+      box-shadow: inset 0 0 6px rgba(200, 150, 42, 0.25), 0 0 6px rgba(200, 150, 42, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+      position: relative;
+      z-index: 1;
+    }
+    .p-rank-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 3px rgba(200, 150, 42, 0.35)) brightness(1.22) contrast(1.1);
+    }
+
+    .p-name-wrap {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+    .p-name {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--txt);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hp-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    .hp-track {
+      flex: 1;
+      height: 14px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #5a3a15;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #27ae60, #2ecc71);
+      transition: width 0.3s, background 0.3s;
+    }
+    .hp-txt {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px #000;
+      white-space: nowrap;
+    }
+
+    .pinfo-body {
+      position: relative;
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    .pinfo-body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 2, 0, 0.55);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .p-stats {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 14px;
+    }
+    .s-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .s-icon {
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+    .s-val {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--txt);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .s-val.gc { color: var(--gold-b); }
+    .s-val.pc { color: #b8f0e8; }
+
+    .s-key {
+      font-size: 0.6rem;
+      color: var(--txt-m);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .lvl-row {
+      grid-column: 1/-1;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding-top: 2px;
+    }
+    .lvl-lbl {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--txt-d);
+      white-space: nowrap;
+    }
+    .lvl-track {
+      flex: 1;
+      height: 14px;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid #5a3a15;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .lvl-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #154360, #2980b9);
+      transition: width .5s ease;
+    }
+    .lvl-track .xp-lbl {
+      position: absolute;
+      left: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .lvl-pct {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px #000;
+      white-space: nowrap;
+    }
+
+    .vip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
+    }
+    .vip-badge.on {
+      background: linear-gradient(135deg, #b8860b, #f0c040);
+      color: #1a0e05;
+      box-shadow: 0 1px 8px rgba(200, 150, 42, 0.5);
+    }
+    .vip-badge.off {
+      background: rgba(20, 10, 2, 0.7);
+      border: 1px solid #5c3518;
+      color: var(--txt-m);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="page">
+    <div class="glitter-header">
+      <a href="map.html" class="back-btn">
+        <img src="assets/ui/ikon/images/195_ico_safehaven.png" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;filter:brightness(1.1);" />
+        <span data-i18n="glitter_back" data-i18n-text>BACK TO MAP</span>
+      </a>
+      <div class="title-wrap" data-i18n="glitter_title">GLITTER</div>
+      <div class="glitter-limit-wrap">
+        <span class="glitter-limit-lbl" id="glitter-limit-lbl">0/0</span>
+      </div>
+    </div>
+
+    <div class="sea-area">
+      <div class="sea-water-effect"></div>
+    </div>
+
+    <div class="player-panel">
+      <div class="p-rewards">
+        <span class="p-rewards-title" data-i18n="glitter_reward">? Reward:</span>
+        <div class="p-rewards-list" id="p-rewards-list">
+          <span class="p-reward-empty" data-i18n="glitter_empty">Collect glitter from the sea to earn rewards!</span>
+        </div>
+      </div>
+      <div class="pinfo-top">
+        <div class="p-rank-icon" id="p-rank-icon">?</div>
+        <div class="p-name-wrap">
+          <span class="p-name" id="p-name">Kaptan...</span>
+          <div class="hp-row">
+            <div class="hp-track">
+              <div class="hp-fill" id="p-hp-fill" style="width:100%"></div>
+              <span class="hp-txt" id="p-hp-txt">0 / 0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pinfo-body">
+        <div class="p-stats">
+          <div class="s-row">
+            <span class="s-icon"><img src="assets/ui/pearl.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+            <span class="s-val pc" id="p-pearl">0</span>
+          </div>
+          <div class="s-row">
+            <span class="s-icon"><img src="assets/ui/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+            <span class="s-val gc" id="p-gold">0</span>
+          </div>
+          <div class="s-row" style="padding-top:2px;">
+            <span class="s-icon" style="visibility:hidden;"><img src="assets/ui/gold.png" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;"></span>
+            <span class="vip-badge off" id="vip-badge"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_status_off" data-i18n-text>Not VIP</span></span>
+          </div>
+          <div class="s-row">
+            <span class="s-key">ELP:</span>
+            <span class="s-val" id="p-elp">0</span>
+          </div>
+          <div class="lvl-row">
+            <span class="lvl-lbl" id="p-lvl">1 LVL</span>
+            <div class="lvl-track">
+              <span class="xp-lbl">XP</span>
+              <div class="lvl-fill" id="p-lvl-fill" style="width:0%"></div>
+              <span class="lvl-pct" id="p-lvl-pct">0 / 0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = (window.__API_URL__ || window.location.origin) + '/api';
+    const token = localStorage.getItem('sp_token');
+
+    if (!token) {
+      goTo('index.html');
+    }
+
+    let player = {};
+
+    function ammoLabel(type) {
+      const map = {
+        1: t('ammo_name_grapeshot'),
+        2: t('ammo_name_hollow'),
+        3: t('ammo_name_explosive')
+      };
+      return map[type] || 'Ammo';
+    }
+
+    function fmt(n) { return Number(n).toLocaleString('en-US'); }
+
+    function hpColor(pct) {
+      if (pct > 60) return 'linear-gradient(90deg,#1a7a2e,#27ae60,#2ecc71)';
+      if (pct > 30) return 'linear-gradient(90deg,#7a5a00,#e6a817,#f1c40f)';
+      if (pct > 15) return 'linear-gradient(90deg,#7a2500,#e05010,#e67e22)';
+      return 'linear-gradient(90deg,#7a0a0a,#c0392b,#e74c3c)';
+    }
+
+    function toast2(msg, type = 'ok') {
+      window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
+    }
+
+    // -- Mouse tracking for anti-bot --
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let accumulatedMouseDelta = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      if (lastMouseX === 0 && lastMouseY === 0) {
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        return;
+      }
+      const dx = e.clientX - lastMouseX;
+      const dy = e.clientY - lastMouseY;
+      accumulatedMouseDelta += Math.sqrt(dx * dx + dy * dy);
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      const t = e.touches[0];
+      if (!t) return;
+      if (lastMouseX === 0 && lastMouseY === 0) {
+        lastMouseX = t.clientX;
+        lastMouseY = t.clientY;
+        return;
+      }
+      const dx = t.clientX - lastMouseX;
+      const dy = t.clientY - lastMouseY;
+      accumulatedMouseDelta += Math.sqrt(dx * dx + dy * dy);
+      lastMouseX = t.clientX;
+      lastMouseY = t.clientY;
+    });
+
+    function getAndResetMouseDelta() {
+      const val = accumulatedMouseDelta;
+      accumulatedMouseDelta = 0;
+      return Math.round(val);
+    }
+
+    async function fetchPlayerData() {
+      try {
+        const res = await fetch(`${API_URL}/player/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          player = {
+            name: data.display_name || data.username,
+            level: data.level,
+            xp: data.xp,
+            xpNext: data.xpNext,
+            gold: data.gold,
+            pearl: data.pearl,
+            elp: data.elite_points,
+            hp: data.hp,
+            hpMax: data.max_hp,
+            rankBadge: data.rankBadge,
+            rankName: data.rankName,
+            rankKey: data.rankKey,
+            vip_until: data.vip_until
+          };
+          initPlayerUI();
+          fetchGlitterLimit();
+        }
+      } catch (e) {
+        logError('glitter:player', e);
+      }
+      if (typeof readyNow === 'function') readyNow();
+    }
+
+    async function fetchGlitterLimit() {
+      try {
+        const res = await fetch(`${API_URL}/player/glitter/status`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const lbl = document.getElementById('glitter-limit-lbl');
+          if (lbl) lbl.textContent = `${data.remaining}/${data.limit}`;
+        }
+      } catch (e) {
+        logError('glitter:limit', e);
+      }
+    }
+
+    function initPlayerUI() {
+      document.getElementById('p-name').textContent = player.name;
+
+      const rankIconEl = document.getElementById('p-rank-icon');
+      if (rankIconEl) {
+        const rankLabel = t(player.rankKey || 'rank_13');
+        rankIconEl.innerHTML = `<img src="assets/ui/rank/rank${player.rankBadge || 13}.png" style="width: 100%; height: 100%; object-fit: contain;" alt="${rankLabel}" title="${rankLabel}">`;
+      }
+
+      document.getElementById('p-pearl').textContent = fmt(player.pearl);
+      document.getElementById('p-gold').textContent = fmt(player.gold);
+      document.getElementById('p-elp').textContent = fmt(player.elp);
+      document.getElementById('p-lvl').textContent = t('level_label',{val:player.level});
+      document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);
+
+      const vipB = document.getElementById('vip-badge');
+      if (vipB) {
+        if (player.vip_until) {
+          vipB.className = 'vip-badge on';
+          const daysLeft = Math.ceil((new Date(player.vip_until) - new Date()) / 86400000);
+          vipB.innerHTML = daysLeft > 0 ? `<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP \u00b7 ${daysLeft} ${t('daily_day')}` : `<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP`;
+        } else {
+          vipB.className = 'vip-badge off';
+          vipB.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> ' + t('vip_status_off');
+        }
+      }
+
+      const xpPct = Math.min(100, (player.xp / player.xpNext) * 100);
+      document.getElementById('p-lvl-fill').style.width = xpPct + '%';
+
+      const hpPct = Math.min(100, Math.max(0, (player.hp / player.hpMax) * 100));
+      const hpFill = document.getElementById('p-hp-fill');
+      hpFill.style.width = hpPct + '%';
+      hpFill.style.background = hpColor(hpPct);
+      document.getElementById('p-hp-txt').textContent = fmt(player.hp) + ' / ' + fmt(player.hpMax);
+    }
+
+    function updatePlayerUI(data) {
+      player.gold = data.gold;
+      player.pearl = data.pearl;
+      player.xp = data.xp;
+      player.level = data.level;
+      player.xpNext = data.xpNext;
+
+      document.getElementById('p-gold').textContent = fmt(player.gold);
+      document.getElementById('p-pearl').textContent = fmt(player.pearl);
+      document.getElementById('p-lvl').textContent = t('level_label',{val:player.level});
+      document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);
+
+      const xpPct = Math.min(100, (player.xp / player.xpNext) * 100);
+      document.getElementById('p-lvl-fill').style.width = xpPct + '%';
+    }
+
+    // -- GLITTER SPARK ENGINE --
+    (function() {
+      const seaArea = document.querySelector('.sea-area');
+      const maxGlitters = 3;
+      let activeGlitters = [];
+
+      function startGlitterLoop() {
+        const interval = Math.random() * 1500 + 2000;
+        setTimeout(() => {
+          if (activeGlitters.length < maxGlitters) {
+            spawnGlitter();
+          }
+          startGlitterLoop();
+        }, interval);
+      }
+
+      function spawnGlitter() {
+        const div = document.createElement('div');
+        div.className = 'glitter-item';
+
+        const leftPercent = Math.random() * 80 + 10;
+        const topPercent = Math.random() * 60 + 20;
+
+        div.style.left = `${leftPercent}%`;
+        div.style.top = `${topPercent}%`;
+
+        const img = document.createElement('img');
+        div.appendChild(img);
+        seaArea.appendChild(div);
+        activeGlitters.push(div);
+
+        let frame = 1;
+        img.src = `assets/effects/glitter/${frame}.png`;
+        const animInterval = setInterval(() => {
+          frame++;
+          if (frame > 22) frame = 1;
+          img.src = `assets/effects/glitter/${frame}.png`;
+        }, 80);
+
+        const selfDestruct = setTimeout(() => {
+          clearInterval(animInterval);
+          removeGlitter(div);
+        }, 3000);
+
+        div.onclick = async (e) => {
+          e.stopPropagation();
+          clearTimeout(selfDestruct);
+          clearInterval(animInterval);
+          div.classList.add('collecting');
+
+          const mouseDelta = getAndResetMouseDelta();
+          const rect = div.getBoundingClientRect();
+          const clickX = Math.round(rect.left + rect.width / 2);
+          const clickY = Math.round(rect.top + rect.height / 2);
+
+          try {
+            const res = await fetch(`${API_URL}/player/glitter/collect`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ clickX, clickY, mouseDelta })
+            });
+            const data = await res.json();
+            if (res.ok) {
+              renderGlitterRewards(data.rewards);
+              createFloatText(data.rewards, div.offsetLeft, div.offsetTop);
+              updatePlayerUI(data.player);
+              if (data.glitterRemaining !== undefined) {
+                const lbl = document.getElementById('glitter-limit-lbl');
+                if (lbl) lbl.textContent = `${data.glitterRemaining}/200`;
+              }
+              if (data.leveledUp) {
+                toast2(`?? LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');
+              }
+            } else if (data.error !== 'err_glitter_too_fast' && data.error !== 'err_glitter_hourly_limit') {
+              toast2(data.error || t('glitter_collect_fail'), 'err');
+            }
+          } catch (err) {
+            logError('glitter:collect', err);
+          } finally {
+            removeGlitter(div);
+          }
+        };
+      }
+
+      function removeGlitter(el) {
+        activeGlitters = activeGlitters.filter(g => g !== el);
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }
+
+      function createFloatText(rewards, x, y) {
+        const tag = document.createElement('div');
+        tag.style.cssText = `
+          position: absolute;
+          left: ${x}px;
+          top: ${y}px;
+          transform: translate(-50%, -50%);
+          font-family: 'Cinzel', serif;
+          font-size: 0.78rem;
+          font-weight: 900;
+          color: #fde68a;
+          text-shadow: 0 2px 5px #000, 0 0 8px #c8962a;
+          z-index: 100;
+          pointer-events: none;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          align-items: center;
+          animation: floatUp 2.5s ease-out forwards;
+        `;
+
+        let html = '';
+        if (rewards.gold > 0) {
+          html = `<div style="display: flex; align-items: center; gap: 4px;"><img src="assets/ui/gold.png" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle;"> +${fmt(rewards.gold)} Gold</div>`;
+        } else if (rewards.pearl > 0) {
+          html = `<div style="display: flex; align-items: center; gap: 4px; color:#b8f0e8;"><img src="assets/ui/pearl.png" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle;"> +${fmt(rewards.pearl)} Pearl</div>`;
+        } else if (rewards.xp > 0) {
+          html = `<div style="color:#a4b0be;">+${fmt(rewards.xp)} XP</div>`;
+        } else if (rewards.ammo) {
+          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">?? +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;
+        }
+
+        tag.innerHTML = html;
+        seaArea.appendChild(tag);
+
+        setTimeout(() => tag.remove(), 2500);
+      }
+
+      function renderGlitterRewards(rewards) {
+        const list = document.getElementById('p-rewards-list');
+        let html = '';
+
+        if (rewards.gold > 0) {
+          html = `
+            <span class="p-reward-item" style="color:var(--gold-b);">
+              <img src="assets/ui/gold.png" alt="Gold"> +${fmt(rewards.gold)}
+            </span>
+          `;
+        } else if (rewards.pearl > 0) {
+          html = `
+            <span class="p-reward-item" style="color:#b8f0e8;">
+              <img src="assets/ui/pearl.png" alt="Pearl"> +${fmt(rewards.pearl)}
+            </span>
+          `;
+        } else if (rewards.xp > 0) {
+          html = `
+            <span class="p-reward-item" style="color:#a4b0be;">
+              +${fmt(rewards.xp)} XP
+            </span>
+          `;
+        } else if (rewards.ammo) {
+          html = `
+            <span class="p-reward-item" style="color:#3498db;">
+              ?? +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}
+            </span>
+          `;
+        }
+
+        list.innerHTML = html;
+      }
+
+      startGlitterLoop();
+    })();
+
+    fetchPlayerData();
+</script>
+<script>renderFromCache(); revealPage();</script>
+</body>
+</html>
+

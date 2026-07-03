@@ -1,1 +1,566 @@
-<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8"/>  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>  <meta name="theme-color" content="#080502">  <style>body { visibility: hidden; background: #080502; }</style>  <title>SeaPirates ? Equipment</title>  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />  <link rel="stylesheet" href="style.css">  <script src="js/lang.js?v=2"></script>  <script src="js/api.js?v=4"></script>  <script src="js/logger.js"></script>  <script src="js/auth.js?v=2"></script>  <script src="transition.js?v=8"></script>  <style>    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}    :root{      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;      --wood-d:#0f0a05;--wood-m:#1a1108;      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;    }    html,body{      width:100%;height:100dvh;overflow:hidden;      background:#080502;font-family:'Inter',sans-serif;color:var(--txt);    }    .page{      max-width:430px;margin:0 auto;height:100dvh;      display:flex;flex-direction:column;      position:relative;      background:url('assets/ui/background/menubackground.png') center/cover no-repeat;          padding-bottom: env(safe-area-inset-bottom, 0px);      box-sizing: border-box;    }    .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.72);pointer-events:none;z-index:0;}    /* TOP BAR */    .top-bar{      position:relative;z-index:10;flex-shrink:0;padding:14px;      display:flex;align-items:center;justify-content:space-between;      border-bottom:1px solid rgba(200,150,42,0.3);      background:linear-gradient(180deg,rgba(20,10,2,0.98),rgba(10,5,0,0.9));    }    .btn-back{      padding:8px 12px;background:linear-gradient(180deg,#3d2108,#1e0e03);      border:1px solid #7a4a18;border-radius:7px;      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;      color:var(--txt-d);text-decoration:none;    }    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}    .page-title{      font-family:'Cinzel',serif;font-weight:900;font-size:1.1rem;      letter-spacing:0.1em;color:var(--gold-b);      text-shadow:0 0 10px rgba(200,150,42,0.6);text-transform:uppercase;    }    /* TAB BAR */    .tab-bar{      position:relative;z-index:8;flex-shrink:0;      display:flex;background:rgba(0,0,0,0.6);      border-bottom:1px solid rgba(200,150,42,0.2);    }    .tab-btn{      flex:1;padding:11px 0;text-align:center;      font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;      color:var(--txt-m);cursor:pointer;border:none;background:transparent;      border-bottom:2px solid transparent;transition:all 0.2s;    }    .tab-btn.active{color:var(--gold-b);border-bottom:2px solid var(--gold);}    /* PANEL: scrollable equip area */    .equip-panel{      flex:1;position:relative;z-index:5;      display:flex;gap:1px;background:rgba(200,150,42,0.12);      overflow:hidden;    }    .col{flex:1;display:flex;flex-direction:column;background:#0d0905;overflow:hidden;}    .col-header{      flex-shrink:0;padding:8px 10px;      position: relative; text-align: center;      background:linear-gradient(180deg,rgba(30,15,5,0.98),rgba(15,8,3,0.95));      border-bottom:1px solid rgba(200,150,42,0.18);      font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;      color:var(--gold-b);text-transform:uppercase;letter-spacing:0.07em;    }    .col-sub{font-size:0.6rem;color:var(--txt-m);display:block;margin-top:2px;}    .col-body{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;}    /* ITEM CARD */    .item-card{      display:flex;align-items:center;gap:12px;      padding:8px 10px;      background:url('assets/ui/leaderboardbackground.png') center/cover;      border:1.5px solid #4a2a0a;border-radius:7px;      box-shadow:0 3px 8px rgba(0,0,0,0.55);      cursor:pointer;transition:border-color 0.2s;      position:relative;    }    .item-card:hover{border-color:var(--gold);}        .item-img-wrap {      position: relative;      width: 44px;      height: 44px;      flex-shrink: 0;    }    .item-img {      width: 100%;      height: 100%;      object-fit: contain;      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));    }    .item-qty-badge {      position: absolute;      bottom: -2px;      right: -2px;      background: rgba(0,0,0,0.85);      border: 1px solid var(--gold);      border-radius: 4px;      padding: 1px 4px;      font-size: 0.65rem;      font-weight: 900;      color: var(--gold-p);      line-height: 1;    }        .item-meta{flex:1;min-width:0;}    .item-name{font-family:'Cinzel',serif;font-size:0.75rem;font-weight:700;color:var(--txt);overflow-wrap:break-word;word-break:break-word;}    .item-detail{font-size:0.65rem;color:var(--txt-d);margin-top:2px;overflow-wrap:break-word;word-break:break-word;}    .btn-action{      flex-shrink:0;padding:4px 8px;      border-radius:5px;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;      display: flex; align-items: center; justify-content: center;      line-height: 1; min-height: 26px; min-width: 32px;      margin-left: auto;    }    .btn-equip{background:linear-gradient(180deg,#3d2a15,#1e1205);border:1px solid var(--gold);color:var(--gold-b);text-shadow:0 0 4px rgba(240,192,64,0.4);}    .btn-equip:hover{background:linear-gradient(180deg,#52391e,#301d0a);border-color:var(--gold-b);box-shadow:0 0 6px rgba(240,192,64,0.3);}    .btn-remove{background:linear-gradient(180deg,#2b1616,#150a0a);border:1px solid #7a3a3a;color:#dca6a6;}    .btn-remove:hover{background:linear-gradient(180deg,#3d1f1f,#211010);border-color:#ba5a5a;box-shadow:0 0 6px rgba(186,90,90,0.3);}    .btn-bulk {      background: linear-gradient(180deg,#c8962a,#8c6212);      border: 1px solid var(--gold-p);      color: #0f0a05;      border-radius: 4px;      font-family: 'Inter', sans-serif;      font-weight: 900;      cursor: pointer;      padding: 3px 8px;      font-size: 0.75rem;      transition: all 0.2s;      display: flex;      align-items: center;      justify-content: center;      line-height: 1;      text-shadow: 0 1px 0 rgba(255,255,255,0.2);    }    .btn-bulk:hover {      background: linear-gradient(180deg,#f0c040,#b8860b);      box-shadow: 0 0 8px var(--gold-b);    }    .btn-bulk-remove {      background: linear-gradient(180deg,#5a1c1c,#300d0d);      border: 1px solid #aa3c3c;      color: #fcebeb;    }    .btn-bulk-remove:hover {      background: linear-gradient(180deg,#7a2828,#421212);      box-shadow: 0 0 8px #ba5a5a;    }    .btn-bulk-equip-pos {      position: absolute;      right: 8px;      top: 50%;      transform: translateY(-50%);    }    .btn-bulk-unequip-pos {      position: absolute;      left: 8px;      top: 50%;      transform: translateY(-50%);    }    .empty-msg{      display:flex;align-items:center;justify-content:center;flex:1;      color:var(--txt-m);font-family:'Cinzel',serif;font-size:0.75rem;      opacity:0.6;text-align:center;padding:20px;    }    /* STATS BAR */    .stats-bar{      position:relative;z-index:8;flex-shrink:0;      background:linear-gradient(180deg,rgba(10,5,2,0.97),rgba(5,2,0,0.98));      border-top:1px solid rgba(200,150,42,0.25);      padding:12px 14px;    }    .stats-title{      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;      color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;      margin-bottom:10px;text-align:center;    }    .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}    .stat-box{      background:rgba(0,0,0,0.4);border:1px solid rgba(200,150,42,0.15);border-radius:6px;      padding:8px 6px;text-align:center;    }    .stat-k{font-size:0.58rem;color:var(--txt-m);text-transform:uppercase;display:block;margin-bottom:3px;}    .stat-v{font-size:0.85rem;font-weight:700;color:var(--gold-b);}    ::-webkit-scrollbar{width:4px;}    ::-webkit-scrollbar-track{background:transparent;}    ::-webkit-scrollbar-thumb{background:#442a10;border-radius:3px;}  </style></head><body><div class="page">  <!-- TOP BAR -->  <div class="top-bar">    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? BACK</span></a>    <div class="page-title"><span data-i18n="page_equipment" data-i18n-text>EQUIPMENT</span></div>    <div style="width:65px;"></div>  </div>  <!-- TABS -->  <div class="tab-bar">    <button class="tab-btn active" id="tab-top" data-i18n="equip_tab_cannons" onclick="switchTab('top')">CANNONS</button>    <button class="tab-btn" id="tab-direk" data-i18n="equip_tab_masts" onclick="switchTab('direk')">MASTS</button>  </div>  <!-- EQUIP PANEL -->  <div class="equip-panel">    <!-- DEPO -->    <div class="col">      <div class="col-header">        <div>          <span data-i18n="equip_storage">In Storage</span>          <span class="col-sub" id="storage-count">0 <span data-i18n="equip_pcs">pcs</span></span>        </div>        <button class="btn-bulk btn-bulk-equip-pos" id="btn-bulk-equip" data-i18n-title="equip_equip_all" title="Equip All" onclick="doEquipAll()">?</button>      </div>      <div class="col-body" id="storage-list"></div>    </div>    <!-- GEMIDE -->    <div class="col">      <div class="col-header">        <button class="btn-bulk btn-bulk-remove btn-bulk-unequip-pos" id="btn-bulk-unequip" data-i18n-title="equip_unequip_all" title="Unequip All" onclick="doUnequipAll()">?</button>        <div>          <span data-i18n="equip_equipped">Equipped</span>          <span class="col-sub" id="equipped-count">0 / 30 <span data-i18n="equip_slot">slot</span></span>        </div>      </div>      <div class="col-body" id="equipped-list"></div>    </div>  </div>  <!-- GEMI STATS -->  <div class="stats-bar">    <div class="stats-title" data-i18n="equip_stats_title">Ship Stats</div>    <div class="stats-grid">      <div class="stat-box">        <span class="stat-k" data-i18n="equip_stat_hp">Total HP</span>        <span class="stat-v" id="stat-hp">10.000</span>      </div>      <div class="stat-box">        <span class="stat-k" data-i18n="equip_stat_dmg">Cannon Damage</span>        <span class="stat-v" id="stat-dmg">0</span>      </div>      <div class="stat-box">        <span class="stat-k" data-i18n="equip_stat_reload">Reload Speed</span>        <span class="stat-v" id="stat-reload">?</span>      </div>      <div class="stat-box">        <span class="stat-k" data-i18n="equip_stat_repair">Repair Bonus</span>        <span class="stat-v" id="stat-repair">+0</span>      </div>    </div>  </div></div><script>  /* -- GDD'den alinan Katalog -- */  const CANNON_CATALOG = [    { id: 'top1', type: 'top', nk: 'shop_name_30_pounder', name: '30 Pounder',  img: 'assets/items/toppp/top1.png', hasar: 120, atisSnr: 4 },    { id: 'top2', type: 'top', nk: 'shop_name_55_pounder', name: '55 Pounder',  img: 'assets/items/toppp/top2.png', hasar: 185, atisSnr: 3 },    { id: 'top3', type: 'top', nk: 'shop_name_60_pounder', name: '60 Pounder',  img: 'assets/items/toppp/top3.png', hasar: 260, atisSnr: 2 }  ];  const MAST_CATALOG = [    { id: 'mast1', type: 'direk', nk: 'shop_name_wooden_beam', name: 'Wooden Beam', img: 'assets/items/shop/tahtakiris.png', hpBonus: 500, repairBonus: 8 },    { id: 'mast2', type: 'direk', nk: 'shop_name_elite_beam', name: 'Elite Beam',  img: 'assets/items/shop/elitkiris.png', hpBonus: 1200, repairBonus: 20 }  ];  /* -- Oyuncu durumu (API bazli) -- */  const API_URL = (window.__API_URL__ || window.location.origin) + '/api';  const token = localStorage.getItem('sp_token');  if (!token) {    goTo('index.html');  }  let state = {    storage: { top1: 0, top2: 0, top3: 0, mast1: 0, mast2: 0 },    equipped: { top1: 0, top2: 0, top3: 0 },    equippedMasts: { mast1: 0, mast2: 0 },    maxCannons: 15,    maxMasts: 5,    baseHp: 10000  };  let activeTab = 'top';  async function loadState() {    try {      const res = await fetch(`${API_URL}/equipment/my-items`, {        headers: { 'Authorization': `Bearer ${token}` }      });      if (res.ok) {        state = await res.json();        render();      } else {        toast(t('equip_load_failed'), 'err');      }    } catch (err) {      logError('equipment:load-state', err);      toast(t('connection_failed'), 'err');    }    if (typeof readyNow === 'function') readyNow();  }  function switchTab(tab) {    activeTab = tab;    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));    document.getElementById('tab-' + tab).classList.add('active');    render();  }  /* -- STATS HESAP -- */  function calcStats() {    let totalCannons = 0;    let totalDmg     = 0;    let reloadSum    = 0;    CANNON_CATALOG.forEach(c => {      const qty = state.equipped[c.id] || 0;      if (qty > 0) {        totalCannons += qty;        totalDmg     += c.hasar * qty;        reloadSum    += c.atisSnr * qty;      }    });    const atisSure = totalCannons > 0 ? (reloadSum / totalCannons) : 0;    let hpBonus = 0;    let repairBonus = 0;    MAST_CATALOG.forEach(m => {      const qty = (state.equippedMasts || {})[m.id] || 0;      hpBonus += m.hpBonus * qty;      repairBonus += (m.repairBonus || 0) * qty;    });    document.getElementById('stat-hp').textContent    = (state.baseHp + hpBonus).toLocaleString('en-US');    document.getElementById('stat-dmg').textContent   = totalDmg > 0 ? totalDmg.toLocaleString('en-US') : '?';    document.getElementById('stat-reload').textContent = atisSure > 0 ? atisSure.toFixed(2) + ' sn' : '?';    document.getElementById('stat-repair').textContent = repairBonus > 0 ? '+' + repairBonus : '+0';    if (activeTab === 'top') {      const equippedTotal = Object.values(state.equipped).reduce((a,b)=>a+b, 0);      document.getElementById('equipped-count').textContent = equippedTotal + ' / ' + state.maxCannons + ' ' + t('equip_slot');    } else {      const mastTotal = Object.values(state.equippedMasts || {}).reduce((a,b)=>a+b, 0);      document.getElementById('equipped-count').textContent = mastTotal + ' / ' + state.maxMasts + ' ' + t('equip_slot');    }  }  /* -- RENDER -- */  function render() {    const catalog = activeTab === 'top' ? CANNON_CATALOG : MAST_CATALOG;    const equippedKey  = activeTab === 'top' ? 'equipped'      : 'equippedMasts';    // En g??l?den zayifa sirala    const sortedCatalog = [...catalog].sort((a, b) => {      const aStr = a.hasar || a.hpBonus || 0;      const bStr = b.hasar || b.hpBonus || 0;      return bStr - aStr;    });    const storageEl  = document.getElementById('storage-list');    const equippedEl = document.getElementById('equipped-list');    storageEl.innerHTML  = '';    equippedEl.innerHTML = '';    let storageTotal  = 0;    let equippedTotal = 0;    sortedCatalog.forEach(item => {      const stQty  = state.storage[item.id]                         || 0;      const eqQty  = (state[equippedKey] || {})[item.id]            || 0;      storageTotal  += stQty;      equippedTotal += eqQty;      if (stQty > 0) {        storageEl.appendChild(makeCard(item, stQty, 'equip', () => doEquip(item.id, activeTab === 'top')));      }      if (eqQty > 0) {        equippedEl.appendChild(makeCard(item, eqQty, 'remove', () => doRemove(item.id, activeTab === 'top')));      }    });    if (storageEl.children.length === 0) {      const e = document.createElement('div'); e.className='empty-msg';      e.textContent = t('equip_no_storage'); storageEl.appendChild(e);    }    if (equippedEl.children.length === 0) {      const e = document.createElement('div'); e.className='empty-msg';      e.textContent = t('equip_empty_ship'); equippedEl.appendChild(e);    }    document.getElementById('storage-count').textContent  = storageTotal  + ' ' + t('equip_pcs');    calcStats();  }  function makeCard(item, qty, action, callback) {    const card = document.createElement('div');    card.className = 'item-card';    let detail = '';    if (item.hasar)   detail += `${t('stat_damage',{val:item.hasar})} `;    if (item.atisSnr) detail += `${t('stat_reload',{val:item.atisSnr})} `;    if (item.hpBonus) detail += `${t('stat_hp_plus',{val:item.hpBonus})} `;    if (item.repairBonus) detail += `${t('stat_repair_plus',{val:item.repairBonus})}`;    const btnClass = action === 'equip' ? 'btn-equip' : 'btn-remove';    const btnTxt   = action === 'equip' ? '?' : '?';    const displayName = item.nk ? t(item.nk) : item.name;    card.innerHTML = `      <div class="item-img-wrap">        <img src="${item.img}" class="item-img" alt="${displayName}"/>        <div class="item-qty-badge">?${Number(qty).toLocaleString('tr-TR')}</div>      </div>      <div class="item-meta">        <div class="item-name">${displayName}</div>        <div class="item-detail">${detail}</div>      </div>      <button class="${btnClass} btn-action">${btnTxt}</button>    `;    card.querySelector('button').addEventListener('click', callback);    return card;  }  /* -- ACTIONS -- */  async function doEquip(id, isCannon) {    try {      const res = await fetch(`${API_URL}/equipment/equip`, {        method: 'POST',        headers: {          'Content-Type': 'application/json',          'Authorization': `Bearer ${token}`        },        body: JSON.stringify({ itemId: id, isCannon })      });      const data = await res.json();      if (!res.ok) {        toast(data.error || t('equip_failed'), 'err');        return;      }      await loadState();    } catch (err) {      logError('equipment:equip', err);      toast(t('connection_failed'), 'err');    }  }  async function doRemove(id, isCannon) {    try {      const res = await fetch(`${API_URL}/equipment/unequip`, {        method: 'POST',        headers: {          'Content-Type': 'application/json',          'Authorization': `Bearer ${token}`        },        body: JSON.stringify({ itemId: id, isCannon })      });      const data = await res.json();      if (!res.ok) {        toast(data.error || t('unequip_failed'), 'err');        return;      }      await loadState();    } catch (err) {      logError('equipment:remove', err);      toast(t('connection_failed'), 'err');    }  }  async function doEquipAll() {    try {      const res = await fetch(`${API_URL}/equipment/equip-all`, {        method: 'POST',        headers: {          'Content-Type': 'application/json',          'Authorization': `Bearer ${token}`        },        body: JSON.stringify({ isCannon: activeTab === 'top' })      });      const data = await res.json();      if (!res.ok) {        toast(data.error || t('equip_all_failed'), 'err');        return;      }      await loadState();    } catch (err) {      logError('equipment:equip-all', err);      toast(t('connection_failed'), 'err');    }  }  async function doUnequipAll() {    try {      const res = await fetch(`${API_URL}/equipment/unequip-all`, {        method: 'POST',        headers: {          'Content-Type': 'application/json',          'Authorization': `Bearer ${token}`        },        body: JSON.stringify({ isCannon: activeTab === 'top' })      });      const data = await res.json();      if (!res.ok) {        toast(data.error || t('unequip_all_failed'), 'err');        return;      }      await loadState();    } catch (err) {      logError('equipment:unequip-all', err);      toast(t('connection_failed'), 'err');    }  }  function toast(msg, type) {    window.showAlert(msg, type === 'err' ? t('server_error') : 'SEAPIRATES', type === 'err');  }  loadState();</script> <script>renderFromCache(); revealPage();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <meta name="theme-color" content="#080502">
+  <style>body { visibility: hidden; background: #080502; }</style>
+  <title>SeaPirates ? Equipment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=2"></script>
+  <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="transition.js?v=8"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
+      --wood-d:#0f0a05;--wood-m:#1a1108;
+      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
+    }
+    html,body{
+      width:100%;height:100dvh;overflow:hidden;
+      background:#080502;font-family:'Inter',sans-serif;color:var(--txt);
+    }
+    .page{
+      max-width:430px;margin:0 auto;height:100dvh;
+      display:flex;flex-direction:column;
+      position:relative;
+      background:url('assets/ui/background/menubackground.png') center/cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+    }
+    .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.72);pointer-events:none;z-index:0;}
+
+    /* TOP BAR */
+    .top-bar{
+      position:relative;z-index:10;flex-shrink:0;padding:14px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid rgba(200,150,42,0.3);
+      background:linear-gradient(180deg,rgba(20,10,2,0.98),rgba(10,5,0,0.9));
+    }
+    .btn-back{
+      padding:8px 12px;background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:7px;
+      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;
+      color:var(--txt-d);text-decoration:none;
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1.1rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 10px rgba(200,150,42,0.6);text-transform:uppercase;
+    }
+
+    /* TAB BAR */
+    .tab-bar{
+      position:relative;z-index:8;flex-shrink:0;
+      display:flex;background:rgba(0,0,0,0.6);
+      border-bottom:1px solid rgba(200,150,42,0.2);
+    }
+    .tab-btn{
+      flex:1;padding:11px 0;text-align:center;
+      font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;
+      color:var(--txt-m);cursor:pointer;border:none;background:transparent;
+      border-bottom:2px solid transparent;transition:all 0.2s;
+    }
+    .tab-btn.active{color:var(--gold-b);border-bottom:2px solid var(--gold);}
+
+    /* PANEL: scrollable equip area */
+    .equip-panel{
+      flex:1;position:relative;z-index:5;
+      display:flex;gap:1px;background:rgba(200,150,42,0.12);
+      overflow:hidden;
+    }
+    .col{flex:1;display:flex;flex-direction:column;background:#0d0905;overflow:hidden;}
+    .col-header{
+      flex-shrink:0;padding:8px 10px;
+      position: relative; text-align: center;
+      background:linear-gradient(180deg,rgba(30,15,5,0.98),rgba(15,8,3,0.95));
+      border-bottom:1px solid rgba(200,150,42,0.18);
+      font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;
+      color:var(--gold-b);text-transform:uppercase;letter-spacing:0.07em;
+    }
+    .col-sub{font-size:0.6rem;color:var(--txt-m);display:block;margin-top:2px;}
+    .col-body{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;}
+
+    /* ITEM CARD */
+    .item-card{
+      display:flex;align-items:center;gap:12px;
+      padding:8px 10px;
+      background:url('assets/ui/leaderboardbackground.png') center/cover;
+      border:1.5px solid #4a2a0a;border-radius:7px;
+      box-shadow:0 3px 8px rgba(0,0,0,0.55);
+      cursor:pointer;transition:border-color 0.2s;
+      position:relative;
+    }
+    .item-card:hover{border-color:var(--gold);}
+    
+    .item-img-wrap {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+    .item-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+    }
+    .item-qty-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: var(--gold-p);
+      line-height: 1;
+    }
+    
+    .item-meta{flex:1;min-width:0;}
+    .item-name{font-family:'Cinzel',serif;font-size:0.75rem;font-weight:700;color:var(--txt);overflow-wrap:break-word;word-break:break-word;}
+    .item-detail{font-size:0.65rem;color:var(--txt-d);margin-top:2px;overflow-wrap:break-word;word-break:break-word;}
+
+    .btn-action{
+      flex-shrink:0;padding:4px 8px;
+      border-radius:5px;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1; min-height: 26px; min-width: 32px;
+      margin-left: auto;
+    }
+    .btn-equip{background:linear-gradient(180deg,#3d2a15,#1e1205);border:1px solid var(--gold);color:var(--gold-b);text-shadow:0 0 4px rgba(240,192,64,0.4);}
+    .btn-equip:hover{background:linear-gradient(180deg,#52391e,#301d0a);border-color:var(--gold-b);box-shadow:0 0 6px rgba(240,192,64,0.3);}
+    .btn-remove{background:linear-gradient(180deg,#2b1616,#150a0a);border:1px solid #7a3a3a;color:#dca6a6;}
+    .btn-remove:hover{background:linear-gradient(180deg,#3d1f1f,#211010);border-color:#ba5a5a;box-shadow:0 0 6px rgba(186,90,90,0.3);}
+
+    .btn-bulk {
+      background: linear-gradient(180deg,#c8962a,#8c6212);
+      border: 1px solid var(--gold-p);
+      color: #0f0a05;
+      border-radius: 4px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      cursor: pointer;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .btn-bulk:hover {
+      background: linear-gradient(180deg,#f0c040,#b8860b);
+      box-shadow: 0 0 8px var(--gold-b);
+    }
+    .btn-bulk-remove {
+      background: linear-gradient(180deg,#5a1c1c,#300d0d);
+      border: 1px solid #aa3c3c;
+      color: #fcebeb;
+    }
+    .btn-bulk-remove:hover {
+      background: linear-gradient(180deg,#7a2828,#421212);
+      box-shadow: 0 0 8px #ba5a5a;
+    }
+    .btn-bulk-equip-pos {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .btn-bulk-unequip-pos {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .empty-msg{
+      display:flex;align-items:center;justify-content:center;flex:1;
+      color:var(--txt-m);font-family:'Cinzel',serif;font-size:0.75rem;
+      opacity:0.6;text-align:center;padding:20px;
+    }
+
+    /* STATS BAR */
+    .stats-bar{
+      position:relative;z-index:8;flex-shrink:0;
+      background:linear-gradient(180deg,rgba(10,5,2,0.97),rgba(5,2,0,0.98));
+      border-top:1px solid rgba(200,150,42,0.25);
+      padding:12px 14px;
+    }
+    .stats-title{
+      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;
+      color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;
+      margin-bottom:10px;text-align:center;
+    }
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+    .stat-box{
+      background:rgba(0,0,0,0.4);border:1px solid rgba(200,150,42,0.15);border-radius:6px;
+      padding:8px 6px;text-align:center;
+    }
+    .stat-k{font-size:0.58rem;color:var(--txt-m);text-transform:uppercase;display:block;margin-bottom:3px;}
+    .stat-v{font-size:0.85rem;font-weight:700;color:var(--gold-b);}
+
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:#442a10;border-radius:3px;}
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? BACK</span></a>
+    <div class="page-title"><span data-i18n="page_equipment" data-i18n-text>EQUIPMENT</span></div>
+    <div style="width:65px;"></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-top" data-i18n="equip_tab_cannons" onclick="switchTab('top')">CANNONS</button>
+    <button class="tab-btn" id="tab-direk" data-i18n="equip_tab_masts" onclick="switchTab('direk')">MASTS</button>
+  </div>
+
+  <!-- EQUIP PANEL -->
+  <div class="equip-panel">
+    <!-- DEPO -->
+    <div class="col">
+      <div class="col-header">
+        <div>
+          <span data-i18n="equip_storage">In Storage</span>
+          <span class="col-sub" id="storage-count">0 <span data-i18n="equip_pcs">pcs</span></span>
+        </div>
+        <button class="btn-bulk btn-bulk-equip-pos" id="btn-bulk-equip" data-i18n-title="equip_equip_all" title="Equip All" onclick="doEquipAll()">?</button>
+      </div>
+      <div class="col-body" id="storage-list"></div>
+    </div>
+
+    <!-- GEMIDE -->
+    <div class="col">
+      <div class="col-header">
+        <button class="btn-bulk btn-bulk-remove btn-bulk-unequip-pos" id="btn-bulk-unequip" data-i18n-title="equip_unequip_all" title="Unequip All" onclick="doUnequipAll()">?</button>
+        <div>
+          <span data-i18n="equip_equipped">Equipped</span>
+          <span class="col-sub" id="equipped-count">0 / 30 <span data-i18n="equip_slot">slot</span></span>
+        </div>
+      </div>
+      <div class="col-body" id="equipped-list"></div>
+    </div>
+  </div>
+
+  <!-- GEMI STATS -->
+  <div class="stats-bar">
+    <div class="stats-title" data-i18n="equip_stats_title">Ship Stats</div>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="stat-k" data-i18n="equip_stat_hp">Total HP</span>
+        <span class="stat-v" id="stat-hp">10.000</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-k" data-i18n="equip_stat_dmg">Cannon Damage</span>
+        <span class="stat-v" id="stat-dmg">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-k" data-i18n="equip_stat_reload">Reload Speed</span>
+        <span class="stat-v" id="stat-reload">?</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-k" data-i18n="equip_stat_repair">Repair Bonus</span>
+        <span class="stat-v" id="stat-repair">+0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* -- GDD'den alinan Katalog -- */
+  const CANNON_CATALOG = [
+    { id: 'top1', type: 'top', nk: 'shop_name_30_pounder', name: '30 Pounder',  img: 'assets/items/toppp/top1.png', hasar: 120, atisSnr: 4 },
+    { id: 'top2', type: 'top', nk: 'shop_name_55_pounder', name: '55 Pounder',  img: 'assets/items/toppp/top2.png', hasar: 185, atisSnr: 3 },
+    { id: 'top3', type: 'top', nk: 'shop_name_60_pounder', name: '60 Pounder',  img: 'assets/items/toppp/top3.png', hasar: 260, atisSnr: 2 }
+  ];
+
+  const MAST_CATALOG = [
+    { id: 'mast1', type: 'direk', nk: 'shop_name_wooden_beam', name: 'Wooden Beam', img: 'assets/items/shop/tahtakiris.png', hpBonus: 500, repairBonus: 8 },
+    { id: 'mast2', type: 'direk', nk: 'shop_name_elite_beam', name: 'Elite Beam',  img: 'assets/items/shop/elitkiris.png', hpBonus: 1200, repairBonus: 20 }
+  ];
+
+  /* -- Oyuncu durumu (API bazli) -- */
+  const API_URL = (window.__API_URL__ || window.location.origin) + '/api';
+  const token = localStorage.getItem('sp_token');
+
+  if (!token) {
+    goTo('index.html');
+  }
+
+  let state = {
+    storage: { top1: 0, top2: 0, top3: 0, mast1: 0, mast2: 0 },
+    equipped: { top1: 0, top2: 0, top3: 0 },
+    equippedMasts: { mast1: 0, mast2: 0 },
+    maxCannons: 15,
+    maxMasts: 5,
+    baseHp: 10000
+  };
+
+  let activeTab = 'top';
+
+  async function loadState() {
+    try {
+      const res = await fetch(`${API_URL}/equipment/my-items`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        state = await res.json();
+        render();
+      } else {
+        toast(t('equip_load_failed'), 'err');
+      }
+    } catch (err) {
+      logError('equipment:load-state', err);
+      toast(t('connection_failed'), 'err');
+    }
+    if (typeof readyNow === 'function') readyNow();
+  }
+
+  function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    render();
+  }
+
+  /* -- STATS HESAP -- */
+  function calcStats() {
+    let totalCannons = 0;
+    let totalDmg     = 0;
+    let reloadSum    = 0;
+
+    CANNON_CATALOG.forEach(c => {
+      const qty = state.equipped[c.id] || 0;
+      if (qty > 0) {
+        totalCannons += qty;
+        totalDmg     += c.hasar * qty;
+        reloadSum    += c.atisSnr * qty;
+      }
+    });
+
+    const atisSure = totalCannons > 0 ? (reloadSum / totalCannons) : 0;
+
+    let hpBonus = 0;
+    let repairBonus = 0;
+    MAST_CATALOG.forEach(m => {
+      const qty = (state.equippedMasts || {})[m.id] || 0;
+      hpBonus += m.hpBonus * qty;
+      repairBonus += (m.repairBonus || 0) * qty;
+    });
+
+    document.getElementById('stat-hp').textContent    = (state.baseHp + hpBonus).toLocaleString('en-US');
+    document.getElementById('stat-dmg').textContent   = totalDmg > 0 ? totalDmg.toLocaleString('en-US') : '?';
+    document.getElementById('stat-reload').textContent = atisSure > 0 ? atisSure.toFixed(2) + ' sn' : '?';
+    document.getElementById('stat-repair').textContent = repairBonus > 0 ? '+' + repairBonus : '+0';
+
+    if (activeTab === 'top') {
+      const equippedTotal = Object.values(state.equipped).reduce((a,b)=>a+b, 0);
+      document.getElementById('equipped-count').textContent = equippedTotal + ' / ' + state.maxCannons + ' ' + t('equip_slot');
+    } else {
+      const mastTotal = Object.values(state.equippedMasts || {}).reduce((a,b)=>a+b, 0);
+      document.getElementById('equipped-count').textContent = mastTotal + ' / ' + state.maxMasts + ' ' + t('equip_slot');
+    }
+  }
+
+  /* -- RENDER -- */
+  function render() {
+    const catalog = activeTab === 'top' ? CANNON_CATALOG : MAST_CATALOG;
+    const equippedKey  = activeTab === 'top' ? 'equipped'      : 'equippedMasts';
+
+    // En g??l?den zayifa sirala
+    const sortedCatalog = [...catalog].sort((a, b) => {
+      const aStr = a.hasar || a.hpBonus || 0;
+      const bStr = b.hasar || b.hpBonus || 0;
+      return bStr - aStr;
+    });
+
+    const storageEl  = document.getElementById('storage-list');
+    const equippedEl = document.getElementById('equipped-list');
+    storageEl.innerHTML  = '';
+    equippedEl.innerHTML = '';
+
+    let storageTotal  = 0;
+    let equippedTotal = 0;
+
+    sortedCatalog.forEach(item => {
+      const stQty  = state.storage[item.id]                         || 0;
+      const eqQty  = (state[equippedKey] || {})[item.id]            || 0;
+      storageTotal  += stQty;
+      equippedTotal += eqQty;
+
+      if (stQty > 0) {
+        storageEl.appendChild(makeCard(item, stQty, 'equip', () => doEquip(item.id, activeTab === 'top')));
+      }
+
+      if (eqQty > 0) {
+        equippedEl.appendChild(makeCard(item, eqQty, 'remove', () => doRemove(item.id, activeTab === 'top')));
+      }
+    });
+
+    if (storageEl.children.length === 0) {
+      const e = document.createElement('div'); e.className='empty-msg';
+      e.textContent = t('equip_no_storage'); storageEl.appendChild(e);
+    }
+    if (equippedEl.children.length === 0) {
+      const e = document.createElement('div'); e.className='empty-msg';
+      e.textContent = t('equip_empty_ship'); equippedEl.appendChild(e);
+    }
+
+    document.getElementById('storage-count').textContent  = storageTotal  + ' ' + t('equip_pcs');
+    calcStats();
+  }
+
+  function makeCard(item, qty, action, callback) {
+    const card = document.createElement('div');
+    card.className = 'item-card';
+
+    let detail = '';
+    if (item.hasar)   detail += `${t('stat_damage',{val:item.hasar})} `;
+    if (item.atisSnr) detail += `${t('stat_reload',{val:item.atisSnr})} `;
+    if (item.hpBonus) detail += `${t('stat_hp_plus',{val:item.hpBonus})} `;
+    if (item.repairBonus) detail += `${t('stat_repair_plus',{val:item.repairBonus})}`;
+
+    const btnClass = action === 'equip' ? 'btn-equip' : 'btn-remove';
+    const btnTxt   = action === 'equip' ? '?' : '?';
+
+    const displayName = item.nk ? t(item.nk) : item.name;
+
+    card.innerHTML = `
+      <div class="item-img-wrap">
+        <img src="${item.img}" class="item-img" alt="${displayName}"/>
+        <div class="item-qty-badge">?${Number(qty).toLocaleString('tr-TR')}</div>
+      </div>
+      <div class="item-meta">
+        <div class="item-name">${displayName}</div>
+        <div class="item-detail">${detail}</div>
+      </div>
+      <button class="${btnClass} btn-action">${btnTxt}</button>
+    `;
+    card.querySelector('button').addEventListener('click', callback);
+    return card;
+  }
+
+  /* -- ACTIONS -- */
+  async function doEquip(id, isCannon) {
+    try {
+      const res = await fetch(`${API_URL}/equipment/equip`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ itemId: id, isCannon })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error || t('equip_failed'), 'err');
+        return;
+      }
+
+      await loadState();
+    } catch (err) {
+      logError('equipment:equip', err);
+      toast(t('connection_failed'), 'err');
+    }
+  }
+
+  async function doRemove(id, isCannon) {
+    try {
+      const res = await fetch(`${API_URL}/equipment/unequip`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ itemId: id, isCannon })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error || t('unequip_failed'), 'err');
+        return;
+      }
+
+      await loadState();
+    } catch (err) {
+      logError('equipment:remove', err);
+      toast(t('connection_failed'), 'err');
+    }
+  }
+
+  async function doEquipAll() {
+    try {
+      const res = await fetch(`${API_URL}/equipment/equip-all`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ isCannon: activeTab === 'top' })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error || t('equip_all_failed'), 'err');
+        return;
+      }
+
+      await loadState();
+    } catch (err) {
+      logError('equipment:equip-all', err);
+      toast(t('connection_failed'), 'err');
+    }
+  }
+
+  async function doUnequipAll() {
+    try {
+      const res = await fetch(`${API_URL}/equipment/unequip-all`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ isCannon: activeTab === 'top' })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error || t('unequip_all_failed'), 'err');
+        return;
+      }
+
+      await loadState();
+    } catch (err) {
+      logError('equipment:unequip-all', err);
+      toast(t('connection_failed'), 'err');
+    }
+  }
+
+  function toast(msg, type) {
+    window.showAlert(msg, type === 'err' ? t('server_error') : 'SEAPIRATES', type === 'err');
+  }
+
+  loadState();
+</script>
+ <script>renderFromCache(); revealPage();</script>
+</body>
+</html>
+
+

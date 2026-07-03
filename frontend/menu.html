@@ -1,1 +1,287 @@
-<!DOCTYPE html><html lang="tr"><head>  <meta charset="UTF-8" />  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />  <meta name="theme-color" content="#0d0702">  <style>body { visibility: hidden; background: #0d0702; }</style>  <title data-i18n="menu_title">SeaPirates — Menü</title>  <link    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional"    rel="stylesheet" />  <link rel="stylesheet" href="style.css">  <script src="js/lang.js?v=2"></script>  <script src="js/api.js?v=4"></script>  <script src="js/logger.js"></script>  <script src="js/auth.js?v=2"></script>  <script src="transition.js?v=8"></script>  <style>    *,    *::before,    *::after {      box-sizing: border-box;      margin: 0;      padding: 0    }    :root {      --gold: #c8962a;      --gold-b: #f0c040;      --gold-p: #fde68a;      --wood-d: #1a0e05;      --wood-m: #2d1a08;      --wood-plank: #5c3518;      --txt: #f5e6c8;      --txt-d: #b8956a;      --txt-m: #7a5a38;      --red: #c0392b;      --red-b: #e74c3c;    }    html,    body {      width: 100%;      height: 100dvh;      overflow: hidden;      background: #0d0702;      font-family: 'Inter', sans-serif;      color: var(--txt);    }    /* PAGE */    .page {      max-width: 430px;      margin: 0 auto;      height: 100dvh;      display: flex;      flex-direction: column;      position: relative;      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;          padding-bottom: env(safe-area-inset-bottom, 0px);      box-sizing: border-box;    }    .page::before {      content: '';      position: absolute;      inset: 0;      background: rgba(0, 0, 0, 0.6);      /* Arka plani biraz karartarak menü ögelerini öne çikar */      pointer-events: none;      z-index: 0;    }    /* TOP BAR */    .top-bar {      position: relative;      z-index: 10;      padding: 14px;      display: flex;      align-items: center;      justify-content: space-between;      flex-shrink: 0;      border-bottom: 1px solid rgba(200, 150, 42, 0.3);      background: linear-gradient(180deg, rgba(20, 10, 2, 0.95), rgba(10, 5, 0, 0.85));    }    .btn-back {      padding: 8px 12px;      background: linear-gradient(180deg, #3d2108, #1e0e03);      border: 1px solid #7a4a18;      border-radius: 7px;      font-family: 'Cinzel', serif;      font-size: 0.7rem;      font-weight: 700;      color: var(--txt-d);      letter-spacing: 0.04em;      cursor: pointer;      text-align: center;      text-decoration: none;      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);    }    .btn-back:hover {      border-color: var(--gold);      color: var(--gold-b);    }    .page-title {      font-family: 'Cinzel', serif;      font-weight: 900;      font-size: 1.1rem;      letter-spacing: 0.1em;      color: var(--gold-b);      text-shadow: 0 0 10px rgba(200, 150, 42, 0.6);      text-transform: uppercase;    }    /* MENU GRID */    .menu-wrap {      flex: 1;      position: relative;      z-index: 5;      padding: 20px 15px;      overflow-y: auto;      display: grid;      grid-template-columns: 1fr 1fr;      gap: 15px;      align-content: center;      margin: 0 auto;      width: 100%;      max-width: 400px;      scrollbar-width:thin;scrollbar-color:transparent transparent;    }    .menu-wrap::-webkit-scrollbar{width:0;}    /* MENU BUTTON (WOODEN PLANK STYLE) */    .menu-btn {      position: relative;      display: flex;      flex-direction: row;      align-items: center;      justify-content: center;      padding: 18px 20px;      background: url('assets/ui/leaderboardbackground.png') center/cover;      border: 2px solid #6a4218;      border-radius: 12px;      text-decoration: none;      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.5);      transition: transform 0.1s, border-color 0.2s, box-shadow 0.2s;    }    .menu-btn::before {      content: '';      position: absolute;      inset: 0;      background: rgba(20, 10, 0, 0.4);      border-radius: 10px;      transition: background 0.2s;    }    .menu-btn:hover {      transform: translateY(-2px);      border-color: var(--gold);      box-shadow: 0 8px 25px rgba(200, 150, 42, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.5);    }    .menu-btn:hover::before {      background: rgba(200, 150, 42, 0.1);    }    .menu-lbl {      position: relative;      z-index: 1;      font-family: 'Cinzel', serif;      font-size: 0.75rem;      font-weight: 700;      color: var(--txt);      text-transform: uppercase;      letter-spacing: 0.1em;      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);      text-align: center;      overflow-wrap:break-word;word-break:break-word;      line-height:1.3;    }    .menu-btn:hover .menu-lbl {      color: var(--gold-p);    }  </style></head><body>    <div class="page">    <!-- TOP BAR -->    <div class="top-bar">      <a href="home.html" class="btn-back"><span data-i18n="btn_harbor" data-i18n-text>? ANA SAYFA</span></a>      <div class="page-title"><span data-i18n="menu_title" data-i18n-text>MENÜ</span></div>      <div style="width:85px;"></div>    </div>    <!-- MENU LIST -->    <div class="menu-wrap">      <a href="shop.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_shop" data-i18n-text>Dükkan</span>      </a>      <a href="equipment.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_equipment" data-i18n-text>Ekipman</span>      </a>      <a href="ships.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_ships" data-i18n-text>Gemiler</span>      </a>      <a href="auction.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_auction" data-i18n-text>Açik Arttirma</span>      </a>      <a href="my-hall.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_my_hall" data-i18n-text>Seref Salonum</span>      </a>      <a href="hall-of-fame.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_hall_of_fame" data-i18n-text>Seref Salonu</span>      </a>      <a href="daily-reward.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_daily_reward" data-i18n-text>Günlük Giris Ödülü</span>      </a>      <a href="level-bonus.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_level_bonus" data-i18n-text>Seviye Bonusu</span>      </a>      <a href="#" class="menu-btn" onclick="event.preventDefault(); showComingSoon();">        <span class="menu-lbl" data-i18n="menu_clan" data-i18n-text>Klan</span>      </a>      <a href="settings.html" class="menu-btn">        <span class="menu-lbl" data-i18n="menu_settings" data-i18n-text>Ayarlar</span>      </a>      <a href="admin.html" class="menu-btn" id="btn-admin" style="display:none;">        <span class="menu-lbl" data-i18n="menu_admin" data-i18n-text>Admin</span>      </a>    </div>  </div>  <script>    function showComingSoon() {      let overlay = document.getElementById('cs-overlay');      if (!overlay) {        overlay = document.createElement('div');        overlay.id = 'cs-overlay';        overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;cursor:pointer';        const img = document.createElement('img');        img.src = 'assets/ui/images/imgi_73_coming_soon.jpg';        img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 40px rgba(0,0,0,0.8)';        overlay.appendChild(img);        overlay.addEventListener('click', () => overlay.remove());        document.body.appendChild(overlay);      }    }    const token = localStorage.getItem('sp_token');    if (token) {      try {        const payload = JSON.parse(atob(token.split('.')[1]));        if (payload.isAdmin) {          document.getElementById('btn-admin').style.display = '';        }      } catch(e) {}    }  </script>  <script>renderFromCache(); revealPage(); readyNow();</script></body></html>
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
+  <meta name="theme-color" content="#0d0702">
+  <style>body { visibility: hidden; background: #0d0702; }</style>
+  <title data-i18n="menu_title">SeaPirates — Menü</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=2"></script>
+  <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="transition.js?v=8"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --gold: #c8962a;
+      --gold-b: #f0c040;
+      --gold-p: #fde68a;
+      --wood-d: #1a0e05;
+      --wood-m: #2d1a08;
+      --wood-plank: #5c3518;
+      --txt: #f5e6c8;
+      --txt-d: #b8956a;
+      --txt-m: #7a5a38;
+      --red: #c0392b;
+      --red-b: #e74c3c;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #0d0702;
+      font-family: 'Inter', sans-serif;
+      color: var(--txt);
+    }
+
+    /* PAGE */
+    .page {
+      max-width: 430px;
+      margin: 0 auto;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+    }
+
+    .page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      /* Arka plani biraz karartarak menü ögelerini öne çikar */
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(200, 150, 42, 0.3);
+      background: linear-gradient(180deg, rgba(20, 10, 2, 0.95), rgba(10, 5, 0, 0.85));
+    }
+
+    .btn-back {
+      padding: 8px 12px;
+      background: linear-gradient(180deg, #3d2108, #1e0e03);
+      border: 1px solid #7a4a18;
+      border-radius: 7px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--txt-d);
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-back:hover {
+      border-color: var(--gold);
+      color: var(--gold-b);
+    }
+
+    .page-title {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      color: var(--gold-b);
+      text-shadow: 0 0 10px rgba(200, 150, 42, 0.6);
+      text-transform: uppercase;
+    }
+
+    /* MENU GRID */
+    .menu-wrap {
+      flex: 1;
+      position: relative;
+      z-index: 5;
+      padding: 20px 15px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      align-content: center;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 400px;
+      scrollbar-width:thin;scrollbar-color:transparent transparent;
+    }
+    .menu-wrap::-webkit-scrollbar{width:0;}
+
+    /* MENU BUTTON (WOODEN PLANK STYLE) */
+    .menu-btn {
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 20px;
+      background: url('assets/ui/leaderboardbackground.png') center/cover;
+      border: 2px solid #6a4218;
+      border-radius: 12px;
+      text-decoration: none;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.5);
+      transition: transform 0.1s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 10, 0, 0.4);
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+
+    .menu-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold);
+      box-shadow: 0 8px 25px rgba(200, 150, 42, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .menu-btn:hover::before {
+      background: rgba(200, 150, 42, 0.1);
+    }
+
+    .menu-lbl {
+      position: relative;
+      z-index: 1;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--txt);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+      text-align: center;
+      overflow-wrap:break-word;word-break:break-word;
+      line-height:1.3;
+    }
+
+    .menu-btn:hover .menu-lbl {
+      color: var(--gold-p);
+    }
+
+  </style>
+</head>
+
+<body>
+  
+  <div class="page">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <a href="home.html" class="btn-back"><span data-i18n="btn_harbor" data-i18n-text>? ANA SAYFA</span></a>
+      <div class="page-title"><span data-i18n="menu_title" data-i18n-text>MENÜ</span></div>
+      <div style="width:85px;"></div>
+    </div>
+
+    <!-- MENU LIST -->
+    <div class="menu-wrap">
+
+      <a href="shop.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_shop" data-i18n-text>Dükkan</span>
+      </a>
+
+      <a href="equipment.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_equipment" data-i18n-text>Ekipman</span>
+      </a>
+
+      <a href="ships.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_ships" data-i18n-text>Gemiler</span>
+      </a>
+
+      <a href="auction.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_auction" data-i18n-text>Açik Arttirma</span>
+      </a>
+
+      <a href="my-hall.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_my_hall" data-i18n-text>Seref Salonum</span>
+      </a>
+
+      <a href="hall-of-fame.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_hall_of_fame" data-i18n-text>Seref Salonu</span>
+      </a>
+
+      <a href="daily-reward.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_daily_reward" data-i18n-text>Günlük Giris Ödülü</span>
+      </a>
+
+      <a href="level-bonus.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_level_bonus" data-i18n-text>Seviye Bonusu</span>
+      </a>
+
+      <a href="#" class="menu-btn" onclick="event.preventDefault(); showComingSoon();">
+        <span class="menu-lbl" data-i18n="menu_clan" data-i18n-text>Klan</span>
+      </a>
+
+      <a href="settings.html" class="menu-btn">
+        <span class="menu-lbl" data-i18n="menu_settings" data-i18n-text>Ayarlar</span>
+      </a>
+
+      <a href="admin.html" class="menu-btn" id="btn-admin" style="display:none;">
+        <span class="menu-lbl" data-i18n="menu_admin" data-i18n-text>Admin</span>
+      </a>
+
+    </div>
+
+  </div>
+
+  <script>
+    function showComingSoon() {
+      let overlay = document.getElementById('cs-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'cs-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;cursor:pointer';
+        const img = document.createElement('img');
+        img.src = 'assets/ui/images/imgi_73_coming_soon.jpg';
+        img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 0 40px rgba(0,0,0,0.8)';
+        overlay.appendChild(img);
+        overlay.addEventListener('click', () => overlay.remove());
+        document.body.appendChild(overlay);
+      }
+    }
+
+    const token = localStorage.getItem('sp_token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.isAdmin) {
+          document.getElementById('btn-admin').style.display = '';
+        }
+      } catch(e) {}
+    }
+  </script>
+  <script>renderFromCache(); revealPage(); readyNow();</script>
+</body>
+
+</html>
+

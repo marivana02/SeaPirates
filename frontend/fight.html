@@ -1,1 +1,917 @@
-<!DOCTYPE html><html lang="tr"><head>  <meta charset="UTF-8" />  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />  <meta name="theme-color" content="#071428">  <style>body { visibility: hidden; background: #071428; }</style>  <title>SeaPirates — Battle</title>  <link    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional"    rel="stylesheet" />  <link rel="stylesheet" href="style.css">  <script src="js/api.js?v=4"></script>  <script src="js/logger.js"></script>  <script src="js/auth.js?v=2"></script>  <script src="js/lang.js?v=2"></script>  <script src="transition.js?v=8"></script>  <script src="effects/clouds.js?v=1"></script>  <script>document.addEventListener('DOMContentLoaded', startClouds);</script>  <style>    *,    *::before,    *::after {      box-sizing: border-box;      margin: 0;      padding: 0    }    :root {      --gold: #c8962a;      --gold-b: #f0c040;      --gold-p: #fde68a;      --pearl: #a8edea;      --wood-d: #1a0e05;      --wood-m: #2d1a08;      --txt: #f5e6c8;      --txt-d: #b8956a;    }    html,    body {      width: 100%;      height: 100dvh;      overflow: hidden;      background: #071428;      font-family: 'Inter', sans-serif;      user-select: none;    }    .page {      max-width: 430px;      margin: 0 auto;      height: 100dvh;      padding-bottom: env(safe-area-inset-bottom, 0px);      box-sizing: border-box;      display: flex;      flex-direction: column;      position: relative;      background: #071428 url('assets/ui/sea.png') repeat;      background-size: 200px auto;      opacity: 0;      transition: opacity 0.35s ease;    }    .page.visible { opacity: 1; }    .battlefield {      flex: 1;      position: relative;      overflow: hidden;    }    /* Canvas gülle animasyonu için */    #gulle-canvas {      position: absolute;      inset: 0;      z-index: 19;      pointer-events: none;    }    .ship-wrap {      position: absolute;      display: flex;      flex-direction: column;      align-items: center;    }    .player-wrap {      bottom: 110px;      left: 30px;    }    .npc-wrap {      top: 55px;      right: 30px;    }    .ship-img {      display: block;      filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.7));      transition: opacity 0.25s ease-in-out; /* Pürüzsüz geçis destegi */    }    .player-wrap .ship-img {      max-width: 90px;      max-height: 90px;      width: auto;      height: auto;      object-fit: contain;    }    .npc-wrap .ship-img {      max-width: 70px;      max-height: 70px;      width: auto;      height: auto;      object-fit: contain;    }    .smoke-ring {      position: absolute;      top: 20px;      width: 50px;      height: 50px;      pointer-events: none;      opacity: 0;      background: radial-gradient(circle, rgba(150, 150, 150, 0.6) 0%, transparent 70%);      filter: blur(8px);      transition: opacity 0.5s;    }    @keyframes smokeFloat {      0% {        transform: translateY(0) scale(0.6);        opacity: 0.5      }      100% {        transform: translateY(-50px) scale(1.4);        opacity: 0      }    }    .smoke-ring.visible {      animation: smokeFloat 2s ease-out infinite;    }    /* Yanma efekti */    .fire-effect {      position: absolute;      pointer-events: none;      z-index: 18;      opacity: 0;      transition: opacity 0.5s ease-in-out;      background-size: contain;      background-position: center bottom;      background-repeat: no-repeat;      mix-blend-mode: screen;      filter: drop-shadow(0 0 10px #ff4500) saturate(1.4);    }    /* Flash — küçük ve sade */    .flash {      position: absolute;      width: 28px;      height: 28px;      border-radius: 50%;      background: radial-gradient(circle, #fff 0%, #f1c40f 50%, transparent 75%);      filter: blur(3px);      opacity: 0;      pointer-events: none;      z-index: 20;    }    .player-wrap .flash {      right: 25px;      top: 45px;    }    .npc-wrap .flash {      left: 25px;      top: 35px;    }    @keyframes flashPop {      0% {        opacity: 0.75;        transform: scale(0.5)      }      100% {        opacity: 0;        transform: scale(1.4)      }    }    .flash.pop {      animation: flashPop 0.22s ease-out forwards;    }    .ship-info {      display: flex;      flex-direction: column;      align-items: center;      gap: 0px;      margin-top: 14px;    }    /* Weekly Boss Custom Name & HP Decor Panel */    .boss-decor {      background: url('assets/ui/namehpdecor.png') no-repeat top center;      background-size: 170px 55px !important; /* Görseli orantili olarak %15 küçülttük */      width: 170px !important;      height: 75px !important; /* Dikey alani da orantili olarak küçülttük */      display: flex !important;      flex-direction: column !important;      align-items: center !important;      position: relative !important;      margin-top: 4px !important;      border: none !important;      box-shadow: none !important;      padding: 0 !important;    }    .boss-decor .name-row {      position: absolute !important;      top: 18px !important;      left: 0 !important;      width: 100% !important;      display: flex !important;      justify-content: center !important;      transform: none !important;      margin: 0 !important;      line-height: 1 !important;    }    .boss-decor .ship-name {      font-family: 'Cinzel', serif !important;      font-size: 0.7rem !important; /* Orantili olarak fontu hafif küçülttük */      font-weight: 900 !important;      color: #ffd700 !important;      text-shadow: 1px 1px 3px #000, 0 0 5px #000 !important;      letter-spacing: 0.05em !important;    }    .boss-decor .hp-bg {      position: absolute !important;      top: 40px !important; /* Küçülen çerçevenin tam ortasi */      width: 116px !important; /* Orantili küçülen can bari genisligi */      height: 8px !important; /* Orantili küçülen can bari yüksekligi */      background: rgba(0, 0, 0, 0.75) !important;      border: none !important;      border-radius: 4px !important;      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.9) !important;      margin: 0 !important;      overflow: hidden !important;    }    .boss-decor .hp-txt {      position: absolute !important;      top: 57px !important; /* Küçülen çerçevenin hemen altindaki dikey alan */      width: 100% !important;      text-align: center !important;      font-size: 0.65rem !important; /* Fontu orantili küçülttük */      font-weight: 800 !important;      color: #f5e6c8 !important;      text-shadow: 1px 1px 3px #000, 0px 0px 5px #000 !important;      margin: 0 !important;    }    .name-row {      display: flex;      align-items: center;      gap: 8px;    }    .rank-icon {      object-fit: contain;    }    #player-rank-left, #npc-rank-left,    #player-rank-right, #npc-rank-right {      width: 28px;      height: 28px;    }    .rank-icon {      visibility: visible;    }    .rank-icon.hidden {      visibility: hidden;    }    .ship-name {      font-family: 'Inter', sans-serif;      font-size: 0.8rem;      font-weight: 900;      color: #fff;      text-shadow: 0 2px 6px #000;      letter-spacing: 0.05em;      white-space: nowrap;    }    .ship-pid {      font-size: 0.45rem;      font-weight: 700;      font-family: 'Cinzel', serif;      color: #fff;      letter-spacing: 0.12em;      text-shadow: 0 1px 4px #000;    }    .hp-bg {      width: 100px;      height: 8px;      background: rgba(0, 0, 0, 0.8);      border: 1.5px solid rgba(60, 35, 8, 0.9);      border-radius: 0;      overflow: hidden;      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.06);      position: relative;    }    .hp-fill {      height: 100%;      width: 100%;      border-radius: 0;      transition: width 0.4s ease-out;      position: relative;    }    .hp-fill::after {      content: '';      position: absolute;      top: 0;      left: 0;      right: 0;      height: 40%;      border-radius: 0;      background: rgba(255, 255, 255, 0.18);    }    .npc-wrap .hp-fill,    .player-wrap .hp-fill {      background: linear-gradient(90deg, #1a7a2e, #27ae60, #2ecc71);    }    .hp-txt {      font-size: 0.5rem;      font-weight: 800;      color: var(--txt-d);      text-shadow: 0 1px 3px #000;      letter-spacing: 0.02em;    }    /* Hasar göstergesi — gemi üstünde sabit, float yok */    .dmg-static {      position: absolute;      display: flex;      align-items: center;      gap: 5px;      pointer-events: none;      z-index: 50;      transform: translateX(-50%);      animation: dmgAppear 1.6s ease-out forwards;    }    .dmg-val {      font-family: 'Cinzel', serif;      font-weight: 900;      font-size: 1.2rem;      text-shadow: 0 2px 8px #000, 0 0 10px rgba(0, 0, 0, 0.8);    }    .dmg-icon {      font-size: 0.8rem;      line-height: 1;    }    @keyframes dmgAppear {      0% {        opacity: 0;        transform: translateX(-50%) scale(0.65);      }      12% {        opacity: 1;        transform: translateX(-50%) scale(1.2);      }      25% {        transform: translateX(-50%) scale(1);      }      70% {        opacity: 1;      }      100% {        opacity: 0;        transform: translateX(-50%);      }    }    .ammo-bar {      position: absolute;      bottom: calc(12px + env(safe-area-inset-bottom, 0px));      left: 50%;      transform: translateX(-50%);      display: flex;      align-items: flex-end;      gap: 4px;      padding: 6px;      background: linear-gradient(180deg, #2a1506 0%, #160b02 100%);      border: 2px solid rgba(140, 85, 30, 0.85);      border-radius: 12px;      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(200, 150, 42, 0.12);      z-index: 30;      max-width: calc(100vw - 24px);    }    .slot {      position: relative;      flex-shrink: 1;      min-width: 0;      width: 34px;      height: 50px;      background: url('assets/ui/actionmenu/item_slot.png') center/cover no-repeat;      touch-action: none;      border-radius: 7px;      display: flex;      flex-direction: column;      align-items: center;      justify-content: flex-start;      cursor: pointer;      border: 1.5px solid rgba(90, 50, 10, 0.6);      overflow: hidden;      transition: transform 0.12s, border-color 0.18s, box-shadow 0.18s;    }    .slot:hover {      border-color: rgba(200, 150, 42, 0.6);      box-shadow: 0 0 8px rgba(200, 150, 42, 0.25);    }    .slot:active {      transform: scale(0.93);    }    .slot.drag-over {      border-color: rgba(241, 196, 15, 0.9);      box-shadow: 0 0 12px rgba(241, 196, 15, 0.5);    }    .slot img {      width: 85%;      max-height: 65%;      object-fit: contain;      pointer-events: none;      margin: auto;    }    .slot.sel-ammo {      border-color: rgba(46, 204, 113, 0.85);      box-shadow: 0 0 10px rgba(46, 204, 113, 0.45), inset 0 0 5px rgba(46, 204, 113, 0.15);    }    .slot.sel-buff {      border-color: rgba(241, 196, 15, 0.85);      box-shadow: 0 0 10px rgba(241, 196, 15, 0.45), inset 0 0 5px rgba(241, 196, 15, 0.15);    }    /* Miktar rozeti — slot içinde alta sabit, tasmaz */    .qty {      flex-shrink: 0;      width: 100%;      height: 14px;      padding: 0 2px;      background: rgba(6, 3, 0, 0.94);      border-top: 1px solid rgba(200, 150, 42, 0.3);      font-size: 0.4rem;      font-weight: 700;      color: #f5d742;      display: flex;      align-items: center;      justify-content: center;      white-space: nowrap;      overflow: hidden;      text-overflow: ellipsis;      text-shadow: 0 1px 3px rgba(0,0,0,0.9);      letter-spacing: -0.02em;    }    .qty.zero {      color: #e05a3a;    }    .qty.infinite {      color: #e74c3c;      font-size: 0.6rem;      font-weight: 900;    }    .outcome {      position: fixed;      top: 0;      left: 50%;      transform: translateX(-50%);      width: 100%;      max-width: 430px;      height: 100dvh;      z-index: 500;      display: none;      flex-direction: column;      align-items: center;      justify-content: center;      background: rgba(5, 2, 0, 0.92);      backdrop-filter: blur(14px);      padding: 24px;    }    .outcome.show {      display: flex;      animation: fadeIn 0.5s;    }    @keyframes fadeIn {      from { opacity: 0; }      to { opacity: 1; }    }    .outcome-box {      background: url('assets/ui/leaderboardbackground.png') center/cover;      border: 2px solid var(--gold);      border-radius: 14px;      padding: 28px 24px 24px;      width: 100%;      max-width: 360px;      text-align: center;      position: relative;      box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 60px rgba(200,150,42,0.15);    }    .outcome-box::before {      content: '';      position: absolute;      inset: 0;      background: rgba(10, 5, 2, 0.7);      border-radius: 12px;      pointer-events: none;    }    .outcome-box > * {      position: relative;      z-index: 1;    }    .outcome-title {      font-family: 'Cinzel', serif;      font-size: 1.6rem;      font-weight: 900;      margin-bottom: 4px;      letter-spacing: 0.05em;      text-align: center;      overflow-wrap: break-word;      word-break: break-word;    }    .outcome-title.win {      color: var(--gold-b);      text-shadow: 0 0 30px rgba(241, 196, 15, 0.5);    }    .outcome-title.loss {      color: #e74c3c;      text-shadow: 0 0 30px rgba(231, 76, 60, 0.5);    }    .outcome-sub {      font-size: 0.7rem;      color: var(--txt-d);      margin-bottom: 18px;      text-transform: uppercase;      letter-spacing: 0.1em;      overflow-wrap: break-word;      word-break: break-word;    }    .outcome-rewards {      display: flex;      flex-direction: column;      gap: 8px;      margin-bottom: 22px;    }    .outcome-reward-row {      display: flex;      align-items: center;      justify-content: center;      gap: 8px;      padding: 8px 12px;      background: rgba(0, 0, 0, 0.35);      border: 1px solid rgba(200, 150, 42, 0.15);      border-radius: 8px;    }    .outcome-reward-row img {      width: 20px;      height: 20px;      object-fit: contain;    }    .outcome-reward-row span {      font-size: 0.9rem;      font-weight: 700;      overflow-wrap: break-word;      word-break: break-word;    }    .outcome-reward-row .r-gold { color: var(--gold-b); }    .outcome-reward-row .r-pearl { color: var(--pearl); }    .outcome-reward-row .r-xp { color: var(--txt); }    .outcome-lvlup {      font-family: 'Cinzel', serif;      font-size: 0.75rem;      font-weight: 700;      color: var(--gold-p);      background: rgba(200, 150, 42, 0.1);      border: 1px solid var(--gold);      border-radius: 6px;      padding: 6px 12px;      margin-top: 4px;      text-align: center;      overflow-wrap: break-word;      word-break: break-word;    }    .outcome-empty {      font-size: 0.85rem;      color: var(--txt-d);      padding: 8px 0;    }    /* NO-CANNON MODAL */    .nocannon-overlay {      position: fixed; inset: 0;      background: rgba(0,0,0,0.88);      backdrop-filter: blur(8px);      -webkit-backdrop-filter: blur(8px);      z-index: 2000;      display: none;      align-items: center;      justify-content: center;      animation: fadeIn 0.3s ease forwards;    }    .nocannon-box {      background: linear-gradient(180deg, rgba(26,14,5,0.98), rgba(10,5,2,0.98));      border: 2px solid #c8962a;      box-shadow: 0 0 40px rgba(200,150,42,0.2), 0 0 80px rgba(0,0,0,0.8);      border-radius: 14px;      width: 92%; max-width: 380px;      padding: 28px 22px 22px;      position: relative;      text-align: center;      color: #f5e6c8;      transform: scale(0.9);      animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;    }    .nocannon-box::before {      content: ''; position: absolute; inset: 3px;      border: 1px solid rgba(200,150,42,0.12);      border-radius: 11px;      pointer-events: none;    }    .nocannon-icon {      font-size: 4rem; line-height: 1; margin-bottom: 10px;      filter: drop-shadow(0 0 20px rgba(200,150,42,0.3));    }    .nocannon-title {      font-family: 'Cinzel', serif;      font-size: 1.3rem; font-weight: 900;      color: #e74c3c;      margin-bottom: 6px;      text-shadow: 0 0 20px rgba(231,76,60,0.3), 0 2px 4px #000;      overflow-wrap: break-word;      word-break: break-word;    }    .nocannon-desc {      font-size: 0.78rem; color: #b8956a;      line-height: 1.5; margin-bottom: 18px;      overflow-wrap: break-word;      word-break: break-word;    }    .nocannon-actions {      display: flex; flex-direction: column; gap: 8px;    }    .nocannon-btn {      width: 100%; padding: 12px;      border-radius: 8px;      font-family: 'Cinzel', serif;      font-size: 0.8rem; font-weight: 900;      letter-spacing: 0.06em;      cursor: pointer;      transition: filter 0.15s, transform 0.1s;      border: none;    }    .nocannon-btn:active { transform: scale(0.96); }    .nocannon-btn:hover { filter: brightness(1.1); }    .nocannon-btn.primary {      background: linear-gradient(180deg, #c8962a 0%, #8a5e14 100%);      border: 2px solid #fde68a;      color: #1c1005;      box-shadow: 0 4px 15px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3);    }    .nocannon-btn.secondary {      background: transparent;      border: 1.5px solid rgba(200,150,42,0.3);      color: #b8956a;    }    .nocannon-btn.secondary:hover {      border-color: #c8962a;      color: #f5e6c8;    }    @keyframes popIn {      from { transform: scale(0.9); opacity: 0; }      to { transform: scale(1); opacity: 1; }    }    @keyframes fadeIn {      from { opacity: 0; }      to { opacity: 1; }    }    .btn-return {      padding: 12px 32px;      background: linear-gradient(180deg, var(--gold) 0%, #8a5e14 100%);      border: 2px solid var(--gold-p);      border-radius: 40px;      font-family: 'Cinzel', serif;      font-size: 0.85rem;      font-weight: 900;      color: #1c1005;      cursor: pointer;      letter-spacing: 0.08em;      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.3);      transition: filter 0.2s, transform 0.1s;    }    .btn-return:hover {      filter: brightness(1.1);    }    .btn-return:active {      transform: scale(0.96);    }    /* Dynamic Island Background */    .island-bg {      position: absolute;      z-index: 0;      pointer-events: none;      filter: drop-shadow(0 0 8px rgba(0,0,0,0.55));    }    @keyframes tiamatPulse {      0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)) drop-shadow(0 0 25px rgba(255,50,0,0.5)); }      50% { transform: scale(1.04) translateY(-4px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)) drop-shadow(0 0 35px rgba(255,50,0,0.7)); }    }    @media (max-width: 420px) {      .ammo-bar { gap: 2px; padding: 4px; overflow-x: auto; }      .slot { width: 28px; height: 42px; min-width: 28px; }      .slot img { max-height: 55%; }      .qty { height: 12px; font-size: 0.35rem; }    }  </style></head><body>  <div class="page">    <div class="battlefield" id="battlefield">            <!-- Weekly Boss Timer Overlay -->      <div class="boss-timer-wrap" id="boss-timer" style="display:none; position: absolute; top: 15px; left: 15px; background: url('assets/ui/leaderboardbackground.png') center/cover; border: 2px solid #7a4a18; border-radius: 6px; padding: 8px 14px; z-index: 100; align-items: center; gap: 8px; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.7); border-bottom: 2px solid #5a3512;">        <span style="color:#c8962a; font-size:0.75rem; font-weight:700; letter-spacing:0.06em; text-shadow:1px 1px 2px #000;" data-i18n="fight_timer_label">? BATTLE TIME:</span>        <span id="boss-timer-val" style="color:#e74c3c; font-size:1.15rem; font-weight:900; font-family:'Cinzel', serif; text-shadow:0 0 10px rgba(231,76,60,0.5), 1px 1px 2px #000; margin-left:3px;">60</span>        <span style="color:var(--txt-d); font-size:0.7rem; font-weight:700; text-shadow:1px 1px 2px #000;">sn</span>      </div>      <!-- Admiral Live Leaderboard & Damage List -->      <style>        #admiral-leaderboard-list::-webkit-scrollbar {          width: 5px;        }        #admiral-leaderboard-list::-webkit-scrollbar-track {          background: rgba(0, 0, 0, 0.4);          border-radius: 3px;        }        #admiral-leaderboard-list::-webkit-scrollbar-thumb {          background: #7a4a18;          border: 1px solid #d4af37;          border-radius: 3px;        }        #admiral-leaderboard-list::-webkit-scrollbar-thumb:hover {          background: #965a1e;        }      </style>      <div id="admiral-leaderboard" style="display:none; position: absolute; top: 15px; left: 15px; width: 235px; background: rgba(15, 8, 3, 0.78); border: 2px solid rgba(122, 74, 24, 0.9); border-radius: 8px; padding: 12px 10px; z-index: 100; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.6), 0 8px 25px rgba(0,0,0,0.85); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);">        <!-- Collapsible Toggle Button -->        <button id="admiral-leaderboard-toggle" onclick="toggleAdmiralLeaderboard()" style="position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 50px; background: rgba(15, 8, 3, 0.9); border: 2px solid rgba(122, 74, 24, 0.9); border-left: none; border-radius: 0 8px 8px 0; color: #ffd700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 101; box-shadow: 5px 0 10px rgba(0,0,0,0.5); transition: background 0.2s, color 0.2s, box-shadow 0.2s; font-family: 'Cinzel', serif;">?</button>        <div style="font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffd700; font-weight: 900; border-bottom: 2px solid rgba(122, 74, 24, 0.7); padding-bottom: 6px; margin-bottom: 10px; text-align: center; letter-spacing: 0.08em; text-shadow: 2px 2px 4px #000, 0 0 6px rgba(255,215,0,0.45);" data-i18n="fight_dmg_list">?? DMG LIST</div>        <div id="admiral-leaderboard-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 212px; overflow-y: auto;">          <!-- Leaderboard items will be loaded dynamically -->        </div>      </div>      <!-- Dynamic Island Background -->      <img id="island-bg" class="island-bg" src="" style="display:none;" />      <!-- Gülle canvas -->      <canvas id="gulle-canvas"></canvas>      <!-- NPC -->      <div class="ship-wrap npc-wrap" id="npc-node">        <div class="flash" id="npc-flash"></div>        <div class="smoke-ring" id="npc-smoke"></div>        <div class="fire-effect" id="npc-fire"></div>        <img class="ship-img" id="npc-img" src="" alt="NPC" />        <div class="ship-info">          <div class="name-row">            <img class="rank-icon hidden" id="npc-rank-left" src="" alt="" />            <div class="ship-name" id="npc-name">Pirate</div>            <img class="rank-icon right hidden" id="npc-rank-right" src="" alt="" />          </div>          <div class="ship-pid" id="npc-pid" style="display: none;">#——</div>          <div class="hp-bg">            <div class="hp-fill" id="npc-hp-fill"></div>          </div>          <div class="hp-txt" id="npc-hp-txt">-- / --</div>        </div>      </div>      <!-- PLAYER -->      <div class="ship-wrap player-wrap" id="player-node">        <div class="flash" id="player-flash"></div>        <div class="smoke-ring" id="player-smoke"></div>        <div class="fire-effect" id="player-fire"></div>        <img class="ship-img" src="assets/ships/elitship/default/3.png" alt="Gemi" />        <div class="ship-info">          <div class="name-row">            <img class="rank-icon hidden" id="player-rank-left" src="" alt="" />            <div class="ship-name" id="player-name">Kaptan</div>            <img class="rank-icon right hidden" id="player-rank-right" src="" alt="" />          </div>          <div class="ship-pid" id="player-pid">#——</div>          <div class="hp-bg">            <div class="hp-fill" id="player-hp-fill"></div>          </div>          <div class="hp-txt" id="player-hp-txt">-- / --</div>        </div>      </div>    <div class="ammo-bar" id="ammo-bar"></div>      <div class="outcome" id="outcome">        <div class="outcome-box">          <div class="outcome-title" id="outcome-title">—</div>          <div class="outcome-sub" id="outcome-sub"></div>          <div class="outcome-rewards" id="outcome-rewards"></div>          <button class="btn-return" onclick="handleReturn()" data-i18n="fight_btn_go_back">Go Back</button>        </div>      </div>      <!-- DISCONNECT OVERLAY -->      <style>        .disconnect-overlay {          position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;          background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;          flex-direction:column;        }        .disconnect-overlay.show { display:flex; }        .disconnect-icon { font-size:3rem;margin-bottom:12px; }        .disconnect-title { font-size:1rem;font-weight:900;color:#e74c3c;text-shadow:0 0 20px rgba(231,76,60,0.4); }        .disconnect-sub { font-size:0.75rem;color:#c0a890;margin-top:6px; }      </style>      <div class="disconnect-overlay" id="disconnect-overlay">        <div class="disconnect-icon">??</div>        <div class="disconnect-title" data-i18n="disconnect_title">BAGLANTI KESILDI</div>        <div class="disconnect-sub" id="disconnect-sub" data-i18n="disconnect_sub">Yeniden baglaniliyor...</div>      </div>      <!-- NO-CANNON MODAL -->      <div class="nocannon-overlay" id="nocannon-modal">        <div class="nocannon-box">          <div class="nocannon-icon">?</div>          <div class="nocannon-title" data-i18n="fight_no_cannons_title">NO CANNONS EQUIPPED!</div>          <div class="nocannon-desc" data-i18n="fight_no_cannons_desc">            You must equip at least <b>1 cannon</b> to enter battle.<br><br>            Equip cannons from the <b>Equipment</b> screen.          </div>          <div class="nocannon-actions">            <button class="nocannon-btn primary" id="nocannon-goto-equip" data-i18n="fight_btn_go_equipment">?? GO TO EQUIPMENT</button>            <button class="nocannon-btn secondary" id="nocannon-close" data-i18n="fight_btn_go_back">Go Back</button>          </div>        </div>      </div>    </div>  <script src="/socket.io/socket.io.js"></script>  <script src="js/fight-shared.js?v=8"></script>  <script src="js/fight-pve.js?v=2"></script>  <script>renderFromCache(); revealPage();</script></body></html>
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
+  <meta name="theme-color" content="#071428">
+  <style>body { visibility: hidden; background: #071428; }</style>
+  <title>SeaPirates — Battle</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="js/lang.js?v=2"></script>
+  <script src="transition.js?v=8"></script>
+  <script src="effects/clouds.js?v=1"></script>
+  <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --gold: #c8962a;
+      --gold-b: #f0c040;
+      --gold-p: #fde68a;
+      --pearl: #a8edea;
+      --wood-d: #1a0e05;
+      --wood-m: #2d1a08;
+      --txt: #f5e6c8;
+      --txt-d: #b8956a;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #071428;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+    }
+
+    .page {
+      max-width: 430px;
+      margin: 0 auto;
+      height: 100dvh;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #071428 url('assets/ui/sea.png') repeat;
+      background-size: 200px auto;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    .page.visible { opacity: 1; }
+
+
+    .battlefield {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Canvas gülle animasyonu için */
+    #gulle-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 19;
+      pointer-events: none;
+    }
+
+    .ship-wrap {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .player-wrap {
+      bottom: 110px;
+      left: 30px;
+    }
+
+    .npc-wrap {
+      top: 55px;
+      right: 30px;
+    }
+
+    .ship-img {
+      display: block;
+      filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.7));
+      transition: opacity 0.25s ease-in-out; /* Pürüzsüz geçis destegi */
+    }
+
+    .player-wrap .ship-img {
+      max-width: 90px;
+      max-height: 90px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .npc-wrap .ship-img {
+      max-width: 70px;
+      max-height: 70px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .smoke-ring {
+      position: absolute;
+      top: 20px;
+      width: 50px;
+      height: 50px;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle, rgba(150, 150, 150, 0.6) 0%, transparent 70%);
+      filter: blur(8px);
+      transition: opacity 0.5s;
+    }
+
+    @keyframes smokeFloat {
+      0% {
+        transform: translateY(0) scale(0.6);
+        opacity: 0.5
+      }
+
+      100% {
+        transform: translateY(-50px) scale(1.4);
+        opacity: 0
+      }
+    }
+
+    .smoke-ring.visible {
+      animation: smokeFloat 2s ease-out infinite;
+    }
+
+    /* Yanma efekti */
+    .fire-effect {
+      position: absolute;
+      pointer-events: none;
+      z-index: 18;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      background-size: contain;
+      background-position: center bottom;
+      background-repeat: no-repeat;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 0 10px #ff4500) saturate(1.4);
+    }
+
+    /* Flash — küçük ve sade */
+    .flash {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 0%, #f1c40f 50%, transparent 75%);
+      filter: blur(3px);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .player-wrap .flash {
+      right: 25px;
+      top: 45px;
+    }
+
+    .npc-wrap .flash {
+      left: 25px;
+      top: 35px;
+    }
+
+    @keyframes flashPop {
+      0% {
+        opacity: 0.75;
+        transform: scale(0.5)
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(1.4)
+      }
+    }
+
+    .flash.pop {
+      animation: flashPop 0.22s ease-out forwards;
+    }
+
+    .ship-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0px;
+      margin-top: 14px;
+    }
+
+    /* Weekly Boss Custom Name & HP Decor Panel */
+    .boss-decor {
+      background: url('assets/ui/namehpdecor.png') no-repeat top center;
+      background-size: 170px 55px !important; /* Görseli orantili olarak %15 küçülttük */
+      width: 170px !important;
+      height: 75px !important; /* Dikey alani da orantili olarak küçülttük */
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      position: relative !important;
+      margin-top: 4px !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .boss-decor .name-row {
+      position: absolute !important;
+      top: 18px !important;
+      left: 0 !important;
+      width: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
+      transform: none !important;
+      margin: 0 !important;
+      line-height: 1 !important;
+    }
+
+    .boss-decor .ship-name {
+      font-family: 'Cinzel', serif !important;
+      font-size: 0.7rem !important; /* Orantili olarak fontu hafif küçülttük */
+      font-weight: 900 !important;
+      color: #ffd700 !important;
+      text-shadow: 1px 1px 3px #000, 0 0 5px #000 !important;
+      letter-spacing: 0.05em !important;
+    }
+
+    .boss-decor .hp-bg {
+      position: absolute !important;
+      top: 40px !important; /* Küçülen çerçevenin tam ortasi */
+      width: 116px !important; /* Orantili küçülen can bari genisligi */
+      height: 8px !important; /* Orantili küçülen can bari yüksekligi */
+      background: rgba(0, 0, 0, 0.75) !important;
+      border: none !important;
+      border-radius: 4px !important;
+      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.9) !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .boss-decor .hp-txt {
+      position: absolute !important;
+      top: 57px !important; /* Küçülen çerçevenin hemen altindaki dikey alan */
+      width: 100% !important;
+      text-align: center !important;
+      font-size: 0.65rem !important; /* Fontu orantili küçülttük */
+      font-weight: 800 !important;
+      color: #f5e6c8 !important;
+      text-shadow: 1px 1px 3px #000, 0px 0px 5px #000 !important;
+      margin: 0 !important;
+    }
+
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rank-icon {
+      object-fit: contain;
+    }
+    #player-rank-left, #npc-rank-left,
+    #player-rank-right, #npc-rank-right {
+      width: 28px;
+      height: 28px;
+    }
+
+    .rank-icon {
+      visibility: visible;
+    }
+    .rank-icon.hidden {
+      visibility: hidden;
+    }
+
+    .ship-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 6px #000;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .ship-pid {
+      font-size: 0.45rem;
+      font-weight: 700;
+      font-family: 'Cinzel', serif;
+      color: #fff;
+      letter-spacing: 0.12em;
+      text-shadow: 0 1px 4px #000;
+    }
+
+    .hp-bg {
+      width: 100px;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1.5px solid rgba(60, 35, 8, 0.9);
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.06);
+      position: relative;
+    }
+
+    .hp-fill {
+      height: 100%;
+      width: 100%;
+      border-radius: 0;
+      transition: width 0.4s ease-out;
+      position: relative;
+    }
+
+    .hp-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      border-radius: 0;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .npc-wrap .hp-fill,
+    .player-wrap .hp-fill {
+      background: linear-gradient(90deg, #1a7a2e, #27ae60, #2ecc71);
+    }
+
+    .hp-txt {
+      font-size: 0.5rem;
+      font-weight: 800;
+      color: var(--txt-d);
+      text-shadow: 0 1px 3px #000;
+      letter-spacing: 0.02em;
+    }
+
+    /* Hasar göstergesi — gemi üstünde sabit, float yok */
+    .dmg-static {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      pointer-events: none;
+      z-index: 50;
+      transform: translateX(-50%);
+      animation: dmgAppear 1.6s ease-out forwards;
+    }
+
+    .dmg-val {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 8px #000, 0 0 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .dmg-icon {
+      font-size: 0.8rem;
+      line-height: 1;
+    }
+
+    @keyframes dmgAppear {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.65);
+      }
+
+      12% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.2);
+      }
+
+      25% {
+        transform: translateX(-50%) scale(1);
+      }
+
+      70% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateX(-50%);
+      }
+    }
+
+    .ammo-bar {
+      position: absolute;
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      padding: 6px;
+      background: linear-gradient(180deg, #2a1506 0%, #160b02 100%);
+      border: 2px solid rgba(140, 85, 30, 0.85);
+      border-radius: 12px;
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(200, 150, 42, 0.12);
+      z-index: 30;
+      max-width: calc(100vw - 24px);
+    }
+
+    .slot {
+      position: relative;
+      flex-shrink: 1;
+      min-width: 0;
+      width: 34px;
+      height: 50px;
+      background: url('assets/ui/actionmenu/item_slot.png') center/cover no-repeat;
+      touch-action: none;
+      border-radius: 7px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      border: 1.5px solid rgba(90, 50, 10, 0.6);
+      overflow: hidden;
+      transition: transform 0.12s, border-color 0.18s, box-shadow 0.18s;
+    }
+
+    .slot:hover {
+      border-color: rgba(200, 150, 42, 0.6);
+      box-shadow: 0 0 8px rgba(200, 150, 42, 0.25);
+    }
+
+    .slot:active {
+      transform: scale(0.93);
+    }
+
+    .slot.drag-over {
+      border-color: rgba(241, 196, 15, 0.9);
+      box-shadow: 0 0 12px rgba(241, 196, 15, 0.5);
+    }
+
+    .slot img {
+      width: 85%;
+      max-height: 65%;
+      object-fit: contain;
+      pointer-events: none;
+      margin: auto;
+    }
+
+    .slot.sel-ammo {
+      border-color: rgba(46, 204, 113, 0.85);
+      box-shadow: 0 0 10px rgba(46, 204, 113, 0.45), inset 0 0 5px rgba(46, 204, 113, 0.15);
+    }
+
+    .slot.sel-buff {
+      border-color: rgba(241, 196, 15, 0.85);
+      box-shadow: 0 0 10px rgba(241, 196, 15, 0.45), inset 0 0 5px rgba(241, 196, 15, 0.15);
+    }
+
+    /* Miktar rozeti — slot içinde alta sabit, tasmaz */
+    .qty {
+      flex-shrink: 0;
+      width: 100%;
+      height: 14px;
+      padding: 0 2px;
+      background: rgba(6, 3, 0, 0.94);
+      border-top: 1px solid rgba(200, 150, 42, 0.3);
+      font-size: 0.4rem;
+      font-weight: 700;
+      color: #f5d742;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      letter-spacing: -0.02em;
+    }
+
+    .qty.zero {
+      color: #e05a3a;
+    }
+    .qty.infinite {
+      color: #e74c3c;
+      font-size: 0.6rem;
+      font-weight: 900;
+    }
+
+    .outcome {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      height: 100dvh;
+      z-index: 500;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 2, 0, 0.92);
+      backdrop-filter: blur(14px);
+      padding: 24px;
+    }
+
+    .outcome.show {
+      display: flex;
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .outcome-box {
+      background: url('assets/ui/leaderboardbackground.png') center/cover;
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      padding: 28px 24px 24px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 60px rgba(200,150,42,0.15);
+    }
+
+    .outcome-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 5, 2, 0.7);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+
+    .outcome-box > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .outcome-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+      text-align: center;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .outcome-title.win {
+      color: var(--gold-b);
+      text-shadow: 0 0 30px rgba(241, 196, 15, 0.5);
+    }
+
+    .outcome-title.loss {
+      color: #e74c3c;
+      text-shadow: 0 0 30px rgba(231, 76, 60, 0.5);
+    }
+
+    .outcome-sub {
+      font-size: 0.7rem;
+      color: var(--txt-d);
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .outcome-rewards {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .outcome-reward-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(200, 150, 42, 0.15);
+      border-radius: 8px;
+    }
+
+    .outcome-reward-row img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+
+    .outcome-reward-row span {
+      font-size: 0.9rem;
+      font-weight: 700;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .outcome-reward-row .r-gold { color: var(--gold-b); }
+    .outcome-reward-row .r-pearl { color: var(--pearl); }
+    .outcome-reward-row .r-xp { color: var(--txt); }
+
+    .outcome-lvlup {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold-p);
+      background: rgba(200, 150, 42, 0.1);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 6px 12px;
+      margin-top: 4px;
+      text-align: center;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .outcome-empty {
+      font-size: 0.85rem;
+      color: var(--txt-d);
+      padding: 8px 0;
+    }
+
+    /* NO-CANNON MODAL */
+    .nocannon-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease forwards;
+    }
+    .nocannon-box {
+      background: linear-gradient(180deg, rgba(26,14,5,0.98), rgba(10,5,2,0.98));
+      border: 2px solid #c8962a;
+      box-shadow: 0 0 40px rgba(200,150,42,0.2), 0 0 80px rgba(0,0,0,0.8);
+      border-radius: 14px;
+      width: 92%; max-width: 380px;
+      padding: 28px 22px 22px;
+      position: relative;
+      text-align: center;
+      color: #f5e6c8;
+      transform: scale(0.9);
+      animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    .nocannon-box::before {
+      content: ''; position: absolute; inset: 3px;
+      border: 1px solid rgba(200,150,42,0.12);
+      border-radius: 11px;
+      pointer-events: none;
+    }
+    .nocannon-icon {
+      font-size: 4rem; line-height: 1; margin-bottom: 10px;
+      filter: drop-shadow(0 0 20px rgba(200,150,42,0.3));
+    }
+    .nocannon-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem; font-weight: 900;
+      color: #e74c3c;
+      margin-bottom: 6px;
+      text-shadow: 0 0 20px rgba(231,76,60,0.3), 0 2px 4px #000;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .nocannon-desc {
+      font-size: 0.78rem; color: #b8956a;
+      line-height: 1.5; margin-bottom: 18px;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .nocannon-actions {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .nocannon-btn {
+      width: 100%; padding: 12px;
+      border-radius: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem; font-weight: 900;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.1s;
+      border: none;
+    }
+    .nocannon-btn:active { transform: scale(0.96); }
+    .nocannon-btn:hover { filter: brightness(1.1); }
+    .nocannon-btn.primary {
+      background: linear-gradient(180deg, #c8962a 0%, #8a5e14 100%);
+      border: 2px solid #fde68a;
+      color: #1c1005;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .nocannon-btn.secondary {
+      background: transparent;
+      border: 1.5px solid rgba(200,150,42,0.3);
+      color: #b8956a;
+    }
+    .nocannon-btn.secondary:hover {
+      border-color: #c8962a;
+      color: #f5e6c8;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .btn-return {
+      padding: 12px 32px;
+      background: linear-gradient(180deg, var(--gold) 0%, #8a5e14 100%);
+      border: 2px solid var(--gold-p);
+      border-radius: 40px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #1c1005;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+      transition: filter 0.2s, transform 0.1s;
+    }
+
+    .btn-return:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-return:active {
+      transform: scale(0.96);
+    }
+
+    /* Dynamic Island Background */
+    .island-bg {
+      position: absolute;
+      z-index: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 0 8px rgba(0,0,0,0.55));
+    }
+
+    @keyframes tiamatPulse {
+      0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)) drop-shadow(0 0 25px rgba(255,50,0,0.5)); }
+      50% { transform: scale(1.04) translateY(-4px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.85)) drop-shadow(0 0 35px rgba(255,50,0,0.7)); }
+    }
+
+    @media (max-width: 420px) {
+      .ammo-bar { gap: 2px; padding: 4px; overflow-x: auto; }
+      .slot { width: 28px; height: 42px; min-width: 28px; }
+      .slot img { max-height: 55%; }
+      .qty { height: 12px; font-size: 0.35rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <div class="battlefield" id="battlefield">
+      
+      <!-- Weekly Boss Timer Overlay -->
+      <div class="boss-timer-wrap" id="boss-timer" style="display:none; position: absolute; top: 15px; left: 15px; background: url('assets/ui/leaderboardbackground.png') center/cover; border: 2px solid #7a4a18; border-radius: 6px; padding: 8px 14px; z-index: 100; align-items: center; gap: 8px; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.7); border-bottom: 2px solid #5a3512;">
+        <span style="color:#c8962a; font-size:0.75rem; font-weight:700; letter-spacing:0.06em; text-shadow:1px 1px 2px #000;" data-i18n="fight_timer_label">? BATTLE TIME:</span>
+        <span id="boss-timer-val" style="color:#e74c3c; font-size:1.15rem; font-weight:900; font-family:'Cinzel', serif; text-shadow:0 0 10px rgba(231,76,60,0.5), 1px 1px 2px #000; margin-left:3px;">60</span>
+        <span style="color:var(--txt-d); font-size:0.7rem; font-weight:700; text-shadow:1px 1px 2px #000;">sn</span>
+      </div>
+
+      <!-- Admiral Live Leaderboard & Damage List -->
+      <style>
+        #admiral-leaderboard-list::-webkit-scrollbar {
+          width: 5px;
+        }
+        #admiral-leaderboard-list::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.4);
+          border-radius: 3px;
+        }
+        #admiral-leaderboard-list::-webkit-scrollbar-thumb {
+          background: #7a4a18;
+          border: 1px solid #d4af37;
+          border-radius: 3px;
+        }
+        #admiral-leaderboard-list::-webkit-scrollbar-thumb:hover {
+          background: #965a1e;
+        }
+      </style>
+      <div id="admiral-leaderboard" style="display:none; position: absolute; top: 15px; left: 15px; width: 235px; background: rgba(15, 8, 3, 0.78); border: 2px solid rgba(122, 74, 24, 0.9); border-radius: 8px; padding: 12px 10px; z-index: 100; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.6), 0 8px 25px rgba(0,0,0,0.85); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);">
+        <!-- Collapsible Toggle Button -->
+        <button id="admiral-leaderboard-toggle" onclick="toggleAdmiralLeaderboard()" style="position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 50px; background: rgba(15, 8, 3, 0.9); border: 2px solid rgba(122, 74, 24, 0.9); border-left: none; border-radius: 0 8px 8px 0; color: #ffd700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 101; box-shadow: 5px 0 10px rgba(0,0,0,0.5); transition: background 0.2s, color 0.2s, box-shadow 0.2s; font-family: 'Cinzel', serif;">?</button>
+        <div style="font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffd700; font-weight: 900; border-bottom: 2px solid rgba(122, 74, 24, 0.7); padding-bottom: 6px; margin-bottom: 10px; text-align: center; letter-spacing: 0.08em; text-shadow: 2px 2px 4px #000, 0 0 6px rgba(255,215,0,0.45);" data-i18n="fight_dmg_list">?? DMG LIST</div>
+        <div id="admiral-leaderboard-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 212px; overflow-y: auto;">
+          <!-- Leaderboard items will be loaded dynamically -->
+        </div>
+      </div>
+
+
+      <!-- Dynamic Island Background -->
+      <img id="island-bg" class="island-bg" src="" style="display:none;" />
+
+      <!-- Gülle canvas -->
+      <canvas id="gulle-canvas"></canvas>
+
+      <!-- NPC -->
+      <div class="ship-wrap npc-wrap" id="npc-node">
+        <div class="flash" id="npc-flash"></div>
+        <div class="smoke-ring" id="npc-smoke"></div>
+        <div class="fire-effect" id="npc-fire"></div>
+        <img class="ship-img" id="npc-img" src="" alt="NPC" />
+        <div class="ship-info">
+          <div class="name-row">
+            <img class="rank-icon hidden" id="npc-rank-left" src="" alt="" />
+            <div class="ship-name" id="npc-name">Pirate</div>
+            <img class="rank-icon right hidden" id="npc-rank-right" src="" alt="" />
+          </div>
+          <div class="ship-pid" id="npc-pid" style="display: none;">#——</div>
+          <div class="hp-bg">
+            <div class="hp-fill" id="npc-hp-fill"></div>
+          </div>
+          <div class="hp-txt" id="npc-hp-txt">-- / --</div>
+        </div>
+      </div>
+
+      <!-- PLAYER -->
+      <div class="ship-wrap player-wrap" id="player-node">
+        <div class="flash" id="player-flash"></div>
+        <div class="smoke-ring" id="player-smoke"></div>
+        <div class="fire-effect" id="player-fire"></div>
+        <img class="ship-img" src="assets/ships/elitship/default/3.png" alt="Gemi" />
+        <div class="ship-info">
+          <div class="name-row">
+            <img class="rank-icon hidden" id="player-rank-left" src="" alt="" />
+            <div class="ship-name" id="player-name">Kaptan</div>
+            <img class="rank-icon right hidden" id="player-rank-right" src="" alt="" />
+          </div>
+          <div class="ship-pid" id="player-pid">#——</div>
+          <div class="hp-bg">
+            <div class="hp-fill" id="player-hp-fill"></div>
+          </div>
+          <div class="hp-txt" id="player-hp-txt">-- / --</div>
+        </div>
+      </div>
+    <div class="ammo-bar" id="ammo-bar"></div>
+
+      <div class="outcome" id="outcome">
+        <div class="outcome-box">
+          <div class="outcome-title" id="outcome-title">—</div>
+          <div class="outcome-sub" id="outcome-sub"></div>
+          <div class="outcome-rewards" id="outcome-rewards"></div>
+          <button class="btn-return" onclick="handleReturn()" data-i18n="fight_btn_go_back">Go Back</button>
+        </div>
+      </div>
+
+      <!-- DISCONNECT OVERLAY -->
+      <style>
+        .disconnect-overlay {
+          position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;
+          background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;
+          flex-direction:column;
+        }
+        .disconnect-overlay.show { display:flex; }
+        .disconnect-icon { font-size:3rem;margin-bottom:12px; }
+        .disconnect-title { font-size:1rem;font-weight:900;color:#e74c3c;text-shadow:0 0 20px rgba(231,76,60,0.4); }
+        .disconnect-sub { font-size:0.75rem;color:#c0a890;margin-top:6px; }
+      </style>
+      <div class="disconnect-overlay" id="disconnect-overlay">
+        <div class="disconnect-icon">??</div>
+        <div class="disconnect-title" data-i18n="disconnect_title">BAGLANTI KESILDI</div>
+        <div class="disconnect-sub" id="disconnect-sub" data-i18n="disconnect_sub">Yeniden baglaniliyor...</div>
+      </div>
+
+      <!-- NO-CANNON MODAL -->
+      <div class="nocannon-overlay" id="nocannon-modal">
+        <div class="nocannon-box">
+          <div class="nocannon-icon">?</div>
+          <div class="nocannon-title" data-i18n="fight_no_cannons_title">NO CANNONS EQUIPPED!</div>
+          <div class="nocannon-desc" data-i18n="fight_no_cannons_desc">
+            You must equip at least <b>1 cannon</b> to enter battle.<br><br>
+            Equip cannons from the <b>Equipment</b> screen.
+          </div>
+          <div class="nocannon-actions">
+            <button class="nocannon-btn primary" id="nocannon-goto-equip" data-i18n="fight_btn_go_equipment">?? GO TO EQUIPMENT</button>
+            <button class="nocannon-btn secondary" id="nocannon-close" data-i18n="fight_btn_go_back">Go Back</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/fight-shared.js?v=8"></script>
+  <script src="js/fight-pve.js?v=2"></script>
+  <script>renderFromCache(); revealPage();</script>
+
+</body>
+
+</html>
+

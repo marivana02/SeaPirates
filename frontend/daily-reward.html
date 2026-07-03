@@ -1,1 +1,849 @@
-<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8"/>  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>  <meta name="theme-color" content="#080604">  <style>body { visibility: hidden; background: #080604; }</style>  <title>SeaPirates — Daily Login Reward</title>  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=optional" rel="stylesheet" />  <link rel="stylesheet" href="style.css">  <script src="js/lang.js?v=2"></script>  <script src="js/api.js?v=4"></script>  <script src="js/logger.js"></script>  <script src="js/auth.js?v=2"></script>  <script src="transition.js?v=8"></script>  <style>    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}    :root {      --rust: #6b2a0a;      --rust-l: #8b4a1a;      --gold-d: #7a5f0a;      --wood-bg: #0d0804;      --wood-border: #5a3a1a;      --crimson: #5c1010;      --crimson-d: #3a0808;    }    html,body{      width:100%;height:100dvh;overflow:hidden;      background:#080604;font-family:'Inter',sans-serif;      color:var(--txt);    }    .page{      max-width:430px;margin:0 auto;height:100dvh;      display:flex;flex-direction:column;      position:relative;      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;      padding-bottom: env(safe-area-inset-bottom, 0px);      box-sizing: border-box;    }    .page::before{      content:'';position:absolute;inset:0;      background:rgba(0,0,0,0.3);      pointer-events:none;z-index:0;    }    .top-bar{      position:relative;z-index:10;      padding:10px 12px;      display:flex;align-items:center;      justify-content:space-between;      flex-shrink:0;      border-bottom:1px solid rgba(184,134,11,0.25);      background:linear-gradient(180deg, rgba(13,8,4,0.96), rgba(8,4,2,0.88));    }    .btn-back{      padding:5px 9px;      background:linear-gradient(180deg,#3d2108,#1e0e03);      border:1px solid #6a3a12;border-radius:5px;      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;      color:var(--txt-d);letter-spacing:0.04em;      cursor:pointer;text-align:center;text-decoration:none;      box-shadow:0 2px 5px rgba(0,0,0,0.5);    }    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}    .page-title{      font-family:'Cinzel',serif;font-weight:900;font-size:0.85rem;      letter-spacing:0.08em;color:var(--gold-b);      text-shadow:0 0 8px rgba(184,134,11,0.4);      text-transform:uppercase;    }    .body{      position:relative;z-index:5;      flex:1;display:flex;flex-direction:column;      padding:8px 10px;gap:6px;overflow:hidden;      background:rgba(10,5,2,0.88);    }    .info-row{      flex-shrink:0;      display:flex;gap:5px;    }    .info-box{      flex:1;text-align:center;      border-radius:5px;      background:rgba(10,5,2,0.88);      border:1px solid #4a2a12;      padding:4px 2px;      box-shadow:inset 0 0 5px rgba(0,0,0,0.8);    }    .info-box.vip-box{      border-color:var(--gold-d);      background:rgba(60,10,10,0.7);    }    .info-box.vip-box .l{color:var(--gold);}    .info-box.vip-box .v{color:#ffd700;}    .info-box .l{      font-size:0.5rem;color:var(--txt-d);      text-transform:uppercase;letter-spacing:0.06em;font-weight:600;    }    .info-box .v{      font-family:'Cinzel',serif;      font-size:0.65rem;font-weight:900;      color:var(--gold-b);margin-top:1px;      text-shadow:0 0 5px rgba(200,150,42,0.3);    }    .info-box .v span{font-size:0.48rem;color:var(--txt-m);font-weight:400;font-family:'Inter',sans-serif;}    .month-label{      flex-shrink:0;text-align:center;      font-family:'Cinzel',serif;font-size:0.75rem;font-weight:900;      color:var(--gold-b);padding:4px 0;      text-shadow:0 0 6px rgba(184,134,11,0.3);      letter-spacing:0.08em;    }    .cabinet-wrap{      flex:1;display:flex;flex-direction:column;      padding:8px;      border-radius:7px;      background:rgba(18,10,5,0.85);      border:2px solid #8a5e30;      box-shadow:0 8px 18px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.8);      overflow:hidden;      min-height:0;    }    .cabinet-header{      flex-shrink:0;      display:grid;grid-template-columns:1fr 1fr;gap:6px;      margin-bottom:6px;      text-align:center;    }    .header-col{      font-family:'Cinzel',serif;font-size:0.65rem;font-weight:900;      padding:5px;border-radius:4px;      letter-spacing:0.05em;      text-shadow:0 1px 2px #000;    }    .normal-title{      background:rgba(74,42,18,0.3);      border:1px solid rgba(166,124,70,0.25);      color:var(--txt-d);    }    .vip-title{      background:linear-gradient(90deg,rgba(60,10,10,0.4),rgba(139,74,26,0.15));      border:1px solid rgba(139,74,26,0.35);      color:var(--gold-p);    }    .grid-wrap{      flex:1;overflow-y:auto;overflow-x:hidden;      display:grid;      grid-template-columns:1fr 1fr;      gap:6px;      align-content:start;      padding:2px;      scrollbar-width:thin;      scrollbar-color:#3a2010 transparent;    }    .grid-wrap::-webkit-scrollbar{width:3px;}    .grid-wrap::-webkit-scrollbar-thumb{background:#3a2010;border-radius:2px;}    .day-card{      position:relative;      border-radius:6px;      padding:4px 4px;      display:flex;flex-direction:column;align-items:center;gap:2px;      transition:all 0.18s ease;      background:linear-gradient(145deg,#4a3020,#2a180e);      border:1.5px solid #8a6030;      box-shadow:0 3px 8px rgba(0,0,0,0.8), 0 0 0 1px rgba(200,150,42,0.06), inset 0 0 4px rgba(0,0,0,0.5);      cursor:default;    }    .day-card::before{      content:'';position:absolute;inset:0;      background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,rgba(0,0,0,0) 100%);      border-radius:4px;z-index:0;pointer-events:none;    }    .day-card>*{position:relative;z-index:1;}    .day-card.milestone{      border-color:var(--gold-d);      background:linear-gradient(145deg,#2a1a08,#150c04);      box-shadow:0 2px 6px rgba(184,134,11,0.12), inset 0 0 6px rgba(0,0,0,0.5);    }    .day-card.vip{      background:linear-gradient(145deg,#4e1212,#260606);      border-color:#6a2020;    }    .day-card.vip.milestone{      border-color:#8b4a1a;      background:linear-gradient(145deg,#3a0c0c,#1a0404);    }    .day-card.done{      opacity:1;      border-color:#2a1a0a;      background:linear-gradient(145deg,#1a1008,#0e0804);      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);      filter:grayscale(0.4);    }    .day-card.done::before{background:rgba(0,0,0,0.4);}    .day-card.missed{      opacity:1;      border-color:#5a1515;      background:linear-gradient(145deg,#1a0808,#0e0404);      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);    }    .day-card.missed::before{background:rgba(0,0,0,0.5);}    .day-card.wait{      opacity:1;      border-color:#2a1a0a;      background:linear-gradient(145deg,#120a06,#0a0604);      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);    }    .day-card.wait::before{background:rgba(0,0,0,0.5);}    .day-card.avail{      border-color:var(--gold);      background:linear-gradient(145deg,#2a1a06,#1a0e04);      cursor:pointer;      animation:cardPulse 2s ease-in-out infinite;    }    .day-card.vip.avail{      border-color:#8b4a1a;      background:linear-gradient(145deg,#3a0a06,#1a0402);      animation:vipPulse 2s ease-in-out infinite;    }    .day-num{      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:900;      color:var(--txt-d);flex-shrink:0;      background:rgba(0,0,0,0.45);border-radius:3px;      padding:1px 6px;min-width:20px;text-align:center;      border:1px solid #3a2010;      line-height:1.4;    }    .day-card.vip .day-num{border-color:#4a1212;color:#c08060;}    .day-card.milestone .day-num{border-color:var(--gold-d);color:var(--gold-p);}    .day-card.avail .day-num{color:var(--gold-b);border-color:var(--gold);}    .day-card.done .day-num{color:#6a5a4a;}    .day-card.missed .day-num{color:#8a3030;}    .day-parts-grid{      display:grid;grid-template-columns:1fr 1fr;gap:1px 4px;      width:100%;    }    .day-part{      display:flex;align-items:center;gap:2px;      justify-content:flex-start;width:auto;    }    .day-rwd-img{      width:16px;height:16px;flex-shrink:0;      object-fit:contain;      filter:drop-shadow(0 2px 4px rgba(0,0,0,0.9)) brightness(1.05);    }    .day-part .day-rwd-txt{      font-size:0.5rem;font-weight:700;      color:#fff5e8;text-shadow:0 1px 4px rgba(0,0,0,0.8);      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;    }    .day-card.done .day-part .day-rwd-txt{color:#a09080;}    .day-card.missed .day-part .day-rwd-txt{color:#6a4040;}    .day-card.milestone .day-part .day-rwd-txt{color:#ffd700;}    .day-card.vip.milestone .day-part .day-rwd-txt{color:#f0b870;}    .day-check{      flex-shrink:0;width:14px;text-align:center;      font-size:0.55rem;    }    .day-check.claimed{color:#5a8a5a;}    .day-check.missed-icon{color:#c04040;font-size:0.7rem;}    .day-check.locked{color:#4a3a2a;}    .day-card.avail .day-check{color:var(--gold);}    .claim-overlay{      position:absolute;inset:0;z-index:3;      background:rgba(0,0,0,0.5);      display:flex;align-items:center;justify-content:center;      opacity:0;transition:opacity 0.15s ease;border-radius:4px;    }    .day-card.avail:hover .claim-overlay{opacity:1;}    .claim-btn{      padding:3px 10px;      border:1px solid var(--gold);      color:#fff;font-family:'Cinzel',serif;      font-size:0.55rem;font-weight:700;      letter-spacing:0.04em;border-radius:3px;      cursor:pointer;      background:rgba(30,15,5,0.9);      box-shadow:0 2px 4px rgba(0,0,0,0.5);      text-shadow:0 1px 1px #000;    }    .day-card.vip.avail .claim-btn{border-color:#8b4a1a;background:rgba(40,8,8,0.9);}    @keyframes cardPulse{      0%{box-shadow:0 0 4px rgba(184,134,11,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold);}      50%{box-shadow:0 0 10px rgba(184,134,11,0.3),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold-b);}      100%{box-shadow:0 0 4px rgba(184,134,11,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold);}    }    @keyframes vipPulse{      0%{box-shadow:0 0 4px rgba(139,74,26,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:#5a1a12;}      50%{box-shadow:0 0 10px rgba(139,74,26,0.35),inset 0 0 4px rgba(0,0,0,0.5);border-color:#8b4a1a;}      100%{box-shadow:0 0 4px rgba(139,74,26,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:#5a1a12;}    }    .magaza-overlay {      display:none;position:fixed;inset:0;z-index:999;      background:rgba(0,0,0,0.8);      align-items:center;justify-content:center;    }    .magaza-overlay.show { display: flex; animation: fadeIn 0.3s; }    .magaza-modal {      background: url('assets/ui/leaderboardbackground.png') center/cover;      background-clip: padding-box;      border: 12px solid transparent;      border-radius: 14px;      width: 92%;      max-width: 380px;      max-height: 90dvh;      overflow: visible;      padding: 20px 16px 16px;      position: relative;      box-shadow: 0 0 40px rgba(0,0,0,0.85), 0 0 60px rgba(200,150,42,0.12);    }    .magaza-modal::before {      content: ''; position: absolute; inset: 0;      background: rgba(10,5,2,0.7);      border-radius: 4px;      pointer-events: none;      z-index: 0;    }    .magaza-modal::after {      content: "";      position: absolute;      inset: -12px;      pointer-events: none;      z-index: 5;      background-image:        url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');      background-position:        top left, top right, bottom left, bottom right,        top left, bottom left, top left, top right;      background-size:        55px 55px, 55px 55px, 55px 55px, 55px 55px,        100% 12px, 100% 12px, 12px 100%, 12px 100%;      background-repeat:        no-repeat, no-repeat, no-repeat, no-repeat,        repeat-x, repeat-x, repeat-y, repeat-y;    }    .magaza-modal > * { position: relative; z-index: 1; }    .magaza-close {      position:absolute;top:8px;right:10px;      background:none;border:none;      font-size:1.1rem;color:var(--txt-d);      cursor:pointer;padding:4px 8px;      font-family:'Inter',sans-serif;      transition:color 0.2s;      z-index:2;    }    .magaza-close:hover { color: var(--txt); }    .magaza-title {      font-family:'Cinzel',serif;font-size:0.95rem;font-weight:900;      color:var(--gold-b);text-align:center;      padding-bottom:10px;      border-bottom:1px solid rgba(200,150,42,0.12);      margin-bottom:10px;    }    .magaza-sub {      font-size:0.7rem; color: var(--txt-d);      text-align: center;      margin-bottom: 12px;    }    .magaza-cards {      display: flex;      flex-direction: column;      gap: 8px;    }    .magaza-card {      background: rgba(0,0,0,0.35);      border: 1.5px solid rgba(200,150,42,0.2);      border-radius: 10px;      padding: 12px 14px;      display: flex;      align-items: center;      justify-content: space-between;      transition: border-color 0.2s;    }    .magaza-card:hover { border-color: rgba(200,150,42,0.5); }    .magaza-card-info { display: flex; flex-direction: column; gap: 2px; }    .magaza-card-name {      font-family:'Cinzel',serif;      font-size:0.85rem;font-weight:700;      color:var(--gold-p);    }    .magaza-card-dur {      font-size:0.65rem;color:var(--txt-d);    }    .magaza-card-price {      font-family:'Cinzel',serif;      font-size:0.9rem;font-weight:900;      color:#4ade80;      white-space:nowrap;    }    .magaza-card-btn {      background:linear-gradient(180deg,#22c55e 0%,#15803d 100%);      border:2px solid #86efac;      border-radius:20px;      font-family:'Cinzel',serif;      font-size:0.65rem;font-weight:900;      color:#052e16;      padding:6px 16px;      cursor:pointer;      white-space:nowrap;      transition:filter 0.2s;      margin-left:8px;    }    .magaza-card-btn:hover { filter: brightness(1.15); }    .magaza-card-btn:active { transform: scale(0.96); }    .magaza-perks {      margin-top:14px;      border-top:1px solid rgba(200,150,42,0.15);      padding-top:12px;    }    .magaza-perks-title {      font-family:'Cinzel',serif;      font-size:0.7rem;font-weight:700;      color:var(--txt-d);      margin-bottom:8px;      text-align:center;      letter-spacing:0.05em;    }    .magaza-perk {      font-size:0.65rem;color:var(--txt);      padding:3px 0;      display:flex;align-items:center;gap:6px;    }    .magaza-perk::before { content:'?';font-size:0.7rem; }    @keyframes fadeIn {      from { opacity: 0; }      to { opacity: 1; }    }  </style></head><body><div class="page">  <div class="top-bar">    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? BACK</span></a>    <div class="page-title"><span data-i18n="daily_title" data-i18n-text>DAILY LOGIN</span></div>    <div style="width:50px;"></div>  </div>  <div class="body">    <div class="info-row">      <div class="info-box" id="month-box">        <div class="l" data-i18n="daily_month_label">MONTH</div>        <div class="v" id="month-val">—</div>      </div>      <div class="info-box vip-box" id="vip-box">        <div class="l" data-i18n="daily_vip_short">VIP</div>        <div class="v" id="vip-val" data-i18n="vip_status_off">NOT ACTIVE</div>      </div>    </div>    <div class="cabinet-wrap">      <div class="cabinet-header">        <div class="header-col normal-title" data-i18n="daily_normal_reward">NORMAL REWARD</div>        <div class="header-col vip-title" data-i18n="daily_vip_reward">VIP REWARD</div>      </div>      <div class="grid-wrap" id="grid-wrap"></div>    </div>  </div></div><script>  const API_URL = (window.__API_URL__ || window.location.origin) + '/api/player';  const token = localStorage.getItem('sp_token');  if (!token) goTo('index.html');  const MILESTONES = [5, 10, 15, 20, 25, 30];  const ICONS = {    gold: 'assets/ui/gold.png',    pearl: 'assets/ui/pearl.png',    oyuk: 'assets/items/shop/oyukgülle.png',    patlayan: 'assets/items/shop/elitgülle.png',    barut: 'assets/items/shop/barut-dükkan.png',    zirh: 'assets/items/shop/zirh-dükkan.png'  };  const D_NORMAL = [    { d:1,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'2,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'100'}}] },    { d:2,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'1,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'50'}}] },    { d:3,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'3,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'150'}}] },    { d:4,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'2,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'100'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'30'}}] },    { d:5,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'5,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'50'}}] },    { d:6,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'3,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'200'}}] },    { d:7,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'8,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'250'}}] },    { d:8,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'75'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'50'}}] },    { d:9,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'10,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'300'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}] },    { d:10, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'350'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'80'}}] },    { d:11, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}] },    { d:12, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'6,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'50'}}] },    { d:13, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'15,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'150'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'80'}}] },    { d:14, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'400'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'500'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}] },    { d:15, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'20,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'120'}}] },    { d:16, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'100'}}] },    { d:17, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'25,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'250'}}] },    { d:18, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'10,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'700'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'150'}}] },    { d:19, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'30,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'600'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'150'}}] },    { d:20, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },    { d:21, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'35,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },    { d:22, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'15,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,200'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'250'}}] },    { d:23, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'40,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'250'}}] },    { d:24, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'18,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,500'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'300'}}] },    { d:25, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'50,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'300'}}] },    { d:26, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'20,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },    { d:27, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'60,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,500'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'250'}}] },    { d:28, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'25,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,500'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'500'}}] },    { d:29, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'80,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'300'}}] },    { d:30, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'100,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'5,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'3,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'500'}}] }  ];  const D_VIP = [    { d:1,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}] },    { d:2,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },    { d:3,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'12,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'600'}}] },    { d:4,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'120'}}] },    { d:5,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'20,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },    { d:6,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'800'}}] },    { d:7,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'32,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,000'}}] },    { d:8,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'16,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'300'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },    { d:9,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'40,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}] },    { d:10, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'320'}}] },    { d:11, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'48,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,600'}}] },    { d:12, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'24,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },    { d:13, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'60,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'320'}}] },    { d:14, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,600'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}] },    { d:15, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'80,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'480'}}] },    { d:16, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'32,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'400'}}] },    { d:17, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'100,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}] },    { d:18, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'40,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'600'}}] },    { d:19, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'120,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'2,400'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'600'}}] },    { d:20, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'48,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'4,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'800'}}] },    { d:21, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'140,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'3,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'800'}}] },    { d:22, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'60,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'4,800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,000'}}] },    { d:23, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'160,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}] },    { d:24, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'72,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'6,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,200'}}] },    { d:25, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'200,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'4,800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,200'}}] },    { d:26, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'80,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'8,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'800'}}] },    { d:27, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'240,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'6,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,000'}}] },    { d:28, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'100,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'10,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'2,000'}}] },    { d:29, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'320,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'8,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,200'}}] },    { d:30, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'400,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'20,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'12,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'4,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'2,000'}}] }  ];  let today = 1;  let daysInMonth = 30;  let claimedNormal = [];  let claimedVip = [];  let isVip = false;  let canClaimNormal = false;  let canClaimVip = false;  const MONTHS_TR = ['Ocak','Subat','Mart','Nisan','Mayis','Haziran','Temmuz','Agustos','Eylül','Ekim','Kasim','Aralik'];  const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];  function getMonthName(monthIndex) {    const lang = window.currentLang || 'en';    return (lang === 'tr' ? MONTHS_TR : MONTHS_EN)[monthIndex];  }  function toast(msg, type) {    window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');  }  async function fetchStatus() {    try {      const res = await fetch(`${API_URL}/daily-reward/status`, {        headers: { 'Authorization': `Bearer ${token}` }      });      if (res.ok) {        const d = await res.json();        today = d.today;        daysInMonth = d.daysInMonth;        claimedNormal = d.claimedNormal || [];        claimedVip = d.claimedVip || [];        isVip = d.isVip;        canClaimNormal = d.canClaimNormal;        canClaimVip = d.canClaimVip;      }    } catch (e) { logError('daily-reward:status', e); }  }  // Determine the state for a normal day card  function dayState(dayNum) {    if (claimedNormal.includes(dayNum)) return 'claimed';    if (dayNum < today) return 'missed';    if (dayNum === today && canClaimNormal) return 'available-normal';    if (dayNum === today && !canClaimNormal) return 'claimed'; // already claimed today    return 'locked';  }  // Determine the state for a VIP day card  function vipState(dayNum) {    if (!isVip) return 'locked';    if (claimedVip.includes(dayNum)) return 'claimed';    if (dayNum < today) return 'missed';    if (dayNum === today && canClaimVip) return 'available-vip';    if (dayNum === today && !canClaimVip) return 'claimed'; // already claimed today    return 'locked';  }  function renderGrid() {    const g = document.getElementById('grid-wrap');    g.innerHTML = '';    // Update month label    const now = new Date();    document.getElementById('month-val').textContent = getMonthName(now.getMonth());    // Update VIP box    document.getElementById('vip-val').textContent = isVip ? t('daily_vip_active') : t('daily_vip_not_active');    document.getElementById('vip-val').style.color = isVip ? '#ffd700' : '#6a5038';    document.getElementById('vip-box').style.borderColor = isVip ? '#8b4a1a' : '#4a2a12';    document.getElementById('vip-box').style.background = isVip ? 'rgba(60,10,10,0.7)' : 'rgba(10,5,2,0.88)';    // Render days up to daysInMonth (but rewards capped at 30)    const totalDays = Math.min(daysInMonth, 31);    for (let i = 0; i < totalDays; i++) {      const dayNum = i + 1;      const rewardIdx = Math.min(dayNum, 30) - 1; // cap at 30      const n = D_NORMAL[rewardIdx];      const v = D_VIP[rewardIdx];      const isMs = MILESTONES.includes(Math.min(dayNum, 30));      // Normal card      const ns = dayState(dayNum);      const nCard = document.createElement('div');      nCard.className = 'day-card';      if (isMs) nCard.classList.add('milestone');      if (ns === 'claimed') nCard.classList.add('done');      else if (ns === 'missed') nCard.classList.add('missed');      else if (ns === 'available-normal') nCard.classList.add('avail');      else nCard.classList.add('wait');      renderCardInner(nCard, n, dayNum, isMs, ns);      if (ns === 'available-normal') {        nCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">' + t('daily_claim') + '</button></div>';        nCard.onclick = () => claimReward('normal');      }      g.appendChild(nCard);      // VIP card      const vs = vipState(dayNum);      const vCard = document.createElement('div');      vCard.className = 'day-card vip';      if (isMs) vCard.classList.add('milestone');      if (vs === 'claimed') vCard.classList.add('done');      else if (vs === 'missed') vCard.classList.add('missed');      else if (vs === 'available-vip') vCard.classList.add('avail');      else vCard.classList.add('wait');      renderCardInner(vCard, v, dayNum, isMs, vs);      if (vs === 'available-vip') {        vCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">' + t('daily_claim') + '</button></div>';        vCard.onclick = () => claimReward('vip');      }      g.appendChild(vCard);    }    // Scroll to today's row    setTimeout(() => {      const avail = g.querySelector('.avail');      if (avail) avail.scrollIntoView({ block: 'center', behavior: 'smooth' });    }, 200);  }  function renderCardInner(card, r, dayNum, isMs, state) {    let badge = '';    if (state === 'claimed') badge = '<span class="day-check claimed">?</span>';    else if (state === 'missed') badge = '<span class="day-check missed-icon">?</span>';    else if (state === 'available-normal' || state === 'available-vip') badge = '<span class="day-check" style="color:var(--gold)">?</span>';    else badge = '<span class="day-check locked">??</span>';    let partsHTML = '';    for (const p of r.parts) {      partsHTML += `<div class="day-part"><img src="${p.img}" class="day-rwd-img"><span class="day-rwd-txt">${p.lp?.val || ''}</span></div>`;    }    card.innerHTML = `      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-shrink:0;">        <div class="day-num">${dayNum}</div>        ${badge}      </div>      <div class="day-parts-grid">${partsHTML}</div>    `;  }  async function claimReward(type) {    try {      const res = await fetch(`${API_URL}/daily-reward/claim`, {        method: 'POST',        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },        body: JSON.stringify({ type })      });      const data = await res.json();      if (res.ok) {        toast('daily_claimed_success', 'ok');        await init();      } else {        toast(data.error || 'err_daily_claim_failed', 'err');      }    } catch (e) {      logError('daily-reward:claim', e);      toast('Server error!', 'err');    }  }  async function init() {    await fetchStatus();    renderGrid();    if (typeof readyNow === 'function') readyNow();  }  init();  // -- VIP Pricing (auto currency via IP) --  let vipPrices = null;  let vipCurrencies = null;  let currentCurrency = 'TRY';  async function fetchVipCurrency() {    try {      const token = localStorage.getItem('sp_token');      if (!token) return;      const [res, curRes] = await Promise.all([        fetch((window.__API_URL__ || window.location.origin) + '/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),        fetch((window.__API_URL__ || window.location.origin) + '/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })      ]);      if (!res.ok || !curRes.ok) return;      const p = await res.json();      const c = await curRes.json();      vipPrices = p.prices;      vipCurrencies = p.currencies;      currentCurrency = c.currency;    } catch (e) { logError('daily-reward:vip', e); }  }  function updateVipPrices() {    const sym = vipCurrencies?.symbols[currentCurrency] || '?';    document.querySelectorAll('#vip-modal-daily .magaza-card-price').forEach(el => {      const plan = parseInt(el.dataset.plan);      if (vipPrices?.[plan]) el.textContent = `${vipPrices[plan][currentCurrency]} ${sym}`;    });  }  function openVipModal() {    if (isVip) return;    fetchVipCurrency().then(() => {      updateVipPrices();      document.getElementById('vip-modal-daily').style.display = 'flex';    });  }  document.getElementById('vip-box').addEventListener('click', openVipModal);  document.querySelectorAll('#vip-modal-daily .magaza-card-btn').forEach(btn => {    btn.addEventListener('click', (e) => {      e.preventDefault();      e.stopPropagation();      const plan = btn.dataset.plan;      const type = btn.dataset.type;      const sym = vipCurrencies?.symbols[currentCurrency] || '?';      const price = vipPrices?.[plan]?.[currentCurrency] || '?';      alert(t('payment_coming_soon', { type: type === 'vip' ? t('vip_pack') : t('starter_pack'), plan }));    });  });</script><!-- VIP Purchase Modal --><div class="magaza-overlay" id="vip-modal-daily" onclick="if(event.target===this)this.style.display='none'">  <div class="magaza-modal">    <button class="magaza-close" id="btn-close-vip-daily" onclick="document.getElementById('vip-modal-daily').style.display='none'">?</button>    <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack">VIP PAKETLER</span></div>    <div class="magaza-sub" data-i18n="vip_sub">Ayricalikli bir korsan olmak için hemen satin al!</div>    <div class="magaza-cards">      <div class="magaza-card">        <div class="magaza-card-info">          <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>          <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayricaliklari</span>        </div>        <div style="display:flex;align-items:center;gap:8px;">          <span class="magaza-card-price" data-plan="7">99 ?</span>          <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>        </div>      </div>      <div class="magaza-card">        <div class="magaza-card-info">          <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>          <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayricaliklari (en popüler)</span>        </div>        <div style="display:flex;align-items:center;gap:8px;">          <span class="magaza-card-price" data-plan="30">249 ?</span>          <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>        </div>      </div>      <div class="magaza-card">        <div class="magaza-card-info">          <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>          <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayricaliklari (en avantajli)</span>        </div>        <div style="display:flex;align-items:center;gap:8px;">          <span class="magaza-card-price" data-plan="90">599 ?</span>          <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>        </div>      </div>    </div>    <div class="magaza-perks">      <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>      <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarim Hizi — Savasta gemini 2 kat hizli onarirsin</div>      <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>      <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayisinda kat kat fazla ödül</div>      <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvasi — Ayni anda 2 görev alabilirsin</div>      <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Dog — Battiginda max caninin %10'u ile baslarsin</div>      <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 Dükkan Indirimi — Dükkandaki tüm ürünlerde %10 indirim</div>    </div>  </div>  </div><script>renderFromCache(); revealPage();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <meta name="theme-color" content="#080604">
+  <style>body { visibility: hidden; background: #080604; }</style>
+  <title>SeaPirates — Daily Login Reward</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=optional" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=2"></script>
+  <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="transition.js?v=8"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root {
+      --rust: #6b2a0a;
+      --rust-l: #8b4a1a;
+      --gold-d: #7a5f0a;
+      --wood-bg: #0d0804;
+      --wood-border: #5a3a1a;
+      --crimson: #5c1010;
+      --crimson-d: #3a0808;
+    }
+
+    html,body{
+      width:100%;height:100dvh;overflow:hidden;
+      background:#080604;font-family:'Inter',sans-serif;
+      color:var(--txt);
+    }
+
+    .page{
+      max-width:430px;margin:0 auto;height:100dvh;
+      display:flex;flex-direction:column;
+      position:relative;
+      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+    }
+    .page::before{
+      content:'';position:absolute;inset:0;
+      background:rgba(0,0,0,0.3);
+      pointer-events:none;z-index:0;
+    }
+
+    .top-bar{
+      position:relative;z-index:10;
+      padding:10px 12px;
+      display:flex;align-items:center;
+      justify-content:space-between;
+      flex-shrink:0;
+      border-bottom:1px solid rgba(184,134,11,0.25);
+      background:linear-gradient(180deg, rgba(13,8,4,0.96), rgba(8,4,2,0.88));
+    }
+    .btn-back{
+      padding:5px 9px;
+      background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #6a3a12;border-radius:5px;
+      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:700;
+      color:var(--txt-d);letter-spacing:0.04em;
+      cursor:pointer;text-align:center;text-decoration:none;
+      box-shadow:0 2px 5px rgba(0,0,0,0.5);
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:0.85rem;
+      letter-spacing:0.08em;color:var(--gold-b);
+      text-shadow:0 0 8px rgba(184,134,11,0.4);
+      text-transform:uppercase;
+    }
+
+    .body{
+      position:relative;z-index:5;
+      flex:1;display:flex;flex-direction:column;
+      padding:8px 10px;gap:6px;overflow:hidden;
+      background:rgba(10,5,2,0.88);
+    }
+
+    .info-row{
+      flex-shrink:0;
+      display:flex;gap:5px;
+    }
+    .info-box{
+      flex:1;text-align:center;
+      border-radius:5px;
+      background:rgba(10,5,2,0.88);
+      border:1px solid #4a2a12;
+      padding:4px 2px;
+      box-shadow:inset 0 0 5px rgba(0,0,0,0.8);
+    }
+    .info-box.vip-box{
+      border-color:var(--gold-d);
+      background:rgba(60,10,10,0.7);
+    }
+    .info-box.vip-box .l{color:var(--gold);}
+    .info-box.vip-box .v{color:#ffd700;}
+    .info-box .l{
+      font-size:0.5rem;color:var(--txt-d);
+      text-transform:uppercase;letter-spacing:0.06em;font-weight:600;
+    }
+    .info-box .v{
+      font-family:'Cinzel',serif;
+      font-size:0.65rem;font-weight:900;
+      color:var(--gold-b);margin-top:1px;
+      text-shadow:0 0 5px rgba(200,150,42,0.3);
+    }
+    .info-box .v span{font-size:0.48rem;color:var(--txt-m);font-weight:400;font-family:'Inter',sans-serif;}
+
+    .month-label{
+      flex-shrink:0;text-align:center;
+      font-family:'Cinzel',serif;font-size:0.75rem;font-weight:900;
+      color:var(--gold-b);padding:4px 0;
+      text-shadow:0 0 6px rgba(184,134,11,0.3);
+      letter-spacing:0.08em;
+    }
+
+    .cabinet-wrap{
+      flex:1;display:flex;flex-direction:column;
+      padding:8px;
+      border-radius:7px;
+      background:rgba(18,10,5,0.85);
+      border:2px solid #8a5e30;
+      box-shadow:0 8px 18px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.8);
+      overflow:hidden;
+      min-height:0;
+    }
+
+    .cabinet-header{
+      flex-shrink:0;
+      display:grid;grid-template-columns:1fr 1fr;gap:6px;
+      margin-bottom:6px;
+      text-align:center;
+    }
+    .header-col{
+      font-family:'Cinzel',serif;font-size:0.65rem;font-weight:900;
+      padding:5px;border-radius:4px;
+      letter-spacing:0.05em;
+      text-shadow:0 1px 2px #000;
+    }
+    .normal-title{
+      background:rgba(74,42,18,0.3);
+      border:1px solid rgba(166,124,70,0.25);
+      color:var(--txt-d);
+    }
+    .vip-title{
+      background:linear-gradient(90deg,rgba(60,10,10,0.4),rgba(139,74,26,0.15));
+      border:1px solid rgba(139,74,26,0.35);
+      color:var(--gold-p);
+    }
+
+    .grid-wrap{
+      flex:1;overflow-y:auto;overflow-x:hidden;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:6px;
+      align-content:start;
+      padding:2px;
+      scrollbar-width:thin;
+      scrollbar-color:#3a2010 transparent;
+    }
+    .grid-wrap::-webkit-scrollbar{width:3px;}
+    .grid-wrap::-webkit-scrollbar-thumb{background:#3a2010;border-radius:2px;}
+
+    .day-card{
+      position:relative;
+      border-radius:6px;
+      padding:4px 4px;
+      display:flex;flex-direction:column;align-items:center;gap:2px;
+      transition:all 0.18s ease;
+      background:linear-gradient(145deg,#4a3020,#2a180e);
+      border:1.5px solid #8a6030;
+      box-shadow:0 3px 8px rgba(0,0,0,0.8), 0 0 0 1px rgba(200,150,42,0.06), inset 0 0 4px rgba(0,0,0,0.5);
+      cursor:default;
+    }
+    .day-card::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,rgba(0,0,0,0) 100%);
+      border-radius:4px;z-index:0;pointer-events:none;
+    }
+    .day-card>*{position:relative;z-index:1;}
+
+    .day-card.milestone{
+      border-color:var(--gold-d);
+      background:linear-gradient(145deg,#2a1a08,#150c04);
+      box-shadow:0 2px 6px rgba(184,134,11,0.12), inset 0 0 6px rgba(0,0,0,0.5);
+    }
+
+    .day-card.vip{
+      background:linear-gradient(145deg,#4e1212,#260606);
+      border-color:#6a2020;
+    }
+    .day-card.vip.milestone{
+      border-color:#8b4a1a;
+      background:linear-gradient(145deg,#3a0c0c,#1a0404);
+    }
+
+    .day-card.done{
+      opacity:1;
+      border-color:#2a1a0a;
+      background:linear-gradient(145deg,#1a1008,#0e0804);
+      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);
+      filter:grayscale(0.4);
+    }
+    .day-card.done::before{background:rgba(0,0,0,0.4);}
+
+    .day-card.missed{
+      opacity:1;
+      border-color:#5a1515;
+      background:linear-gradient(145deg,#1a0808,#0e0404);
+      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);
+    }
+    .day-card.missed::before{background:rgba(0,0,0,0.5);}
+
+    .day-card.wait{
+      opacity:1;
+      border-color:#2a1a0a;
+      background:linear-gradient(145deg,#120a06,#0a0604);
+      box-shadow:inset 0 0 8px rgba(0,0,0,0.8);
+    }
+    .day-card.wait::before{background:rgba(0,0,0,0.5);}
+
+    .day-card.avail{
+      border-color:var(--gold);
+      background:linear-gradient(145deg,#2a1a06,#1a0e04);
+      cursor:pointer;
+      animation:cardPulse 2s ease-in-out infinite;
+    }
+    .day-card.vip.avail{
+      border-color:#8b4a1a;
+      background:linear-gradient(145deg,#3a0a06,#1a0402);
+      animation:vipPulse 2s ease-in-out infinite;
+    }
+
+    .day-num{
+      font-family:'Cinzel',serif;font-size:0.6rem;font-weight:900;
+      color:var(--txt-d);flex-shrink:0;
+      background:rgba(0,0,0,0.45);border-radius:3px;
+      padding:1px 6px;min-width:20px;text-align:center;
+      border:1px solid #3a2010;
+      line-height:1.4;
+    }
+    .day-card.vip .day-num{border-color:#4a1212;color:#c08060;}
+    .day-card.milestone .day-num{border-color:var(--gold-d);color:var(--gold-p);}
+    .day-card.avail .day-num{color:var(--gold-b);border-color:var(--gold);}
+    .day-card.done .day-num{color:#6a5a4a;}
+    .day-card.missed .day-num{color:#8a3030;}
+
+    .day-parts-grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:1px 4px;
+      width:100%;
+    }
+    .day-part{
+      display:flex;align-items:center;gap:2px;
+      justify-content:flex-start;width:auto;
+    }
+    .day-rwd-img{
+      width:16px;height:16px;flex-shrink:0;
+      object-fit:contain;
+      filter:drop-shadow(0 2px 4px rgba(0,0,0,0.9)) brightness(1.05);
+    }
+    .day-part .day-rwd-txt{
+      font-size:0.5rem;font-weight:700;
+      color:#fff5e8;text-shadow:0 1px 4px rgba(0,0,0,0.8);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .day-card.done .day-part .day-rwd-txt{color:#a09080;}
+    .day-card.missed .day-part .day-rwd-txt{color:#6a4040;}
+    .day-card.milestone .day-part .day-rwd-txt{color:#ffd700;}
+    .day-card.vip.milestone .day-part .day-rwd-txt{color:#f0b870;}
+
+    .day-check{
+      flex-shrink:0;width:14px;text-align:center;
+      font-size:0.55rem;
+    }
+    .day-check.claimed{color:#5a8a5a;}
+    .day-check.missed-icon{color:#c04040;font-size:0.7rem;}
+    .day-check.locked{color:#4a3a2a;}
+    .day-card.avail .day-check{color:var(--gold);}
+
+    .claim-overlay{
+      position:absolute;inset:0;z-index:3;
+      background:rgba(0,0,0,0.5);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;transition:opacity 0.15s ease;border-radius:4px;
+    }
+    .day-card.avail:hover .claim-overlay{opacity:1;}
+    .claim-btn{
+      padding:3px 10px;
+      border:1px solid var(--gold);
+      color:#fff;font-family:'Cinzel',serif;
+      font-size:0.55rem;font-weight:700;
+      letter-spacing:0.04em;border-radius:3px;
+      cursor:pointer;
+      background:rgba(30,15,5,0.9);
+      box-shadow:0 2px 4px rgba(0,0,0,0.5);
+      text-shadow:0 1px 1px #000;
+    }
+    .day-card.vip.avail .claim-btn{border-color:#8b4a1a;background:rgba(40,8,8,0.9);}
+
+    @keyframes cardPulse{
+      0%{box-shadow:0 0 4px rgba(184,134,11,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold);}
+      50%{box-shadow:0 0 10px rgba(184,134,11,0.3),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold-b);}
+      100%{box-shadow:0 0 4px rgba(184,134,11,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:var(--gold);}
+    }
+    @keyframes vipPulse{
+      0%{box-shadow:0 0 4px rgba(139,74,26,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:#5a1a12;}
+      50%{box-shadow:0 0 10px rgba(139,74,26,0.35),inset 0 0 4px rgba(0,0,0,0.5);border-color:#8b4a1a;}
+      100%{box-shadow:0 0 4px rgba(139,74,26,0.12),inset 0 0 4px rgba(0,0,0,0.5);border-color:#5a1a12;}
+    }
+
+    .magaza-overlay {
+      display:none;position:fixed;inset:0;z-index:999;
+      background:rgba(0,0,0,0.8);
+      align-items:center;justify-content:center;
+    }
+    .magaza-overlay.show { display: flex; animation: fadeIn 0.3s; }
+
+    .magaza-modal {
+      background: url('assets/ui/leaderboardbackground.png') center/cover;
+      background-clip: padding-box;
+      border: 12px solid transparent;
+      border-radius: 14px;
+      width: 92%;
+      max-width: 380px;
+      max-height: 90dvh;
+      overflow: visible;
+      padding: 20px 16px 16px;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.85), 0 0 60px rgba(200,150,42,0.12);
+    }
+    .magaza-modal::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(10,5,2,0.7);
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .magaza-modal::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      pointer-events: none;
+      z-index: 5;
+      background-image:
+        url('assets/ui/ikon/images/15_mainborder_corner_left_top.png'),
+        url('assets/ui/ikon/images/6_mainborder_corner_right_top.png'),
+        url('assets/ui/ikon/images/145_mainborder_corner_left_bottom.png'),
+        url('assets/ui/ikon/images/140_mainborder_corner_right_bottom.png'),
+        url('assets/ui/ikon/images/38_mainborder_seamless_top.png'),
+        url('assets/ui/ikon/images/142_Mainborder_seamless_bottom.png'),
+        url('assets/ui/ikon/images/100_mainborder_seamless_side_left.png'),
+        url('assets/ui/ikon/images/237_mainborder_seamless_side_right.png');
+      background-position:
+        top left, top right, bottom left, bottom right,
+        top left, bottom left, top left, top right;
+      background-size:
+        55px 55px, 55px 55px, 55px 55px, 55px 55px,
+        100% 12px, 100% 12px, 12px 100%, 12px 100%;
+      background-repeat:
+        no-repeat, no-repeat, no-repeat, no-repeat,
+        repeat-x, repeat-x, repeat-y, repeat-y;
+    }
+    .magaza-modal > * { position: relative; z-index: 1; }
+    .magaza-close {
+      position:absolute;top:8px;right:10px;
+      background:none;border:none;
+      font-size:1.1rem;color:var(--txt-d);
+      cursor:pointer;padding:4px 8px;
+      font-family:'Inter',sans-serif;
+      transition:color 0.2s;
+      z-index:2;
+    }
+    .magaza-close:hover { color: var(--txt); }
+
+    .magaza-title {
+      font-family:'Cinzel',serif;font-size:0.95rem;font-weight:900;
+      color:var(--gold-b);text-align:center;
+      padding-bottom:10px;
+      border-bottom:1px solid rgba(200,150,42,0.12);
+      margin-bottom:10px;
+    }
+    .magaza-sub {
+      font-size:0.7rem; color: var(--txt-d);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .magaza-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .magaza-card {
+      background: rgba(0,0,0,0.35);
+      border: 1.5px solid rgba(200,150,42,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color 0.2s;
+    }
+    .magaza-card:hover { border-color: rgba(200,150,42,0.5); }
+    .magaza-card-info { display: flex; flex-direction: column; gap: 2px; }
+    .magaza-card-name {
+      font-family:'Cinzel',serif;
+      font-size:0.85rem;font-weight:700;
+      color:var(--gold-p);
+    }
+    .magaza-card-dur {
+      font-size:0.65rem;color:var(--txt-d);
+    }
+    .magaza-card-price {
+      font-family:'Cinzel',serif;
+      font-size:0.9rem;font-weight:900;
+      color:#4ade80;
+      white-space:nowrap;
+    }
+    .magaza-card-btn {
+      background:linear-gradient(180deg,#22c55e 0%,#15803d 100%);
+      border:2px solid #86efac;
+      border-radius:20px;
+      font-family:'Cinzel',serif;
+      font-size:0.65rem;font-weight:900;
+      color:#052e16;
+      padding:6px 16px;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:filter 0.2s;
+      margin-left:8px;
+    }
+    .magaza-card-btn:hover { filter: brightness(1.15); }
+    .magaza-card-btn:active { transform: scale(0.96); }
+
+    .magaza-perks {
+      margin-top:14px;
+      border-top:1px solid rgba(200,150,42,0.15);
+      padding-top:12px;
+    }
+    .magaza-perks-title {
+      font-family:'Cinzel',serif;
+      font-size:0.7rem;font-weight:700;
+      color:var(--txt-d);
+      margin-bottom:8px;
+      text-align:center;
+      letter-spacing:0.05em;
+    }
+    .magaza-perk {
+      font-size:0.65rem;color:var(--txt);
+      padding:3px 0;
+      display:flex;align-items:center;gap:6px;
+    }
+    .magaza-perk::before { content:'?';font-size:0.7rem; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? BACK</span></a>
+    <div class="page-title"><span data-i18n="daily_title" data-i18n-text>DAILY LOGIN</span></div>
+    <div style="width:50px;"></div>
+  </div>
+  <div class="body">
+    <div class="info-row">
+      <div class="info-box" id="month-box">
+        <div class="l" data-i18n="daily_month_label">MONTH</div>
+        <div class="v" id="month-val">—</div>
+      </div>
+      <div class="info-box vip-box" id="vip-box">
+        <div class="l" data-i18n="daily_vip_short">VIP</div>
+        <div class="v" id="vip-val" data-i18n="vip_status_off">NOT ACTIVE</div>
+      </div>
+    </div>
+
+    <div class="cabinet-wrap">
+      <div class="cabinet-header">
+        <div class="header-col normal-title" data-i18n="daily_normal_reward">NORMAL REWARD</div>
+        <div class="header-col vip-title" data-i18n="daily_vip_reward">VIP REWARD</div>
+      </div>
+      <div class="grid-wrap" id="grid-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = (window.__API_URL__ || window.location.origin) + '/api/player';
+  const token = localStorage.getItem('sp_token');
+  if (!token) goTo('index.html');
+
+  const MILESTONES = [5, 10, 15, 20, 25, 30];
+
+  const ICONS = {
+    gold: 'assets/ui/gold.png',
+    pearl: 'assets/ui/pearl.png',
+    oyuk: 'assets/items/shop/oyukgülle.png',
+    patlayan: 'assets/items/shop/elitgülle.png',
+    barut: 'assets/items/shop/barut-dükkan.png',
+    zirh: 'assets/items/shop/zirh-dükkan.png'
+  };
+
+  const D_NORMAL = [
+    { d:1,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'2,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'100'}}] },
+    { d:2,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'1,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'50'}}] },
+    { d:3,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'3,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'150'}}] },
+    { d:4,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'2,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'100'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'30'}}] },
+    { d:5,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'5,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'50'}}] },
+    { d:6,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'3,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'200'}}] },
+    { d:7,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'8,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'250'}}] },
+    { d:8,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'75'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'50'}}] },
+    { d:9,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'10,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'300'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}] },
+    { d:10, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'350'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'80'}}] },
+    { d:11, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}] },
+    { d:12, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'6,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'50'}}] },
+    { d:13, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'15,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'150'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'80'}}] },
+    { d:14, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'400'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'500'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'100'}}] },
+    { d:15, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'20,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'120'}}] },
+    { d:16, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'100'}}] },
+    { d:17, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'25,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'250'}}] },
+    { d:18, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'10,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'700'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'150'}}] },
+    { d:19, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'30,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'600'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'150'}}] },
+    { d:20, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },
+    { d:21, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'35,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },
+    { d:22, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'15,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,200'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'250'}}] },
+    { d:23, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'40,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'250'}}] },
+    { d:24, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'18,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,500'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'300'}}] },
+    { d:25, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'50,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'300'}}] },
+    { d:26, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'20,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },
+    { d:27, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'60,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,500'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'250'}}] },
+    { d:28, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'25,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,500'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'500'}}] },
+    { d:29, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'80,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'300'}}] },
+    { d:30, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'100,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'5,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'3,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'500'}}] }
+  ];
+
+  const D_VIP = [
+    { d:1,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}] },
+    { d:2,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },
+    { d:3,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'12,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'600'}}] },
+    { d:4,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'8,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'120'}}] },
+    { d:5,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'20,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'200'}}] },
+    { d:6,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'12,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'800'}}] },
+    { d:7,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'32,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,000'}}] },
+    { d:8,  parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'16,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'300'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },
+    { d:9,  parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'40,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}] },
+    { d:10, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'320'}}] },
+    { d:11, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'48,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'1,600'}}] },
+    { d:12, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'24,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'200'}}] },
+    { d:13, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'60,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'320'}}] },
+    { d:14, parts:[{img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'1,600'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'400'}}] },
+    { d:15, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'80,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'480'}}] },
+    { d:16, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'32,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,400'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'400'}}] },
+    { d:17, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'100,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}] },
+    { d:18, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'40,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'2,800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'600'}}] },
+    { d:19, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'120,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'2,400'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'600'}}] },
+    { d:20, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'48,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'4,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'800'}}] },
+    { d:21, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'140,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'3,200'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'800'}}] },
+    { d:22, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'60,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'4,800'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,000'}}] },
+    { d:23, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'160,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'4,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,000'}}] },
+    { d:24, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'72,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'6,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,200'}}] },
+    { d:25, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'200,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'4,800'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,200'}}] },
+    { d:26, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'80,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'8,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'800'}}] },
+    { d:27, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'240,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'6,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,000'}}] },
+    { d:28, parts:[{img:ICONS.oyuk, lk:'item_hollow_amount', lp:{val:'100,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'10,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'2,000'}}] },
+    { d:29, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'320,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'8,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'1,600'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'1,200'}}] },
+    { d:30, parts:[{img:ICONS.gold, lk:'item_gold_amount', lp:{val:'400,000'}}, {img:ICONS.pearl, lk:'item_pearl_amount', lp:{val:'20,000'}}, {img:ICONS.patlayan, lk:'item_explosive_amount', lp:{val:'12,000'}}, {img:ICONS.barut, lk:'item_gunpowder_amount', lp:{val:'4,000'}}, {img:ICONS.zirh, lk:'item_armor_amount', lp:{val:'2,000'}}] }
+  ];
+
+  let today = 1;
+  let daysInMonth = 30;
+  let claimedNormal = [];
+  let claimedVip = [];
+  let isVip = false;
+  let canClaimNormal = false;
+  let canClaimVip = false;
+
+  const MONTHS_TR = ['Ocak','Subat','Mart','Nisan','Mayis','Haziran','Temmuz','Agustos','Eylül','Ekim','Kasim','Aralik'];
+  const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function getMonthName(monthIndex) {
+    const lang = window.currentLang || 'en';
+    return (lang === 'tr' ? MONTHS_TR : MONTHS_EN)[monthIndex];
+  }
+
+  function toast(msg, type) {
+    window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
+  }
+
+  async function fetchStatus() {
+    try {
+      const res = await fetch(`${API_URL}/daily-reward/status`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const d = await res.json();
+        today = d.today;
+        daysInMonth = d.daysInMonth;
+        claimedNormal = d.claimedNormal || [];
+        claimedVip = d.claimedVip || [];
+        isVip = d.isVip;
+        canClaimNormal = d.canClaimNormal;
+        canClaimVip = d.canClaimVip;
+      }
+    } catch (e) { logError('daily-reward:status', e); }
+  }
+
+  // Determine the state for a normal day card
+  function dayState(dayNum) {
+    if (claimedNormal.includes(dayNum)) return 'claimed';
+    if (dayNum < today) return 'missed';
+    if (dayNum === today && canClaimNormal) return 'available-normal';
+    if (dayNum === today && !canClaimNormal) return 'claimed'; // already claimed today
+    return 'locked';
+  }
+
+  // Determine the state for a VIP day card
+  function vipState(dayNum) {
+    if (!isVip) return 'locked';
+    if (claimedVip.includes(dayNum)) return 'claimed';
+    if (dayNum < today) return 'missed';
+    if (dayNum === today && canClaimVip) return 'available-vip';
+    if (dayNum === today && !canClaimVip) return 'claimed'; // already claimed today
+    return 'locked';
+  }
+
+  function renderGrid() {
+    const g = document.getElementById('grid-wrap');
+    g.innerHTML = '';
+
+    // Update month label
+    const now = new Date();
+    document.getElementById('month-val').textContent = getMonthName(now.getMonth());
+
+    // Update VIP box
+    document.getElementById('vip-val').textContent = isVip ? t('daily_vip_active') : t('daily_vip_not_active');
+    document.getElementById('vip-val').style.color = isVip ? '#ffd700' : '#6a5038';
+    document.getElementById('vip-box').style.borderColor = isVip ? '#8b4a1a' : '#4a2a12';
+    document.getElementById('vip-box').style.background = isVip ? 'rgba(60,10,10,0.7)' : 'rgba(10,5,2,0.88)';
+
+    // Render days up to daysInMonth (but rewards capped at 30)
+    const totalDays = Math.min(daysInMonth, 31);
+    for (let i = 0; i < totalDays; i++) {
+      const dayNum = i + 1;
+      const rewardIdx = Math.min(dayNum, 30) - 1; // cap at 30
+      const n = D_NORMAL[rewardIdx];
+      const v = D_VIP[rewardIdx];
+      const isMs = MILESTONES.includes(Math.min(dayNum, 30));
+
+      // Normal card
+      const ns = dayState(dayNum);
+      const nCard = document.createElement('div');
+      nCard.className = 'day-card';
+      if (isMs) nCard.classList.add('milestone');
+      if (ns === 'claimed') nCard.classList.add('done');
+      else if (ns === 'missed') nCard.classList.add('missed');
+      else if (ns === 'available-normal') nCard.classList.add('avail');
+      else nCard.classList.add('wait');
+      renderCardInner(nCard, n, dayNum, isMs, ns);
+      if (ns === 'available-normal') {
+        nCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">' + t('daily_claim') + '</button></div>';
+        nCard.onclick = () => claimReward('normal');
+      }
+      g.appendChild(nCard);
+
+      // VIP card
+      const vs = vipState(dayNum);
+      const vCard = document.createElement('div');
+      vCard.className = 'day-card vip';
+      if (isMs) vCard.classList.add('milestone');
+      if (vs === 'claimed') vCard.classList.add('done');
+      else if (vs === 'missed') vCard.classList.add('missed');
+      else if (vs === 'available-vip') vCard.classList.add('avail');
+      else vCard.classList.add('wait');
+      renderCardInner(vCard, v, dayNum, isMs, vs);
+      if (vs === 'available-vip') {
+        vCard.innerHTML += '<div class="claim-overlay"><button class="claim-btn">' + t('daily_claim') + '</button></div>';
+        vCard.onclick = () => claimReward('vip');
+      }
+      g.appendChild(vCard);
+    }
+
+    // Scroll to today's row
+    setTimeout(() => {
+      const avail = g.querySelector('.avail');
+      if (avail) avail.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 200);
+  }
+
+  function renderCardInner(card, r, dayNum, isMs, state) {
+    let badge = '';
+    if (state === 'claimed') badge = '<span class="day-check claimed">?</span>';
+    else if (state === 'missed') badge = '<span class="day-check missed-icon">?</span>';
+    else if (state === 'available-normal' || state === 'available-vip') badge = '<span class="day-check" style="color:var(--gold)">?</span>';
+    else badge = '<span class="day-check locked">??</span>';
+
+    let partsHTML = '';
+    for (const p of r.parts) {
+      partsHTML += `<div class="day-part"><img src="${p.img}" class="day-rwd-img"><span class="day-rwd-txt">${p.lp?.val || ''}</span></div>`;
+    }
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-shrink:0;">
+        <div class="day-num">${dayNum}</div>
+        ${badge}
+      </div>
+      <div class="day-parts-grid">${partsHTML}</div>
+    `;
+  }
+
+  async function claimReward(type) {
+    try {
+      const res = await fetch(`${API_URL}/daily-reward/claim`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast('daily_claimed_success', 'ok');
+        await init();
+      } else {
+        toast(data.error || 'err_daily_claim_failed', 'err');
+      }
+    } catch (e) {
+      logError('daily-reward:claim', e);
+      toast('Server error!', 'err');
+    }
+  }
+
+  async function init() {
+    await fetchStatus();
+    renderGrid();
+    if (typeof readyNow === 'function') readyNow();
+  }
+
+  init();
+
+  // -- VIP Pricing (auto currency via IP) --
+  let vipPrices = null;
+  let vipCurrencies = null;
+  let currentCurrency = 'TRY';
+
+  async function fetchVipCurrency() {
+    try {
+      const token = localStorage.getItem('sp_token');
+      if (!token) return;
+      const [res, curRes] = await Promise.all([
+        fetch((window.__API_URL__ || window.location.origin) + '/api/vip/prices', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch((window.__API_URL__ || window.location.origin) + '/api/vip/currency', { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      if (!res.ok || !curRes.ok) return;
+      const p = await res.json();
+      const c = await curRes.json();
+      vipPrices = p.prices;
+      vipCurrencies = p.currencies;
+      currentCurrency = c.currency;
+    } catch (e) { logError('daily-reward:vip', e); }
+  }
+
+  function updateVipPrices() {
+    const sym = vipCurrencies?.symbols[currentCurrency] || '?';
+    document.querySelectorAll('#vip-modal-daily .magaza-card-price').forEach(el => {
+      const plan = parseInt(el.dataset.plan);
+      if (vipPrices?.[plan]) el.textContent = `${vipPrices[plan][currentCurrency]} ${sym}`;
+    });
+  }
+
+  function openVipModal() {
+    if (isVip) return;
+    fetchVipCurrency().then(() => {
+      updateVipPrices();
+      document.getElementById('vip-modal-daily').style.display = 'flex';
+    });
+  }
+
+  document.getElementById('vip-box').addEventListener('click', openVipModal);
+
+  document.querySelectorAll('#vip-modal-daily .magaza-card-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const plan = btn.dataset.plan;
+      const type = btn.dataset.type;
+      const sym = vipCurrencies?.symbols[currentCurrency] || '?';
+      const price = vipPrices?.[plan]?.[currentCurrency] || '?';
+      alert(t('payment_coming_soon', { type: type === 'vip' ? t('vip_pack') : t('starter_pack'), plan }));
+    });
+  });
+</script>
+
+<!-- VIP Purchase Modal -->
+<div class="magaza-overlay" id="vip-modal-daily" onclick="if(event.target===this)this.style.display='none'">
+  <div class="magaza-modal">
+    <button class="magaza-close" id="btn-close-vip-daily" onclick="document.getElementById('vip-modal-daily').style.display='none'">?</button>
+    <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack">VIP PAKETLER</span></div>
+    <div class="magaza-sub" data-i18n="vip_sub">Ayricalikli bir korsan olmak için hemen satin al!</div>
+    <div class="magaza-cards">
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayricaliklari</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="7">99 ?</span>
+          <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayricaliklari (en popüler)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="30">249 ?</span>
+          <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+      <div class="magaza-card">
+        <div class="magaza-card-info">
+          <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>
+          <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayricaliklari (en avantajli)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="magaza-card-price" data-plan="90">599 ?</span>
+          <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="magaza-perks">
+      <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
+      <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarim Hizi — Savasta gemini 2 kat hizli onarirsin</div>
+      <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
+      <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayisinda kat kat fazla ödül</div>
+      <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvasi — Ayni anda 2 görev alabilirsin</div>
+      <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Dog — Battiginda max caninin %10'u ile baslarsin</div>
+      <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 Dükkan Indirimi — Dükkandaki tüm ürünlerde %10 indirim</div>
+    </div>
+  </div>
+  </div>
+<script>renderFromCache(); revealPage();</script>
+</body>
+</html>
+

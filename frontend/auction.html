@@ -1,1 +1,526 @@
-<!DOCTYPE html><html lang="tr"><head>  <meta charset="UTF-8"/>  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>  <meta name="theme-color" content="#080502">  <style>body { visibility: hidden; background: #080502; }</style>  <title data-i18n="auction_title">SeaPirates — Açik Artirma</title>  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />  <link rel="stylesheet" href="style.css">  <script src="js/lang.js?v=2"></script>  <script src="js/api.js?v=4"></script>  <script src="js/logger.js"></script>  <script src="js/auth.js?v=2"></script>  <script src="transition.js?v=8"></script>  <style>    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}    :root{      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;      --wood-d:#0f0a05;--wood-m:#1a1108;      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;      --red:#c0392b;    }    html,body{width:100%;height:100dvh;overflow:hidden;background:#080502;font-family:'Inter',sans-serif;color:var(--txt);}    .page{      max-width:430px;margin:0 auto;height:100dvh;padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;      display:flex;flex-direction:column;position:relative;      background:url('assets/ui/background/menubackground.png') center/cover no-repeat;    }    .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.72);pointer-events:none;z-index:0;}    /* TOP BAR */    .top-bar{      position:relative;z-index:10;flex-shrink:0;padding:12px 14px;      display:flex;align-items:center;justify-content:space-between;      border-bottom:1px solid rgba(200,150,42,0.3);      background:linear-gradient(180deg,rgba(20,10,2,0.98),rgba(10,5,0,0.9));    }    .btn-back{      padding:7px 11px;background:linear-gradient(180deg,#3d2108,#1e0e03);      border:1px solid #7a4a18;border-radius:7px;      font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;      color:var(--txt-d);text-decoration:none;    }    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}    .page-title{      font-family:'Cinzel',serif;font-weight:900;font-size:1rem;      letter-spacing:0.1em;color:var(--gold-b);      text-shadow:0 0 12px rgba(200,150,42,0.7);text-transform:uppercase;    }    .gold-display{      display:flex;align-items:center;gap:5px;      background:rgba(0,0,0,0.4);border:1px solid rgba(200,150,42,0.3);      border-radius:6px;padding:5px 10px;    }    .gold-ico{width:16px;height:16px;display:flex;align-items:center;justify-content:center;}    .gold-ico img{width:100%;height:100%;object-fit:contain;}    .gold-amt{font-family:'Cinzel',serif;font-size:0.75rem;font-weight:700;color:var(--gold-b);}    /* ----------- TIMER ----------- */    .timer-bar{      position:relative;z-index:8;flex-shrink:0;padding:18px 14px 14px;      display:flex;flex-direction:column;align-items:center;      background:linear-gradient(180deg,rgba(20,10,2,0.95),rgba(10,5,0,0.7));      border-bottom:2px solid rgba(200,150,42,0.08);    }    .timer-bar::before{      content:'';position:absolute;top:0;left:10%;right:10%;height:1px;      background:linear-gradient(90deg,transparent,rgba(200,150,42,0.15),transparent);    }    .timer-ring-wrap{      position:relative;width:112px;height:112px;      display:flex;align-items:center;justify-content:center;      filter:drop-shadow(0 0 6px rgba(200,150,42,0.08));    }    .timer-ring-wrap svg{width:100%;height:100%;}    .timer-ring-bg{fill:none;stroke:rgba(200,150,42,0.06);stroke-width:3;}    .timer-ring-glow{      fill:none;stroke:rgba(200,150,42,0.04);stroke-width:5;      transition:opacity 0.6s;    }    .timer-ring-glow.urgent{stroke:rgba(192,57,43,0.06);}    .timer-ring-glow2{      fill:none;stroke:rgba(200,150,42,0.03);stroke-width:8;    }    .timer-tick{stroke:rgba(200,150,42,0.35);stroke-width:2.5;stroke-linecap:round;}    .timer-tick.major{stroke:#c8962a;stroke-width:3.5;stroke-linecap:round;}    .wheel-rim{      fill:none;stroke:#c8962a;stroke-width:4.5;opacity:0.25;      transition:stroke 0.4s, opacity 0.4s;    }    .wheel-rim.urgent{stroke:#c0392b;opacity:0.35;}    .wheel-rim-seg{      fill:none;stroke:rgba(200,150,42,0.08);stroke-width:5;stroke-dasharray:2 34.1;    }    .wheel-rim-seg.urgent{stroke:rgba(192,57,43,0.12);}    .wheel-spoke{      stroke:rgba(200,150,42,0.18);stroke-width:3.5;stroke-linecap:round;      transition:stroke 0.4s;    }    .wheel-spoke.urgent{stroke:rgba(192,57,43,0.25);}    .wheel-knob{      fill:rgba(200,150,42,0.2);stroke:rgba(200,150,42,0.35);stroke-width:2;      transition:fill 0.4s, stroke 0.4s;    }    .wheel-knob.urgent{fill:rgba(192,57,43,0.25);stroke:rgba(192,57,43,0.45);}    .wheel-knob-inner{      fill:rgba(200,150,42,0.35);transition:fill 0.4s;    }    .wheel-knob-inner.urgent{fill:rgba(192,57,43,0.45);}    .wheel-hub{      fill:rgba(200,150,42,0.12);stroke:rgba(200,150,42,0.25);stroke-width:2;      transition:fill 0.4s, stroke 0.4s;    }    .wheel-hub.urgent{fill:rgba(192,57,43,0.18);stroke:rgba(192,57,43,0.35);}    .wheel-hub-ring{      fill:none;stroke:rgba(200,150,42,0.15);stroke-width:1.5;      transition:stroke 0.4s;    }    .wheel-hub-ring.urgent{stroke:rgba(192,57,43,0.25);}    .timer-center{      position:absolute;inset:0;display:flex;flex-direction:column;      align-items:center;justify-content:center;    }    .timer-label{      font-size:0.5rem;color:rgba(200,150,42,0.5);text-transform:uppercase;      letter-spacing:0.18em;margin-bottom:1px;      font-family:'Cinzel',serif;font-weight:700;    }    .timer-val{      font-family:'Cinzel',serif;font-size:1.5rem;font-weight:900;      color:#f0c040;font-variant-numeric:tabular-nums;      text-shadow:0 0 30px rgba(240,192,64,0.25),0 0 60px rgba(240,192,64,0.1);      transition:color 0.4s, text-shadow 0.4s;      line-height:1.2;    }    .timer-val.urgent{      color:#e74c3c;text-shadow:0 0 35px rgba(231,76,60,0.4),0 0 70px rgba(231,76,60,0.15);    }    .timer-val.critical{      animation:timerCritical 0.6s ease-in-out infinite;      color:#ff4444;text-shadow:0 0 40px rgba(255,68,68,0.5),0 0 80px rgba(255,68,68,0.2);    }    .timer-bar-text{      font-size:0.55rem;color:rgba(200,150,42,0.35);margin-top:5px;      letter-spacing:0.1em;text-transform:uppercase;      font-family:'Cinzel',serif;font-weight:600;      transition:color 0.3s;    }    .timer-bar-text.urgent{color:#c0392b;}    .timer-bar-text.critical{color:#ff4444;animation:timerCritical 0.6s ease-in-out infinite;}    @keyframes timerCritical{      0%,100%{opacity:1;transform:scale(1)}      50%{opacity:0.7;transform:scale(1.05)}    }    .timer-aura{      position:absolute;inset:-6px;border-radius:50%;      background:radial-gradient(circle,rgba(200,150,42,0.06) 0%,transparent 70%);      transition:all 0.5s;pointer-events:none;    }    .timer-aura.urgent{background:radial-gradient(circle,rgba(192,57,43,0.08) 0%,transparent 70%);}    .timer-aura.critical{background:radial-gradient(circle,rgba(255,68,68,0.12) 0%,transparent 70%);animation:auraPulse 1s ease-in-out infinite;}    @keyframes auraPulse{0%,100%{opacity:1}50%{opacity:0.5}}    /* LIST */    .auction-list{      flex:1;position:relative;z-index:5;overflow-y:auto;padding:12px;      display:flex;flex-direction:column;gap:10px;    }    .auction-list::-webkit-scrollbar{width:4px;}    .auction-list::-webkit-scrollbar-thumb{background:#442a10;border-radius:2px;}    /* CARD */    .ac-card{      border:1.5px solid #4a2a0a;border-radius:10px;padding:12px;      display:flex;flex-direction:column;gap:10px;      box-shadow:0 4px 12px rgba(0,0,0,0.6);      background:        linear-gradient(135deg,rgba(10,5,2,0.7) 0%,rgba(20,10,3,0.5) 100%),        url('assets/ui/leaderboardbackground.png') center/100% 100% no-repeat;    }    .card-top{display:flex;align-items:center;gap:12px;}    .ac-img{      width:56px;height:56px;flex-shrink:0;      border-radius:8px;      border:1px solid rgba(200,150,42,0.2);      display:flex;align-items:center;justify-content:center;overflow:hidden;      position:relative;    }    .ac-img img{      width:92%;height:92%;object-fit:contain;      filter:brightness(1.3) drop-shadow(0 0 2px rgba(200,150,42,0.25));    }    .ac-img .ph{font-size:1.2rem;font-weight:700;color:var(--gold);opacity:0.5;}    .ac-info{flex:1;min-width:0;}    .ac-name{font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;color:var(--txt);margin-bottom:3px;overflow-wrap:break-word;word-break:break-word;}    .ac-desc{font-size:0.62rem;color:var(--txt-d);overflow-wrap:break-word;word-break:break-word;}    /* Highest bidder */    .ac-bidder{      display:flex;align-items:center;justify-content:space-between;      padding:5px 10px;border-radius:5px;      background:rgba(0,0,0,0.3);border:1px solid rgba(200,150,42,0.08);    }    .ac-bidder-lbl{font-size:0.58rem;color:var(--txt-m);text-transform:uppercase;}    .ac-bidder-name{font-size:0.75rem;font-weight:700;color:var(--gold-p);overflow-wrap:break-word;word-break:break-word;}    .ac-bidder-name.nobody{color:var(--txt-m);font-style:italic;font-weight:400;}    /* Bid input row */    .bid-row{display:flex;gap:7px;align-items:center;}    .bid-input{      flex:1;padding:8px 10px;      background:rgba(0,0,0,0.4);border:1px solid rgba(200,150,42,0.25);border-radius:6px;      color:var(--txt);font-size:0.8rem;font-weight:700;outline:none;      font-family:'Inter',sans-serif;    }    .bid-input:focus{border-color:var(--gold);}    .bid-input::placeholder{color:var(--txt-m);font-weight:400;}    .btn-bid{      padding:8px 14px;flex-shrink:0;      background:linear-gradient(180deg,#c8962a,#8a651a);      border:1px solid #5c3518;border-radius:6px;      font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;      color:#fff;cursor:pointer;white-space:nowrap;      box-shadow:0 2px 5px rgba(0,0,0,0.4);transition:all 0.15s;    }    .btn-bid:hover{background:linear-gradient(180deg,#f0c040,#c8962a);}    /* Empty */    .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--txt-m);}    .empty-ico{font-size:3rem;opacity:0.15;}    .empty-txt{font-family:'Cinzel',serif;font-size:0.78rem;opacity:0.5;overflow-wrap:break-word;word-break:break-word;}  </style></head><body><div class="page">  <!-- TOP BAR -->  <div class="top-bar">    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? GERI</span></a>    <div class="page-title"><span data-i18n="auction_title" data-i18n-text>AÇIK ARTIRMA</span></div>    <div class="gold-display">      <span class="gold-ico"><img src="assets/ui/gold.png" alt="Altin" data-i18n-alt="alt_gold"/></span>      <span class="gold-amt" id="gold-display">0</span>    </div>  </div>    <!-- TIMER -->    <div class="timer-bar">      <svg width="0" height="0" style="position:absolute">        <defs>      </svg>      <div class="timer-ring-wrap">        <div class="timer-aura" id="timer-aura"></div>        <svg viewBox="0 0 100 100">          <!-- --- SHIP WHEEL --- -->          <!-- Outer rim -->          <circle class="wheel-rim" id="wheel-rim" cx="50" cy="50" r="47.5"/>          <circle class="wheel-rim-seg" id="wheel-rim-seg" cx="50" cy="50" r="47.5"/>          <!-- 8 spokes (center ? rim) -->          <line class="wheel-spoke" id="ws0" x1="50" y1="50" x2="50" y2="2.5"/>          <line class="wheel-spoke" id="ws1" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(45 50 50)"/>          <line class="wheel-spoke" id="ws2" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(90 50 50)"/>          <line class="wheel-spoke" id="ws3" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(135 50 50)"/>          <line class="wheel-spoke" id="ws4" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(180 50 50)"/>          <line class="wheel-spoke" id="ws5" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(225 50 50)"/>          <line class="wheel-spoke" id="ws6" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(270 50 50)"/>          <line class="wheel-spoke" id="ws7" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(315 50 50)"/>          <!-- Handle knobs (double ring) -->          <circle class="wheel-knob" cx="50" cy="2.5" r="5" id="wk0"/>          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(45 50 50)" id="wk1"/>          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(90 50 50)" id="wk2"/>          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(135 50 50)" id="wk3"/>          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(180 50 50)" id="wk4"/>          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(225 50 50)" id="wk5"/>          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(270 50 50)" id="wk6"/>          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(315 50 50)" id="wk7"/>          <!-- Knob inner dots -->          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" id="wki0"/>          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(45 50 50)" id="wki1"/>          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(90 50 50)" id="wki2"/>          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(135 50 50)" id="wki3"/>          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(180 50 50)" id="wki4"/>          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(225 50 50)" id="wki5"/>          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(270 50 50)" id="wki6"/>          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(315 50 50)" id="wki7"/>          <!-- Center hub rings -->          <circle class="wheel-hub" cx="50" cy="50" r="8"/>          <circle class="wheel-hub-ring" cx="50" cy="50" r="5.5"/>          <circle class="wheel-hub-ring" cx="50" cy="50" r="3"/>          <!-- Background rings -->          <circle class="timer-ring-glow2" cx="50" cy="50" r="46"/>          <circle class="timer-ring-glow" id="timer-ring-glow" cx="50" cy="50" r="44"/>          <circle class="timer-ring-bg" cx="50" cy="50" r="42"/>        </svg>        <div class="timer-center">          <span class="timer-label" data-i18n="time_left">KALAN SÜRE</span>          <span class="timer-val" id="timer-val">60:00</span>        </div>      </div>      <span class="timer-bar-text" id="timer-bar-text"></span>    </div>  <div class="auction-list" id="auction-list"></div></div><script>var ITEMS = {  barut:      { name: 'Gunpowder x100',      desc: '+10% attack damage. Consumed on each shot.',       img: 'assets/items/shop/barut-dükkan.png',  ph: 'B' },  zirh:       { name: 'Armor x100',          desc: '-10% incoming damage. Consumed on each shot.',     img: 'assets/items/shop/zirh-dükkan.png',   ph: 'Z' },  gul3:       { name: 'Explosive Cannonball x2000', desc: 'Damage: +130. Elite Points: 1.0/cannon.',  img: 'assets/items/shop/elitgülle.png',    ph: 'G3' },  top2:       { name: '55 Pounder',          desc: '185 dmg/cannon. Reload: 3 sec.',                   img: 'assets/items/toppp/top2.png',           ph: 'T2' },  top3:       { name: '60 Pounder',          desc: '260 dmg/cannon. Reload: 2 sec.',                   img: 'assets/items/toppp/top3.png',           ph: '60P' },  elit_kiris: { name: 'Elite Beam',          desc: '+1,200 HP bonus, Repair +20. Low break chance.',   img: 'assets/items/shop/elitkiris.png',     ph: 'EB' },  gemi1:      { name: 'Elite Ship I',        desc: '25,000 HP, 30 cannon / 10 beam slots.',            img: 'assets/items/shop/elit gemi 1.png',  ph: 'G1' },  kristal_queen_design: { name: 'Kristal Queen Tasarimi', desc: 'Sadece kozmetik. Geminize kristal kaplama görünümü verir.', img: 'assets/items/shop/kristalquen/1.png', ph: 'KQ' }};var TUR_SURE = 3600;var KEY = 'sp_auc_v4';const API_URL = (window.__API_URL__ || window.location.origin) + '/api';const token = localStorage.getItem('sp_token');if (!token) {  goTo('index.html');}var timeOffset = 0;var basKalan = TUR_SURE;function nowSec(){ return Math.floor(Date.now() / 1000); }function fmtN(n){ return Number(n).toLocaleString('en-US'); }/* Oyuncu altini */function getPlayerGold() {  const p = JSON.parse(localStorage.getItem('sp_player') || '{}');  return p.gold || 0;}function updateGoldDisplay(){   document.getElementById('gold-display').textContent = fmtN(getPlayerGold()); }/* Tur yönetimi */var tur = { bitis: 0, liste: [] };async function loadAuction() {  try {    const res = await fetch(`${API_URL}/auction`, {      headers: { 'Authorization': `Bearer ${token}` }    });    if (res.ok) {      const data = await res.json();      tur = data;      timeOffset = data.serverNow - nowSec();      basKalan = Math.max(0, tur.bitis - (nowSec() + timeOffset));      renderCards();      renderTimer();    } else {      toast(t('server_error'), 'err');    }  } catch (err) {    logError('auction:load', err);    toast(t('connection_failed'), 'err');  }  if (typeof readyNow === 'function') readyNow();}function kalanSn(){ return Math.max(0, tur.bitis - (nowSec() + timeOffset)); }function fmtTime(sec){  if(!sec||isNaN(sec)) sec=0;  var m = Math.floor(sec / 60);  var s = sec % 60;  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;}/* Sadece timer ve altin güncelle — inputlara dokunma */function renderTimer(){  var kalan = kalanSn();  var urgent = kalan < 300 && kalan > 60;  var critical = kalan <= 60 && kalan > 0;  var expired = kalan <= 0;  var isBad = urgent || critical;  document.querySelectorAll('.wheel-spoke').forEach(function(el){ el.className = 'wheel-spoke' + (isBad ? ' urgent' : ''); });  document.querySelectorAll('.wheel-knob').forEach(function(el){ el.className = 'wheel-knob' + (isBad ? ' urgent' : ''); });  document.querySelectorAll('.wheel-knob-inner').forEach(function(el){ el.className = 'wheel-knob-inner' + (isBad ? ' urgent' : ''); });  document.querySelectorAll('.wheel-hub').forEach(function(el){ el.className = 'wheel-hub' + (isBad ? ' urgent' : ''); });  document.querySelectorAll('.wheel-hub-ring').forEach(function(el){ el.className = 'wheel-hub-ring' + (isBad ? ' urgent' : ''); });  document.querySelectorAll('.wheel-rim').forEach(function(el){ el.className = 'wheel-rim' + (isBad ? ' urgent' : ''); });  document.querySelectorAll('.wheel-rim-seg').forEach(function(el){ el.className = 'wheel-rim-seg' + (isBad ? ' urgent' : ''); });  var aura = document.getElementById('timer-aura');  aura.className = 'timer-aura' + (critical ? ' critical' : urgent ? ' urgent' : '');  var glow = document.getElementById('timer-ring-glow');  glow.className = 'timer-ring-glow' + (urgent || critical ? ' urgent' : '');  var valEl = document.getElementById('timer-val');  if (expired) {    valEl.textContent = t('auction_ended');    valEl.className = 'timer-val urgent';  } else {    valEl.textContent = fmtTime(kalan);    valEl.className = 'timer-val' + (critical ? ' critical' : urgent ? ' urgent' : '');  }  var barText = document.getElementById('timer-bar-text');  if (expired) {    barText.textContent = t('auction_ended');    barText.className = 'timer-bar-text critical';  } else {    barText.textContent = '';    barText.className = 'timer-bar-text';  }  updateGoldDisplay();  if (expired) {    loadAuction();  }}/* Kartlari DOM'a çiz — sadece teklif sonrasi veya sayfa açilisinda */function renderCards(){  var list = document.getElementById('auction-list');  list.innerHTML = '';  var saved = JSON.parse(localStorage.getItem('sp_player') || '{}');  var hasElite = saved.has_elite_ship === true;  tur.liste.forEach(function(entry, idx){    var item = ITEMS[entry.key];    if(!item) return;    if (entry.key === 'gemi1' && hasElite) return;    if (entry.key === 'kristal_queen_design' && (saved.ownedDesigns || []).includes('kristal_queen')) return;    var card = document.createElement('div');    card.className = 'ac-card';    var bidderHtml = entry.teklif_eden      ? '<span class="ac-bidder-name">' + entry.teklif_eden + '</span>'      : '<span class="ac-bidder-name nobody">' + t('no_bids_yet') + '</span>';    card.innerHTML =      '<div class="card-top">' +        '<div class="ac-img">' +          '<img src="'+item.img+'" alt="" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'\'"/>' +          '<span class="ph" style="display:none">'+item.ph+'</span>' +        '</div>' +        '<div class="ac-info">' +          '<div class="ac-name">'+(t('auc_'+entry.key+'_name') || item.name)+'</div>' +          '<div class="ac-desc">'+(t('auc_'+entry.key+'_desc') || item.desc)+'</div>' +        '</div>' +      '</div>' +      '<div class="ac-bidder">' +        '<span class="ac-bidder-lbl">' + t('highest_bid') + '</span>' +        bidderHtml +      '</div>' +      '<div class="bid-row">' +        '<input class="bid-input" id="inp_'+idx+'" type="number" inputmode="numeric" min="1" placeholder="' + t('bid_placeholder') + '"/>' +        '<button class="btn-bid" onclick="teklif('+idx+')">' + t('place_bid') + '</button>' +      '</div>';    list.appendChild(card);  });}/* TEKLIF VER */async function teklif(idx){  if(kalanSn()<=0){ toast(t('auction_ended'),'err'); return; }  var entry = tur.liste[idx];  var inp   = document.getElementById('inp_'+idx);  var miktar = parseInt(inp.value);  if(!miktar || miktar < 1){    toast(t('invalid_amount'),'err');    return;  }  const pGold = getPlayerGold();  if(miktar > pGold){    toast(t('insufficient_gold'),'err');    return;  }  try {    const res = await fetch(`${API_URL}/auction/bid`, {      method: 'POST',      headers: {        'Content-Type': 'application/json',        'Authorization': `Bearer ${token}`      },      body: JSON.stringify({ auctionId: entry.id, amount: miktar })    });    const data = await res.json();    if (!res.ok) {      toast(data.error || 'Teklif verilemedi!', 'err');      return;    }    // Oyuncu bakiyesini local cache üzerinde güncelle    const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');    saved.gold = data.gold;    localStorage.setItem('sp_player', JSON.stringify(saved));    updateGoldDisplay();    inp.value = '';    await loadAuction();  } catch (err) {    logError('auction:bid', err);    toast(t('connection_failed'), 'err');  }}function toast(msg, type){  window.showAlert(msg, type === 'err' ? t('server_error') : 'SEAPIRATES', type === 'err');}loadAuction();function timerLoop(){  renderTimer();  var now = Date.now();  var delay = 1000 - (now % 1000); // bir sonraki tam saniyeye hizala  setTimeout(timerLoop, delay);}timerLoop();</script> <script>renderFromCache(); revealPage();</script></body></html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <meta name="theme-color" content="#080502">
+  <style>body { visibility: hidden; background: #080502; }</style>
+  <title data-i18n="auction_title">SeaPirates — Açik Artirma</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=2"></script>
+  <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="transition.js?v=8"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#c8962a;--gold-b:#f0c040;--gold-p:#fde68a;
+      --wood-d:#0f0a05;--wood-m:#1a1108;
+      --txt:#f5e6c8;--txt-d:#b8956a;--txt-m:#7a5a38;
+      --red:#c0392b;
+    }
+    html,body{width:100%;height:100dvh;overflow:hidden;background:#080502;font-family:'Inter',sans-serif;color:var(--txt);}
+    .page{
+      max-width:430px;margin:0 auto;height:100dvh;padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;
+      display:flex;flex-direction:column;position:relative;
+      background:url('assets/ui/background/menubackground.png') center/cover no-repeat;
+    }
+    .page::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.72);pointer-events:none;z-index:0;}
+
+    /* TOP BAR */
+    .top-bar{
+      position:relative;z-index:10;flex-shrink:0;padding:12px 14px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid rgba(200,150,42,0.3);
+      background:linear-gradient(180deg,rgba(20,10,2,0.98),rgba(10,5,0,0.9));
+    }
+    .btn-back{
+      padding:7px 11px;background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:7px;
+      font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;
+      color:var(--txt-d);text-decoration:none;
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 12px rgba(200,150,42,0.7);text-transform:uppercase;
+    }
+    .gold-display{
+      display:flex;align-items:center;gap:5px;
+      background:rgba(0,0,0,0.4);border:1px solid rgba(200,150,42,0.3);
+      border-radius:6px;padding:5px 10px;
+    }
+    .gold-ico{width:16px;height:16px;display:flex;align-items:center;justify-content:center;}
+    .gold-ico img{width:100%;height:100%;object-fit:contain;}
+    .gold-amt{font-family:'Cinzel',serif;font-size:0.75rem;font-weight:700;color:var(--gold-b);}
+
+    /* ----------- TIMER ----------- */
+    .timer-bar{
+      position:relative;z-index:8;flex-shrink:0;padding:18px 14px 14px;
+      display:flex;flex-direction:column;align-items:center;
+      background:linear-gradient(180deg,rgba(20,10,2,0.95),rgba(10,5,0,0.7));
+      border-bottom:2px solid rgba(200,150,42,0.08);
+    }
+    .timer-bar::before{
+      content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(200,150,42,0.15),transparent);
+    }
+    .timer-ring-wrap{
+      position:relative;width:112px;height:112px;
+      display:flex;align-items:center;justify-content:center;
+      filter:drop-shadow(0 0 6px rgba(200,150,42,0.08));
+    }
+    .timer-ring-wrap svg{width:100%;height:100%;}
+    .timer-ring-bg{fill:none;stroke:rgba(200,150,42,0.06);stroke-width:3;}
+    .timer-ring-glow{
+      fill:none;stroke:rgba(200,150,42,0.04);stroke-width:5;
+      transition:opacity 0.6s;
+    }
+    .timer-ring-glow.urgent{stroke:rgba(192,57,43,0.06);}
+    .timer-ring-glow2{
+      fill:none;stroke:rgba(200,150,42,0.03);stroke-width:8;
+    }
+    .timer-tick{stroke:rgba(200,150,42,0.35);stroke-width:2.5;stroke-linecap:round;}
+    .timer-tick.major{stroke:#c8962a;stroke-width:3.5;stroke-linecap:round;}
+    .wheel-rim{
+      fill:none;stroke:#c8962a;stroke-width:4.5;opacity:0.25;
+      transition:stroke 0.4s, opacity 0.4s;
+    }
+    .wheel-rim.urgent{stroke:#c0392b;opacity:0.35;}
+    .wheel-rim-seg{
+      fill:none;stroke:rgba(200,150,42,0.08);stroke-width:5;stroke-dasharray:2 34.1;
+    }
+    .wheel-rim-seg.urgent{stroke:rgba(192,57,43,0.12);}
+    .wheel-spoke{
+      stroke:rgba(200,150,42,0.18);stroke-width:3.5;stroke-linecap:round;
+      transition:stroke 0.4s;
+    }
+    .wheel-spoke.urgent{stroke:rgba(192,57,43,0.25);}
+    .wheel-knob{
+      fill:rgba(200,150,42,0.2);stroke:rgba(200,150,42,0.35);stroke-width:2;
+      transition:fill 0.4s, stroke 0.4s;
+    }
+    .wheel-knob.urgent{fill:rgba(192,57,43,0.25);stroke:rgba(192,57,43,0.45);}
+    .wheel-knob-inner{
+      fill:rgba(200,150,42,0.35);transition:fill 0.4s;
+    }
+    .wheel-knob-inner.urgent{fill:rgba(192,57,43,0.45);}
+    .wheel-hub{
+      fill:rgba(200,150,42,0.12);stroke:rgba(200,150,42,0.25);stroke-width:2;
+      transition:fill 0.4s, stroke 0.4s;
+    }
+    .wheel-hub.urgent{fill:rgba(192,57,43,0.18);stroke:rgba(192,57,43,0.35);}
+    .wheel-hub-ring{
+      fill:none;stroke:rgba(200,150,42,0.15);stroke-width:1.5;
+      transition:stroke 0.4s;
+    }
+    .wheel-hub-ring.urgent{stroke:rgba(192,57,43,0.25);}
+    .timer-center{
+      position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+    }
+    .timer-label{
+      font-size:0.5rem;color:rgba(200,150,42,0.5);text-transform:uppercase;
+      letter-spacing:0.18em;margin-bottom:1px;
+      font-family:'Cinzel',serif;font-weight:700;
+    }
+    .timer-val{
+      font-family:'Cinzel',serif;font-size:1.5rem;font-weight:900;
+      color:#f0c040;font-variant-numeric:tabular-nums;
+      text-shadow:0 0 30px rgba(240,192,64,0.25),0 0 60px rgba(240,192,64,0.1);
+      transition:color 0.4s, text-shadow 0.4s;
+      line-height:1.2;
+    }
+    .timer-val.urgent{
+      color:#e74c3c;text-shadow:0 0 35px rgba(231,76,60,0.4),0 0 70px rgba(231,76,60,0.15);
+    }
+    .timer-val.critical{
+      animation:timerCritical 0.6s ease-in-out infinite;
+      color:#ff4444;text-shadow:0 0 40px rgba(255,68,68,0.5),0 0 80px rgba(255,68,68,0.2);
+    }
+    .timer-bar-text{
+      font-size:0.55rem;color:rgba(200,150,42,0.35);margin-top:5px;
+      letter-spacing:0.1em;text-transform:uppercase;
+      font-family:'Cinzel',serif;font-weight:600;
+      transition:color 0.3s;
+    }
+    .timer-bar-text.urgent{color:#c0392b;}
+    .timer-bar-text.critical{color:#ff4444;animation:timerCritical 0.6s ease-in-out infinite;}
+    @keyframes timerCritical{
+      0%,100%{opacity:1;transform:scale(1)}
+      50%{opacity:0.7;transform:scale(1.05)}
+    }
+    .timer-aura{
+      position:absolute;inset:-6px;border-radius:50%;
+      background:radial-gradient(circle,rgba(200,150,42,0.06) 0%,transparent 70%);
+      transition:all 0.5s;pointer-events:none;
+    }
+    .timer-aura.urgent{background:radial-gradient(circle,rgba(192,57,43,0.08) 0%,transparent 70%);}
+    .timer-aura.critical{background:radial-gradient(circle,rgba(255,68,68,0.12) 0%,transparent 70%);animation:auraPulse 1s ease-in-out infinite;}
+    @keyframes auraPulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+    /* LIST */
+    .auction-list{
+      flex:1;position:relative;z-index:5;overflow-y:auto;padding:12px;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .auction-list::-webkit-scrollbar{width:4px;}
+    .auction-list::-webkit-scrollbar-thumb{background:#442a10;border-radius:2px;}
+
+    /* CARD */
+    .ac-card{
+      border:1.5px solid #4a2a0a;border-radius:10px;padding:12px;
+      display:flex;flex-direction:column;gap:10px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.6);
+      background:
+        linear-gradient(135deg,rgba(10,5,2,0.7) 0%,rgba(20,10,3,0.5) 100%),
+        url('assets/ui/leaderboardbackground.png') center/100% 100% no-repeat;
+    }
+    .card-top{display:flex;align-items:center;gap:12px;}
+    .ac-img{
+      width:56px;height:56px;flex-shrink:0;
+      border-radius:8px;
+      border:1px solid rgba(200,150,42,0.2);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+      position:relative;
+    }
+    .ac-img img{
+      width:92%;height:92%;object-fit:contain;
+      filter:brightness(1.3) drop-shadow(0 0 2px rgba(200,150,42,0.25));
+    }
+    .ac-img .ph{font-size:1.2rem;font-weight:700;color:var(--gold);opacity:0.5;}
+    .ac-info{flex:1;min-width:0;}
+    .ac-name{font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;color:var(--txt);margin-bottom:3px;overflow-wrap:break-word;word-break:break-word;}
+    .ac-desc{font-size:0.62rem;color:var(--txt-d);overflow-wrap:break-word;word-break:break-word;}
+
+    /* Highest bidder */
+    .ac-bidder{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:5px 10px;border-radius:5px;
+      background:rgba(0,0,0,0.3);border:1px solid rgba(200,150,42,0.08);
+    }
+    .ac-bidder-lbl{font-size:0.58rem;color:var(--txt-m);text-transform:uppercase;}
+    .ac-bidder-name{font-size:0.75rem;font-weight:700;color:var(--gold-p);overflow-wrap:break-word;word-break:break-word;}
+    .ac-bidder-name.nobody{color:var(--txt-m);font-style:italic;font-weight:400;}
+
+    /* Bid input row */
+    .bid-row{display:flex;gap:7px;align-items:center;}
+    .bid-input{
+      flex:1;padding:8px 10px;
+      background:rgba(0,0,0,0.4);border:1px solid rgba(200,150,42,0.25);border-radius:6px;
+      color:var(--txt);font-size:0.8rem;font-weight:700;outline:none;
+      font-family:'Inter',sans-serif;
+    }
+    .bid-input:focus{border-color:var(--gold);}
+    .bid-input::placeholder{color:var(--txt-m);font-weight:400;}
+    .btn-bid{
+      padding:8px 14px;flex-shrink:0;
+      background:linear-gradient(180deg,#c8962a,#8a651a);
+      border:1px solid #5c3518;border-radius:6px;
+      font-family:'Cinzel',serif;font-size:0.68rem;font-weight:700;
+      color:#fff;cursor:pointer;white-space:nowrap;
+      box-shadow:0 2px 5px rgba(0,0,0,0.4);transition:all 0.15s;
+    }
+    .btn-bid:hover{background:linear-gradient(180deg,#f0c040,#c8962a);}
+
+    /* Empty */
+    .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--txt-m);}
+    .empty-ico{font-size:3rem;opacity:0.15;}
+    .empty-txt{font-family:'Cinzel',serif;font-size:0.78rem;opacity:0.5;overflow-wrap:break-word;word-break:break-word;}
+
+  </style>
+</head>
+<body>
+<div class="page">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? GERI</span></a>
+    <div class="page-title"><span data-i18n="auction_title" data-i18n-text>AÇIK ARTIRMA</span></div>
+    <div class="gold-display">
+      <span class="gold-ico"><img src="assets/ui/gold.png" alt="Altin" data-i18n-alt="alt_gold"/></span>
+      <span class="gold-amt" id="gold-display">0</span>
+    </div>
+  </div>
+
+    <!-- TIMER -->
+    <div class="timer-bar">
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+      </svg>
+      <div class="timer-ring-wrap">
+        <div class="timer-aura" id="timer-aura"></div>
+        <svg viewBox="0 0 100 100">
+          <!-- --- SHIP WHEEL --- -->
+          <!-- Outer rim -->
+          <circle class="wheel-rim" id="wheel-rim" cx="50" cy="50" r="47.5"/>
+          <circle class="wheel-rim-seg" id="wheel-rim-seg" cx="50" cy="50" r="47.5"/>
+          <!-- 8 spokes (center ? rim) -->
+          <line class="wheel-spoke" id="ws0" x1="50" y1="50" x2="50" y2="2.5"/>
+          <line class="wheel-spoke" id="ws1" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(45 50 50)"/>
+          <line class="wheel-spoke" id="ws2" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(90 50 50)"/>
+          <line class="wheel-spoke" id="ws3" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(135 50 50)"/>
+          <line class="wheel-spoke" id="ws4" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(180 50 50)"/>
+          <line class="wheel-spoke" id="ws5" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(225 50 50)"/>
+          <line class="wheel-spoke" id="ws6" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(270 50 50)"/>
+          <line class="wheel-spoke" id="ws7" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(315 50 50)"/>
+          <!-- Handle knobs (double ring) -->
+          <circle class="wheel-knob" cx="50" cy="2.5" r="5" id="wk0"/>
+          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(45 50 50)" id="wk1"/>
+          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(90 50 50)" id="wk2"/>
+          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(135 50 50)" id="wk3"/>
+          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(180 50 50)" id="wk4"/>
+          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(225 50 50)" id="wk5"/>
+          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(270 50 50)" id="wk6"/>
+          <circle class="wheel-knob" cx="50" cy="2.5" r="5" transform="rotate(315 50 50)" id="wk7"/>
+          <!-- Knob inner dots -->
+          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" id="wki0"/>
+          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(45 50 50)" id="wki1"/>
+          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(90 50 50)" id="wki2"/>
+          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(135 50 50)" id="wki3"/>
+          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(180 50 50)" id="wki4"/>
+          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(225 50 50)" id="wki5"/>
+          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(270 50 50)" id="wki6"/>
+          <circle class="wheel-knob-inner" cx="50" cy="2.5" r="2" transform="rotate(315 50 50)" id="wki7"/>
+          <!-- Center hub rings -->
+          <circle class="wheel-hub" cx="50" cy="50" r="8"/>
+          <circle class="wheel-hub-ring" cx="50" cy="50" r="5.5"/>
+          <circle class="wheel-hub-ring" cx="50" cy="50" r="3"/>
+          <!-- Background rings -->
+          <circle class="timer-ring-glow2" cx="50" cy="50" r="46"/>
+          <circle class="timer-ring-glow" id="timer-ring-glow" cx="50" cy="50" r="44"/>
+          <circle class="timer-ring-bg" cx="50" cy="50" r="42"/>
+        </svg>
+        <div class="timer-center">
+          <span class="timer-label" data-i18n="time_left">KALAN SÜRE</span>
+          <span class="timer-val" id="timer-val">60:00</span>
+        </div>
+      </div>
+      <span class="timer-bar-text" id="timer-bar-text"></span>
+    </div>
+
+  <div class="auction-list" id="auction-list"></div>
+</div>
+
+<script>
+var ITEMS = {
+  barut:      { name: 'Gunpowder x100',      desc: '+10% attack damage. Consumed on each shot.',       img: 'assets/items/shop/barut-dükkan.png',  ph: 'B' },
+  zirh:       { name: 'Armor x100',          desc: '-10% incoming damage. Consumed on each shot.',     img: 'assets/items/shop/zirh-dükkan.png',   ph: 'Z' },
+  gul3:       { name: 'Explosive Cannonball x2000', desc: 'Damage: +130. Elite Points: 1.0/cannon.',  img: 'assets/items/shop/elitgülle.png',    ph: 'G3' },
+  top2:       { name: '55 Pounder',          desc: '185 dmg/cannon. Reload: 3 sec.',                   img: 'assets/items/toppp/top2.png',           ph: 'T2' },
+  top3:       { name: '60 Pounder',          desc: '260 dmg/cannon. Reload: 2 sec.',                   img: 'assets/items/toppp/top3.png',           ph: '60P' },
+  elit_kiris: { name: 'Elite Beam',          desc: '+1,200 HP bonus, Repair +20. Low break chance.',   img: 'assets/items/shop/elitkiris.png',     ph: 'EB' },
+  gemi1:      { name: 'Elite Ship I',        desc: '25,000 HP, 30 cannon / 10 beam slots.',            img: 'assets/items/shop/elit gemi 1.png',  ph: 'G1' },
+  kristal_queen_design: { name: 'Kristal Queen Tasarimi', desc: 'Sadece kozmetik. Geminize kristal kaplama görünümü verir.', img: 'assets/items/shop/kristalquen/1.png', ph: 'KQ' }
+};
+var TUR_SURE = 3600;
+var KEY = 'sp_auc_v4';
+
+const API_URL = (window.__API_URL__ || window.location.origin) + '/api';
+const token = localStorage.getItem('sp_token');
+
+if (!token) {
+  goTo('index.html');
+}
+
+var timeOffset = 0;
+var basKalan = TUR_SURE;
+function nowSec(){ return Math.floor(Date.now() / 1000); }
+function fmtN(n){ return Number(n).toLocaleString('en-US'); }
+
+/* Oyuncu altini */
+function getPlayerGold() {
+  const p = JSON.parse(localStorage.getItem('sp_player') || '{}');
+  return p.gold || 0;
+}
+
+function updateGoldDisplay(){ 
+  document.getElementById('gold-display').textContent = fmtN(getPlayerGold()); 
+}
+
+/* Tur yönetimi */
+var tur = { bitis: 0, liste: [] };
+
+async function loadAuction() {
+  try {
+    const res = await fetch(`${API_URL}/auction`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      tur = data;
+      timeOffset = data.serverNow - nowSec();
+      basKalan = Math.max(0, tur.bitis - (nowSec() + timeOffset));
+      renderCards();
+      renderTimer();
+    } else {
+      toast(t('server_error'), 'err');
+    }
+  } catch (err) {
+    logError('auction:load', err);
+    toast(t('connection_failed'), 'err');
+  }
+  if (typeof readyNow === 'function') readyNow();
+}
+
+function kalanSn(){ return Math.max(0, tur.bitis - (nowSec() + timeOffset)); }
+
+function fmtTime(sec){
+  if(!sec||isNaN(sec)) sec=0;
+  var m = Math.floor(sec / 60);
+  var s = sec % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+/* Sadece timer ve altin güncelle — inputlara dokunma */
+function renderTimer(){
+  var kalan = kalanSn();
+  var urgent = kalan < 300 && kalan > 60;
+  var critical = kalan <= 60 && kalan > 0;
+  var expired = kalan <= 0;
+  var isBad = urgent || critical;
+  document.querySelectorAll('.wheel-spoke').forEach(function(el){ el.className = 'wheel-spoke' + (isBad ? ' urgent' : ''); });
+  document.querySelectorAll('.wheel-knob').forEach(function(el){ el.className = 'wheel-knob' + (isBad ? ' urgent' : ''); });
+  document.querySelectorAll('.wheel-knob-inner').forEach(function(el){ el.className = 'wheel-knob-inner' + (isBad ? ' urgent' : ''); });
+  document.querySelectorAll('.wheel-hub').forEach(function(el){ el.className = 'wheel-hub' + (isBad ? ' urgent' : ''); });
+  document.querySelectorAll('.wheel-hub-ring').forEach(function(el){ el.className = 'wheel-hub-ring' + (isBad ? ' urgent' : ''); });
+  document.querySelectorAll('.wheel-rim').forEach(function(el){ el.className = 'wheel-rim' + (isBad ? ' urgent' : ''); });
+  document.querySelectorAll('.wheel-rim-seg').forEach(function(el){ el.className = 'wheel-rim-seg' + (isBad ? ' urgent' : ''); });
+
+  var aura = document.getElementById('timer-aura');
+  aura.className = 'timer-aura' + (critical ? ' critical' : urgent ? ' urgent' : '');
+
+  var glow = document.getElementById('timer-ring-glow');
+  glow.className = 'timer-ring-glow' + (urgent || critical ? ' urgent' : '');
+
+  var valEl = document.getElementById('timer-val');
+  if (expired) {
+    valEl.textContent = t('auction_ended');
+    valEl.className = 'timer-val urgent';
+  } else {
+    valEl.textContent = fmtTime(kalan);
+    valEl.className = 'timer-val' + (critical ? ' critical' : urgent ? ' urgent' : '');
+  }
+
+  var barText = document.getElementById('timer-bar-text');
+  if (expired) {
+    barText.textContent = t('auction_ended');
+    barText.className = 'timer-bar-text critical';
+  } else {
+    barText.textContent = '';
+    barText.className = 'timer-bar-text';
+  }
+
+  updateGoldDisplay();
+
+  if (expired) {
+    loadAuction();
+  }
+}
+
+/* Kartlari DOM'a çiz — sadece teklif sonrasi veya sayfa açilisinda */
+function renderCards(){
+  var list = document.getElementById('auction-list');
+  list.innerHTML = '';
+  var saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
+  var hasElite = saved.has_elite_ship === true;
+  tur.liste.forEach(function(entry, idx){
+    var item = ITEMS[entry.key];
+    if(!item) return;
+    if (entry.key === 'gemi1' && hasElite) return;
+    if (entry.key === 'kristal_queen_design' && (saved.ownedDesigns || []).includes('kristal_queen')) return;
+    var card = document.createElement('div');
+    card.className = 'ac-card';
+    var bidderHtml = entry.teklif_eden
+      ? '<span class="ac-bidder-name">' + entry.teklif_eden + '</span>'
+      : '<span class="ac-bidder-name nobody">' + t('no_bids_yet') + '</span>';
+    card.innerHTML =
+      '<div class="card-top">' +
+        '<div class="ac-img">' +
+          '<img src="'+item.img+'" alt="" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'\'"/>' +
+          '<span class="ph" style="display:none">'+item.ph+'</span>' +
+        '</div>' +
+        '<div class="ac-info">' +
+          '<div class="ac-name">'+(t('auc_'+entry.key+'_name') || item.name)+'</div>' +
+          '<div class="ac-desc">'+(t('auc_'+entry.key+'_desc') || item.desc)+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ac-bidder">' +
+        '<span class="ac-bidder-lbl">' + t('highest_bid') + '</span>' +
+        bidderHtml +
+      '</div>' +
+      '<div class="bid-row">' +
+        '<input class="bid-input" id="inp_'+idx+'" type="number" inputmode="numeric" min="1" placeholder="' + t('bid_placeholder') + '"/>' +
+        '<button class="btn-bid" onclick="teklif('+idx+')">' + t('place_bid') + '</button>' +
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+/* TEKLIF VER */
+async function teklif(idx){
+  if(kalanSn()<=0){ toast(t('auction_ended'),'err'); return; }
+
+  var entry = tur.liste[idx];
+  var inp   = document.getElementById('inp_'+idx);
+  var miktar = parseInt(inp.value);
+
+  if(!miktar || miktar < 1){
+    toast(t('invalid_amount'),'err');
+    return;
+  }
+
+  const pGold = getPlayerGold();
+  if(miktar > pGold){
+    toast(t('insufficient_gold'),'err');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/auction/bid`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ auctionId: entry.id, amount: miktar })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      toast(data.error || 'Teklif verilemedi!', 'err');
+      return;
+    }
+
+    // Oyuncu bakiyesini local cache üzerinde güncelle
+    const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
+    saved.gold = data.gold;
+    localStorage.setItem('sp_player', JSON.stringify(saved));
+    updateGoldDisplay();
+    inp.value = '';
+    await loadAuction();
+  } catch (err) {
+    logError('auction:bid', err);
+    toast(t('connection_failed'), 'err');
+  }
+}
+
+function toast(msg, type){
+  window.showAlert(msg, type === 'err' ? t('server_error') : 'SEAPIRATES', type === 'err');
+}
+
+loadAuction();
+function timerLoop(){
+  renderTimer();
+  var now = Date.now();
+  var delay = 1000 - (now % 1000); // bir sonraki tam saniyeye hizala
+  setTimeout(timerLoop, delay);
+}
+timerLoop();
+</script>
+ <script>renderFromCache(); revealPage();</script>
+</body>
+</html>
+

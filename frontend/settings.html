@@ -1,1 +1,786 @@
-<!DOCTYPE html><html lang="tr"><head>  <meta charset="UTF-8"/>  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>  <meta name="theme-color" content="#0d0702">  <style>body { visibility: hidden; background: #0d0702; }</style>  <title data-i18n="settings_title">SeaPirates — Ayarlar</title>  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />  <link rel="stylesheet" href="style.css">  <script src="js/lang.js?v=2"></script>  <script src="js/api.js?v=4"></script>  <script src="js/logger.js"></script>  <script src="js/auth.js?v=2"></script>  <script src="transition.js?v=8"></script>  <style>    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}    :root{      --blue:#2980b9;--blue-b:#3498db;      --card-bg:rgba(16,8,2,0.88);      --card-border:#4a2c10;      --divider:rgba(200,150,42,0.15);    }    html,body{      width:100%;height:100dvh;overflow:hidden;      background:#0d0702;      font-family:'Inter',sans-serif;      color:var(--txt);    }    /* --- PAGE CONTAINER --- */    .page{      max-width:430px;margin:0 auto;      height:100dvh;      display:flex;flex-direction:column;      position:relative;      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;          padding-bottom: env(safe-area-inset-bottom, 0px);      box-sizing: border-box;    }    .page::before{      content:'';position:absolute;inset:0;      background:rgba(0,0,0,0.7);      pointer-events:none;z-index:0;    }    /* --- TOP BAR --- */    .top-bar{      position:relative;z-index:10;      padding:14px 16px;      display:flex;align-items:center;      justify-content:space-between;      flex-shrink:0;      border-bottom:1px solid rgba(200,150,42,0.25);      background:linear-gradient(180deg, rgba(20,10,2,0.97), rgba(10,5,0,0.9));    }    .btn-back{      padding:8px 14px;      background:linear-gradient(180deg,#3d2108,#1e0e03);      border:1px solid #7a4a18;border-radius:8px;      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;      color:var(--txt-d);letter-spacing:0.04em;      cursor:pointer;text-align:center;text-decoration:none;      box-shadow:0 2px 8px rgba(0,0,0,0.5);      transition:all 0.2s ease;    }    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}    .btn-back:active{transform:scale(0.96);}    .page-title{      font-family:'Cinzel',serif;font-weight:900;font-size:1.1rem;      letter-spacing:0.1em;color:var(--gold-b);      text-shadow:0 0 12px rgba(200,150,42,0.5);      text-transform:uppercase;    }    /* --- SCROLL WRAPPER --- */    .content-wrap{      flex:1;      position:relative;z-index:5;      padding:18px 14px 30px;      overflow-y:auto;      display:flex;flex-direction:column;      gap:16px;      scrollbar-width:thin;      scrollbar-color:rgba(200,150,42,0.3) transparent;    }    .content-wrap::-webkit-scrollbar{width:6px;}    .content-wrap::-webkit-scrollbar-thumb{background:rgba(200,150,42,0.4);border-radius:4px;}    /* --- FADE-IN ANIMATION --- */    @keyframes fadeSlideUp{      from{opacity:0;transform:translateY(16px);}      to{opacity:1;transform:translateY(0);}    }    .settings-section{      animation:fadeSlideUp 0.4s ease forwards;      opacity:0;    }    .settings-section:nth-child(1){animation-delay:0.05s;}    .settings-section:nth-child(2){animation-delay:0.12s;}    .settings-section:nth-child(3){animation-delay:0.19s;}    .settings-section:nth-child(4){animation-delay:0.26s;}    .settings-section:nth-child(5){animation-delay:0.33s;}    /* --- PROFILE CARD --- */    .profile-card{      background: linear-gradient(135deg, rgba(45,26,8,0.9), rgba(20,10,3,0.95));      border:1.5px solid var(--card-border);      border-radius:14px;      padding:16px;      display:flex;align-items:center;gap:14px;      box-shadow:0 6px 20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(200,150,42,0.1);      position:relative;      overflow:hidden;    }    .profile-card::before{      content:'';position:absolute;top:0;left:0;right:0;height:1px;      background:linear-gradient(90deg,transparent,rgba(240,192,64,0.3),transparent);    }    .profile-pic-wrap{      width:68px;height:68px;      border-radius:12px;      border:2px solid var(--gold);      background:rgba(0,0,0,0.5);      display:flex;align-items:center;justify-content:center;      overflow:hidden;flex-shrink:0;      box-shadow:0 0 12px rgba(200,150,42,0.2);    }    .profile-pic{      width:100%;height:100%;      object-fit:contain;      transform:scale(1.1);    }    .profile-details{      display:flex;flex-direction:column;gap:5px;      flex:1;min-width:0;    }    .profile-name{      font-family:'Cinzel',serif;font-size:1rem;      color:var(--gold-b);font-weight:700;      text-shadow:0 2px 4px rgba(0,0,0,0.8);      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;    }    .profile-meta{      display:flex;flex-wrap:wrap;gap:6px 12px;    }    .meta-tag{      font-size:0.68rem;color:var(--txt-d);      display:flex;align-items:center;gap:4px;    }    .meta-tag .val{color:var(--txt);font-weight:600;}    .vip-badge{      display:inline-flex;align-items:center;gap:3px;      padding:2px 8px;border-radius:6px;font-size:0.62rem;font-weight:700;      letter-spacing:0.06em;    }    .vip-badge.active{      background:linear-gradient(135deg,rgba(240,192,64,0.2),rgba(200,150,42,0.1));      border:1px solid rgba(240,192,64,0.4);color:var(--gold-b);    }    .vip-badge.inactive{      background:rgba(100,100,100,0.15);      border:1px solid rgba(100,100,100,0.25);color:#888;    }    /* --- SETTINGS BOX (Card) --- */    .settings-box{      background:var(--card-bg);      border:1px solid var(--card-border);      border-radius:14px;      box-shadow:0 4px 16px rgba(0,0,0,0.5);      position:relative;    }    .settings-box::before{      content:'';position:absolute;top:0;left:0;right:0;height:1px;      background:linear-gradient(90deg,transparent,rgba(240,192,64,0.15),transparent);    }    .box-header{      padding:14px 18px 12px;      border-bottom:1px solid var(--divider);      display:flex;align-items:center;gap:10px;    }    .box-icon{      width:28px;height:28px;      display:flex;align-items:center;justify-content:center;      border-radius:8px;font-size:1rem;      background:rgba(200,150,42,0.1);      border:1px solid rgba(200,150,42,0.15);      flex-shrink:0;    }    .box-title{      font-family:'Cinzel',serif;      font-size:0.82rem;font-weight:700;      color:var(--gold-p);      letter-spacing:0.06em;      text-transform:uppercase;    }    .box-body{      padding:4px 0;    }    /* --- SETTINGS ROW --- */    .settings-row{      display:flex;align-items:center;      justify-content:space-between;      padding:13px 18px;      transition:background 0.15s;    }    .settings-row:not(:last-child){      border-bottom:1px solid var(--divider);    }    .settings-row:hover{      background:rgba(200,150,42,0.03);    }    .row-info{      display:flex;flex-direction:column;gap:3px;      max-width:68%;    }    .row-title{      font-size:0.82rem;font-weight:600;color:var(--txt);    }    .row-desc{      font-size:0.68rem;color:#8a7a68;line-height:1.35;      overflow-wrap:break-word;word-break:break-word;    }    #btn-enable-notif{font-size:0.65rem !important;padding:8px 12px !important;}    /* --- PREMIUM TOGGLE SWITCH --- */    .toggle{      position:relative;      width:50px;height:26px;      flex-shrink:0;    }    .toggle input{opacity:0;width:0;height:0;}    .toggle-track{      position:absolute;cursor:pointer;inset:0;      background:linear-gradient(180deg,#1a0e05,#0d0702);      border:1.5px solid #3a2510;      border-radius:26px;      transition:all 0.3s cubic-bezier(0.4,0,0.2,1);    }    .toggle-track::before{      content:'';position:absolute;      width:18px;height:18px;      left:3px;bottom:2.5px;      background:linear-gradient(180deg,#7a5a38,#5a3c1a);      border-radius:50%;      transition:all 0.3s cubic-bezier(0.4,0,0.2,1);      box-shadow:0 1px 4px rgba(0,0,0,0.5);    }    input:checked + .toggle-track{      background:linear-gradient(180deg,#3d2a10,#2a1a08);      border-color:var(--gold);      box-shadow:0 0 8px rgba(200,150,42,0.2);    }    input:checked + .toggle-track::before{      transform:translateX(24px);      background:linear-gradient(180deg,var(--gold-b),var(--gold));      box-shadow:0 0 8px rgba(240,192,64,0.4), 0 1px 4px rgba(0,0,0,0.5);    }    /* --- LANGUAGE SELECTOR --- */    .lang-select-wrap{      width:100%;      padding:2px 14px 12px;    }    .lang-select-wrap select{      width:100%;padding:10px 14px;      background:rgba(0,0,0,0.45) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237a5a38'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 12px center;      background-size:18px;      border:1.5px solid #3a2510;      border-radius:8px;      color:var(--txt);      font-family:'Inter',sans-serif;      font-size:0.82rem;font-weight:600;      cursor:pointer;      outline:none;      appearance:none;      -webkit-appearance:none;      transition:border-color 0.2s;    }    .lang-select-wrap select:hover,    .lang-select-wrap select:focus{      border-color:var(--gold);    }    .lang-select-wrap select option{      background:#1a0e05;      color:var(--txt);      padding:8px;      font-size:0.82rem;    }    /* --- FORM GROUP --- */    .form-group{      padding:14px 18px;      display:flex;flex-direction:column;gap:10px;    }    .input-label{      font-size:0.73rem;color:var(--txt-d);font-weight:600;      letter-spacing:0.03em;    }    .text-input{      background:rgba(0,0,0,0.45);      border:1.5px solid #3a2510;      border-radius:8px;      padding:11px 14px;      color:var(--txt);      font-family:'Inter',sans-serif;      font-size:0.82rem;      outline:none;      transition:border-color 0.2s, box-shadow 0.2s;    }    .text-input:focus{      border-color:var(--gold);      box-shadow:0 0 8px rgba(200,150,42,0.15);    }    .text-input::placeholder{color:#5a4a38;}    /* --- BUTTONS --- */    .btn-primary{      padding:12px;      background:linear-gradient(180deg,var(--green-b),var(--green));      border:1px solid #1e7e34;border-radius:8px;      font-family:'Cinzel',serif;      font-size:0.78rem;font-weight:700;      color:#fff;cursor:pointer;      text-shadow:0 1px 2px rgba(0,0,0,0.5);      transition:all 0.15s;      outline:none;      box-shadow:0 3px 10px rgba(39,174,96,0.25);    }    .btn-primary:active{transform:translateY(1px);}    .btn-primary:hover{box-shadow:0 0 14px rgba(39,174,96,0.35);}    .btn-primary:disabled{      opacity:0.5;cursor:not-allowed;      transform:none !important;      box-shadow:none !important;    }    .btn-danger{      padding:12px;      background:linear-gradient(180deg,var(--red-b),var(--red));      border:1px solid #7f0800;border-radius:8px;      font-family:'Cinzel',serif;      font-size:0.78rem;font-weight:700;      color:#fff;cursor:pointer;      text-shadow:0 1px 2px rgba(0,0,0,0.5);      transition:all 0.15s;      outline:none;      box-shadow:0 3px 10px rgba(192,57,43,0.25);    }    .btn-danger:active{transform:translateY(1px);}    .btn-danger:hover{box-shadow:0 0 14px rgba(192,57,43,0.35);}    .info-note{      font-size:0.68rem;color:#6a5a48;line-height:1.4;      display:flex;align-items:flex-start;gap:6px;      padding:0 18px 14px;    }    .info-note span:first-child{flex-shrink:0;}    /* --- DANGER SECTION --- */    .settings-box.danger{      border-color:rgba(192,57,43,0.3);    }    .settings-box.danger .box-header{      border-bottom-color:rgba(192,57,43,0.15);    }    .settings-box.danger .box-title{      color:var(--red-b);    }    .settings-box.danger .box-icon{      background:rgba(192,57,43,0.1);      border-color:rgba(192,57,43,0.2);    }    .logout-wrap{      padding:14px 18px;    }    /* --- VERSION --- */    .version-text{      text-align:center;      font-size:0.62rem;      color:#4a3a28;      padding:6px 0 4px;      letter-spacing:0.05em;    }  </style></head><body><div class="page">  <!-- --- TOP BAR --- -->  <div class="top-bar">    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? MENÜYE DÖN</span></a>    <div class="page-title"><span data-i18n="settings_title" data-i18n-text>AYARLAR</span></div>    <div style="width:90px;"></div>  </div>  <!-- --- CONTENT --- -->  <div class="content-wrap">    <!-- -- 1. PROFILE CARD -- -->    <div class="settings-section">      <div class="profile-card">        <div class="profile-pic-wrap">          <img class="profile-pic" id="p-ship-img" src="assets/ships/elitship/default/7.png" alt="Ship"/>        </div>        <div class="profile-details">          <div class="profile-name" id="p-username">Loading...</div>          <div class="profile-meta">            <div class="meta-tag"><span data-i18n="profile_id" data-i18n-text>ID</span>: <span class="val" id="p-id">—</span></div>            <div class="meta-tag"><span data-i18n="profile_level" data-i18n-text>Seviye</span>: <span class="val" id="p-level">—</span></div>            <div class="meta-tag"><span data-i18n="profile_reg_date" data-i18n-text>Kayit Tarihi</span>: <span class="val" id="p-reg-date">—</span></div>          </div>          <div id="p-vip-wrap"></div>        </div>      </div>    </div>    <!-- -- 2. LANGUAGE SETTINGS -- -->    <div class="settings-section">      <div class="settings-box">        <div class="box-header">          <div class="box-icon">??</div>          <div class="box-title"><span data-i18n="section_language" data-i18n-text>Dil Ayarlari</span></div>        </div>        <div class="box-body">          <div class="settings-row">            <div class="row-info">              <div class="row-title"><span data-i18n="lang_label" data-i18n-text>Oyun Dili</span></div>              <div class="row-desc" data-i18n="lang_desc" data-i18n-text="Oyun dilini seçin"></div>            </div>            <div class="lang-select-wrap">              <select id="lang-select" onchange="selectLang(this.value)">                <option value="tr">???? Türkçe</option>                <option value="en">???? English</option>                <option value="de">???? Deutsch</option>                <option value="pt">???? Português</option>                <option value="es">???? Español</option>                <option value="pl">???? Polski</option>              </select>            </div>          </div>        </div>      </div>    </div>    <!-- -- 3. GENERAL SETTINGS -- -->    <div class="settings-section">      <div class="settings-box">        <div class="box-header">          <div class="box-icon">??</div>          <div class="box-title"><span data-i18n="section_general" data-i18n-text>Genel Ayarlar</span></div>        </div>        <div class="box-body">          <!-- Sound -->          <div class="settings-row">            <div class="row-info">              <div class="row-title"><span data-i18n="sound_title" data-i18n-text>Ses Efektleri</span></div>              <div class="row-desc"><span data-i18n="sound_desc" data-i18n-text>Top atislari, patlamalar ve ortam sesleri.</span></div>            </div>            <label class="toggle">              <input type="checkbox" id="cfg-sound" checked>              <span class="toggle-track"></span>            </label>          </div>          <!-- Graphics -->          <div class="settings-row">            <div class="row-info">              <div class="row-title"><span data-i18n="graphics_title" data-i18n-text>Grafik Modu</span></div>              <div class="row-desc"><span data-i18n="graphics_desc" data-i18n-text>Dövüs ekrani arka plan animasyonlari (kus, balik vb.)</span></div>            </div>            <label class="toggle">              <input type="checkbox" id="cfg-graphics" checked>              <span class="toggle-track"></span>            </label>          </div>          <!-- Particles -->          <div class="settings-row">            <div class="row-info">              <div class="row-title"><span data-i18n="particles_title" data-i18n-text>Parçacik Efektleri</span></div>              <div class="row-desc"><span data-i18n="particles_desc" data-i18n-text>Haritadaki su parçaciklari ve dalga animasyonlari.</span></div>            </div>            <label class="toggle">              <input type="checkbox" id="cfg-particles" checked>              <span class="toggle-track"></span>            </label>          </div>          <!-- Notifications -->          <div class="settings-row" id="notif-row">            <div class="row-info">              <div class="row-title"><span data-i18n="notif_title" data-i18n-text>?? Push Bildirimleri</span></div>              <div class="row-desc" id="notif-desc"><span data-i18n="notif_desc" data-i18n-text>Amiral çikinca bildirim al.</span></div>            </div>            <button id="btn-enable-notif" style="background:linear-gradient(180deg,#3d2108,#1e0e03);border:1.5px solid var(--gold);border-radius:6px;color:var(--gold-p);padding:8px 16px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Cinzel',serif;white-space:nowrap;">              <span data-i18n="btn_enable_notif" data-i18n-text>Bildirimleri Aç</span>            </button>          </div>        </div>      </div>    </div>    <!-- -- 4. ACCOUNT -- -->    <div class="settings-section">      <div class="settings-box">        <div class="box-header">          <div class="box-icon">??</div>          <div class="box-title"><span data-i18n="section_account" data-i18n-text>Hesap Ayarlari</span></div>        </div>        <div class="form-group">          <label class="input-label" for="username-input" data-i18n="username_label">New Username</label>          <input class="text-input" type="text" id="username-input" data-i18n-placeholder="username_placeholder" placeholder="New username..." minlength="3" maxlength="30">          <button class="btn-primary" id="btn-change-username" data-i18n="btn_change_username">KULLANICI ADINI DEGISTIR</button>        </div>        <div class="info-note">          <span>??</span>          <span data-i18n="username_note">Kullanici adinizi haftada sadece 1 kez degistirebilirsiniz.</span>        </div>      </div>    </div>    <!-- -- 5. SESSION / LOGOUT -- -->    <div class="settings-section">      <div class="settings-box danger">        <div class="box-header">          <div class="box-icon">??</div>          <div class="box-title"><span data-i18n="section_session" data-i18n-text>Oturum Yönetimi</span></div>        </div>        <div class="logout-wrap">          <button class="btn-danger" id="btn-logout"><span data-i18n="btn_logout" data-i18n-text>? OTURUMU KAPAT</span></button>        </div>      </div>    </div>    <!-- Version -->    <div class="version-text">SeaPirates v1.0.0</div>  </div><!-- /content-wrap --></div><!-- /page --><script>  const API_URL = (window.__API_URL__ || window.location.origin) + '/api/player';  const token = localStorage.getItem('sp_token');  if (!token) goTo('index.html');  // --- UI Elements ---  const pUsername    = document.getElementById('p-username');  const pId         = document.getElementById('p-id');  const pLevel      = document.getElementById('p-level');  const pRegDate    = document.getElementById('p-reg-date');  const pVipWrap    = document.getElementById('p-vip-wrap');  const pShipImg    = document.getElementById('p-ship-img');  const usernameInput    = document.getElementById('username-input');  const btnChangeUsername = document.getElementById('btn-change-username');  const btnLogout        = document.getElementById('btn-logout');  const cfgSound     = document.getElementById('cfg-sound');  const cfgGraphics  = document.getElementById('cfg-graphics');  const cfgParticles = document.getElementById('cfg-particles');  // --- Load Settings from LocalStorage ---  cfgSound.checked    = localStorage.getItem('sp_setting_sound') !== 'false';  cfgGraphics.checked = localStorage.getItem('sp_setting_graphics') !== 'false';  cfgParticles.checked = localStorage.getItem('sp_setting_particles') !== 'false';  // --- Toggle Events ---  cfgSound.addEventListener('change', function() {    localStorage.setItem('sp_setting_sound', this.checked ? 'true' : 'false');    toastMsg(t('toast_sound_updated'), false);  });  cfgGraphics.addEventListener('change', function() {    localStorage.setItem('sp_setting_graphics', this.checked ? 'true' : 'false');    toastMsg(t('toast_graphics_updated'), false);  });  cfgParticles.addEventListener('change', function() {    localStorage.setItem('sp_setting_particles', this.checked ? 'true' : 'false');    toastMsg(t('toast_particles_updated'), false);  });  // --- Fetch Player Data ---  async function fetchProfile() {    try {      const res = await fetch(`${API_URL}/me`, {        headers: { 'Authorization': `Bearer ${token}` }      });      const data = await res.json();      if (res.ok) {        // Username        pUsername.textContent = data.display_name || data.username;        usernameInput.value = data.display_name || data.username;        // ID        pId.textContent = '#' + data.id;        // Level        pLevel.textContent = data.level || 1;        // Kayit Tarihi        if (data.created_at) {          const date = new Date(data.created_at);          const day   = String(date.getDate()).padStart(2, '0');          const month = String(date.getMonth() + 1).padStart(2, '0');          const year  = date.getFullYear();          pRegDate.textContent = `${day}.${month}.${year}`;        } else {          pRegDate.textContent = t('profile_reg_date_unknown');        }        // VIP Badge        const isVip = data.vip_until && new Date(data.vip_until) > new Date();        if (isVip) {          const vipDate = new Date(data.vip_until);          const vDay   = String(vipDate.getDate()).padStart(2, '0');          const vMonth = String(vipDate.getMonth() + 1).padStart(2, '0');          const vYear  = vipDate.getFullYear();          pVipWrap.innerHTML = `<span class="vip-badge active"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP — ${vDay}.${vMonth}.${vYear}</span>`;        } else {          pVipWrap.innerHTML = `<span class="vip-badge inactive"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> ${t('profile_vip')}: ${t('profile_vip_inactive')}</span>`;        }        // Profile Ship Image (önce aktif tasarim, yoksa ship_level, yoksa visual_ship_level)        if (data.active_design) {          const df = data.active_design === 'kristal_queen' ? 'kristalquen' : data.active_design;          pShipImg.src = `assets/items/shop/${df}/7.png`;        } else {          const shipLvl = parseInt(data.ship_level) || 0;          const visLvl = data.visual_ship_level != null ? parseInt(data.visual_ship_level) : null;          const displayLvl = (visLvl != null && visLvl >= 0) ? visLvl : shipLvl;          if (displayLvl > 0 && displayLvl <= 10) {            pShipImg.src = `assets/ships/elitship/elit${displayLvl}/images/7.png`;          } else {            pShipImg.src = 'assets/ships/elitship/default/7.png';          }        }      }    } catch (e) {      logError('settings:load', e);    }    if (typeof readyNow === 'function') readyNow();  }  // --- Change Username ---  btnChangeUsername.addEventListener('click', async () => {    const newName = usernameInput.value.trim();    if (newName.length < 3 || newName.length > 30) {      toastMsg(t('username_length_error'), true);      return;    }    try {      btnChangeUsername.disabled = true;      const res = await fetch(`${API_URL}/settings/change-username`, {        method: 'POST',        headers: {          'Content-Type': 'application/json',          'Authorization': `Bearer ${token}`        },        body: JSON.stringify({ newDisplayName: newName })      });      const data = await res.json();      if (res.ok) {        if (data.display_name) {          const existing = JSON.parse(localStorage.getItem('sp_player') || '{}');          existing.display_name = data.display_name;          localStorage.setItem('sp_player', JSON.stringify(existing));        }        toastMsg(data.message || t('username_success'), false);        fetchProfile();      } else {        const errMsg = data.error && data.error.startsWith && data.error.startsWith('err_')          ? t(data.error, data)          : (data.error || t('username_error'));        toastMsg(errMsg, true);      }    } catch (e) {      toastMsg(t('server_error'), true);    } finally {      btnChangeUsername.disabled = false;    }  });  // --- Logout ---  btnLogout.addEventListener('click', async () => {    try {      await API.post('/auth/logout');    } catch (e) { /* ignore */ }    localStorage.removeItem('sp_token');    localStorage.removeItem('sp_player');    localStorage.removeItem('sp_remember_me');    sessionStorage.removeItem('sp_session_active');    toastMsg(t('logout_msg'), false);    setTimeout(() => {      goTo('index.html');    }, 1500);  });  // --- Toast ---  function toastMsg(msg, isErr) {    window.showAlert(msg, isErr ? t('server_error') : 'SEAPIRATES', isErr);  }  // --- Language Select ---  function selectLang(lang) {    window.setLanguage(lang);    document.getElementById('lang-select').value = lang;  }  window.addEventListener('languageChanged', function() {    const sel = document.getElementById('lang-select');    if (sel) sel.value = window.currentLang;  });  // Init  fetchProfile();  document.getElementById('lang-select').value = window.currentLang;  // --- Notifications ---  (async function initNotifications() {    const row = document.getElementById('notif-row');    const btn = document.getElementById('btn-enable-notif');    const desc = document.getElementById('notif-desc');    function updateUI() {      if (Notification.permission === 'granted') {        btn.textContent = '? ' + (t('notif_active') || 'Açik');        btn.style.borderColor = '#27ae60';        btn.style.color = '#2ecc71';        btn.disabled = true;        desc.textContent = t('notif_on_desc') || 'Bildirimler aktif.';      } else if (Notification.permission === 'denied') {        btn.textContent = '??';        btn.style.borderColor = '#666';        btn.style.color = '#666';        btn.disabled = true;        desc.textContent = t('notif_browser_blocked') || 'Tarayicidan engellendi.';      } else {        btn.textContent = t('btn_enable_notif') || '?? Bildirimleri Aç';        btn.style.borderColor = 'var(--gold)';        btn.style.color = 'var(--gold-p)';        btn.disabled = false;        desc.textContent = t('notif_desc') || 'Amiral çikinca bildirim al.';      }    }    btn.addEventListener('click', async () => {      try {        const permission = await Notification.requestPermission();        if (permission !== 'granted') {          updateUI();          return;        }        const reg = await navigator.serviceWorker.register('sw.js?v=1');        const sub = await reg.pushManager.subscribe({          userVisibleOnly: true,          applicationServerKey: 'BFkQZIfl5cEmn4HIUU1omIKOQkerzjIQQrFXn1XIq5A1e5peKe-Gvh1rNPp1XTwd3X_x30GiJpFX1VSib-0Q5Kc'        });        function buf2base(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }        await fetch((window.__API_URL__ || window.location.origin) + '/api/notifications/subscribe', {          method: 'POST',          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },          body: JSON.stringify({            endpoint: sub.endpoint,            keys: { auth: buf2base(sub.getKey('auth')), p256dh: buf2base(sub.getKey('p256dh')) }          })        });        updateUI();      } catch (e) {        logError('settings:push', e);        desc.textContent = t('notif_error') || 'Bildirim açilamadi.';      }    });    updateUI();  })();</script> <script>renderFromCache(); revealPage();</script></body></html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d0702">
+  <style>body { visibility: hidden; background: #0d0702; }</style>
+  <title data-i18n="settings_title">SeaPirates — Ayarlar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
+  <script src="js/lang.js?v=2"></script>
+  <script src="js/api.js?v=4"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="transition.js?v=8"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2980b9;--blue-b:#3498db;
+      --card-bg:rgba(16,8,2,0.88);
+      --card-border:#4a2c10;
+      --divider:rgba(200,150,42,0.15);
+    }
+    html,body{
+      width:100%;height:100dvh;overflow:hidden;
+      background:#0d0702;
+      font-family:'Inter',sans-serif;
+      color:var(--txt);
+    }
+
+    /* --- PAGE CONTAINER --- */
+    .page{
+      max-width:430px;margin:0 auto;
+      height:100dvh;
+      display:flex;flex-direction:column;
+      position:relative;
+      background: url('assets/ui/background/menubackground.png') center center / cover no-repeat;
+    
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+    }
+    .page::before{
+      content:'';position:absolute;inset:0;
+      background:rgba(0,0,0,0.7);
+      pointer-events:none;z-index:0;
+    }
+
+    /* --- TOP BAR --- */
+    .top-bar{
+      position:relative;z-index:10;
+      padding:14px 16px;
+      display:flex;align-items:center;
+      justify-content:space-between;
+      flex-shrink:0;
+      border-bottom:1px solid rgba(200,150,42,0.25);
+      background:linear-gradient(180deg, rgba(20,10,2,0.97), rgba(10,5,0,0.9));
+    }
+    .btn-back{
+      padding:8px 14px;
+      background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:8px;
+      font-family:'Cinzel',serif;font-size:0.7rem;font-weight:700;
+      color:var(--txt-d);letter-spacing:0.04em;
+      cursor:pointer;text-align:center;text-decoration:none;
+      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+      transition:all 0.2s ease;
+    }
+    .btn-back:hover{border-color:var(--gold);color:var(--gold-b);}
+    .btn-back:active{transform:scale(0.96);}
+    .page-title{
+      font-family:'Cinzel',serif;font-weight:900;font-size:1.1rem;
+      letter-spacing:0.1em;color:var(--gold-b);
+      text-shadow:0 0 12px rgba(200,150,42,0.5);
+      text-transform:uppercase;
+    }
+
+    /* --- SCROLL WRAPPER --- */
+    .content-wrap{
+      flex:1;
+      position:relative;z-index:5;
+      padding:18px 14px 30px;
+      overflow-y:auto;
+      display:flex;flex-direction:column;
+      gap:16px;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(200,150,42,0.3) transparent;
+    }
+    .content-wrap::-webkit-scrollbar{width:6px;}
+    .content-wrap::-webkit-scrollbar-thumb{background:rgba(200,150,42,0.4);border-radius:4px;}
+
+    /* --- FADE-IN ANIMATION --- */
+    @keyframes fadeSlideUp{
+      from{opacity:0;transform:translateY(16px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+    .settings-section{
+      animation:fadeSlideUp 0.4s ease forwards;
+      opacity:0;
+    }
+    .settings-section:nth-child(1){animation-delay:0.05s;}
+    .settings-section:nth-child(2){animation-delay:0.12s;}
+    .settings-section:nth-child(3){animation-delay:0.19s;}
+    .settings-section:nth-child(4){animation-delay:0.26s;}
+    .settings-section:nth-child(5){animation-delay:0.33s;}
+
+    /* --- PROFILE CARD --- */
+    .profile-card{
+      background: linear-gradient(135deg, rgba(45,26,8,0.9), rgba(20,10,3,0.95));
+      border:1.5px solid var(--card-border);
+      border-radius:14px;
+      padding:16px;
+      display:flex;align-items:center;gap:14px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(200,150,42,0.1);
+      position:relative;
+      overflow:hidden;
+    }
+    .profile-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(240,192,64,0.3),transparent);
+    }
+    .profile-pic-wrap{
+      width:68px;height:68px;
+      border-radius:12px;
+      border:2px solid var(--gold);
+      background:rgba(0,0,0,0.5);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;flex-shrink:0;
+      box-shadow:0 0 12px rgba(200,150,42,0.2);
+    }
+    .profile-pic{
+      width:100%;height:100%;
+      object-fit:contain;
+      transform:scale(1.1);
+    }
+    .profile-details{
+      display:flex;flex-direction:column;gap:5px;
+      flex:1;min-width:0;
+    }
+    .profile-name{
+      font-family:'Cinzel',serif;font-size:1rem;
+      color:var(--gold-b);font-weight:700;
+      text-shadow:0 2px 4px rgba(0,0,0,0.8);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .profile-meta{
+      display:flex;flex-wrap:wrap;gap:6px 12px;
+    }
+    .meta-tag{
+      font-size:0.68rem;color:var(--txt-d);
+      display:flex;align-items:center;gap:4px;
+    }
+    .meta-tag .val{color:var(--txt);font-weight:600;}
+    .vip-badge{
+      display:inline-flex;align-items:center;gap:3px;
+      padding:2px 8px;border-radius:6px;font-size:0.62rem;font-weight:700;
+      letter-spacing:0.06em;
+    }
+    .vip-badge.active{
+      background:linear-gradient(135deg,rgba(240,192,64,0.2),rgba(200,150,42,0.1));
+      border:1px solid rgba(240,192,64,0.4);color:var(--gold-b);
+    }
+    .vip-badge.inactive{
+      background:rgba(100,100,100,0.15);
+      border:1px solid rgba(100,100,100,0.25);color:#888;
+    }
+
+    /* --- SETTINGS BOX (Card) --- */
+    .settings-box{
+      background:var(--card-bg);
+      border:1px solid var(--card-border);
+      border-radius:14px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.5);
+      position:relative;
+    }
+    .settings-box::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(240,192,64,0.15),transparent);
+    }
+    .box-header{
+      padding:14px 18px 12px;
+      border-bottom:1px solid var(--divider);
+      display:flex;align-items:center;gap:10px;
+    }
+    .box-icon{
+      width:28px;height:28px;
+      display:flex;align-items:center;justify-content:center;
+      border-radius:8px;font-size:1rem;
+      background:rgba(200,150,42,0.1);
+      border:1px solid rgba(200,150,42,0.15);
+      flex-shrink:0;
+    }
+    .box-title{
+      font-family:'Cinzel',serif;
+      font-size:0.82rem;font-weight:700;
+      color:var(--gold-p);
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+    }
+    .box-body{
+      padding:4px 0;
+    }
+
+    /* --- SETTINGS ROW --- */
+    .settings-row{
+      display:flex;align-items:center;
+      justify-content:space-between;
+      padding:13px 18px;
+      transition:background 0.15s;
+    }
+    .settings-row:not(:last-child){
+      border-bottom:1px solid var(--divider);
+    }
+    .settings-row:hover{
+      background:rgba(200,150,42,0.03);
+    }
+    .row-info{
+      display:flex;flex-direction:column;gap:3px;
+      max-width:68%;
+    }
+    .row-title{
+      font-size:0.82rem;font-weight:600;color:var(--txt);
+    }
+    .row-desc{
+      font-size:0.68rem;color:#8a7a68;line-height:1.35;
+      overflow-wrap:break-word;word-break:break-word;
+    }
+    #btn-enable-notif{font-size:0.65rem !important;padding:8px 12px !important;}
+
+    /* --- PREMIUM TOGGLE SWITCH --- */
+    .toggle{
+      position:relative;
+      width:50px;height:26px;
+      flex-shrink:0;
+    }
+    .toggle input{opacity:0;width:0;height:0;}
+    .toggle-track{
+      position:absolute;cursor:pointer;inset:0;
+      background:linear-gradient(180deg,#1a0e05,#0d0702);
+      border:1.5px solid #3a2510;
+      border-radius:26px;
+      transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .toggle-track::before{
+      content:'';position:absolute;
+      width:18px;height:18px;
+      left:3px;bottom:2.5px;
+      background:linear-gradient(180deg,#7a5a38,#5a3c1a);
+      border-radius:50%;
+      transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow:0 1px 4px rgba(0,0,0,0.5);
+    }
+    input:checked + .toggle-track{
+      background:linear-gradient(180deg,#3d2a10,#2a1a08);
+      border-color:var(--gold);
+      box-shadow:0 0 8px rgba(200,150,42,0.2);
+    }
+    input:checked + .toggle-track::before{
+      transform:translateX(24px);
+      background:linear-gradient(180deg,var(--gold-b),var(--gold));
+      box-shadow:0 0 8px rgba(240,192,64,0.4), 0 1px 4px rgba(0,0,0,0.5);
+    }
+
+    /* --- LANGUAGE SELECTOR --- */
+    .lang-select-wrap{
+      width:100%;
+      padding:2px 14px 12px;
+    }
+    .lang-select-wrap select{
+      width:100%;padding:10px 14px;
+      background:rgba(0,0,0,0.45) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237a5a38'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 12px center;
+      background-size:18px;
+      border:1.5px solid #3a2510;
+      border-radius:8px;
+      color:var(--txt);
+      font-family:'Inter',sans-serif;
+      font-size:0.82rem;font-weight:600;
+      cursor:pointer;
+      outline:none;
+      appearance:none;
+      -webkit-appearance:none;
+      transition:border-color 0.2s;
+    }
+    .lang-select-wrap select:hover,
+    .lang-select-wrap select:focus{
+      border-color:var(--gold);
+    }
+    .lang-select-wrap select option{
+      background:#1a0e05;
+      color:var(--txt);
+      padding:8px;
+      font-size:0.82rem;
+    }
+
+    /* --- FORM GROUP --- */
+    .form-group{
+      padding:14px 18px;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .input-label{
+      font-size:0.73rem;color:var(--txt-d);font-weight:600;
+      letter-spacing:0.03em;
+    }
+    .text-input{
+      background:rgba(0,0,0,0.45);
+      border:1.5px solid #3a2510;
+      border-radius:8px;
+      padding:11px 14px;
+      color:var(--txt);
+      font-family:'Inter',sans-serif;
+      font-size:0.82rem;
+      outline:none;
+      transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    .text-input:focus{
+      border-color:var(--gold);
+      box-shadow:0 0 8px rgba(200,150,42,0.15);
+    }
+    .text-input::placeholder{color:#5a4a38;}
+
+    /* --- BUTTONS --- */
+    .btn-primary{
+      padding:12px;
+      background:linear-gradient(180deg,var(--green-b),var(--green));
+      border:1px solid #1e7e34;border-radius:8px;
+      font-family:'Cinzel',serif;
+      font-size:0.78rem;font-weight:700;
+      color:#fff;cursor:pointer;
+      text-shadow:0 1px 2px rgba(0,0,0,0.5);
+      transition:all 0.15s;
+      outline:none;
+      box-shadow:0 3px 10px rgba(39,174,96,0.25);
+    }
+    .btn-primary:active{transform:translateY(1px);}
+    .btn-primary:hover{box-shadow:0 0 14px rgba(39,174,96,0.35);}
+    .btn-primary:disabled{
+      opacity:0.5;cursor:not-allowed;
+      transform:none !important;
+      box-shadow:none !important;
+    }
+
+    .btn-danger{
+      padding:12px;
+      background:linear-gradient(180deg,var(--red-b),var(--red));
+      border:1px solid #7f0800;border-radius:8px;
+      font-family:'Cinzel',serif;
+      font-size:0.78rem;font-weight:700;
+      color:#fff;cursor:pointer;
+      text-shadow:0 1px 2px rgba(0,0,0,0.5);
+      transition:all 0.15s;
+      outline:none;
+      box-shadow:0 3px 10px rgba(192,57,43,0.25);
+    }
+    .btn-danger:active{transform:translateY(1px);}
+    .btn-danger:hover{box-shadow:0 0 14px rgba(192,57,43,0.35);}
+
+    .info-note{
+      font-size:0.68rem;color:#6a5a48;line-height:1.4;
+      display:flex;align-items:flex-start;gap:6px;
+      padding:0 18px 14px;
+    }
+    .info-note span:first-child{flex-shrink:0;}
+
+    /* --- DANGER SECTION --- */
+    .settings-box.danger{
+      border-color:rgba(192,57,43,0.3);
+    }
+    .settings-box.danger .box-header{
+      border-bottom-color:rgba(192,57,43,0.15);
+    }
+    .settings-box.danger .box-title{
+      color:var(--red-b);
+    }
+    .settings-box.danger .box-icon{
+      background:rgba(192,57,43,0.1);
+      border-color:rgba(192,57,43,0.2);
+    }
+    .logout-wrap{
+      padding:14px 18px;
+    }
+
+    /* --- VERSION --- */
+    .version-text{
+      text-align:center;
+      font-size:0.62rem;
+      color:#4a3a28;
+      padding:6px 0 4px;
+      letter-spacing:0.05em;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- --- TOP BAR --- -->
+  <div class="top-bar">
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? MENÜYE DÖN</span></a>
+    <div class="page-title"><span data-i18n="settings_title" data-i18n-text>AYARLAR</span></div>
+    <div style="width:90px;"></div>
+  </div>
+
+  <!-- --- CONTENT --- -->
+  <div class="content-wrap">
+
+    <!-- -- 1. PROFILE CARD -- -->
+    <div class="settings-section">
+      <div class="profile-card">
+        <div class="profile-pic-wrap">
+          <img class="profile-pic" id="p-ship-img" src="assets/ships/elitship/default/7.png" alt="Ship"/>
+        </div>
+        <div class="profile-details">
+          <div class="profile-name" id="p-username">Loading...</div>
+          <div class="profile-meta">
+            <div class="meta-tag"><span data-i18n="profile_id" data-i18n-text>ID</span>: <span class="val" id="p-id">—</span></div>
+            <div class="meta-tag"><span data-i18n="profile_level" data-i18n-text>Seviye</span>: <span class="val" id="p-level">—</span></div>
+            <div class="meta-tag"><span data-i18n="profile_reg_date" data-i18n-text>Kayit Tarihi</span>: <span class="val" id="p-reg-date">—</span></div>
+          </div>
+          <div id="p-vip-wrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- -- 2. LANGUAGE SETTINGS -- -->
+    <div class="settings-section">
+      <div class="settings-box">
+        <div class="box-header">
+          <div class="box-icon">??</div>
+          <div class="box-title"><span data-i18n="section_language" data-i18n-text>Dil Ayarlari</span></div>
+        </div>
+        <div class="box-body">
+          <div class="settings-row">
+            <div class="row-info">
+              <div class="row-title"><span data-i18n="lang_label" data-i18n-text>Oyun Dili</span></div>
+              <div class="row-desc" data-i18n="lang_desc" data-i18n-text="Oyun dilini seçin"></div>
+            </div>
+            <div class="lang-select-wrap">
+              <select id="lang-select" onchange="selectLang(this.value)">
+                <option value="tr">???? Türkçe</option>
+                <option value="en">???? English</option>
+                <option value="de">???? Deutsch</option>
+                <option value="pt">???? Português</option>
+                <option value="es">???? Español</option>
+                <option value="pl">???? Polski</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- -- 3. GENERAL SETTINGS -- -->
+    <div class="settings-section">
+      <div class="settings-box">
+        <div class="box-header">
+          <div class="box-icon">??</div>
+          <div class="box-title"><span data-i18n="section_general" data-i18n-text>Genel Ayarlar</span></div>
+        </div>
+        <div class="box-body">
+          <!-- Sound -->
+          <div class="settings-row">
+            <div class="row-info">
+              <div class="row-title"><span data-i18n="sound_title" data-i18n-text>Ses Efektleri</span></div>
+              <div class="row-desc"><span data-i18n="sound_desc" data-i18n-text>Top atislari, patlamalar ve ortam sesleri.</span></div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="cfg-sound" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <!-- Graphics -->
+          <div class="settings-row">
+            <div class="row-info">
+              <div class="row-title"><span data-i18n="graphics_title" data-i18n-text>Grafik Modu</span></div>
+              <div class="row-desc"><span data-i18n="graphics_desc" data-i18n-text>Dövüs ekrani arka plan animasyonlari (kus, balik vb.)</span></div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="cfg-graphics" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <!-- Particles -->
+          <div class="settings-row">
+            <div class="row-info">
+              <div class="row-title"><span data-i18n="particles_title" data-i18n-text>Parçacik Efektleri</span></div>
+              <div class="row-desc"><span data-i18n="particles_desc" data-i18n-text>Haritadaki su parçaciklari ve dalga animasyonlari.</span></div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="cfg-particles" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <!-- Notifications -->
+          <div class="settings-row" id="notif-row">
+            <div class="row-info">
+              <div class="row-title"><span data-i18n="notif_title" data-i18n-text>?? Push Bildirimleri</span></div>
+              <div class="row-desc" id="notif-desc"><span data-i18n="notif_desc" data-i18n-text>Amiral çikinca bildirim al.</span></div>
+            </div>
+            <button id="btn-enable-notif" style="background:linear-gradient(180deg,#3d2108,#1e0e03);border:1.5px solid var(--gold);border-radius:6px;color:var(--gold-p);padding:8px 16px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Cinzel',serif;white-space:nowrap;">
+              <span data-i18n="btn_enable_notif" data-i18n-text>Bildirimleri Aç</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- -- 4. ACCOUNT -- -->
+    <div class="settings-section">
+      <div class="settings-box">
+        <div class="box-header">
+          <div class="box-icon">??</div>
+          <div class="box-title"><span data-i18n="section_account" data-i18n-text>Hesap Ayarlari</span></div>
+        </div>
+        <div class="form-group">
+          <label class="input-label" for="username-input" data-i18n="username_label">New Username</label>
+          <input class="text-input" type="text" id="username-input" data-i18n-placeholder="username_placeholder" placeholder="New username..." minlength="3" maxlength="30">
+          <button class="btn-primary" id="btn-change-username" data-i18n="btn_change_username">KULLANICI ADINI DEGISTIR</button>
+        </div>
+        <div class="info-note">
+          <span>??</span>
+          <span data-i18n="username_note">Kullanici adinizi haftada sadece 1 kez degistirebilirsiniz.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- -- 5. SESSION / LOGOUT -- -->
+    <div class="settings-section">
+      <div class="settings-box danger">
+        <div class="box-header">
+          <div class="box-icon">??</div>
+          <div class="box-title"><span data-i18n="section_session" data-i18n-text>Oturum Yönetimi</span></div>
+        </div>
+        <div class="logout-wrap">
+          <button class="btn-danger" id="btn-logout"><span data-i18n="btn_logout" data-i18n-text>? OTURUMU KAPAT</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Version -->
+    <div class="version-text">SeaPirates v1.0.0</div>
+
+  </div><!-- /content-wrap -->
+
+</div><!-- /page -->
+
+<script>
+  const API_URL = (window.__API_URL__ || window.location.origin) + '/api/player';
+  const token = localStorage.getItem('sp_token');
+  if (!token) goTo('index.html');
+
+  // --- UI Elements ---
+  const pUsername    = document.getElementById('p-username');
+  const pId         = document.getElementById('p-id');
+  const pLevel      = document.getElementById('p-level');
+  const pRegDate    = document.getElementById('p-reg-date');
+  const pVipWrap    = document.getElementById('p-vip-wrap');
+  const pShipImg    = document.getElementById('p-ship-img');
+  const usernameInput    = document.getElementById('username-input');
+  const btnChangeUsername = document.getElementById('btn-change-username');
+  const btnLogout        = document.getElementById('btn-logout');
+  const cfgSound     = document.getElementById('cfg-sound');
+  const cfgGraphics  = document.getElementById('cfg-graphics');
+  const cfgParticles = document.getElementById('cfg-particles');
+  // --- Load Settings from LocalStorage ---
+  cfgSound.checked    = localStorage.getItem('sp_setting_sound') !== 'false';
+  cfgGraphics.checked = localStorage.getItem('sp_setting_graphics') !== 'false';
+  cfgParticles.checked = localStorage.getItem('sp_setting_particles') !== 'false';
+
+  // --- Toggle Events ---
+  cfgSound.addEventListener('change', function() {
+    localStorage.setItem('sp_setting_sound', this.checked ? 'true' : 'false');
+    toastMsg(t('toast_sound_updated'), false);
+  });
+
+  cfgGraphics.addEventListener('change', function() {
+    localStorage.setItem('sp_setting_graphics', this.checked ? 'true' : 'false');
+    toastMsg(t('toast_graphics_updated'), false);
+  });
+
+  cfgParticles.addEventListener('change', function() {
+    localStorage.setItem('sp_setting_particles', this.checked ? 'true' : 'false');
+    toastMsg(t('toast_particles_updated'), false);
+  });
+
+  // --- Fetch Player Data ---
+  async function fetchProfile() {
+    try {
+      const res = await fetch(`${API_URL}/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // Username
+        pUsername.textContent = data.display_name || data.username;
+        usernameInput.value = data.display_name || data.username;
+
+        // ID
+        pId.textContent = '#' + data.id;
+
+        // Level
+        pLevel.textContent = data.level || 1;
+
+        // Kayit Tarihi
+        if (data.created_at) {
+          const date = new Date(data.created_at);
+          const day   = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year  = date.getFullYear();
+          pRegDate.textContent = `${day}.${month}.${year}`;
+        } else {
+          pRegDate.textContent = t('profile_reg_date_unknown');
+        }
+
+        // VIP Badge
+        const isVip = data.vip_until && new Date(data.vip_until) > new Date();
+        if (isVip) {
+          const vipDate = new Date(data.vip_until);
+          const vDay   = String(vipDate.getDate()).padStart(2, '0');
+          const vMonth = String(vipDate.getMonth() + 1).padStart(2, '0');
+          const vYear  = vipDate.getFullYear();
+          pVipWrap.innerHTML = `<span class="vip-badge active"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP — ${vDay}.${vMonth}.${vYear}</span>`;
+        } else {
+          pVipWrap.innerHTML = `<span class="vip-badge inactive"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> ${t('profile_vip')}: ${t('profile_vip_inactive')}</span>`;
+        }
+
+        // Profile Ship Image (önce aktif tasarim, yoksa ship_level, yoksa visual_ship_level)
+        if (data.active_design) {
+          const df = data.active_design === 'kristal_queen' ? 'kristalquen' : data.active_design;
+          pShipImg.src = `assets/items/shop/${df}/7.png`;
+        } else {
+          const shipLvl = parseInt(data.ship_level) || 0;
+          const visLvl = data.visual_ship_level != null ? parseInt(data.visual_ship_level) : null;
+          const displayLvl = (visLvl != null && visLvl >= 0) ? visLvl : shipLvl;
+          if (displayLvl > 0 && displayLvl <= 10) {
+            pShipImg.src = `assets/ships/elitship/elit${displayLvl}/images/7.png`;
+          } else {
+            pShipImg.src = 'assets/ships/elitship/default/7.png';
+          }
+        }
+      }
+    } catch (e) {
+      logError('settings:load', e);
+    }
+    if (typeof readyNow === 'function') readyNow();
+  }
+
+  // --- Change Username ---
+  btnChangeUsername.addEventListener('click', async () => {
+    const newName = usernameInput.value.trim();
+    if (newName.length < 3 || newName.length > 30) {
+      toastMsg(t('username_length_error'), true);
+      return;
+    }
+
+    try {
+      btnChangeUsername.disabled = true;
+      const res = await fetch(`${API_URL}/settings/change-username`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newDisplayName: newName })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.display_name) {
+          const existing = JSON.parse(localStorage.getItem('sp_player') || '{}');
+          existing.display_name = data.display_name;
+          localStorage.setItem('sp_player', JSON.stringify(existing));
+        }
+        toastMsg(data.message || t('username_success'), false);
+        fetchProfile();
+      } else {
+        const errMsg = data.error && data.error.startsWith && data.error.startsWith('err_')
+          ? t(data.error, data)
+          : (data.error || t('username_error'));
+        toastMsg(errMsg, true);
+      }
+    } catch (e) {
+      toastMsg(t('server_error'), true);
+    } finally {
+      btnChangeUsername.disabled = false;
+    }
+  });
+
+  // --- Logout ---
+  btnLogout.addEventListener('click', async () => {
+    try {
+      await API.post('/auth/logout');
+    } catch (e) { /* ignore */ }
+    localStorage.removeItem('sp_token');
+    localStorage.removeItem('sp_player');
+    localStorage.removeItem('sp_remember_me');
+    sessionStorage.removeItem('sp_session_active');
+    toastMsg(t('logout_msg'), false);
+    setTimeout(() => {
+      goTo('index.html');
+    }, 1500);
+  });
+
+  // --- Toast ---
+  function toastMsg(msg, isErr) {
+    window.showAlert(msg, isErr ? t('server_error') : 'SEAPIRATES', isErr);
+  }
+
+  // --- Language Select ---
+  function selectLang(lang) {
+    window.setLanguage(lang);
+    document.getElementById('lang-select').value = lang;
+  }
+  window.addEventListener('languageChanged', function() {
+    const sel = document.getElementById('lang-select');
+    if (sel) sel.value = window.currentLang;
+  });
+
+  // Init
+  fetchProfile();
+  document.getElementById('lang-select').value = window.currentLang;
+
+  // --- Notifications ---
+  (async function initNotifications() {
+    const row = document.getElementById('notif-row');
+    const btn = document.getElementById('btn-enable-notif');
+    const desc = document.getElementById('notif-desc');
+
+    function updateUI() {
+      if (Notification.permission === 'granted') {
+        btn.textContent = '? ' + (t('notif_active') || 'Açik');
+        btn.style.borderColor = '#27ae60';
+        btn.style.color = '#2ecc71';
+        btn.disabled = true;
+        desc.textContent = t('notif_on_desc') || 'Bildirimler aktif.';
+      } else if (Notification.permission === 'denied') {
+        btn.textContent = '??';
+        btn.style.borderColor = '#666';
+        btn.style.color = '#666';
+        btn.disabled = true;
+        desc.textContent = t('notif_browser_blocked') || 'Tarayicidan engellendi.';
+      } else {
+        btn.textContent = t('btn_enable_notif') || '?? Bildirimleri Aç';
+        btn.style.borderColor = 'var(--gold)';
+        btn.style.color = 'var(--gold-p)';
+        btn.disabled = false;
+        desc.textContent = t('notif_desc') || 'Amiral çikinca bildirim al.';
+      }
+    }
+
+    btn.addEventListener('click', async () => {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          updateUI();
+          return;
+        }
+        const reg = await navigator.serviceWorker.register('sw.js?v=1');
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: 'BFkQZIfl5cEmn4HIUU1omIKOQkerzjIQQrFXn1XIq5A1e5peKe-Gvh1rNPp1XTwd3X_x30GiJpFX1VSib-0Q5Kc'
+        });
+        function buf2base(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
+        await fetch((window.__API_URL__ || window.location.origin) + '/api/notifications/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            endpoint: sub.endpoint,
+            keys: { auth: buf2base(sub.getKey('auth')), p256dh: buf2base(sub.getKey('p256dh')) }
+          })
+        });
+        updateUI();
+      } catch (e) {
+        logError('settings:push', e);
+        desc.textContent = t('notif_error') || 'Bildirim açilamadi.';
+      }
+    });
+
+    updateUI();
+  })();
+</script>
+ <script>renderFromCache(); revealPage();</script>
+</body>
+</html>
+
