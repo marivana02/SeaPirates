@@ -1235,7 +1235,6 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
 
     let attackInterval;
     let lastPlayerAttack = 0;
-    let _attackInFlight = false;
     let bossSocket = null;
     let bossPollInterval = null;
 
@@ -1481,11 +1480,9 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
 
     async function doAttack() {
       if (!active) return;
-      if (_attackInFlight) return;
       const now = Date.now();
       const playerReady = now - lastPlayerAttack >= (player.cooldownMs || 4000) - 100;
       if (!playerReady) return;
-      _attackInFlight = true;
       lastPlayerAttack = now;
       try {
         const payload = {
@@ -1664,8 +1661,6 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           document.getElementById('disconnect-sub').textContent = 'Bağlantı gitti, yeniden deneniyor...';
           setTimeout(retry, 3000);
         }
-      } finally {
-        _attackInFlight = false;
       }
     }
 

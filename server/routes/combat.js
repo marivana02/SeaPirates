@@ -122,7 +122,8 @@ router.post('/start', authMiddleware, async (req, res) => {
     if (existingRes.rows.length > 0) {
       const existing = existingRes.rows[0];
       if (Date.now() - new Date(existing.last_activity).getTime() < FIGHT_TIMEOUT_MS) {
-        const playerCooldownMs = await calculatePlayerCooldownMs(pool, playerId, existing.is_tower);
+        let playerCooldownMs = await calculatePlayerCooldownMs(pool, playerId, existing.is_tower);
+      if (existing.is_tiamat) playerCooldownMs = 3000;
         return res.json({
           message: 'Fight ongoing', npcName: existing.npc_name, npcHp: parseInt(existing.npc_hp), npcMaxHp: parseInt(existing.npc_max_hp),
           playerHp: parseInt(existing.player_hp), playerMaxHp: parseInt(existing.player_max_hp), isTower: !!existing.is_tower,
@@ -150,7 +151,8 @@ router.post('/start', authMiddleware, async (req, res) => {
     if (result.error) return res.status(400).json({ error: result.error });
     const { targetNpc, effectiveMapLevel, bossCurrentHp: initialBossHp } = result;
 
-    const playerCooldownMs = await calculatePlayerCooldownMs(pool, playerId, isTower);
+    let playerCooldownMs = await calculatePlayerCooldownMs(pool, playerId, isTower);
+    if (isTiamat) playerCooldownMs = 3000;
     let isAdmiral = false;
     let isTiamatFight = false;
     let bossCurrentHp = targetNpc.hp;
@@ -219,7 +221,9 @@ router.post('/attack', authMiddleware, async (req, res) => {
     const lastNpcAttack = fightRow.last_npc_attack ? new Date(fightRow.last_npc_attack).getTime() : 0;
     const npcCanAttack = (Date.now() - lastNpcAttack) >= NPC_ATTACK_INTERVAL_MS;
 
-    const cooldownMs = await calculatePlayerCooldownMs(pool, playerId, fight.isTower);
+    let cooldownMs = await calculatePlayerCooldownMs(pool, playerId, fight.isTower);
+    if (fight.isTiamat) cooldownMs = 3000;
+    if (fight.isTower) cooldownMs = 3000;
     const elapsed = Date.now() - new Date(fightRow.last_activity).getTime();
     const tolerance = Math.min(1000, Math.round(cooldownMs * 0.2));
     if (elapsed + tolerance < cooldownMs) {
