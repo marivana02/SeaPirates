@@ -1665,16 +1665,18 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
               return;
             }
             retryCount++;
-            // doAttack hala devam ediyorsa (lock'ta) bekle
+            // doAttack'in kendi fetch'iyle yarışmamak için _attackInFlight'ı al
             if (_attackInFlight) {
               setTimeout(retry, 3000);
               return;
             }
+            _attackInFlight = true;
             fetch(`${ATTACK_API_URL}/attack`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
               body: JSON.stringify({ ammoId: player.ammo, useBarut: player.barut, useZirh: player.zirh })
             }).then(async r => {
+              _attackInFlight = false;
               if (r.ok || r.status === 400) {
                 overlay.classList.remove('show');
                 document.getElementById('disconnect-sub').textContent = 'Yeniden bağlanılıyor...';
@@ -1686,7 +1688,10 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
                 console.error('[RETRY 429]', body);
                 setTimeout(retry, 3000);
               }
-            }).catch(() => setTimeout(retry, 3000));
+            }).catch(() => {
+              _attackInFlight = false;
+              setTimeout(retry, 3000);
+            });
           };
           overlay.querySelector('button')?.setAttribute('disabled', 'disabled');
           document.getElementById('disconnect-sub').textContent = 'Bağlantı gitti, yeniden deneniyor...';
