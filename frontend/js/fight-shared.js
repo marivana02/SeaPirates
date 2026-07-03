@@ -1235,6 +1235,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
 
     let attackInterval;
     let lastPlayerAttack = 0;
+    let _attackInFlight = false;
     let bossSocket = null;
     let bossPollInterval = null;
 
@@ -1490,6 +1491,8 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       const now = Date.now();
       const playerReady = now - lastPlayerAttack >= (player.cooldownMs || 4000) - 100;
       if (!playerReady) return;
+      if (_attackInFlight) return;
+      _attackInFlight = true;
       lastPlayerAttack = now;
       try {
         const payload = {
@@ -1668,6 +1671,11 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           document.getElementById('disconnect-sub').textContent = 'Bağlantı gitti, yeniden deneniyor...';
           setTimeout(retry, 3000);
         }
+      } finally {
+        // safety: if doAttack returns normally (non-error path), the finally runs before the next interval fires.
+        // if catch handled a network error, the retry chain starts a NEW interval + flag was already cleared here.
+        // in any case, _attackInFlight is always cleared so the next interval call can proceed.
+        _attackInFlight = false;
       }
     }
 
