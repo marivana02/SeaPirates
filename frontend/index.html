@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
   <meta name="theme-color" content="#0d0702">
   <style>body { visibility: hidden; background: #0d0702; }</style>
-  <title>SeaPirates — Login</title>
+  <title>SeaPirates ï¿½ Login</title>
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -99,7 +99,7 @@ const Auth = (() => {
     redirectToLogin() { this.logout(); window.goTo('index.html'); }
   };
 })();
-// APK her açildiginda login sayfasi gelsin (Beni Hatirla yoksa)
+// APK her aï¿½ildiginda login sayfasi gelsin (Beni Hatirla yoksa)
 if (!localStorage.getItem('sp_remember_me')) { Auth.logout(); }
   </script>
   <script>
@@ -110,7 +110,7 @@ window.t = window.t || function(key, vars) {
     login_title: '? Login', register_title: '? Register',
     username_label: 'Username', password_label: 'Password',
     strength_weak: 'Weak', strength_medium: 'Medium', strength_good: 'Good', strength_strong: 'Strong',
-    reg_error_username: '3–20 characters, use letters/numbers/_.',
+    reg_error_username: '3ï¿½20 characters, use letters/numbers/_.',
     modal_close: 'Close', error: 'Error',
     ban_notification_title: 'Your account has been banned!', ban_reason_label: 'Reason:',
     ban_expires_label: 'Expires:', ban_permanent_label: 'Permanent ban',
@@ -537,13 +537,13 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       <div class="panel active" id="panel-login">
 
         <div class="field">
-          <span class="field-icon">??</span>
+          <span class="field-icon">ðŸ‘¤</span>
           <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>
         </div>
         <span class="err" id="l-user-err" data-i18n="login_error_fields">Username is required.</span>
 
         <div class="field">
-          <span class="field-icon">??</span>
+          <span class="field-icon">ðŸ”’</span>
           <input type="password" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" autocomplete="current-password"/>
         </div>
         <span class="err" id="l-pass-err" data-i18n="login_error_fields">Password is required.</span>
@@ -568,19 +568,19 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       <div class="panel" id="panel-register">
 
         <div class="field">
-          <span class="field-icon">??</span>
+          <span class="field-icon">ðŸ‘¤</span>
           <input type="text" id="r-user" placeholder="Username (5-12 characters)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" minlength="5" maxlength="12" oninput="liveValidUser(this)"/>
         </div>
-        <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 characters, use letters/numbers/_.</span>
+        <span class="err" id="r-user-err" data-i18n="reg_error_username">3ï¿½20 characters, use letters/numbers/_.</span>
 
         <div class="field">
-          <span class="field-icon">??</span>
+          <span class="field-icon">ðŸ“§</span>
           <input type="email" id="r-email" placeholder="Email address" data-i18n-placeholder="email_placeholder" autocomplete="email"/>
         </div>
         <span class="err" id="r-email-err" data-i18n="reg_error_email">Enter a valid email address.</span>
 
         <div class="field">
-          <span class="field-icon">??</span>
+          <span class="field-icon">ðŸ”’</span>
           <input type="password" id="r-pass" placeholder="Password (min. 6 chars)" data-i18n-placeholder="password_placeholder" autocomplete="new-password" oninput="checkStrength(this.value)"/>
         </div>
         <span class="err" id="r-pass-err" data-i18n="reg_error_password">Password must be at least 6 characters.</span>
@@ -594,7 +594,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         </div>
 
         <div class="field">
-          <span class="field-icon">??</span>
+          <span class="field-icon">ðŸ”’</span>
           <input type="password" id="r-pass2" placeholder="Confirm password" data-i18n-placeholder="repassword_placeholder" autocomplete="new-password"/>
         </div>
         <span class="err" id="r-pass2-err" data-i18n="reg_error_pass2">Passwords do not match.</span>
@@ -616,9 +616,9 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     </div>
 
     <div class="bottom-note">
-      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Privacy Policy</span></a> &nbsp;·&nbsp;
+      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Privacy Policy</span></a> &nbsp;ï¿½&nbsp;
       <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Terms of Service</span></a><br/>
-      <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
+      <span style="margin-top:5px;display:block;">SeaPirates v1.0 ï¿½ 2026</span>
     </div>
 
   </div>
@@ -628,7 +628,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header" id="modal-title">? TERMS OF SERVICE</div>
       <div class="modal-body" id="modal-body">
-        <!-- Dinamik içerik buraya yüklenecek -->
+        <!-- Dinamik iï¿½erik buraya yï¿½klenecek -->
       </div>
       <button class="modal-close-btn" onclick="closeModal()"><span data-i18n="modal_close" data-i18n-text>OK</span></button>
     </div>
