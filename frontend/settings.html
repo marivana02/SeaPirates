@@ -1,12 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <meta name="theme-color" content="#0d0702">
-  <style>body { visibility: hidden; background: #0d0702; }</style>
-  <title data-i18n="settings_title">SeaPirates � Ayarlar</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />
+  <title data-i18n="settings_title">SeaPirates — Ayarlar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
@@ -28,7 +26,7 @@
       color:var(--txt);
     }
 
-    /* --- PAGE CONTAINER --- */
+    /* ═══ PAGE CONTAINER ═══ */
     .page{
       max-width:430px;margin:0 auto;
       height:100dvh;
@@ -45,7 +43,7 @@
       pointer-events:none;z-index:0;
     }
 
-    /* --- TOP BAR --- */
+    /* ═══ TOP BAR ═══ */
     .top-bar{
       position:relative;z-index:10;
       padding:14px 16px;
@@ -74,7 +72,7 @@
       text-transform:uppercase;
     }
 
-    /* --- SCROLL WRAPPER --- */
+    /* ═══ SCROLL WRAPPER ═══ */
     .content-wrap{
       flex:1;
       position:relative;z-index:5;
@@ -88,7 +86,7 @@
     .content-wrap::-webkit-scrollbar{width:6px;}
     .content-wrap::-webkit-scrollbar-thumb{background:rgba(200,150,42,0.4);border-radius:4px;}
 
-    /* --- FADE-IN ANIMATION --- */
+    /* ═══ FADE-IN ANIMATION ═══ */
     @keyframes fadeSlideUp{
       from{opacity:0;transform:translateY(16px);}
       to{opacity:1;transform:translateY(0);}
@@ -103,7 +101,7 @@
     .settings-section:nth-child(4){animation-delay:0.26s;}
     .settings-section:nth-child(5){animation-delay:0.33s;}
 
-    /* --- PROFILE CARD --- */
+    /* ═══ PROFILE CARD ═══ */
     .profile-card{
       background: linear-gradient(135deg, rgba(45,26,8,0.9), rgba(20,10,3,0.95));
       border:1.5px solid var(--card-border);
@@ -164,7 +162,7 @@
       border:1px solid rgba(100,100,100,0.25);color:#888;
     }
 
-    /* --- SETTINGS BOX (Card) --- */
+    /* ═══ SETTINGS BOX (Card) ═══ */
     .settings-box{
       background:var(--card-bg);
       border:1px solid var(--card-border);
@@ -200,7 +198,7 @@
       padding:4px 0;
     }
 
-    /* --- SETTINGS ROW --- */
+    /* ═══ SETTINGS ROW ═══ */
     .settings-row{
       display:flex;align-items:center;
       justify-content:space-between;
@@ -226,7 +224,7 @@
     }
     #btn-enable-notif{font-size:0.65rem !important;padding:8px 12px !important;}
 
-    /* --- PREMIUM TOGGLE SWITCH --- */
+    /* ═══ PREMIUM TOGGLE SWITCH ═══ */
     .toggle{
       position:relative;
       width:50px;height:26px;
@@ -260,7 +258,7 @@
       box-shadow:0 0 8px rgba(240,192,64,0.4), 0 1px 4px rgba(0,0,0,0.5);
     }
 
-    /* --- LANGUAGE SELECTOR --- */
+    /* ═══ LANGUAGE SELECTOR ═══ */
     .lang-select-wrap{
       width:100%;
       padding:2px 14px 12px;
@@ -291,7 +289,7 @@
       font-size:0.82rem;
     }
 
-    /* --- FORM GROUP --- */
+    /* ═══ FORM GROUP ═══ */
     .form-group{
       padding:14px 18px;
       display:flex;flex-direction:column;gap:10px;
@@ -317,7 +315,7 @@
     }
     .text-input::placeholder{color:#5a4a38;}
 
-    /* --- BUTTONS --- */
+    /* ═══ BUTTONS ═══ */
     .btn-primary{
       padding:12px;
       background:linear-gradient(180deg,var(--green-b),var(--green));
@@ -360,7 +358,7 @@
     }
     .info-note span:first-child{flex-shrink:0;}
 
-    /* --- DANGER SECTION --- */
+    /* ═══ DANGER SECTION ═══ */
     .settings-box.danger{
       border-color:rgba(192,57,43,0.3);
     }
@@ -378,7 +376,7 @@
       padding:14px 18px;
     }
 
-    /* --- VERSION --- */
+    /* ═══ VERSION ═══ */
     .version-text{
       text-align:center;
       font-size:0.62rem;
@@ -393,17 +391,17 @@
 
 <div class="page">
 
-  <!-- --- TOP BAR --- -->
+  <!-- ═══ TOP BAR ═══ -->
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? MEN�YE D�N</span></a>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ MENÜYE DÖN</span></a>
     <div class="page-title"><span data-i18n="settings_title" data-i18n-text>AYARLAR</span></div>
     <div style="width:90px;"></div>
   </div>
 
-  <!-- --- CONTENT --- -->
+  <!-- ═══ CONTENT ═══ -->
   <div class="content-wrap">
 
-    <!-- -- 1. PROFILE CARD -- -->
+    <!-- ══ 1. PROFILE CARD ══ -->
     <div class="settings-section">
       <div class="profile-card">
         <div class="profile-pic-wrap">
@@ -412,36 +410,36 @@
         <div class="profile-details">
           <div class="profile-name" id="p-username">Loading...</div>
           <div class="profile-meta">
-            <div class="meta-tag"><span data-i18n="profile_id" data-i18n-text>ID</span>: <span class="val" id="p-id">�</span></div>
-            <div class="meta-tag"><span data-i18n="profile_level" data-i18n-text>Seviye</span>: <span class="val" id="p-level">�</span></div>
-            <div class="meta-tag"><span data-i18n="profile_reg_date" data-i18n-text>Kayit Tarihi</span>: <span class="val" id="p-reg-date">�</span></div>
+            <div class="meta-tag"><span data-i18n="profile_id" data-i18n-text>ID</span>: <span class="val" id="p-id">—</span></div>
+            <div class="meta-tag"><span data-i18n="profile_level" data-i18n-text>Seviye</span>: <span class="val" id="p-level">—</span></div>
+            <div class="meta-tag"><span data-i18n="profile_reg_date" data-i18n-text>Kayıt Tarihi</span>: <span class="val" id="p-reg-date">—</span></div>
           </div>
           <div id="p-vip-wrap"></div>
         </div>
       </div>
     </div>
 
-    <!-- -- 2. LANGUAGE SETTINGS -- -->
+    <!-- ══ 2. LANGUAGE SETTINGS ══ -->
     <div class="settings-section">
       <div class="settings-box">
         <div class="box-header">
-          <div class="box-icon">??</div>
-          <div class="box-title"><span data-i18n="section_language" data-i18n-text>Dil Ayarlari</span></div>
+          <div class="box-icon">🌍</div>
+          <div class="box-title"><span data-i18n="section_language" data-i18n-text>Dil Ayarları</span></div>
         </div>
         <div class="box-body">
           <div class="settings-row">
             <div class="row-info">
               <div class="row-title"><span data-i18n="lang_label" data-i18n-text>Oyun Dili</span></div>
-              <div class="row-desc" data-i18n="lang_desc" data-i18n-text="Oyun dilini se�in"></div>
+              <div class="row-desc" data-i18n="lang_desc" data-i18n-text="Oyun dilini seçin"></div>
             </div>
             <div class="lang-select-wrap">
               <select id="lang-select" onchange="selectLang(this.value)">
-                <option value="tr">???? T�rk�e</option>
-                <option value="en">???? English</option>
-                <option value="de">???? Deutsch</option>
-                <option value="pt">???? Portugu�s</option>
-                <option value="es">???? Espa�ol</option>
-                <option value="pl">???? Polski</option>
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="pl">🇵🇱 Polski</option>
               </select>
             </div>
           </div>
@@ -449,11 +447,11 @@
       </div>
     </div>
 
-    <!-- -- 3. GENERAL SETTINGS -- -->
+    <!-- ══ 3. GENERAL SETTINGS ══ -->
     <div class="settings-section">
       <div class="settings-box">
         <div class="box-header">
-          <div class="box-icon">??</div>
+          <div class="box-icon">⚙️</div>
           <div class="box-title"><span data-i18n="section_general" data-i18n-text>Genel Ayarlar</span></div>
         </div>
         <div class="box-body">
@@ -461,7 +459,7 @@
           <div class="settings-row">
             <div class="row-info">
               <div class="row-title"><span data-i18n="sound_title" data-i18n-text>Ses Efektleri</span></div>
-              <div class="row-desc"><span data-i18n="sound_desc" data-i18n-text>Top atislari, patlamalar ve ortam sesleri.</span></div>
+              <div class="row-desc"><span data-i18n="sound_desc" data-i18n-text>Top atışları, patlamalar ve ortam sesleri.</span></div>
             </div>
             <label class="toggle">
               <input type="checkbox" id="cfg-sound" checked>
@@ -473,7 +471,7 @@
           <div class="settings-row">
             <div class="row-info">
               <div class="row-title"><span data-i18n="graphics_title" data-i18n-text>Grafik Modu</span></div>
-              <div class="row-desc"><span data-i18n="graphics_desc" data-i18n-text>D�v�s ekrani arka plan animasyonlari (kus, balik vb.)</span></div>
+              <div class="row-desc"><span data-i18n="graphics_desc" data-i18n-text>Dövüş ekranı arka plan animasyonları (kuş, balık vb.)</span></div>
             </div>
             <label class="toggle">
               <input type="checkbox" id="cfg-graphics" checked>
@@ -484,8 +482,8 @@
           <!-- Particles -->
           <div class="settings-row">
             <div class="row-info">
-              <div class="row-title"><span data-i18n="particles_title" data-i18n-text>Par�acik Efektleri</span></div>
-              <div class="row-desc"><span data-i18n="particles_desc" data-i18n-text>Haritadaki su par�aciklari ve dalga animasyonlari.</span></div>
+              <div class="row-title"><span data-i18n="particles_title" data-i18n-text>Parçacık Efektleri</span></div>
+              <div class="row-desc"><span data-i18n="particles_desc" data-i18n-text>Haritadaki su parçacıkları ve dalga animasyonları.</span></div>
             </div>
             <label class="toggle">
               <input type="checkbox" id="cfg-particles" checked>
@@ -496,45 +494,45 @@
           <!-- Notifications -->
           <div class="settings-row" id="notif-row">
             <div class="row-info">
-              <div class="row-title"><span data-i18n="notif_title" data-i18n-text>?? Push Bildirimleri</span></div>
-              <div class="row-desc" id="notif-desc"><span data-i18n="notif_desc" data-i18n-text>Amiral �ikinca bildirim al.</span></div>
+              <div class="row-title"><span data-i18n="notif_title" data-i18n-text>🔔 Push Bildirimleri</span></div>
+              <div class="row-desc" id="notif-desc"><span data-i18n="notif_desc" data-i18n-text>Amiral çıkınca bildirim al.</span></div>
             </div>
             <button id="btn-enable-notif" style="background:linear-gradient(180deg,#3d2108,#1e0e03);border:1.5px solid var(--gold);border-radius:6px;color:var(--gold-p);padding:8px 16px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Cinzel',serif;white-space:nowrap;">
-              <span data-i18n="btn_enable_notif" data-i18n-text>Bildirimleri A�</span>
+              <span data-i18n="btn_enable_notif" data-i18n-text>Bildirimleri Aç</span>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- -- 4. ACCOUNT -- -->
+    <!-- ══ 4. ACCOUNT ══ -->
     <div class="settings-section">
       <div class="settings-box">
         <div class="box-header">
-          <div class="box-icon">??</div>
-          <div class="box-title"><span data-i18n="section_account" data-i18n-text>Hesap Ayarlari</span></div>
+          <div class="box-icon">👤</div>
+          <div class="box-title"><span data-i18n="section_account" data-i18n-text>Hesap Ayarları</span></div>
         </div>
         <div class="form-group">
           <label class="input-label" for="username-input" data-i18n="username_label">New Username</label>
           <input class="text-input" type="text" id="username-input" data-i18n-placeholder="username_placeholder" placeholder="New username..." minlength="3" maxlength="30">
-          <button class="btn-primary" id="btn-change-username" data-i18n="btn_change_username">KULLANICI ADINI DEGISTIR</button>
+          <button class="btn-primary" id="btn-change-username" data-i18n="btn_change_username">KULLANICI ADINI DEĞİŞTİR</button>
         </div>
         <div class="info-note">
-          <span>??</span>
-          <span data-i18n="username_note">Kullanici adinizi haftada sadece 1 kez degistirebilirsiniz.</span>
+          <span>⚠️</span>
+          <span data-i18n="username_note">Kullanıcı adınızı haftada sadece 1 kez değiştirebilirsiniz.</span>
         </div>
       </div>
     </div>
 
-    <!-- -- 5. SESSION / LOGOUT -- -->
+    <!-- ══ 5. SESSION / LOGOUT ══ -->
     <div class="settings-section">
       <div class="settings-box danger">
         <div class="box-header">
-          <div class="box-icon">??</div>
-          <div class="box-title"><span data-i18n="section_session" data-i18n-text>Oturum Y�netimi</span></div>
+          <div class="box-icon">🚪</div>
+          <div class="box-title"><span data-i18n="section_session" data-i18n-text>Oturum Yönetimi</span></div>
         </div>
         <div class="logout-wrap">
-          <button class="btn-danger" id="btn-logout"><span data-i18n="btn_logout" data-i18n-text>? OTURUMU KAPAT</span></button>
+          <button class="btn-danger" id="btn-logout"><span data-i18n="btn_logout" data-i18n-text>⚓ OTURUMU KAPAT</span></button>
         </div>
       </div>
     </div>
@@ -551,7 +549,7 @@
   const token = localStorage.getItem('sp_token');
   if (!token) goTo('index.html');
 
-  // --- UI Elements ---
+  // ═══ UI Elements ═══
   const pUsername    = document.getElementById('p-username');
   const pId         = document.getElementById('p-id');
   const pLevel      = document.getElementById('p-level');
@@ -564,12 +562,12 @@
   const cfgSound     = document.getElementById('cfg-sound');
   const cfgGraphics  = document.getElementById('cfg-graphics');
   const cfgParticles = document.getElementById('cfg-particles');
-  // --- Load Settings from LocalStorage ---
+  // ═══ Load Settings from LocalStorage ═══
   cfgSound.checked    = localStorage.getItem('sp_setting_sound') !== 'false';
   cfgGraphics.checked = localStorage.getItem('sp_setting_graphics') !== 'false';
   cfgParticles.checked = localStorage.getItem('sp_setting_particles') !== 'false';
 
-  // --- Toggle Events ---
+  // ═══ Toggle Events ═══
   cfgSound.addEventListener('change', function() {
     localStorage.setItem('sp_setting_sound', this.checked ? 'true' : 'false');
     toastMsg(t('toast_sound_updated'), false);
@@ -585,7 +583,7 @@
     toastMsg(t('toast_particles_updated'), false);
   });
 
-  // --- Fetch Player Data ---
+  // ═══ Fetch Player Data ═══
   async function fetchProfile() {
     try {
       const res = await fetch(`${API_URL}/me`, {
@@ -603,7 +601,7 @@
         // Level
         pLevel.textContent = data.level || 1;
 
-        // Kayit Tarihi
+        // Kayıt Tarihi
         if (data.created_at) {
           const date = new Date(data.created_at);
           const day   = String(date.getDate()).padStart(2, '0');
@@ -621,12 +619,12 @@
           const vDay   = String(vipDate.getDate()).padStart(2, '0');
           const vMonth = String(vipDate.getMonth() + 1).padStart(2, '0');
           const vYear  = vipDate.getFullYear();
-          pVipWrap.innerHTML = `<span class="vip-badge active"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP � ${vDay}.${vMonth}.${vYear}</span>`;
+          pVipWrap.innerHTML = `<span class="vip-badge active"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP — ${vDay}.${vMonth}.${vYear}</span>`;
         } else {
           pVipWrap.innerHTML = `<span class="vip-badge inactive"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> ${t('profile_vip')}: ${t('profile_vip_inactive')}</span>`;
         }
 
-        // Profile Ship Image (�nce aktif tasarim, yoksa ship_level, yoksa visual_ship_level)
+        // Profile Ship Image (önce aktif tasarım, yoksa ship_level, yoksa visual_ship_level)
         if (data.active_design) {
           const df = data.active_design === 'kristal_queen' ? 'kristalquen' : data.active_design;
           pShipImg.src = `assets/items/shop/${df}/7.png`;
@@ -644,10 +642,9 @@
     } catch (e) {
       logError('settings:load', e);
     }
-    if (typeof readyNow === 'function') readyNow();
   }
 
-  // --- Change Username ---
+  // ═══ Change Username ═══
   btnChangeUsername.addEventListener('click', async () => {
     const newName = usernameInput.value.trim();
     if (newName.length < 3 || newName.length > 30) {
@@ -687,7 +684,7 @@
     }
   });
 
-  // --- Logout ---
+  // ═══ Logout ═══
   btnLogout.addEventListener('click', async () => {
     try {
       await API.post('/auth/logout');
@@ -702,12 +699,12 @@
     }, 1500);
   });
 
-  // --- Toast ---
+  // ═══ Toast ═══
   function toastMsg(msg, isErr) {
     window.showAlert(msg, isErr ? t('server_error') : 'SEAPIRATES', isErr);
   }
 
-  // --- Language Select ---
+  // ═══ Language Select ═══
   function selectLang(lang) {
     window.setLanguage(lang);
     document.getElementById('lang-select').value = lang;
@@ -721,7 +718,7 @@
   fetchProfile();
   document.getElementById('lang-select').value = window.currentLang;
 
-  // --- Notifications ---
+  // ═══ Notifications ═══
   (async function initNotifications() {
     const row = document.getElementById('notif-row');
     const btn = document.getElementById('btn-enable-notif');
@@ -729,23 +726,23 @@
 
     function updateUI() {
       if (Notification.permission === 'granted') {
-        btn.textContent = '? ' + (t('notif_active') || 'A�ik');
+        btn.textContent = '✅ ' + (t('notif_active') || 'Açık');
         btn.style.borderColor = '#27ae60';
         btn.style.color = '#2ecc71';
         btn.disabled = true;
         desc.textContent = t('notif_on_desc') || 'Bildirimler aktif.';
       } else if (Notification.permission === 'denied') {
-        btn.textContent = '??';
+        btn.textContent = '🔕';
         btn.style.borderColor = '#666';
         btn.style.color = '#666';
         btn.disabled = true;
-        desc.textContent = t('notif_browser_blocked') || 'Tarayicidan engellendi.';
+        desc.textContent = t('notif_browser_blocked') || 'Tarayıcıdan engellendi.';
       } else {
-        btn.textContent = t('btn_enable_notif') || '?? Bildirimleri A�';
+        btn.textContent = t('btn_enable_notif') || '🔔 Bildirimleri Aç';
         btn.style.borderColor = 'var(--gold)';
         btn.style.color = 'var(--gold-p)';
         btn.disabled = false;
-        desc.textContent = t('notif_desc') || 'Amiral �ikinca bildirim al.';
+        desc.textContent = t('notif_desc') || 'Amiral çıkınca bildirim al.';
       }
     }
 
@@ -773,14 +770,12 @@
         updateUI();
       } catch (e) {
         logError('settings:push', e);
-        desc.textContent = t('notif_error') || 'Bildirim a�ilamadi.';
+        desc.textContent = t('notif_error') || 'Bildirim açılamadı.';
       }
     });
 
     updateUI();
   })();
 </script>
- <script>renderFromCache(); revealPage();</script>
 </body>
 </html>
-

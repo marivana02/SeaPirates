@@ -1,12 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <meta name="theme-color" content="#080604">
-  <style>body { visibility: hidden; background: #080604; }</style>
-  <title>SeaPirates � Daily Login Reward</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=optional" rel="stylesheet" />
+  <title>SeaPirates — Daily Login Reward</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
@@ -452,7 +450,7 @@
       padding:3px 0;
       display:flex;align-items:center;gap:6px;
     }
-    .magaza-perk::before { content:'?';font-size:0.7rem; }
+    .magaza-perk::before { content:'✨';font-size:0.7rem; }
 
     @keyframes fadeIn {
       from { opacity: 0; }
@@ -464,7 +462,7 @@
 <body>
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? BACK</span></a>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
     <div class="page-title"><span data-i18n="daily_title" data-i18n-text>DAILY LOGIN</span></div>
     <div style="width:50px;"></div>
   </div>
@@ -472,7 +470,7 @@
     <div class="info-row">
       <div class="info-box" id="month-box">
         <div class="l" data-i18n="daily_month_label">MONTH</div>
-        <div class="v" id="month-val">�</div>
+        <div class="v" id="month-val">—</div>
       </div>
       <div class="info-box vip-box" id="vip-box">
         <div class="l" data-i18n="daily_vip_short">VIP</div>
@@ -500,10 +498,10 @@
   const ICONS = {
     gold: 'assets/ui/gold.png',
     pearl: 'assets/ui/pearl.png',
-    oyuk: 'assets/items/shop/oyukg�lle.png',
-    patlayan: 'assets/items/shop/elitg�lle.png',
-    barut: 'assets/items/shop/barut-d�kkan.png',
-    zirh: 'assets/items/shop/zirh-d�kkan.png'
+    oyuk: 'assets/items/shop/oyukgülle.png',
+    patlayan: 'assets/items/shop/elitgülle.png',
+    barut: 'assets/items/shop/barut-dükkan.png',
+    zirh: 'assets/items/shop/zırh-dükkan.png'
   };
 
   const D_NORMAL = [
@@ -580,7 +578,7 @@
   let canClaimNormal = false;
   let canClaimVip = false;
 
-  const MONTHS_TR = ['Ocak','Subat','Mart','Nisan','Mayis','Haziran','Temmuz','Agustos','Eyl�l','Ekim','Kasim','Aralik'];
+  const MONTHS_TR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
   const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
   function getMonthName(monthIndex) {
@@ -694,14 +692,14 @@
 
   function renderCardInner(card, r, dayNum, isMs, state) {
     let badge = '';
-    if (state === 'claimed') badge = '<span class="day-check claimed">?</span>';
-    else if (state === 'missed') badge = '<span class="day-check missed-icon">?</span>';
-    else if (state === 'available-normal' || state === 'available-vip') badge = '<span class="day-check" style="color:var(--gold)">?</span>';
-    else badge = '<span class="day-check locked">??</span>';
+    if (state === 'claimed') badge = '<span class="day-check claimed">✓</span>';
+    else if (state === 'missed') badge = '<span class="day-check missed-icon">✕</span>';
+    else if (state === 'available-normal' || state === 'available-vip') badge = '<span class="day-check" style="color:var(--gold)">⚡</span>';
+    else badge = '<span class="day-check locked">🔒</span>';
 
     let partsHTML = '';
     for (const p of r.parts) {
-      partsHTML += `<div class="day-part"><img src="${p.img}" class="day-rwd-img"><span class="day-rwd-txt">${p.lp?.val || ''}</span></div>`;
+      partsHTML += `<div class="day-part"><img src="${p.img}" class="day-rwd-img"><span class="day-rwd-txt">${t(p.lk, p.lp || {})}</span></div>`;
     }
 
     card.innerHTML = `
@@ -736,12 +734,11 @@
   async function init() {
     await fetchStatus();
     renderGrid();
-    if (typeof readyNow === 'function') readyNow();
   }
 
   init();
 
-  // -- VIP Pricing (auto currency via IP) --
+  // ── VIP Pricing (auto currency via IP) ──
   let vipPrices = null;
   let vipCurrencies = null;
   let currentCurrency = 'TRY';
@@ -764,7 +761,7 @@
   }
 
   function updateVipPrices() {
-    const sym = vipCurrencies?.symbols[currentCurrency] || '?';
+    const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
     document.querySelectorAll('#vip-modal-daily .magaza-card-price').forEach(el => {
       const plan = parseInt(el.dataset.plan);
       if (vipPrices?.[plan]) el.textContent = `${vipPrices[plan][currentCurrency]} ${sym}`;
@@ -787,7 +784,7 @@
       e.stopPropagation();
       const plan = btn.dataset.plan;
       const type = btn.dataset.type;
-      const sym = vipCurrencies?.symbols[currentCurrency] || '?';
+      const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
       const price = vipPrices?.[plan]?.[currentCurrency] || '?';
       alert(t('payment_coming_soon', { type: type === 'vip' ? t('vip_pack') : t('starter_pack'), plan }));
     });
@@ -797,53 +794,51 @@
 <!-- VIP Purchase Modal -->
 <div class="magaza-overlay" id="vip-modal-daily" onclick="if(event.target===this)this.style.display='none'">
   <div class="magaza-modal">
-    <button class="magaza-close" id="btn-close-vip-daily" onclick="document.getElementById('vip-modal-daily').style.display='none'">?</button>
+    <button class="magaza-close" id="btn-close-vip-daily" onclick="document.getElementById('vip-modal-daily').style.display='none'">✕</button>
     <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack">VIP PAKETLER</span></div>
-    <div class="magaza-sub" data-i18n="vip_sub">Ayricalikli bir korsan olmak i�in hemen satin al!</div>
+    <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
     <div class="magaza-cards">
       <div class="magaza-card">
         <div class="magaza-card-info">
           <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>
-          <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 g�n VIP ayricaliklari</span>
+          <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayrıcalıkları</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="magaza-card-price" data-plan="7">99 ?</span>
+          <span class="magaza-card-price" data-plan="7">99 ₺</span>
           <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
         </div>
       </div>
       <div class="magaza-card">
         <div class="magaza-card-info">
           <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>
-          <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 g�n VIP ayricaliklari (en pop�ler)</span>
+          <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayrıcalıkları (en popüler)</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="magaza-card-price" data-plan="30">249 ?</span>
+          <span class="magaza-card-price" data-plan="30">249 ₺</span>
           <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
         </div>
       </div>
       <div class="magaza-card">
         <div class="magaza-card-info">
           <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>
-          <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 g�n VIP ayricaliklari (en avantajli)</span>
+          <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayrıcalıkları (en avantajlı)</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="magaza-card-price" data-plan="90">599 ?</span>
+          <span class="magaza-card-price" data-plan="90">599 ₺</span>
           <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
         </div>
       </div>
     </div>
     <div class="magaza-perks">
       <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
-      <div class="magaza-perk" data-i18n="vip_perk_repair">�2 Onarim Hizi � Savasta gemini 2 kat hizli onarirsin</div>
-      <div class="magaza-perk" data-i18n="vip_perk_daily">VIP G�nl�k �d�ller � 30 g�nl�k �zel premium �d�l takvimi</div>
-      <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye �d�lleri � Her seviye atlayisinda kat kat fazla �d�l</div>
-      <div class="magaza-perk" data-i18n="vip_perk_quest">2. G�rev Yuvasi � Ayni anda 2 g�rev alabilirsin</div>
-      <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Dog � Battiginda max caninin %10'u ile baslarsin</div>
-      <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 D�kkan Indirimi � D�kkandaki t�m �r�nlerde %10 indirim</div>
+      <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarım Hızı — Savaşta gemini 2 kat hızlı onarırsın</div>
+      <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
+      <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayışında kat kat fazla ödül</div>
+      <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvası — Aynı anda 2 görev alabilirsin</div>
+      <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Doğ — Battığında max canının %10'u ile başlarsın</div>
+      <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 Dükkan İndirimi — Dükkandaki tüm ürünlerde %10 indirim</div>
     </div>
   </div>
-  </div>
-<script>renderFromCache(); revealPage();</script>
+</div>
 </body>
 </html>
-

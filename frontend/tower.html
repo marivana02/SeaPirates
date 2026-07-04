@@ -1,12 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
-  <meta name="theme-color" content="#050a10">
-  <style>body { visibility: hidden; background: #050a10; }</style>
-  <title>SeaPirate � Daily Tower</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />
+  <title>SeaPirate — Daily Tower</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
@@ -210,10 +208,10 @@
         const banner = document.getElementById('status-banner');
         if (levelLocked) {
           banner.className = 'info-banner locked';
-          banner.innerHTML = `?? ${t('tower_req_level',{val:pLvl})}`;
+          banner.innerHTML = `⚠️ ${t('tower_req_level',{val:pLvl})}`;
         } else if (dailyLocked) {
           banner.className = 'info-banner locked';
-          banner.innerHTML = `?? ${t('tower_daily_used',{val:towerLvl >= 100 ? t('tower_max') : towerLvl})}`;
+          banner.innerHTML = `⚠️ ${t('tower_daily_used',{val:towerLvl >= 100 ? t('tower_max') : towerLvl})}`;
         } else {
           banner.className = 'info-banner';
           banner.innerHTML = towerLvl >= 100 ? t('tower_status_max') : t('tower_status_info',{val:towerLvl});
@@ -231,14 +229,14 @@
             </div>
             
             <div class="t-stats">
-              <div class="t-stat">??? ${t('tower_max_hp')} <span style="color:#2ecc71;">${fmt(hp)}</span></div>
-              <div class="t-stat">?? ${t('tower_damage')} <span style="color:#e74c3c;">${fmt(dmg)}</span></div>
+              <div class="t-stat">🛡️ ${t('tower_max_hp')} <span style="color:#2ecc71;">${fmt(hp)}</span></div>
+              <div class="t-stat">⚔️ ${t('tower_damage')} <span style="color:#e74c3c;">${fmt(dmg)}</span></div>
             </div>
             
             <div class="t-bottom">
               <div style="font-size:0.7rem; color:var(--txt-d);">${t('tower_reward')}</div>
               <div class="t-reward"><img src="assets/ui/pearl.png" /> +${fmt(pearl)} ${t('currency_pearl')}</div>
-              <button class="btn-attack" ${disableBtn ? 'disabled' : ''} onclick="attackTower(${calculatedTowerId})">? ${t('tower_attack')}</button>
+              <button class="btn-attack" ${disableBtn ? 'disabled' : ''} onclick="attackTower(${calculatedTowerId})">⚔ ${t('tower_attack')}</button>
             </div>
           </div>
         `;
@@ -246,7 +244,6 @@
       } catch (err) {
         logError('tower:load', err);
       }
-      if (typeof readyNow === 'function') readyNow();
     }
 
     function attackTower(id) {
@@ -257,7 +254,5 @@
 
     init();
   </script>
-  <script>renderFromCache(); revealPage();</script>
 </body>
 </html>
-
