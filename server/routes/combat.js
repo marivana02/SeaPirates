@@ -437,7 +437,7 @@ router.get('/admiral-status', authMiddleware, async (req, res) => {
 
 router.get('/tiamat-status', authMiddleware, async (req, res) => {
   try {
-    const tRes = await pool.query('SELECT hp, current_hp, respawn_at FROM tiamat WHERE id = 1');
+    const tRes = await pool.query('SELECT hp, current_hp, respawn_at, manual_spawn FROM tiamat WHERE id = 1');
     if (tRes.rows.length === 0) return res.json({ spawned: false });
 
     const t = tRes.rows[0];
@@ -446,12 +446,12 @@ router.get('/tiamat-status', authMiddleware, async (req, res) => {
       return res.json({ spawned: true, bossHp: parseInt(t.current_hp), bossMaxHp: parseInt(t.hp), leaderboard: dmgRes.rows });
     }
 
-    // Dead or not spawned — check respawn timer
-    if (t.respawn_at === null || new Date(t.respawn_at) <= new Date()) {
+    // Dead or not spawned — check respawn timer or manual_spawn flag
+    if (t.respawn_at === null || new Date(t.respawn_at) <= new Date() || t.manual_spawn) {
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
-        await client.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
+        await client.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL, manual_spawn = false WHERE id = 1');
         await client.query('DELETE FROM tiamat_damage');
         await client.query('COMMIT');
       } catch (txErr) {

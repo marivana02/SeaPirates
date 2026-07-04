@@ -57,7 +57,7 @@ async function initWeeklyBoss() {
 }
 
 async function initTiamatState(pool) {
-  const tiamatRes = await pool.query('SELECT hp, damage, pearl, xp, current_hp, respawn_at FROM tiamat WHERE id = 1');
+  const tiamatRes = await pool.query('SELECT hp, damage, pearl, xp, current_hp, respawn_at, manual_spawn FROM tiamat WHERE id = 1');
   if (tiamatRes.rows.length === 0) {
     return null;
   }
@@ -67,7 +67,7 @@ async function initTiamatState(pool) {
   if (t.current_hp !== null && t.current_hp > 0) {
     tiamatHp = parseInt(t.current_hp);
   } else {
-    if (t.respawn_at !== null && new Date(t.respawn_at) > new Date()) {
+    if (t.respawn_at !== null && new Date(t.respawn_at) > new Date() && !t.manual_spawn) {
       return { error: 'Tiamat has not respawned yet. Check back later!' };
     }
     const client = await pool.connect();
@@ -78,7 +78,7 @@ async function initTiamatState(pool) {
       if (locked.current_hp !== null && locked.current_hp > 0) {
         tiamatHp = parseInt(locked.current_hp);
       } else {
-        await client.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
+        await client.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL, manual_spawn = false WHERE id = 1');
         await client.query('DELETE FROM tiamat_damage');
         tiamatHp = parseInt(t.hp);
       }

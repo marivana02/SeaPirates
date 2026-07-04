@@ -181,4 +181,9 @@ router.get('/logs', asyncHandler(async (req, res) => {
   res.json({ logs: result.rows, total, page: parseInt(page), limit: parseInt(limit) });
 }));
 
+router.post('/tiamat-spawn', asyncHandler(async (req, res) => {
+  await pool.query("UPDATE tiamat SET manual_spawn = true WHERE id = 1");
+  res.json({ ok: true, message: 'Tiamat will respawn on next status check' });
+}));
+
 module.exports = router;
