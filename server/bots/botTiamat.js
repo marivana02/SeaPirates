@@ -8,6 +8,7 @@ function rand(min, max) {
 }
 
 const botHpState = new Map();
+let activeBotIds = null; // kalıcı max 3 bot ID'si — her tick'te farklı bot seçilmez
 
 function getActivityFactor(realPlayerCount) {
   if (realPlayerCount === 0) return 1.0;
@@ -45,13 +46,19 @@ async function botTick() {
 
     if (botRows.rows.length === 0) return;
 
-    const activeCount = Math.max(1, Math.min(3, Math.ceil(botRows.rows.length * factor)));
-    const shuffled = botRows.rows.sort(() => Math.random() - 0.5).slice(0, activeCount);
+    // Kalıcı max 3 bot seç — sadece ilk tick'te shuffle yap, sonra hep aynı botları kullan
+    if (!activeBotIds) {
+      const allShuffled = [...botRows.rows].sort(() => Math.random() - 0.5);
+      const count = Math.max(1, Math.min(3, Math.ceil(botRows.rows.length * factor)));
+      activeBotIds = new Set(allShuffled.slice(0, count).map(r => r.id));
+    }
+    const selected = botRows.rows.filter(r => activeBotIds.has(r.id));
+    if (selected.length === 0) return;
 
     let totalBotDamage = 0;
     const damageRecords = [];
 
-    for (const bot of shuffled) {
+    for (const bot of selected) {
       let state = botHpState.get(bot.id);
       if (!state) {
         state = { currentHp: bot.max_hp, maxHp: bot.max_hp };
@@ -123,6 +130,7 @@ async function botTick() {
       'SELECT current_hp FROM tiamat WHERE id = 1'
     );
     if (after.rows.length > 0 && after.rows[0].current_hp !== null && parseInt(after.rows[0].current_hp) <= 0) {
+      activeBotIds = null; // yeni spawn için yeni botlar seçilebilir
       const { distributeTiamatRewards } = require('../helpers/combat');
       distributeTiamatRewards(null)
         .then(() => console.log(`[BOT TIAMAT] Tiamat killed — rewards distributed`))
@@ -144,6 +152,7 @@ function stopTiamatBotTicks() {
   if (intervalHandle) {
     clearInterval(intervalHandle);
     intervalHandle = null;
+    activeBotIds = null;
     console.log('[BOT TIAMAT] System stopped');
   }
 }
