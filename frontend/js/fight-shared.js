@@ -1248,9 +1248,10 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         // Animasyonlar requestAnimationFrame olduğu için zaten tarayıcı tarafından yavaşlatılır
       } else if (document.visibilityState === 'visible' && active) {
         // Geri gelindiğinde savaşı devam ettir (Sunucudan güncel durumu çekerek)
-    window._playerDataPromise = fetchPlayerData();
-        if (!attackInterval) attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
-        // Rakip saldırı aralığı sunucudan gelen veriye göre fetchPlayerData içinde veya doAttack'ta güncellenir
+        const visOverlay = document.getElementById('disconnect-overlay');
+        if (!visOverlay || !visOverlay.classList.contains('show')) {
+          if (!attackInterval) attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
+        }
       }
     });
     

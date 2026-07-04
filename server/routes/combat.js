@@ -210,6 +210,10 @@ router.post('/attack', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   const { ammoId, useBarut, useZirh } = req.body;
   if (!acquireAttackLock(playerId)) return res.status(429).json({ error: 'Attack already in progress' });
+  // İstemci bağlantıyı kapatırsa (timeout/abort) lock'u bırak — çift release'i önle
+  let _lockReleased = false;
+  const _releaseLock = () => { if (_lockReleased) return; _lockReleased = true; releaseAttackLock(playerId); };
+  req.on('close', _releaseLock);
   let txClient = null;
   try {
     const fightRes = await pool.query('SELECT * FROM active_fights WHERE player_id = $1', [playerId]);
@@ -236,7 +240,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
 
     // Oyuncu canı kontrolü — ölüyse saldırıya izin verme
     if (parseInt(pDbInfo.hp) <= 0) {
-      releaseAttackLock(playerId);
+      _releaseLock();
       return res.status(400).json({ error: 'Your ship is sunk! You cannot attack.' });
     }
 
@@ -409,7 +413,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error during combat' });
   } finally {
-    releaseAttackLock(playerId);
+    _releaseLock();
   }
 });
 
