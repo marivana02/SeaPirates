@@ -214,6 +214,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
   let _lockReleased = false;
   const _releaseLock = () => { if (_lockReleased) return; _lockReleased = true; releaseAttackLock(playerId); };
   req.on('close', _releaseLock);
+  res.on('finish', _releaseLock); // Yanıt gönderildiğinde de lock'u bırak (ek güvenlik)
   let txClient = null;
   try {
     const fightRes = await pool.query('SELECT * FROM active_fights WHERE player_id = $1', [playerId]);

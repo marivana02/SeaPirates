@@ -1506,7 +1506,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           useZirh: player.zirh
         };
         const ac = new AbortController();
-        const timeoutId = setTimeout(() => ac.abort(), 15000);
+        const timeoutId = setTimeout(() => ac.abort(), 40000);
         const res = await fetch(`${ATTACK_API_URL}/attack`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -1657,6 +1657,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           clearInterval(attackInterval);
           attackInterval = null;
           let retryCount = 0;
+          let _429Count = 0; // 429 için ayrı sayaç (exponential backoff)
           const maxRetries = 10;
           const retry = () => {
             if (retryCount >= maxRetries) {
@@ -1679,6 +1680,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
             }).then(async r => {
               _attackInFlight = false;
               if (r.ok || r.status === 400) {
+                _429Count = 0; // başarılı yanıt, sayaç sıfırla
                 overlay.classList.remove('show');
                 document.getElementById('disconnect-sub').textContent = 'Yeniden bağlanılıyor...';
                 if (!attackInterval) {
@@ -1687,7 +1689,9 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
               } else {
                 const body = await r.json().catch(() => ({}));
                 console.error('[RETRY 429]', body);
-                setTimeout(retry, 3000);
+                _429Count++;
+                const delay = Math.min(3000 * Math.pow(2, _429Count - 1), 24000);
+                setTimeout(retry, delay);
               }
             }).catch(() => {
               _attackInFlight = false;
