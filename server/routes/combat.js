@@ -444,8 +444,18 @@ router.get('/tiamat-status', authMiddleware, async (req, res) => {
 
     // Dead or not spawned — check respawn timer
     if (t.respawn_at === null || new Date(t.respawn_at) <= new Date()) {
-      await pool.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
-      await pool.query('DELETE FROM tiamat_damage');
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL WHERE id = 1');
+        await client.query('DELETE FROM tiamat_damage');
+        await client.query('COMMIT');
+      } catch (txErr) {
+        await client.query('ROLLBACK');
+        throw txErr;
+      } finally {
+        client.release();
+      }
       const dmgRes = await pool.query('SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp FROM tiamat_damage ORDER BY damage_dealt DESC');
       return res.json({ spawned: true, bossHp: parseInt(t.hp), bossMaxHp: parseInt(t.hp), leaderboard: dmgRes.rows });
     }

@@ -113,7 +113,7 @@ async function distributeTiamatRewards(playerId = null) {
         await client.query('BEGIN');
 
         const tiamatRes = await client.query(
-            'SELECT hp, pearl, xp FROM tiamat WHERE id = 1 LIMIT 1'
+            'SELECT hp, pearl, xp, current_hp FROM tiamat WHERE id = 1 FOR UPDATE'
         );
         if (tiamatRes.rows.length === 0) {
             await client.query('ROLLBACK');
@@ -121,6 +121,12 @@ async function distributeTiamatRewards(playerId = null) {
         }
 
         const t = tiamatRes.rows[0];
+        // Tiamat zaten yeniden doğmuşsa (current_hp > 0) ödül dağıtma — geç kalmış async call
+        if (t.current_hp !== null && parseInt(t.current_hp) > 0) {
+            await client.query('ROLLBACK');
+            return myRewards;
+        }
+
         const bossMaxHp = parseInt(t.hp) || 12000000;
         const totalPearls = parseInt(t.pearl) || 38000;
         const totalXp = parseInt(t.xp) || 280000;
