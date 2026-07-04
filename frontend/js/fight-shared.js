@@ -1,4 +1,4 @@
-    /* ══════════════════════════════════════════════
+﻿    /* ══════════════════════════════════════════════
        SES / AMBIENT SİSTEMİ
     ══════════════════════════════════════════════ */
     const audioPool = {};
@@ -1115,11 +1115,11 @@
 
     /* Slot sistemi */
     const DEFAULT_SLOTS = [
-      { type: 'ammo', ammo: 1, img: 'assets/items/shop/misketgülle.png', title: 'Grapeshot' },
-      { type: 'ammo', ammo: 2, img: 'assets/items/shop/oyukgülle.png', title: 'Hollow Shot' },
-      { type: 'ammo', ammo: 3, img: 'assets/items/shop/elitgülle.png', title: 'Elite Shot' },
+      { type: 'ammo', ammo: 1, img: 'assets/items/shop/misketgulle.png', title: 'Grapeshot' },
+      { type: 'ammo', ammo: 2, img: 'assets/items/shop/oyukgulle.png', title: 'Hollow Shot' },
+      { type: 'ammo', ammo: 3, img: 'assets/items/shop/elitgulle.png', title: 'Elite Shot' },
       { type: 'buff', key: 'barut', img: 'assets/items/shop/barut-fight.png', title: 'Gunpowder' },
-      { type: 'buff', key: 'zirh', img: 'assets/items/shop/zırh-fghit.png', title: 'Armor' },
+      { type: 'buff', key: 'zirh', img: 'assets/items/shop/zirh-fghit.png', title: 'Armor' },
       { type: 'empty' }, { type: 'empty' }, { type: 'empty' }, { type: 'empty' }, { type: 'empty' }
     ];
     let slots;
@@ -1552,7 +1552,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           if (shouldShowDmg) {
             let pIcons = '';
             if (isBarutUsed) pIcons += '<img src="assets/items/shop/barut-fight.png" style="width:24px;height:24px;object-fit:contain;">';
-            if (isNpcZirhUsed) pIcons += '<img src="assets/items/shop/zırh-fghit.png" style="width:24px;height:24px;object-fit:contain;">';
+            if (isNpcZirhUsed) pIcons += '<img src="assets/items/shop/zirh-fghit.png" style="width:24px;height:24px;object-fit:contain;">';
             const pIcon = pIcons ? '<span style="display:inline-flex;align-items:center;gap:3px;">' + pIcons + '</span>' : null;
             const oldNpcHp = npc.hp;
             setTimeout(() => {
@@ -1592,7 +1592,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
               const isNpcBarutUsed = data.opponentConsumed && data.opponentConsumed.barut > 0;
               let nIcons = '';
               if (isNpcBarutUsed) nIcons += '<img src="assets/items/shop/barut-fight.png" style="width:24px;height:24px;object-fit:contain;">';
-              if (isZirhUsed) nIcons += '<img src="assets/items/shop/zırh-fghit.png" style="width:24px;height:24px;object-fit:contain;">';
+              if (isZirhUsed) nIcons += '<img src="assets/items/shop/zirh-fghit.png" style="width:24px;height:24px;object-fit:contain;">';
               const nIcon = nIcons ? '<span style="display:inline-flex;align-items:center;gap:3px;">' + nIcons + '</span>' : null;
               
               // Tiamat alev püskürmesi için hasar yansıtma zamanını alevlerin ilk çarptığı ana (1050ms) göre ayarlayalım
