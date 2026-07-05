@@ -1,16 +1,16 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <title>SeaPirates — Shop</title>
+  <title>SeaPirates � Shop</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="transition.js?v=8"></script>
+  <script src="transition.js?v=10"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -251,8 +251,8 @@
 
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ GERİ</span></a>
-    <div class="page-title"><span data-i18n="shop_title" data-i18n-text>DÜKKAN</span></div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? GERI</span></a>
+    <div class="page-title"><span data-i18n="shop_title" data-i18n-text>D�KKAN</span></div>
     <div style="width:60px;"></div>
   </div>
 
@@ -376,7 +376,7 @@
       card.innerHTML = `
         <div class="item-icon-wrap">
           <img src="${item.img}" class="item-icon" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-          <span class="item-icon fallback" style="display:none;">${isGold ? '🔫' : '💎'}</span>
+          <span class="item-icon fallback" style="display:none;">${isGold ? '??' : '??'}</span>
         </div>
         <div class="item-info">
           <div class="item-name">${item.nk ? t(item.nk) : item.name}</div>
@@ -431,7 +431,7 @@
       localStorage.setItem('sp_player', JSON.stringify(saved));
       
       updateCurrency();
-      // Mevcut item miktarlarını güncelle
+      // Mevcut item miktarlarini g�ncelle
       await loadQtys();
       render();
     } catch (err) {

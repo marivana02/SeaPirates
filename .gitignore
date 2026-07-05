@@ -6,3 +6,6 @@ www/
 server/.env
 server/certs/
 server/node
+
+server/firebase-key.json
+!frontend/android/app/google-services.json

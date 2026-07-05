@@ -1,5 +1,5 @@
 ﻿    /* ══════════════════════════════════════════════
-       SES / AMBIENT SİSTEMİ
+        v12 — showPage awaits _playerDataPromise
     ══════════════════════════════════════════════ */
     const audioPool = {};
 
@@ -929,7 +929,7 @@
         }
       }
     }
-    fetchPlayerData();
+    window._playerDataPromise = fetchPlayerData();
 
     refreshHP();
 

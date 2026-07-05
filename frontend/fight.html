@@ -1,10 +1,10 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
-  <title>SeaPirates â€” Battle</title>
+  <title>SeaPirates — Battle</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
@@ -13,7 +13,7 @@
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
   <script src="js/lang.js?v=2"></script>
-  <script src="transition.js?v=8"></script>
+  <script src="transition.js?v=10"></script>
   <script src="effects/clouds.js?v=1"></script>
   <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
   <style>
@@ -69,7 +69,7 @@
       overflow: hidden;
     }
 
-    /* Canvas gÃ¼lle animasyonu iÃ§in */
+    /* Canvas gülle animasyonu için */
     #gulle-canvas {
       position: absolute;
       inset: 0;
@@ -97,7 +97,7 @@
     .ship-img {
       display: block;
       filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.7));
-      transition: opacity 0.25s ease-in-out; /* PÃ¼rÃ¼zsÃ¼z geÃ§iÅŸ desteÄŸi */
+      transition: opacity 0.25s ease-in-out; /* Pürüzsüz geçis destegi */
     }
 
     .player-wrap .ship-img {
@@ -148,17 +148,17 @@
     .fire-effect {
       position: absolute;
       pointer-events: none;
-      z-index: 18; /* Gemi gÃ¶rselinin hemen Ã¼stÃ¼nde dursun */
+      z-index: 18; /* Gemi görselinin hemen üstünde dursun */
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
       background-size: contain;
       background-position: center bottom;
       background-repeat: no-repeat;
-      mix-blend-mode: screen; /* Alevleri geminin gÃ¶vdesiyle muazzam kaynaÅŸtÄ±ran efekt */
+      mix-blend-mode: screen; /* Alevleri geminin gövdesiyle muazzam kaynastiran efekt */
       filter: drop-shadow(0 0 10px #ff4500) saturate(1.4);
     }
 
-    /* Flash â€” kÃ¼Ã§Ã¼k ve sade */
+    /* Flash — küçük ve sade */
     .flash {
       position: absolute;
       width: 28px;
@@ -208,9 +208,9 @@
     /* Weekly Boss Custom Name & HP Decor Panel */
     .boss-decor {
       background: url('assets/ui/namehpdecor.png') no-repeat top center;
-      background-size: 170px 55px !important; /* GÃ¶rseli orantÄ±lÄ± olarak %15 kÃ¼Ã§Ã¼lttÃ¼k */
+      background-size: 170px 55px !important; /* Görseli orantili olarak %15 küçülttük */
       width: 170px !important;
-      height: 75px !important; /* Dikey alanÄ± da orantÄ±lÄ± olarak kÃ¼Ã§Ã¼lttÃ¼k */
+      height: 75px !important; /* Dikey alani da orantili olarak küçülttük */
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
@@ -235,7 +235,7 @@
 
     .boss-decor .ship-name {
       font-family: 'Cinzel', serif !important;
-      font-size: 0.7rem !important; /* OrantÄ±lÄ± olarak fontu hafif kÃ¼Ã§Ã¼lttÃ¼k */
+      font-size: 0.7rem !important; /* Orantili olarak fontu hafif küçülttük */
       font-weight: 900 !important;
       color: #ffd700 !important;
       text-shadow: 1px 1px 3px #000, 0 0 5px #000 !important;
@@ -244,9 +244,9 @@
 
     .boss-decor .hp-bg {
       position: absolute !important;
-      top: 40px !important; /* KÃ¼Ã§Ã¼len Ã§erÃ§evenin tam ortasÄ± */
-      width: 116px !important; /* OrantÄ±lÄ± kÃ¼Ã§Ã¼len can barÄ± geniÅŸliÄŸi */
-      height: 8px !important; /* OrantÄ±lÄ± kÃ¼Ã§Ã¼len can barÄ± yÃ¼ksekliÄŸi */
+      top: 40px !important; /* Küçülen çerçevenin tam ortasi */
+      width: 116px !important; /* Orantili küçülen can bari genisligi */
+      height: 8px !important; /* Orantili küçülen can bari yüksekligi */
       background: rgba(0, 0, 0, 0.75) !important;
       border: none !important;
       border-radius: 4px !important;
@@ -257,10 +257,10 @@
 
     .boss-decor .hp-txt {
       position: absolute !important;
-      top: 57px !important; /* KÃ¼Ã§Ã¼len Ã§erÃ§evenin hemen altÄ±ndaki dikey alan */
+      top: 57px !important; /* Küçülen çerçevenin hemen altindaki dikey alan */
       width: 100% !important;
       text-align: center !important;
-      font-size: 0.65rem !important; /* Fontu orantÄ±lÄ± kÃ¼Ã§Ã¼lttÃ¼k */
+      font-size: 0.65rem !important; /* Fontu orantili küçülttük */
       font-weight: 800 !important;
       color: #f5e6c8 !important;
       text-shadow: 1px 1px 3px #000, 0px 0px 5px #000 !important;
@@ -351,7 +351,7 @@
       letter-spacing: 0.02em;
     }
 
-    /* Hasar gÃ¶stergesi â€” gemi Ã¼stÃ¼nde sabit, float yok */
+    /* Hasar göstergesi — gemi üstünde sabit, float yok */
     .dmg-static {
       position: absolute;
       display: flex;
@@ -468,7 +468,7 @@
       box-shadow: 0 0 10px rgba(241, 196, 15, 0.45), inset 0 0 5px rgba(241, 196, 15, 0.15);
     }
 
-    /* Miktar rozeti â€” slot iÃ§inde alta sabit, taÅŸmaz */
+    /* Miktar rozeti — slot içinde alta sabit, tasmaz */
     .qty {
       flex-shrink: 0;
       width: 100%;
@@ -780,7 +780,7 @@
       
       <!-- Weekly Boss Timer Overlay -->
       <div class="boss-timer-wrap" id="boss-timer" style="display:none; position: absolute; top: 15px; left: 15px; background: url('assets/ui/leaderboardbackground.png') center/cover; border: 2px solid #7a4a18; border-radius: 6px; padding: 8px 14px; z-index: 100; align-items: center; gap: 8px; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.7); border-bottom: 2px solid #5a3512;">
-        <span style="color:#c8962a; font-size:0.75rem; font-weight:700; letter-spacing:0.06em; text-shadow:1px 1px 2px #000;" data-i18n="fight_timer_label">â³ BATTLE TIME:</span>
+        <span style="color:#c8962a; font-size:0.75rem; font-weight:700; letter-spacing:0.06em; text-shadow:1px 1px 2px #000;" data-i18n="fight_timer_label">? BATTLE TIME:</span>
         <span id="boss-timer-val" style="color:#e74c3c; font-size:1.15rem; font-weight:900; font-family:'Cinzel', serif; text-shadow:0 0 10px rgba(231,76,60,0.5), 1px 1px 2px #000; margin-left:3px;">60</span>
         <span style="color:var(--txt-d); font-size:0.7rem; font-weight:700; text-shadow:1px 1px 2px #000;">sn</span>
       </div>
@@ -805,8 +805,8 @@
       </style>
       <div id="admiral-leaderboard" style="display:none; position: absolute; top: 15px; left: 15px; width: 235px; background: rgba(15, 8, 3, 0.78); border: 2px solid rgba(122, 74, 24, 0.9); border-radius: 8px; padding: 12px 10px; z-index: 100; font-family: 'Cinzel', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.6), 0 8px 25px rgba(0,0,0,0.85); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);">
         <!-- Collapsible Toggle Button -->
-        <button id="admiral-leaderboard-toggle" onclick="toggleAdmiralLeaderboard()" style="position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 50px; background: rgba(15, 8, 3, 0.9); border: 2px solid rgba(122, 74, 24, 0.9); border-left: none; border-radius: 0 8px 8px 0; color: #ffd700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 101; box-shadow: 5px 0 10px rgba(0,0,0,0.5); transition: background 0.2s, color 0.2s, box-shadow 0.2s; font-family: 'Cinzel', serif;">â—€</button>
-        <div style="font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffd700; font-weight: 900; border-bottom: 2px solid rgba(122, 74, 24, 0.7); padding-bottom: 6px; margin-bottom: 10px; text-align: center; letter-spacing: 0.08em; text-shadow: 2px 2px 4px #000, 0 0 6px rgba(255,215,0,0.45);" data-i18n="fight_dmg_list">âš”ï¸ DMG LIST</div>
+        <button id="admiral-leaderboard-toggle" onclick="toggleAdmiralLeaderboard()" style="position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 50px; background: rgba(15, 8, 3, 0.9); border: 2px solid rgba(122, 74, 24, 0.9); border-left: none; border-radius: 0 8px 8px 0; color: #ffd700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 101; box-shadow: 5px 0 10px rgba(0,0,0,0.5); transition: background 0.2s, color 0.2s, box-shadow 0.2s; font-family: 'Cinzel', serif;">?</button>
+        <div style="font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffd700; font-weight: 900; border-bottom: 2px solid rgba(122, 74, 24, 0.7); padding-bottom: 6px; margin-bottom: 10px; text-align: center; letter-spacing: 0.08em; text-shadow: 2px 2px 4px #000, 0 0 6px rgba(255,215,0,0.45);" data-i18n="fight_dmg_list">?? DMG LIST</div>
         <div id="admiral-leaderboard-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 212px; overflow-y: auto;">
           <!-- Leaderboard items will be loaded dynamically -->
         </div>
@@ -816,7 +816,7 @@
       <!-- Dynamic Island Background -->
       <img id="island-bg" class="island-bg" src="" style="display:none;" />
 
-      <!-- GÃ¼lle canvas -->
+      <!-- Gülle canvas -->
       <canvas id="gulle-canvas"></canvas>
 
       <!-- NPC -->
@@ -831,7 +831,7 @@
             <div class="ship-name" id="npc-name">Pirate</div>
             <img class="rank-icon right hidden" id="npc-rank-right" src="" alt="" />
           </div>
-          <div class="ship-pid" id="npc-pid" style="display: none;">#â€”â€”</div>
+          <div class="ship-pid" id="npc-pid" style="display: none;">#——</div>
           <div class="hp-bg">
             <div class="hp-fill" id="npc-hp-fill"></div>
           </div>
@@ -851,7 +851,7 @@
             <div class="ship-name" id="player-name">Kaptan</div>
             <img class="rank-icon right hidden" id="player-rank-right" src="" alt="" />
           </div>
-          <div class="ship-pid" id="player-pid">#â€”â€”</div>
+          <div class="ship-pid" id="player-pid">#——</div>
           <div class="hp-bg">
             <div class="hp-fill" id="player-hp-fill"></div>
           </div>
@@ -862,7 +862,7 @@
 
       <div class="outcome" id="outcome">
         <div class="outcome-box">
-          <div class="outcome-title" id="outcome-title">â€”</div>
+          <div class="outcome-title" id="outcome-title">—</div>
           <div class="outcome-sub" id="outcome-sub"></div>
           <div class="outcome-rewards" id="outcome-rewards"></div>
           <button class="btn-return" onclick="handleReturn()" data-i18n="fight_btn_go_back">Go Back</button>
@@ -882,22 +882,22 @@
         .disconnect-sub { font-size:0.75rem;color:#c0a890;margin-top:6px; }
       </style>
       <div class="disconnect-overlay" id="disconnect-overlay">
-        <div class="disconnect-icon">ğŸŒŠ</div>
-        <div class="disconnect-title" data-i18n="disconnect_title">BAÄLANTI KESÄ°LDÄ°</div>
-        <div class="disconnect-sub" id="disconnect-sub" data-i18n="disconnect_sub">Yeniden baÄŸlanÄ±lÄ±yor...</div>
+        <div class="disconnect-icon">??</div>
+        <div class="disconnect-title" data-i18n="disconnect_title">BAGLANTI KESILDI</div>
+        <div class="disconnect-sub" id="disconnect-sub" data-i18n="disconnect_sub">Yeniden baglaniliyor...</div>
       </div>
 
       <!-- NO-CANNON MODAL -->
       <div class="nocannon-overlay" id="nocannon-modal">
         <div class="nocannon-box">
-          <div class="nocannon-icon">âš“</div>
+          <div class="nocannon-icon">?</div>
           <div class="nocannon-title" data-i18n="fight_no_cannons_title">NO CANNONS EQUIPPED!</div>
           <div class="nocannon-desc" data-i18n="fight_no_cannons_desc">
             You must equip at least <b>1 cannon</b> to enter battle.<br><br>
             Equip cannons from the <b>Equipment</b> screen.
           </div>
           <div class="nocannon-actions">
-            <button class="nocannon-btn primary" id="nocannon-goto-equip" data-i18n="fight_btn_go_equipment">âš”ï¸ GO TO EQUIPMENT</button>
+            <button class="nocannon-btn primary" id="nocannon-goto-equip" data-i18n="fight_btn_go_equipment">?? GO TO EQUIPMENT</button>
             <button class="nocannon-btn secondary" id="nocannon-close" data-i18n="fight_btn_go_back">Go Back</button>
           </div>
         </div>
@@ -905,8 +905,8 @@
     </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="js/fight-shared.js?v=11"></script>
-  <script src="js/fight-pve.js?v=2"></script>
+  <script src="js/fight-shared.js?v=12"></script>
+  <script src="js/fight-pve.js?v=3"></script>
 
 </body>
 

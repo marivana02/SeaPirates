@@ -1,4 +1,4 @@
-/* ─── SeaPirates — Helpers ─── */
+/* ─── v10 — dynamic capacitor-fcm.js loader ─── */
 (function () {
   'use strict';
 
@@ -362,14 +362,17 @@
         var visLvl = p.visual_ship_level != null ? parseInt(p.visual_ship_level) : null;
         var displayLvl = (visLvl != null && visLvl >= 0) ? visLvl : shipLvl;
         var activeDesign = p.active_design;
+        var curHp = parseFloat(p.hp) || 0;
+        var maxHp = parseFloat(p.max_hp) || 1;
+        var imgName = (curHp / maxHp <= 0.5) ? '11.png' : '3.png';
         var shipImgSrc;
         if (activeDesign) {
           var designFolder = activeDesign === 'kristal_queen' ? 'kristalquen' : activeDesign;
-          shipImgSrc = 'assets/items/shop/' + designFolder + '/3.png';
+          shipImgSrc = 'assets/items/shop/' + designFolder + '/' + imgName;
         } else if (displayLvl > 0) {
-          shipImgSrc = 'assets/ships/elitship/elit' + displayLvl + '/images/3.png';
+          shipImgSrc = 'assets/ships/elitship/elit' + displayLvl + '/images/' + imgName;
         } else {
-          shipImgSrc = 'assets/ships/elitship/default/3.png';
+          shipImgSrc = 'assets/ships/elitship/default/' + imgName;
         }
         shipImg.src = shipImgSrc;
       }
@@ -390,4 +393,15 @@
       _showPage();
     };
   }
+})();
+
+/* ─── Load capacitor-fcm.js on every page so push listeners work globally ─── */
+(function () {
+  if (typeof Capacitor === 'undefined') return;
+  var existing = document.querySelector('script[src*="capacitor-fcm"]');
+  if (existing) return;
+  var s = document.createElement('script');
+  s.src = 'capacitor-fcm.js?v=2';
+  s.async = false;
+  document.body.appendChild(s);
 })();

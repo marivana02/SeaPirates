@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
-  <title>SeaPirates — Glitter Sea</title>
+  <title>SeaPirates � Glitter Sea</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
@@ -13,7 +13,7 @@
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="transition.js?v=8"></script>
+  <script src="transition.js?v=10"></script>
   <script src="effects/clouds.js?v=1"></script>
   <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
   <style>
@@ -456,13 +456,13 @@
 
     <div class="player-panel">
       <div class="p-rewards">
-        <span class="p-rewards-title" data-i18n="glitter_reward">✨ Reward:</span>
+        <span class="p-rewards-title" data-i18n="glitter_reward">? Reward:</span>
         <div class="p-rewards-list" id="p-rewards-list">
           <span class="p-reward-empty" data-i18n="glitter_empty">Collect glitter from the sea to earn rewards!</span>
         </div>
       </div>
       <div class="pinfo-top">
-        <div class="p-rank-icon" id="p-rank-icon">☠</div>
+        <div class="p-rank-icon" id="p-rank-icon">?</div>
         <div class="p-name-wrap">
           <span class="p-name" id="p-name">Kaptan...</span>
           <div class="hp-row">
@@ -536,7 +536,7 @@
       window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
     }
 
-    // ── Mouse tracking for anti-bot ──
+    // -- Mouse tracking for anti-bot --
     let lastMouseX = 0;
     let lastMouseY = 0;
     let accumulatedMouseDelta = 0;
@@ -679,7 +679,7 @@
       document.getElementById('p-lvl-fill').style.width = xpPct + '%';
     }
 
-    // ── GLITTER SPARK ENGINE ──
+    // -- GLITTER SPARK ENGINE --
     (function() {
       const seaArea = document.querySelector('.sea-area');
       const maxGlitters = 3;
@@ -753,7 +753,7 @@
                 if (lbl) lbl.textContent = `${data.glitterRemaining}/200`;
               }
               if (data.leveledUp) {
-                toast2(`🎉 LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');
+                toast2(`?? LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');
               }
             } else if (data.error !== 'err_glitter_too_fast' && data.error !== 'err_glitter_hourly_limit') {
               toast2(data.error || t('glitter_collect_fail'), 'err');
@@ -803,7 +803,7 @@
         } else if (rewards.xp > 0) {
           html = `<div style="color:#a4b0be;">+${fmt(rewards.xp)} XP</div>`;
         } else if (rewards.ammo) {
-          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">💣 +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;
+          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">?? +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;
         }
 
         tag.innerHTML = html;
@@ -837,7 +837,7 @@
         } else if (rewards.ammo) {
           html = `
             <span class="p-reward-item" style="color:#3498db;">
-              💣 +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}
+              ?? +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}
             </span>
           `;
         }

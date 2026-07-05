@@ -1,5 +1,5 @@
     /* ══════════════════════════════════════════════
-       PvP ATTACK API OVERRIDE
+       v2 — showPage awaits _playerDataPromise
     ══════════════════════════════════════════════ */
     ATTACK_API_URL = (window.__API_URL__ || window.location.origin) + '/api/combat/pvp';
 
@@ -195,7 +195,10 @@
       }).finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace(pvpWon ? 'pvp.html' : 'map.html'); });
     };
 
-    function showPage() {
+    async function showPage() {
+      if (window._playerDataPromise) {
+        try { await window._playerDataPromise; } catch (e) {}
+      }
       if (typeof readyNow === 'function') readyNow();
       const page = document.querySelector('.page');
       if (page) page.classList.add('visible');

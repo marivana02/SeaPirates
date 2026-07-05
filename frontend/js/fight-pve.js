@@ -1,5 +1,5 @@
     /* ══════════════════════════════════════════════
-       PvE STATE VARS
+       v3 — showPage awaits _playerDataPromise
     ══════════════════════════════════════════════ */
     isWeeklyBoss = localStorage.getItem('sp_combat_is_weekly_boss') === 'true';
     isTowerMode = localStorage.getItem('sp_combat_is_tower') === 'true';
@@ -282,7 +282,10 @@
       setTimeout(() => document.getElementById('outcome').classList.add('show'), 900);
     }
 
-    function showPage() {
+    async function showPage() {
+      if (window._playerDataPromise) {
+        try { await window._playerDataPromise; } catch (e) {}
+      }
       if (typeof readyNow === 'function') readyNow();
       const page = document.querySelector('.page');
       if (page) page.classList.add('visible');
