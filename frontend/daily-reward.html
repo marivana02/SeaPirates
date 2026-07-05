@@ -605,7 +605,12 @@
         canClaimNormal = d.canClaimNormal;
         canClaimVip = d.canClaimVip;
       }
-    } catch (e) { logError('daily-reward:status', e); }
+    } catch (e) {
+      logError('daily-reward:status', e);
+      if (window.isNetworkError && window.isNetworkError(e)) {
+        if (window.startOfflineTimer) window.startOfflineTimer();
+      }
+    }
   }
 
   // Determine the state for a normal day card
@@ -757,7 +762,12 @@
       vipPrices = p.prices;
       vipCurrencies = p.currencies;
       currentCurrency = c.currency;
-    } catch (e) { logError('daily-reward:vip', e); }
+    } catch (e) {
+      logError('daily-reward:vip', e);
+      if (window.isNetworkError && window.isNetworkError(e)) {
+        if (window.startOfflineTimer) window.startOfflineTimer();
+      }
+    }
   }
 
   function updateVipPrices() {

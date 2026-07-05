@@ -804,6 +804,9 @@
       }
     } catch (e) {
       logError('level-bonus:player-info', e);
+      if (window.isNetworkError && window.isNetworkError(e)) {
+        if (window.startOfflineTimer) window.startOfflineTimer();
+      }
     }
   }
 
@@ -1000,7 +1003,12 @@
       vipPrices = p.prices;
       vipCurrencies = p.currencies;
       currentCurrency = c.currency;
-    } catch (e) { logError('level-bonus:vip', e); }
+    } catch (e) {
+      logError('level-bonus:vip', e);
+      if (window.isNetworkError && window.isNetworkError(e)) {
+        if (window.startOfflineTimer) window.startOfflineTimer();
+      }
+    }
   }
 
   function updateVipPrices() {

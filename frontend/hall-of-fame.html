@@ -260,6 +260,9 @@ async function loadLeaderboard() {
     }
   } catch (err) {
     logError('hall-of-fame:load', err);
+    if (window.isNetworkError && window.isNetworkError(err)) {
+      if (window.startOfflineTimer) window.startOfflineTimer();
+    }
   }
 }
 

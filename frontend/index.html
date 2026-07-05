@@ -537,13 +537,13 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>
+          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="off" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>
         </div>
         <span class="err" id="l-user-err" data-i18n="login_error_fields">Username is required.</span>
 
         <div class="field">
           <span class="field-icon">🔒</span>
-          <input type="password" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" autocomplete="current-password"/>
+          <input type="text" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" autocomplete="off" style="-webkit-text-security:disc;text-security:disc;"/>
         </div>
         <span class="err" id="l-pass-err" data-i18n="login_error_fields">Password is required.</span>
 
@@ -557,7 +557,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         <div class="form-msg" id="l-msg"></div>
 
         <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
-          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>⚓ &nbsp;Set Sail</span></span>
+          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>LOGIN</span></span>
           <div class="spinner"></div>
         </button>
 
@@ -616,8 +616,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
     <div class="bottom-note">
       <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Privacy Policy</span></a> &nbsp;·&nbsp;
-      <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Terms of Service</span></a><br/>
-      <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
+      <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Terms of Service</span></a>
     </div>
 
   </div>

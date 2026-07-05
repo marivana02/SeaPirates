@@ -64,6 +64,7 @@ I18N_DATA['de'] = {
     coordinate: 'Koordinate',
     victory: 'SIEG',
     defeat: 'VERSENKT',
+    sunk_by: 'Von {name} versenkt!',
     q_title_1: 'Novice Crew',
     q_title_2: 'Cannon Fire',
     q_title_3: 'Glitter Hunter',
@@ -293,6 +294,9 @@ I18N_DATA['de'] = {
     error: 'Fehler',
     server_error: 'Serverfehler aufgetreten.',
     connection_failed: 'Keine Verbindung zum Server!',
+    offline_title: 'VERBINDUNG GETRENNT',
+    offline_msg: 'Deine Internetverbindung war 30 Sekunden lang unterbrochen. Aus Sicherheitsgründen wurdest du abgemeldet.',
+    offline_toast: 'Verbindung getrennt! Ausloggen in {seconds} Sek...',
     unauthorized: 'Sitzung abgelaufen, bitte erneut anmelden.',
     invalid_amount: 'Gültigen Betrag eingeben.',
 
@@ -339,6 +343,12 @@ I18N_DATA['de'] = {
     notif_browser_blocked: 'Benachrichtigungen vom Browser blockiert. In den Browsereinstellungen zurücksetzen.',
     notif_error: 'Benachrichtigungen konnten nicht aktiviert werden.',
     notif_unsupported: 'Dieser Browser unterstützt keine Benachrichtigungen.',
+    notif_tiamat_spawn_title: '🏴‍☠️ TIAMAT ERWACHT!',
+    notif_tiamat_spawn_body: 'Kapitän! Tiamat ist wieder auferstanden. Das furchterregendste Seeungeheuer erwartet dich!',
+    notif_admiral_spawn_title: '⚓ ADMIRAL GESICHTET!',
+    notif_admiral_spawn_body: 'Admiral auf Karte {map}-{sub} gesichtet! Sofort angreifen!',
+    notif_inactive_reminder_title: '🏴‍☠️ GÜNSTIGER WIND!',
+    notif_inactive_reminder_body: 'Kapitän! Tiamat und Admiral kreuzen auf den Meeren. Segel setzen, der Kampf wartet!',
 
     // Ammo names
     ammo_name_grapeshot: 'Kartätsche',

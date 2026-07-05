@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
+  <script src="capacitor-fcm.js?v=1"></script>
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
@@ -537,9 +538,6 @@
       </div>
     </div>
 
-    <!-- Version -->
-    <div class="version-text">SeaPirates v1.0.0</div>
-
   </div><!-- /content-wrap -->
 
 </div><!-- /page -->
@@ -641,6 +639,9 @@
       }
     } catch (e) {
       logError('settings:load', e);
+      if (window.isNetworkError && window.isNetworkError(e)) {
+        if (window.startOfflineTimer) window.startOfflineTimer();
+      }
     }
   }
 
@@ -718,61 +719,40 @@
   fetchProfile();
   document.getElementById('lang-select').value = window.currentLang;
 
-  // ═══ Notifications ═══
-  (async function initNotifications() {
-    const row = document.getElementById('notif-row');
-    const btn = document.getElementById('btn-enable-notif');
-    const desc = document.getElementById('notif-desc');
+  // ═══ Notifications (FCM) ═══
+  (function initNotifications() {
+    var btn = document.getElementById('btn-enable-notif');
+    var desc = document.getElementById('notif-desc');
+    var notifPref = localStorage.getItem('sp_notif_enabled') === 'true';
 
     function updateUI() {
-      if (Notification.permission === 'granted') {
+      if (notifPref) {
         btn.textContent = '✅ ' + (t('notif_active') || 'Açık');
         btn.style.borderColor = '#27ae60';
         btn.style.color = '#2ecc71';
-        btn.disabled = true;
         desc.textContent = t('notif_on_desc') || 'Bildirimler aktif.';
-      } else if (Notification.permission === 'denied') {
-        btn.textContent = '🔕';
-        btn.style.borderColor = '#666';
-        btn.style.color = '#666';
-        btn.disabled = true;
-        desc.textContent = t('notif_browser_blocked') || 'Tarayıcıdan engellendi.';
       } else {
-        btn.textContent = t('btn_enable_notif') || '🔔 Bildirimleri Aç';
+        btn.textContent = t('btn_enable_notif') || 'Bildirimleri Aç';
         btn.style.borderColor = 'var(--gold)';
         btn.style.color = 'var(--gold-p)';
-        btn.disabled = false;
-        desc.textContent = t('notif_desc') || 'Amiral çıkınca bildirim al.';
+        desc.textContent = t('notif_desc') || 'Tiamat ve Admiral bildirimleri al.';
       }
     }
 
-    btn.addEventListener('click', async () => {
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-          updateUI();
-          return;
-        }
-        const reg = await navigator.serviceWorker.register('sw.js?v=1');
-        const sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: 'BFkQZIfl5cEmn4HIUU1omIKOQkerzjIQQrFXn1XIq5A1e5peKe-Gvh1rNPp1XTwd3X_x30GiJpFX1VSib-0Q5Kc'
-        });
-        function buf2base(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
-        await fetch((window.__API_URL__ || window.location.origin) + '/api/notifications/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({
-            endpoint: sub.endpoint,
-            keys: { auth: buf2base(sub.getKey('auth')), p256dh: buf2base(sub.getKey('p256dh')) }
-          })
-        });
-        updateUI();
-      } catch (e) {
-        logError('settings:push', e);
-        desc.textContent = t('notif_error') || 'Bildirim açılamadı.';
+    btn.addEventListener('click', function () {
+      notifPref = !notifPref;
+      localStorage.setItem('sp_notif_enabled', notifPref ? 'true' : 'false');
+      if (notifPref) {
+        if (typeof registerFCM === 'function') registerFCM();
+      } else {
+        if (typeof unregisterFCM === 'function') unregisterFCM();
       }
+      updateUI();
     });
+
+    if (notifPref && typeof registerFCM === 'function') {
+      registerFCM();
+    }
 
     updateUI();
   })();

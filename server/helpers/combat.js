@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { sendPushToAll } = require('./fcm');
 
 async function getWeeklyBossRewards() {
     try {
@@ -121,8 +122,8 @@ async function distributeTiamatRewards(playerId = null) {
         }
 
         const t = tiamatRes.rows[0];
-        // Tiamat zaten yeniden doğmuşsa (current_hp > 0) ödül dağıtma — geç kalmış async call
-        if (t.current_hp !== null && parseInt(t.current_hp) > 0) {
+        // Tiamat zaten yeniden doğmuşsa (current_hp === NULL veya > 0) ödül dağıtma — geç kalmış async call
+        if (t.current_hp === null || parseInt(t.current_hp) > 0) {
             await client.query('ROLLBACK');
             return myRewards;
         }
@@ -132,7 +133,7 @@ async function distributeTiamatRewards(playerId = null) {
         const totalXp = parseInt(t.xp) || 280000;
 
         const partsRes = await client.query(
-            'SELECT player_id, username, damage_dealt FROM tiamat_damage WHERE damage_dealt > 0'
+            'SELECT player_id, username, damage_dealt FROM tiamat_damage WHERE damage_dealt > 0 AND spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)'
         );
 
         for (const row of partsRes.rows) {
@@ -169,10 +170,13 @@ async function distributeTiamatRewards(playerId = null) {
             [respawnAt]
         );
         await client.query(
-            'DELETE FROM tiamat_damage'
+            'DELETE FROM tiamat_damage WHERE spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)'
         );
 
         await client.query('COMMIT');
+
+        sendPushToAll('tiamat_spawn', {});
+
         console.log(`[TIAMAT REWARD] Completed successfully.`);
     } catch (err) {
         await client.query('ROLLBACK');

@@ -74,6 +74,7 @@ I18N_DATA['en'] = {
     daily_tower_title: 'DAILY TOWER',
     victory: 'VICTORY',
     defeat: 'SUNK',
+    sunk_by: 'Sunk by {name}!',
     pvp_victory_msg: "You sank {name}'s ship.",
     pvp_defeat_msg: 'You were defeated by {name}!',
     pvp_header: 'PVP RESULT',
@@ -404,6 +405,12 @@ I18N_DATA['en'] = {
     notif_browser_blocked: 'Notifications blocked by browser. Reset from browser settings.',
     notif_error: 'Failed to enable notifications.',
     notif_unsupported: 'This browser does not support notifications.',
+    notif_tiamat_spawn_title: '🏴‍☠️ TIAMAT AWAKENED!',
+    notif_tiamat_spawn_body: 'Captain! Tiamat has risen. The most fearsome sea monster awaits you!',
+    notif_admiral_spawn_title: '⚓ ADMIRAL SPOTTED!',
+    notif_admiral_spawn_body: 'Admiral spotted at Map {map}-{sub}! Attack now!',
+    notif_inactive_reminder_title: '🏴‍☠️ FAIR WINDS!',
+    notif_inactive_reminder_body: 'Captain! Tiamat and Admiral roam the seas. Set sail, battle awaits!',
 
     // Page titles
     page_equipment: 'EQUIPMENT',

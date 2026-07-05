@@ -3,40 +3,40 @@ const router = express.Router();
 const pool = require('../config/db');
 const authenticateToken = require('../middleware/auth');
 
-// Subscribe to push notifications
-router.post('/subscribe', authenticateToken, async (req, res) => {
-  const { endpoint, keys } = req.body;
-  if (!endpoint || !keys || !keys.auth || !keys.p256dh) {
-    return res.status(400).json({ error: 'Missing subscription data' });
+// Register FCM push token (Android)
+router.post('/register-token', authenticateToken, async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ error: 'Missing token' });
   }
   try {
     await pool.query(
-      `INSERT INTO push_subscriptions (player_id, endpoint, auth, p256dh)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (player_id, endpoint) DO UPDATE SET auth = $3, p256dh = $4`,
-      [req.player.id, endpoint, keys.auth, keys.p256dh]
+      `INSERT INTO fcm_tokens (player_id, token)
+       VALUES ($1, $2)
+       ON CONFLICT (player_id, token) DO NOTHING`,
+      [req.player.id, token]
     );
     res.json({ success: true });
   } catch (err) {
-    console.error('Push subscribe error:', err);
+    console.error('FCM register error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Unsubscribe from push notifications
-router.post('/unsubscribe', authenticateToken, async (req, res) => {
-  const { endpoint } = req.body;
-  if (!endpoint) {
-    return res.status(400).json({ error: 'Missing endpoint' });
+// Unregister FCM token
+router.post('/unregister-token', authenticateToken, async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ error: 'Missing token' });
   }
   try {
     await pool.query(
-      'DELETE FROM push_subscriptions WHERE player_id = $1 AND endpoint = $2',
-      [req.player.id, endpoint]
+      'DELETE FROM fcm_tokens WHERE player_id = $1 AND token = $2',
+      [req.player.id, token]
     );
     res.json({ success: true });
   } catch (err) {
-    console.error('Push unsubscribe error:', err);
+    console.error('FCM unregister error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

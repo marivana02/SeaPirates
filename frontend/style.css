@@ -796,3 +796,28 @@ html { font-size: 16px; }
 }
 
 .vip-icon{width:24px;height:24px;vertical-align:middle;display:inline-block;}
+
+/* ---- Game Toast (offline timer, back-button, etc.) ---- */
+#sp-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99998;
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: var(--gold-pale);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-dark), inset 0 1px 0 rgba(255,255,255,0.06);
+  text-align: center;
+  max-width: 320px;
+  width: 90%;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  opacity: 0;
+}

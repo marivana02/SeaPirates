@@ -283,6 +283,9 @@
       }
     } catch (e) {
       logError('quest:load', e);
+      if (window.isNetworkError && window.isNetworkError(e)) {
+        if (window.startOfflineTimer) window.startOfflineTimer();
+      }
     }
   }
 

@@ -19,7 +19,10 @@ function getActivityFactor(realPlayerCount) {
   return 0.10;
 }
 
+const BOT_ENABLED = false; // DEBUG: botlar devre dışı
+
 async function botTick() {
+  if (!BOT_ENABLED) return;
   try {
     const tiamatRes = await pool.query(
       `SELECT hp, current_hp FROM tiamat WHERE id = 1`
@@ -106,13 +109,14 @@ async function botTick() {
 
       for (const rec of damageRecords) {
         await tiamatClient.query(
-          `INSERT INTO tiamat_damage (player_id, username, ship_level, damage_dealt, current_hp, max_hp)
-           VALUES ($1,$2,$3,$4,$5,$6)
+          `INSERT INTO tiamat_damage (player_id, username, ship_level, damage_dealt, current_hp, max_hp, spawn_generation)
+           SELECT $1,$2,$3,$4,$5,$6, spawn_generation FROM tiamat WHERE id = 1
            ON CONFLICT (player_id) DO UPDATE SET
              damage_dealt = tiamat_damage.damage_dealt + $4,
              current_hp = $5,
              max_hp = $6,
              ship_level = $3,
+             spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1),
              last_active = CURRENT_TIMESTAMP`,
           [rec.id, rec.username, rec.shipLevel, rec.damage, rec.currentHp, rec.maxHp]
         );
@@ -132,26 +136,43 @@ async function botTick() {
     if (after.rows.length > 0 && after.rows[0].current_hp !== null && parseInt(after.rows[0].current_hp) <= 0) {
       activeBotIds = null; // yeni spawn için yeni botlar seçilebilir
       const { distributeTiamatRewards } = require('../helpers/combat');
-      distributeTiamatRewards(null)
-        .then(() => console.log(`[BOT TIAMAT] Tiamat killed — rewards distributed`))
-        .catch(err => console.error(`[BOT TIAMAT] Reward error:`, err.message));
+
+      // Gerçek oyuncu hasar kaydı var mı kontrol et — varsa bot dağıtmasın, oyuncu dağıtsın
+      const realCount = await pool.query(
+        `SELECT COUNT(*) as c FROM tiamat_damage td
+         JOIN players p ON p.id = td.player_id
+         WHERE (p.is_bot = FALSE OR p.is_bot IS NULL) AND td.damage_dealt > 0
+           AND td.spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)`
+      );
+      if (parseInt(realCount.rows[0].c) > 0) {
+        console.log('[BOT TIAMAT] Real players participated — bot skipping reward distribution');
+      } else {
+        distributeTiamatRewards(null)
+          .then(() => console.log(`[BOT TIAMAT] Tiamat killed by bots only — rewards distributed`))
+          .catch(err => console.error(`[BOT TIAMAT] Reward error:`, err.message));
+      }
     }
   } catch (err) {
     console.error('[BOT TIAMAT] Tick error:', err.message);
+  } finally {
+    // setInterval yerine recursive setTimeout — tick birikmesini önler
+    tickTimer = setTimeout(botTick, TICK_INTERVAL_MS);
   }
 }
 
-let intervalHandle = null;
+const TICK_INTERVAL_MS = 10000;
+let tickTimer = null;
 
 function startTiamatBotTicks() {
-  console.log('[BOT TIAMAT] System started (10s interval)');
-  intervalHandle = setInterval(botTick, 10000);
+  console.log(`[BOT TIAMAT] System DISABLED — botlar Tiamat'a saldırmıyor`);
+  // Botlar şu an devre dışı — hata ayıklama tamamlanınca aktif edilecek
+  // tickTimer = setTimeout(botTick, TICK_INTERVAL_MS);
 }
 
 function stopTiamatBotTicks() {
-  if (intervalHandle) {
-    clearInterval(intervalHandle);
-    intervalHandle = null;
+  if (tickTimer) {
+    clearTimeout(tickTimer);
+    tickTimer = null;
     activeBotIds = null;
     console.log('[BOT TIAMAT] System stopped');
   }

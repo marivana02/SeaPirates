@@ -312,7 +312,12 @@
       saved.ownedDesigns = data.ownedDesigns;
       localStorage.setItem('sp_player', JSON.stringify(saved));
       updateCurrency();
-    } catch (e) {}
+    } catch (e) {
+      logError('shop:load-qtys', e);
+      if (window.isNetworkError && window.isNetworkError(e)) {
+        if (window.startOfflineTimer) window.startOfflineTimer();
+      }
+    }
   }
 
   function getQty(shopId) {
@@ -426,6 +431,8 @@
       localStorage.setItem('sp_player', JSON.stringify(saved));
       
       updateCurrency();
+      // Mevcut item miktarlarını güncelle
+      await loadQtys();
       render();
     } catch (err) {
       logError('shop:buy', err);

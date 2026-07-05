@@ -101,7 +101,8 @@ router.post('/start', authMiddleware, async (req, res) => {
 router.post('/attack', authMiddleware, async (req, res) => {
   const playerId = req.player.id;
   const { ammoId, useBarut, useZirh, opponentOnly } = req.body;
-  if (!acquireAttackLock(playerId)) return res.status(429).json({ error: 'Attack already in progress' });
+  const lockId = acquireAttackLock(playerId);
+  if (!lockId) return res.status(429).json({ error: 'Attack already in progress' });
   try {
     const fightRes = await pool.query('SELECT * FROM active_fights WHERE player_id = $1', [playerId]);
     if (fightRes.rows.length === 0) return res.status(400).json({ error: 'No active fight' });
@@ -125,7 +126,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
       const now = Date.now();
       const lastOpp = lastOpponentAttack.get(playerId) || 0;
       if (now - lastOpp < opponentReloadMs) {
-        releaseAttackLock(playerId);
+        releaseAttackLock(playerId, lockId);
         return res.json({ state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), npcMaxHp: parseInt(fightRow.npc_max_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, opponentConsumed: { barut: 0, zirh: 0, ammoId: null } });
       }
       lastOpponentAttack.set(playerId, now);
@@ -203,7 +204,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error during combat' });
   } finally {
-    releaseAttackLock(playerId);
+    releaseAttackLock(playerId, lockId);
   }
 });
 

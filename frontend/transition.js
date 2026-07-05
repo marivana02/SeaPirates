@@ -59,7 +59,11 @@
     if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) return;
     API.post('/player/ping').then(function() {
       if (typeof Auth.touch === 'function') Auth.touch();
-    }).catch(function() {});
+    }).catch(function(e) {
+      if (window.isNetworkError && window.isNetworkError(e)) {
+        if (window.startOfflineTimer) window.startOfflineTimer();
+      }
+    });
   }, 60000);
 
   /* İNTERNET KESİNTİSİ — offline olunca 30sn sayaç, dolunca logout */
@@ -89,8 +93,19 @@
       _offlineTimer = null;
     }
   }
+  window.startOfflineTimer = startOfflineTimer;
+  window.clearOfflineTimer = clearOfflineTimer;
   window.addEventListener('offline', startOfflineTimer);
   window.addEventListener('online', clearOfflineTimer);
+
+  /* Global helper: network error kontrolü (fetch başarısız, DNS çözülmez, timeout) */
+  window.isNetworkError = function(e) {
+    if (!e) return false;
+    if (e instanceof TypeError) return true;
+    if (e.message && (e.message.includes('Network') || e.message.includes('network') || e.message.includes('fetch') || e.message.includes('Failed to fetch') || e.message.includes('Load failed'))) return true;
+    if (e.name === 'TypeError') return true;
+    return false;
+  };
 
   /* APP KILL TESPİTİ — her 3sn kontrol et, sp_session_ts >60sn ise logout */
   setInterval(function sessionTimeout() {
@@ -124,7 +139,6 @@
     if (!el) {
       el = document.createElement('div');
       el.id = 'sp-toast';
-      el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:99998;background:rgba(0,0,0,0.88);color:#f5e6c8;font-family:Inter,sans-serif;font-size:0.78rem;padding:12px 20px;border-radius:10px;border:1px solid rgba(200,150,42,0.3);text-align:center;max-width:320px;width:90%;pointer-events:none;transition:opacity 0.3s;opacity:0;';
       document.body.appendChild(el);
     }
     el.textContent = msg;

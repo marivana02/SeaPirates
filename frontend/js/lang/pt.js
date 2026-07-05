@@ -64,6 +64,7 @@ I18N_DATA['pt'] = {
     coordinate: 'Coordenada',
     victory: 'VITÓRIA',
     defeat: 'AFUNDADO',
+    sunk_by: 'Afundado por {name}!',
     q_title_1: 'Novice Crew',
     q_title_2: 'Cannon Fire',
     q_title_3: 'Glitter Hunter',
@@ -293,6 +294,9 @@ I18N_DATA['pt'] = {
     error: 'Erro',
     server_error: 'Erro no servidor.',
     connection_failed: 'Sem conexão com o servidor!',
+    offline_title: 'CONEXÃO PERDIDA',
+    offline_msg: 'Sua conexão com a internet foi perdida por 30 segundos. Você foi desconectado por segurança.',
+    offline_toast: 'Conexão perdida! Desconectando em {seconds} seg...',
     unauthorized: 'Sessão expirada, faça login novamente.',
     invalid_amount: 'Insira um valor válido.',
 
@@ -339,6 +343,12 @@ I18N_DATA['pt'] = {
     notif_browser_blocked: 'Notificações bloqueadas pelo navegador. Reinicie nas configurações do navegador.',
     notif_error: 'Falha ao ativar notificações.',
     notif_unsupported: 'Este navegador não suporta notificações.',
+    notif_tiamat_spawn_title: '🏴‍☠️ TIAMAT DESPERTOU!',
+    notif_tiamat_spawn_body: 'Capitão! Tiamat ressurgiu. O monstro marinho mais temível espera por você!',
+    notif_admiral_spawn_title: '⚓ ALMIRANTE AVISTADO!',
+    notif_admiral_spawn_body: 'Almirante avistado no Mapa {map}-{sub}! Ataque agora!',
+    notif_inactive_reminder_title: '🏴‍☠️ VENTOS FAVORÁVEIS!',
+    notif_inactive_reminder_body: 'Capitão! Tiamat e o Almirante vagam pelos mares. Içe as velas, a batalha espera!',
 
     // Ammo names
     ammo_name_grapeshot: 'Estilhaços',

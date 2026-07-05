@@ -5,6 +5,7 @@ async function deductAdmiralBossHp(pool, mapLevel, playerDamage, bossMaxHp) {
   let actualHpLost = 0;
   let newHp = 0;
   try {
+    await bossClient.query("SET lock_timeout = '3s'");
     await bossClient.query('BEGIN');
     const bcRes = await bossClient.query(
       'SELECT boss_current_hp, is_spawned FROM npc3_kill_counter WHERE map_level = $1 FOR UPDATE',
@@ -65,12 +66,16 @@ async function deductAdmiralBossHp(pool, mapLevel, playerDamage, bossMaxHp) {
   return { newHp, actualHpLost };
 }
 
-async function deductTiamatBossHp(pool, playerDamage, bossMaxHp) {
-  const tiamatClient = await pool.connect();
+async function deductTiamatBossHp(pool, playerDamage, bossMaxHp, client) {
+  // client parametresi verilirse ana transaction içinde çalışır (atomik)
+  // verilmezse ayrı connection açar (bot/broadcast çağrıları)
+  const useOwnTxn = !client;
+  const tiamatClient = client || await pool.connect();
   let actualHpLost = 0;
   let newHp = 0;
   try {
-    await tiamatClient.query('BEGIN');
+    await tiamatClient.query("SET lock_timeout = '3s'");
+    if (useOwnTxn) await tiamatClient.query('BEGIN');
     const tRes = await tiamatClient.query(
       'SELECT current_hp FROM tiamat WHERE id = 1 FOR UPDATE'
     );
@@ -88,20 +93,32 @@ async function deductTiamatBossHp(pool, playerDamage, bossMaxHp) {
       [newHp]
     );
 
-    await tiamatClient.query('COMMIT');
+    // Tiamat öldüyse 1-3 saat random spawn süresi ayarla
+    if (newHp <= 0) {
+      const respawnDelayMs = Math.floor(Math.random() * (3 * 3600000 - 1 * 3600000 + 1)) + 1 * 3600000;
+      await tiamatClient.query(
+        "UPDATE tiamat SET respawn_at = NOW() + (($1 || ' milliseconds')::interval) WHERE id = 1",
+        [respawnDelayMs]
+      );
+      console.log(`[TIAMAT] Killed! Respawn in ${Math.round(respawnDelayMs / 60000)} min`);
+    }
+
+    if (useOwnTxn) await tiamatClient.query('COMMIT');
   } catch (txErr) {
-    await tiamatClient.query('ROLLBACK');
+    if (useOwnTxn) await tiamatClient.query('ROLLBACK');
     throw txErr;
   } finally {
-    tiamatClient.release();
+    if (useOwnTxn) tiamatClient.release();
   }
 
-  if (actualHpLost > 0) {
+  // Broadcast sadece ayrı connection kullanılıyorsa burada yapılır
+  // Ana transaction içindeyken broadcast çağıran tarafa bırakılır
+  if (useOwnTxn && actualHpLost > 0) {
     try {
       const lbRes = await pool.query(
         `SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp
          FROM tiamat_damage
-         WHERE player_id > 0
+         WHERE player_id > 0 AND spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)
          ORDER BY damage_dealt DESC LIMIT 30`
       );
       broadcastBossHp(0, {
@@ -117,13 +134,15 @@ async function deductTiamatBossHp(pool, playerDamage, bossMaxHp) {
   return { newHp, actualHpLost };
 }
 
-async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage) {
+async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage, excludePlayerId) {
   const targetClient = await pool.connect();
   try {
+    await targetClient.query("SET lock_timeout = '3s'");
     await targetClient.query('BEGIN');
+    // Saldıran oyuncuyu target seçiminden çıkar → self-deadlock önler
     const partRes = await targetClient.query(
-      'SELECT player_id, username, current_hp FROM admiral_damage WHERE map_level = $1 AND current_hp > 0',
-      [mapLevel]
+      'SELECT player_id, username, current_hp FROM admiral_damage WHERE map_level = $1 AND current_hp > 0 AND player_id != $2',
+      [mapLevel, excludePlayerId]
     );
 
     let targetHitId = null;
@@ -137,7 +156,6 @@ async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage) {
     }
 
     if (targetHitId !== null) {
-      // Sadece seçilen hedefin satırını kilitle — tüm katılımcıları değil
       const lockRes = await targetClient.query(
         'SELECT current_hp FROM admiral_damage WHERE map_level = $1 AND player_id = $2 AND current_hp > 0 FOR UPDATE',
         [mapLevel, targetHitId]
@@ -162,13 +180,15 @@ async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage) {
   }
 }
 
-async function selectRandomTiamatTarget(pool, npcDamage) {
+async function selectRandomTiamatTarget(pool, npcDamage, excludePlayerId) {
   const targetClient = await pool.connect();
   try {
+    await targetClient.query("SET lock_timeout = '3s'");
     await targetClient.query('BEGIN');
-
+    // Saldıran oyuncuyu target seçiminden çıkar → self-deadlock önler
     const partRes = await targetClient.query(
-      'SELECT player_id, username, current_hp FROM tiamat_damage WHERE current_hp > 0'
+      'SELECT player_id, username, current_hp FROM tiamat_damage WHERE current_hp > 0 AND player_id != $1 AND spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)',
+      [excludePlayerId]
     );
 
     let targetHitId = null;
@@ -182,7 +202,6 @@ async function selectRandomTiamatTarget(pool, npcDamage) {
     }
 
     if (targetHitId !== null) {
-      // Sadece seçilen hedefin satırını kilitle
       const lockRes = await targetClient.query(
         'SELECT current_hp FROM tiamat_damage WHERE player_id = $1 AND current_hp > 0 FOR UPDATE',
         [targetHitId]

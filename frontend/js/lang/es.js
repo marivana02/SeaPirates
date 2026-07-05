@@ -64,6 +64,7 @@ I18N_DATA['es'] = {
     coordinate: 'Coordenada',
     victory: 'VICTORIA',
     defeat: 'HUNDIDO',
+    sunk_by: '¡Hundido por {name}!',
     q_title_1: 'Novice Crew',
     q_title_2: 'Cannon Fire',
     q_title_3: 'Glitter Hunter',
@@ -293,6 +294,9 @@ I18N_DATA['es'] = {
     error: 'Error',
     server_error: 'Error del servidor.',
     connection_failed: '¡Sin conexión al servidor!',
+    offline_title: 'CONEXIÓN PERDIDA',
+    offline_msg: 'Tu conexión a Internet se perdió durante 30 segundos. Has sido desconectado por seguridad.',
+    offline_toast: '¡Conexión perdida! Cerrando sesión en {seconds} seg...',
     unauthorized: 'Sesión expirada, inicia sesión de nuevo.',
     invalid_amount: 'Ingresa una cantidad válida.',
 
@@ -339,6 +343,12 @@ I18N_DATA['es'] = {
     notif_browser_blocked: 'Notificaciones bloqueadas por el navegador. Restablezca desde la configuración del navegador.',
     notif_error: 'Error al activar notificaciones.',
     notif_unsupported: 'Este navegador no soporta notificaciones.',
+    notif_tiamat_spawn_title: '🏴‍☠️ ¡TIAMAT DESPERTÓ!',
+    notif_tiamat_spawn_body: '¡Capitán! Tiamat ha resucitado. ¡El monstruo marino más temible te espera!',
+    notif_admiral_spawn_title: '⚓ ¡ALMIRANTE AVISTADO!',
+    notif_admiral_spawn_body: '¡Almirante avistado en Mapa {map}-{sub}! ¡Ataca ahora!',
+    notif_inactive_reminder_title: '🏴‍☠️ ¡VIENTOS FAVORABLES!',
+    notif_inactive_reminder_body: '¡Capitán! Tiamat y el Almirante recorren los mares. ¡Izad velas, la batalla os espera!',
 
     // Ammo names
     ammo_name_grapeshot: 'Metralla',

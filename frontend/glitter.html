@@ -602,6 +602,9 @@
         }
       } catch (e) {
         logError('glitter:player', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
       }
     }
 
@@ -617,6 +620,9 @@
         }
       } catch (e) {
         logError('glitter:limit', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
       }
     }
 
@@ -632,7 +638,7 @@
       document.getElementById('p-pearl').textContent = fmt(player.pearl);
       document.getElementById('p-gold').textContent = fmt(player.gold);
       document.getElementById('p-elp').textContent = fmt(player.elp);
-      document.getElementById('p-lvl').textContent = t('level_label',{val:player.level});
+      document.getElementById('p-lvl').textContent = player.level + ' LVL';
       document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);
 
       const vipB = document.getElementById('vip-badge');
@@ -666,7 +672,7 @@
 
       document.getElementById('p-gold').textContent = fmt(player.gold);
       document.getElementById('p-pearl').textContent = fmt(player.pearl);
-      document.getElementById('p-lvl').textContent = t('level_label',{val:player.level});
+      document.getElementById('p-lvl').textContent = player.level + ' LVL';
       document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);
 
       const xpPct = Math.min(100, (player.xp / player.xpNext) * 100);
@@ -754,6 +760,9 @@
             }
           } catch (err) {
             logError('glitter:collect', err);
+            if (window.isNetworkError && window.isNetworkError(err)) {
+              if (window.startOfflineTimer) window.startOfflineTimer();
+            }
           } finally {
             removeGlitter(div);
           }

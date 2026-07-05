@@ -64,6 +64,7 @@ I18N_DATA['pl'] = {
     coordinate: 'Współrzędne',
     victory: 'ZWYCIĘSTWO',
     defeat: 'ZATOPIONY',
+    sunk_by: 'Zatopiony przez {name}!',
     q_title_1: 'Novice Crew',
     q_title_2: 'Cannon Fire',
     q_title_3: 'Glitter Hunter',
@@ -293,6 +294,9 @@ I18N_DATA['pl'] = {
     error: 'Błąd',
     server_error: 'Wystąpił błąd serwera.',
     connection_failed: 'Nie można połączyć się z serwerem!',
+    offline_title: 'UTRACONO POŁĄCZENIE',
+    offline_msg: 'Twoje połączenie internetowe zostało utracone na 30 sekund. Zostałeś wylogowany dla bezpieczeństwa.',
+    offline_toast: 'Utracono połączenie! Wylogowanie za {seconds} sek...',
     unauthorized: 'Sesja wygasła, zaloguj się ponownie.',
     invalid_amount: 'Wprowadź poprawną kwotę.',
 
@@ -339,6 +343,12 @@ I18N_DATA['pl'] = {
     notif_browser_blocked: 'Powiadomienia zablokowane przez przeglądarkę. Zresetuj w ustawieniach przeglądarki.',
     notif_error: 'Nie udało się włączyć powiadomień.',
     notif_unsupported: 'Ta przeglądarka nie obsługuje powiadomień.',
+    notif_tiamat_spawn_title: '🏴‍☠️ TIAMAT PRZEBUDZIŁ SIĘ!',
+    notif_tiamat_spawn_body: 'Kapitanie! Tiamat powstał ponownie. Najstraszniejszy morski potwór czeka na ciebie!',
+    notif_admiral_spawn_title: '⚓ ADMIRAŁ WYKRYTY!',
+    notif_admiral_spawn_body: 'Admirał wykryty na Mapie {map}-{sub}! Atakuj natychmiast!',
+    notif_inactive_reminder_title: '🏴‍☠️ SPRZYJAJĄCY WIATR!',
+    notif_inactive_reminder_body: 'Kapitanie! Tiamat i Admirał przemierzają morza. Podnieś żagle, bitwa czeka!',
 
     // Ammo names
     ammo_name_grapeshot: 'Kartacz',

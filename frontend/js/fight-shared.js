@@ -922,7 +922,12 @@
 
           if (typeof renderSlots === 'function') renderSlots();
         }
-      } catch (e) { logError('fight-shared:setup', e); }
+      } catch (e) {
+        logError('fight-shared:setup', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
+      }
     }
     fetchPlayerData();
 
@@ -1337,6 +1342,9 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         }
       } catch(e) {
         logError('fight-shared:fetchAdmiral', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
       }
     }
 
@@ -1487,8 +1495,12 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       fetch(`${SHARED_API_URL}/end`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'X-Requested-With': 'XMLHttpRequest' }
-      }).catch(e => logError('fight-shared:end', e))
-        .finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace('map.html'); });
+      }).catch(e => {
+        logError('fight-shared:end', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
+      }).finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace('map.html'); });
     }
 
     async function doAttack() {
@@ -1506,21 +1518,33 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           useZirh: player.zirh
         };
         const ac = new AbortController();
-        const timeoutId = setTimeout(() => ac.abort(), 40000);
+        const timeoutId = setTimeout(() => ac.abort(), 30000);
         const res = await fetch(`${ATTACK_API_URL}/attack`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json, text/plain, */*',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
           body: JSON.stringify(payload),
           signal: ac.signal
         });
         clearTimeout(timeoutId);
+        if (res.headers && res.headers.get('content-type') && res.headers.get('content-type').includes('text/html')) {
+          throw new Error('Cloudflare blocked request (HTML response)');
+        }
         const data = await res.json();
         if (!res.ok) {
           if (data.error === 'No active fight') {
             active = false;
             clearInterval(attackInterval);
+          } else if (data.error && data.error.includes('sunk')) {
+            clearInterval(attackInterval);
+            endFight(false, null, false, null, 0, data.error);
+            return;
           } else {
-            console.error('[ATTACK 429]', data);
+            console.error('[ATTACK 429]', data.error || JSON.stringify(data));
           }
           return;
         }
@@ -1673,11 +1697,20 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
               return;
             }
             _attackInFlight = true;
+            const retryAc = new AbortController();
+            const retryTimeoutId = setTimeout(() => retryAc.abort(), 30000);
             fetch(`${ATTACK_API_URL}/attack`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-              body: JSON.stringify({ ammoId: player.ammo, useBarut: player.barut, useZirh: player.zirh })
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json, text/plain, */*',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
+              body: JSON.stringify({ ammoId: player.ammo, useBarut: player.barut, useZirh: player.zirh }),
+              signal: retryAc.signal
             }).then(async r => {
+              clearTimeout(retryTimeoutId);
               _attackInFlight = false;
               if (r.ok || r.status === 400) {
                 _429Count = 0; // başarılı yanıt, sayaç sıfırla
@@ -1686,6 +1719,11 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
                 if (!attackInterval) {
                   attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
                 }
+              } else if (r.headers && r.headers.get('content-type') && r.headers.get('content-type').includes('text/html')) {
+                console.error('[RETRY CLOUDFLARE] HTML response — Cloudflare blocking request.');
+                _attackInFlight = false;
+                const delay = Math.min(3000 * Math.pow(2, _429Count), 24000);
+                setTimeout(retry, delay);
               } else {
                 const body = await r.json().catch(() => ({}));
                 console.error('[RETRY 429]', body);
@@ -1694,6 +1732,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
                 setTimeout(retry, delay);
               }
             }).catch(() => {
+              clearTimeout(retryTimeoutId);
               _attackInFlight = false;
               setTimeout(retry, 3000);
             });

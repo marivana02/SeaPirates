@@ -5,7 +5,9 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const pool = process.env.DATABASE_URL
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      max: 25,
+      idleTimeoutMillis: 30000
     })
   : new Pool({
       host: process.env.DB_HOST,
@@ -13,7 +15,13 @@ const pool = process.env.DATABASE_URL
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
+      max: 25,
+      idleTimeoutMillis: 30000
     });
+
+pool.on('error', (err) => {
+    console.error('[POOL] Bağlantı hatası (idle timeout veya network):', err.message);
+});
 
 pool.connect((err, client, release) => {
     if (err) {

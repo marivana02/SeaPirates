@@ -886,6 +886,7 @@
     <div class="top-bar">
       <div class="top-bar-left">
         <a class="shop-btn" href="#" id="btn-starter-home">
+          <span class="shop-btn-icon"><img src="assets/ui/starterikon.png" class="vip-icon" alt="Starter"></span>
           <span class="shop-btn-lbl" data-i18n="starter_pack" data-i18n-text>BAŞLANGIÇ PAKETİ</span>
         </a>
       </div>
@@ -1130,6 +1131,9 @@
         return data;
       } catch (err) {
         logError('home:player', err);
+        if (window.isNetworkError && window.isNetworkError(err)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
         return JSON.parse(localStorage.getItem('sp_player') || '{}');
       }
     }
@@ -1141,6 +1145,9 @@
         return data;
       } catch (err) {
         logError('home:leaderboard', err);
+        if (window.isNetworkError && window.isNetworkError(err)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
         return [];
       }
     }
@@ -1166,9 +1173,26 @@
           return;
         }
         if (ev.mult) badge.textContent = '×' + ev.mult;
+        window._evType = ev.type || null;
+        window._evName = ev.name || null;
+        window._evDesc = ev.desc || null;
         banner.classList.remove('hidden');
-      } catch (e) { /* silent */ }
+      } catch (e) {
+        logError('home:event-banner', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
+      }
     }
+
+    /* Dil dosyası geç yüklenirse event banner'ını tekrar çevir */
+    window.addEventListener('languageChanged', function() {
+      if (!window._evType) return;
+      var nm = document.getElementById('ev-name');
+      var dc = document.getElementById('ev-desc');
+      if (nm) nm.textContent = t('event_' + window._evType + '_name') || window._evName || nm.textContent;
+      if (dc) dc.textContent = t('event_' + window._evType + '_desc') || window._evDesc || dc.textContent;
+    });
 
     async function init() {
       const [playerData, lbData] = await Promise.all([fetchPlayer(), fetchLeaderboard(), fetchEventBanner()]);
@@ -1269,7 +1293,12 @@
         vipPrices = p.prices;
         vipCurrencies = p.currencies;
         currentCurrency = c.currency;
-      } catch (e) { logError('home:vip-prices', e); }
+      } catch (e) {
+        logError('home:vip-prices', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
+      }
     }
 
     function updateVipPrices() {
@@ -1366,6 +1395,9 @@
         if (r.ok) localStorage.setItem('sp_session_ts', Date.now().toString());
       } catch (err) {
         logError('home:ping', err);
+        if (window.isNetworkError && window.isNetworkError(err)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
       }
     }, 60000);
 

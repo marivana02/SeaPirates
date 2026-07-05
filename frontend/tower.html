@@ -243,6 +243,9 @@
 
       } catch (err) {
         logError('tower:load', err);
+        if (window.isNetworkError && window.isNetworkError(err)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
       }
     }
 

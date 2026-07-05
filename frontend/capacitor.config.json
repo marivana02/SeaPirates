@@ -6,5 +6,10 @@
     "url": "https://www.seapirates.site",
     "androidScheme": "https",
     "cleartext": false
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
   }
 }

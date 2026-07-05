@@ -99,7 +99,14 @@
             goTo('map.html');
           }
         }
-      } catch (e) { logError('fight-pvp:attack', e); }
+      } catch (e) {
+        logError('fight-pvp:attack', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+          goTo('map.html');
+          return;
+        }
+      }
     }
 
     // No-cannon modal buttons
@@ -180,8 +187,12 @@
       fetch(`${SHARED_API_URL}/end`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'X-Requested-With': 'XMLHttpRequest' }
-      }).catch(e => logError('fight-pvp:end', e))
-        .finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace(pvpWon ? 'pvp.html' : 'map.html'); });
+      }).catch(e => {
+        logError('fight-pvp:end', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
+      }).finally(() => { sessionStorage.setItem('sp_navigating','1'); window.location.replace(pvpWon ? 'pvp.html' : 'map.html'); });
     };
 
     function showPage() {

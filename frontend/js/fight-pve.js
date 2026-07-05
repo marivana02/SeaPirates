@@ -165,8 +165,12 @@
                 fetch(`${SHARED_API_URL}/end`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-                }).catch(e => logError('fight-pve:end', e))
-                  .finally(() => endFight(true));
+                }).catch(e => {
+                  logError('fight-pve:end', e);
+                  if (window.isNetworkError && window.isNetworkError(e)) {
+                    if (window.startOfflineTimer) window.startOfflineTimer();
+                  }
+                }).finally(() => endFight(true));
               }
             }, 1000);
           }
@@ -179,7 +183,14 @@
             goTo(isTower ? 'tower.html' : 'map.html');
           }
         }
-      } catch (e) { logError('fight-pve:attack', e); }
+      } catch (e) {
+        logError('fight-pve:attack', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+          goTo('map.html');
+          return;
+        }
+      }
     }
 
     // No-cannon modal buttons
@@ -233,9 +244,12 @@
       } else if (isTiamat && won) {
         titleText = t('victory');
         subText = 'Tiamat ' + t('victory');
+      } else if (isTiamat && !won) {
+        titleText = t('sunk_by', { name: 'Tiamat' });
+        subText = '';
       } else if (!won) {
-        titleText = t('defeat');
-        subText = t('pvp_defeat_msg', { name: npc.name });
+        titleText = t('sunk_by', { name: npc.name });
+        subText = '';
       } else if (won) {
         if (isTower) { titleText = t('victory'); subText = t('daily_tower_title'); }
         else if (isAdmiral) { titleText = t('victory'); subText = npc.name || 'Admiral'; }

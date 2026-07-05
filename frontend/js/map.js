@@ -173,6 +173,11 @@
           }
         } catch(e) {
           logError('map:change', e);
+          if (window.isNetworkError && window.isNetworkError(e)) {
+            if (window.startOfflineTimer) window.startOfflineTimer();
+            setUiLocked(false);
+            return;
+          }
           currentMapLevel = targetLevel;
           currentMapSub = targetSub;
           localStorage.setItem('sp_current_map', currentMapLevel);
@@ -296,6 +301,9 @@
         mapBoss = d.bossData || null;
       } catch(e) {
         logError('map:npcs', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
         mapNpcs = {};
         mapBoss = null;
       }
@@ -340,6 +348,9 @@
         }
       } catch (e) {
         logError('map:admiral', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
       }
     }
 
@@ -392,6 +403,9 @@
         }
       } catch (e) {
         logError('map:active-fight', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
       }
 
       try {
@@ -405,6 +419,9 @@
         }
       } catch(e) {
         logError('map:player', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
         let savedPlayer = {};
         try { savedPlayer = JSON.parse(localStorage.getItem('sp_player') || '{}'); } catch(e2) {}
         player = {
@@ -441,6 +458,9 @@
         tiamatRespawnAt = mData.tiamatRespawnAt || null;
       } catch(e) {
         logError('map:fetch', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
         currentMapLevel = parseInt(localStorage.getItem('sp_current_map')) || 1;
         currentMapSub = currentMapLevel <= 4 ? 1 : 1;
       }
@@ -485,7 +505,11 @@
           return;
         }
       } catch(e) {
-        // API hatasında search'e izin ver
+        logError('map:cannons-check', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+          return;
+        }
       }
 
       const keys = Object.keys(mapNpcs);
@@ -679,6 +703,9 @@
           bossRewardsCache = await r.json();
         } catch(e) {
           logError('map:boss-rewards', e);
+          if (window.isNetworkError && window.isNetworkError(e)) {
+            if (window.startOfflineTimer) window.startOfflineTimer();
+          }
           bossRewardsCache = {};
         }
       }
@@ -785,6 +812,9 @@
         listEl.innerHTML = html;
       } catch(e) {
         logError('map:boss-leaderboard', e);
+        if (window.isNetworkError && window.isNetworkError(e)) {
+          if (window.startOfflineTimer) window.startOfflineTimer();
+        }
         infoEl.innerHTML = '⚠️ ' + t('connection_failed');
         listEl.innerHTML = `<div class="boss-ranking-empty" style="color:var(--gold);">${t('ranking_error')}</div>`;
       }

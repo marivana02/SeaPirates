@@ -28,6 +28,7 @@ const pool = require('./config/db');
 const { initSocketIO } = require('./helpers/socket');
 const { startBotTicks } = require('./bots/botAdmirals');
 const { startTiamatBotTicks } = require('./bots/botTiamat');
+const { sendPushToAll } = require('./helpers/fcm');
 
 // Yakalanmayan promise hatalarını logla (server çökmesin)
 process.on('unhandledRejection', (reason) => {
@@ -137,6 +138,26 @@ const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
       console.log(`HTTP sunucu ${PORT} portunda çalışıyor`);
       startBotTicks();
       startTiamatBotTicks();
+
+      // Her saat başı uzun süre girmeyen oyunculara bildirim
+      setInterval(async () => {
+        try {
+          const { sendPush } = require('./helpers/fcm');
+          const { sendPushToAll } = require('./helpers/fcm');
+          const res = await pool.query(
+            `SELECT DISTINCT p.id FROM players p
+             JOIN fcm_tokens ft ON ft.player_id = p.id
+             WHERE p.last_seen IS NOT NULL
+               AND p.last_seen < NOW() - INTERVAL '24 hours'
+               AND p.last_seen > NOW() - INTERVAL '72 hours'`
+          );
+          for (const row of res.rows) {
+            sendPush(row.id, 'inactive_reminder', {});
+          }
+        } catch (e) {
+          console.error('[CRON] inactive reminder error:', e.message);
+        }
+      }, 60 * 60 * 1000);
     });
     servers.push(httpServer);
   } else {

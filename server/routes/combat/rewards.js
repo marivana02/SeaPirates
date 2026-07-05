@@ -1,7 +1,7 @@
 const { getCurrentWeekString } = require('../../helpers/date');
 const { getWeeklyBossRewards, distributeAdmiralRewards, distributeTiamatRewards } = require('../../helpers/combat');
 const { checkLevelUp } = require('../../helpers/combatRoute');
-const { sendPushToAll } = require('../../helpers/pushNotifications');
+const { sendPushToAll } = require('../../helpers/fcm');
 const { isPlayerVip } = require('../../helpers/rewards');
 
 async function getRespawnHp(pool, playerId, maxHp) {
@@ -236,10 +236,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
                 [randomSubMap, fightMapLvl]
               );
               console.log(`[BOSS SPAWN] ${bossInfo.name} spawned in Map ${fightMapLvl}-${randomSubMap}!`);
-              sendPushToAll(
-                '⚓ Admiral Spawnlandı!',
-                `${bossInfo.name} — Harita ${fightMapLvl}-${randomSubMap}'de göründü!`
-              );
+              sendPushToAll('admiral_spawn', { map: fightMapLvl, sub: randomSubMap });
             }
           }
           await spawnClient.query('COMMIT');

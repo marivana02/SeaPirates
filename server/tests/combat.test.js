@@ -32,42 +32,47 @@ test('BOT_AMMO_DAMAGE has correct values', () => {
 //  LOCKS
 // ─━━━━━━━━━━━━━━━━━━━━━━━
 
+let _lastLockId = null;
+
+function getLockId() {
+  return _lastLockId;
+}
+
 test('acquireAttackLock acquires when free', () => {
   const { acquireAttackLock, releaseAttackLock } = require('../routes/combat/locks');
-  releaseAttackLock(999); // cleanup
-  const result = acquireAttackLock(999);
-  assert.equal(result, true);
-  releaseAttackLock(999);
+  const lockId1 = acquireAttackLock(999);
+  assert.ok(lockId1, 'should return truthy lockId');
+  releaseAttackLock(999, lockId1);
 });
 
 test('acquireAttackLock rejects when already locked', () => {
   const { acquireAttackLock, releaseAttackLock } = require('../routes/combat/locks');
-  releaseAttackLock(111); // cleanup
-  acquireAttackLock(111);
+  const lockId1 = acquireAttackLock(111);
+  assert.ok(lockId1);
   const second = acquireAttackLock(111);
   assert.equal(second, false);
-  releaseAttackLock(111);
+  releaseAttackLock(111, lockId1);
 });
 
 test('releaseAttackLock allows re-acquire', () => {
   const { acquireAttackLock, releaseAttackLock } = require('../routes/combat/locks');
-  releaseAttackLock(222);
-  acquireAttackLock(222);
-  releaseAttackLock(222);
-  const result = acquireAttackLock(222);
-  assert.equal(result, true);
-  releaseAttackLock(222);
+  const lockId1 = acquireAttackLock(222);
+  assert.ok(lockId1);
+  releaseAttackLock(222, lockId1);
+  const lockId2 = acquireAttackLock(222);
+  assert.ok(lockId2);
+  assert.notEqual(lockId1, lockId2, 'each acquire should return unique lockId');
+  releaseAttackLock(222, lockId2);
 });
 
 test('different player IDs do not block each other', () => {
   const { acquireAttackLock, releaseAttackLock } = require('../routes/combat/locks');
-  releaseAttackLock(100);
-  releaseAttackLock(200);
-  acquireAttackLock(100);
-  const result = acquireAttackLock(200);
-  assert.equal(result, true);
-  releaseAttackLock(100);
-  releaseAttackLock(200);
+  const lockId100 = acquireAttackLock(100);
+  assert.ok(lockId100);
+  const lockId200 = acquireAttackLock(200);
+  assert.ok(lockId200);
+  releaseAttackLock(100, lockId100);
+  releaseAttackLock(200, lockId200);
 });
 
 // ─━━━━━━━━━━━━━━━━━━━━━━━
