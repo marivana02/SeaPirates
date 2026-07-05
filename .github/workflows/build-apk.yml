@@ -64,10 +64,12 @@ jobs:
             fi
           done
 
-      - name: Add Android platform
+      - name: Add Android platform (ilk seferde)
         run: |
           cd frontend
-          npx cap add android
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
 
       - name: Generate app icons from login.png
         run: |
