@@ -186,4 +186,14 @@ router.post('/tiamat-spawn', asyncHandler(async (req, res) => {
   res.json({ ok: true, message: 'Tiamat will respawn on next status check' });
 }));
 
+router.post('/test-push', asyncHandler(async (req, res) => {
+  const { playerId, type, params } = req.body;
+  if (!playerId || !type) {
+    return res.status(400).json({ error: 'Missing playerId or type' });
+  }
+  const { sendPush } = require('../helpers/fcm');
+  await sendPush(playerId, type, params || {});
+  res.json({ ok: true, message: `Push '${type}' sent to player ${playerId}` });
+}));
+
 module.exports = router;
