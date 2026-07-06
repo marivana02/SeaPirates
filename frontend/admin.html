@@ -129,7 +129,8 @@
 
   <div class="tab-bar">
     <div class="tab active" data-tab="players" onclick="switchTab('players')"><span data-i18n="admin_tab_players">Oyuncular</span></div>
-    <div class="tab" data-tab="logs" onclick="switchTab('logs')"><span data-i18n="admin_tab_logs">Islem Ge�misi</span></div>
+    <div class="tab" data-tab="push" onclick="switchTab('push')">📨 Push</div>
+    <div class="tab" data-tab="logs" onclick="switchTab('logs')"><span data-i18n="admin_tab_logs">İşlem Geçmişi</span></div>
   </div>
 
   <div id="statusBar" class="status-bar"></div>
@@ -144,11 +145,30 @@
     <div id="playerList"></div>
   </div>
 
+  <!-- PUSH TAB -->
+  <div id="panel-push" class="panel">
+    <div class="card">
+      <h3>📨 FCM Push Test</h3>
+      <div class="flex mb-8">
+        <input type="number" id="pushPlayerId" placeholder="Player ID" style="flex:1;min-width:80px;">
+        <select id="pushType" class="w-auto" style="width:auto;min-width:130px;">
+          <option value="tiamat_spawn">⚔ Tiamat Spawn</option>
+          <option value="admiral_spawn">⚓ Admiral Spawn</option>
+          <option value="inactive_reminder">🏴 Inactive Reminder</option>
+        </select>
+      </div>
+      <div class="flex">
+        <button class="btn btn-warn" onclick="sendTestPush()">📨 Push Gönder</button>
+        <span id="pushResult" style="font-size:0.75rem;color:var(--txt-m);"></span>
+      </div>
+    </div>
+  </div>
+
   <!-- LOGS TAB -->
   <div id="panel-logs" class="panel">
     <div class="search-wrap">
       <select id="logTypeFilter" class="w-auto" style="width:auto;min-width:120px;">
-        <option value="" data-i18n="admin_log_all">T�m�</option>
+        <option value="" data-i18n="admin_log_all">Tümü</option>
         <option value="admin_ban">Ban</option>
         <option value="admin_unban">Unban</option>
         <option value="admin_vip">VIP</option>
@@ -213,12 +233,12 @@ function searchPlayers(page = 1) {
 function renderPlayerList(data) {
   const el = document.getElementById('playerList');
   if (!data.players || data.players.length === 0) {
-    el.innerHTML = '<div class="card" style="text-align:center;color:var(--txt-m);padding:30px;"><span data-i18n="admin_no_results">Sonu� bulunamadi</span></div>';
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--txt-m);padding:30px;"><span data-i18n="admin_no_results">Sonuç bulunamadı</span></div>';
     return;
   }
 
   let html = `<div class="card"><div class="table-wrap"><table><thead><tr>
-    <th>ID</th><th data-i18n="admin_col_username">Kullanici</th><th data-i18n="admin_col_display">Display Name</th><th>Lv</th>
+    <th>ID</th><th data-i18n="admin_col_username">Kullanıcı</th><th data-i18n="admin_col_display">Display Name</th><th>Lv</th>
     <th data-i18n="admin_col_status">Durum</th><th>Email</th><th data-i18n="admin_col_actions">Actions</th>
   </tr></thead><tbody>`;
 
@@ -398,6 +418,19 @@ function grantVip(id) {
       status(data.message, 'success');
       viewPlayer(id);
     }).catch(e => status(t('admin_connection_error'), 'error'));
+}
+
+function sendTestPush() {
+  const playerId = document.getElementById('pushPlayerId').value.trim();
+  const type = document.getElementById('pushType').value;
+  const resultEl = document.getElementById('pushResult');
+  if (!playerId) { resultEl.textContent = '⚠ Player ID gerekli'; return; }
+  resultEl.textContent = '⏳ Gönderiliyor...';
+  api('/test-push', { method: 'POST', body: { playerId: parseInt(playerId), type } })
+    .then(data => {
+      if (data.error) { resultEl.textContent = '❌ ' + data.error; return; }
+      resultEl.textContent = '✅ ' + (data.message || 'Gönderildi');
+    }).catch(e => { resultEl.textContent = '❌ ' + (e.message || 'Hata'); });
 }
 
 function closeModal() {
