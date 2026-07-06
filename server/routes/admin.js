@@ -196,4 +196,14 @@ router.post('/test-push', asyncHandler(async (req, res) => {
   res.json({ ok: true, message: `Push '${type}' sent to player ${playerId}` });
 }));
 
+router.post('/push-all', asyncHandler(async (req, res) => {
+  const { title, body, type, params } = req.body;
+  if (!title || !body) {
+    return res.status(400).json({ error: 'Missing title or body' });
+  }
+  const { sendPushToAllCustom } = require('../helpers/fcm');
+  await sendPushToAllCustom(title, body, type || 'custom', params || {});
+  res.json({ ok: true, message: `Push '${title}' sent to all devices` });
+}));
+
 module.exports = router;

@@ -148,17 +148,13 @@
   <!-- PUSH TAB -->
   <div id="panel-push" class="panel">
     <div class="card">
-      <h3>📨 FCM Push Test</h3>
-      <div class="flex mb-8">
-        <input type="number" id="pushPlayerId" placeholder="Player ID" style="flex:1;min-width:80px;">
-        <select id="pushType" class="w-auto" style="width:auto;min-width:130px;">
-          <option value="tiamat_spawn">⚔ Tiamat Spawn</option>
-          <option value="admiral_spawn">⚓ Admiral Spawn</option>
-          <option value="inactive_reminder">🏴 Inactive Reminder</option>
-        </select>
+      <h3>📨 Tüm Cihazlara Push Gönder</h3>
+      <div class="mb-8">
+        <input type="text" id="pushTitle" placeholder="Başlık" style="margin-bottom:6px;">
+        <textarea id="pushBody" placeholder="Mesaj içeriği..." rows="3"></textarea>
       </div>
       <div class="flex">
-        <button class="btn btn-warn" onclick="sendTestPush()">📨 Push Gönder</button>
+        <button class="btn btn-warn" onclick="sendPushAll()">📨 TÜMÜNE GÖNDER</button>
         <span id="pushResult" style="font-size:0.75rem;color:var(--txt-m);"></span>
       </div>
     </div>
@@ -420,13 +416,13 @@ function grantVip(id) {
     }).catch(e => status(t('admin_connection_error'), 'error'));
 }
 
-function sendTestPush() {
-  const playerId = document.getElementById('pushPlayerId').value.trim();
-  const type = document.getElementById('pushType').value;
+function sendPushAll() {
+  const title = document.getElementById('pushTitle').value.trim();
+  const body = document.getElementById('pushBody').value.trim();
   const resultEl = document.getElementById('pushResult');
-  if (!playerId) { resultEl.textContent = '⚠ Player ID gerekli'; return; }
+  if (!title || !body) { resultEl.textContent = '⚠ Başlık ve mesaj gerekli'; return; }
   resultEl.textContent = '⏳ Gönderiliyor...';
-  api('/test-push', { method: 'POST', body: { playerId: parseInt(playerId), type } })
+  api('/push-all', { method: 'POST', body: { title, body } })
     .then(data => {
       if (data.error) { resultEl.textContent = '❌ ' + data.error; return; }
       resultEl.textContent = '✅ ' + (data.message || 'Gönderildi');
