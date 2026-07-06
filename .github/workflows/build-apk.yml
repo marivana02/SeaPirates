@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       server_url:
-        description: 'Server URL (boş = http://192.168.1.5:3000)'
+        description: 'Server URL (boş = https://www.seapirates.site)'
         required: false
         default: ''
 
@@ -43,7 +43,7 @@ jobs:
         run: |
           URL="${{ github.event.inputs.server_url }}"
           if [ -z "$URL" ]; then
-            URL="http://192.168.1.5:3000"
+            URL="https://www.seapirates.site"
             echo "Using default URL: $URL"
           else
             echo "Using server URL: $URL"
