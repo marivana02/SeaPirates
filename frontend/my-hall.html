@@ -484,14 +484,13 @@ async function loadMyRank() {
       // Bir alt rütbe kartı
       const lowerCard = document.getElementById('card-lower');
       if (lower) {
-        const gap = (lower.score != null) ? me.score - lower.score : null;
         lowerCard.innerHTML = `
           <div class="info-title">${t('hall_one_below')}</div>
           <div class="rank-target">
             <span class="target-ico"><img src="assets/ui/rank/rank${lower.rankBadge}.png" alt=""></span>
             <span class="target-name">${t(lower.rankKey || 'rank_13')}</span>
           </div>
-          <div class="target-desc">${gap !== null ? t('hall_one_below_desc', {val: fmtN(gap)}) : t('hall_lowest_rank')}</div>
+          <div class="target-desc">${t('hall_one_below_desc', {val: fmtN(me.score - lower.score)})}</div>
         `;
         lowerCard.style.display = '';
       } else {

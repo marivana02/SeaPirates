@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../../config/db');
 const authMiddleware = require('../../middleware/auth');
-const { calculateAllPlayerRanks, rankNames } = require('../../helpers/rank');
+const { calculateAllPlayerRanks } = require('../../helpers/rank');
 
 router.get('/leaderboard', async (req, res) => {
   try {
@@ -106,13 +106,18 @@ router.get('/my-rank', authMiddleware, async (req, res) => {
     }
 
     let lower = null;
-    if (me.rankBadge < 13) {
-      const nextBadge = me.rankBadge + 1;
-      lower = {
-        rankBadge: nextBadge,
-        rankName: rankNames[nextBadge].tr,
-        rankKey: rankNames[nextBadge].key
-      };
+    for (let i = myIndex + 1; i < total; i++) {
+      if (players[i].rankBadge !== me.rankBadge) {
+        const l = players[i];
+        lower = {
+          score: l.score,
+          username: l.username,
+          rankName: l.rankName,
+          rankKey: l.rankKey,
+          rankBadge: l.rankBadge
+        };
+        break;
+      }
     }
 
     res.json({
