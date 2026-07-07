@@ -46,7 +46,7 @@ async function calculateAllPlayerRanks(pool) {
     const xpPart = Math.floor(parseInt(p.xp) / 1500);
     const epPart = Math.floor(parseInt(p.elite_points) / 5000);
     const dmgPart = Math.floor(parseInt(p.dmg_pve) / 200000);
-    const levelPart = parseInt(p.level) * 100;
+    const levelPart = Math.max(0, (parseInt(p.level) - 1)) * 100;
     const daysPart = days * 5;
     const score = xpPart + epPart + dmgPart + levelPart + daysPart;
 
