@@ -196,6 +196,19 @@ router.post('/test-push', asyncHandler(async (req, res) => {
   res.json({ ok: true, message: `Push '${type}' sent to player ${playerId}` });
 }));
 
+router.post('/admiral-spawn', asyncHandler(async (req, res) => {
+  const mapLevel = parseInt(req.body.mapLevel) || 1;
+  const maxSubs = mapLevel <= 4 ? 2 : 1;
+  const subMap = Math.floor(Math.random() * maxSubs) + 1;
+  await pool.query(
+    `UPDATE npc3_kill_counter SET is_spawned = TRUE, spawned_sub_map = $1, kill_count = 0, last_reset = NOW() WHERE map_level = $2`,
+    [subMap, mapLevel]
+  );
+  const { sendPushToAll } = require('../helpers/fcm');
+  sendPushToAll('admiral_spawn', { map: mapLevel, sub: subMap });
+  res.json({ ok: true, message: `Admiral Map ${mapLevel}-${subMap}'de spawnlandı, push gönderildi` });
+}));
+
 router.post('/push-all', asyncHandler(async (req, res) => {
   const { title, body, type, params } = req.body;
   if (!title || !body) {

@@ -148,6 +148,25 @@
   <!-- PUSH TAB -->
   <div id="panel-push" class="panel">
     <div class="card">
+      <h3>⚓ Admiral Spawn Tetikle</h3>
+      <div class="flex mb-8">
+        <select id="admiralMap" class="w-auto" style="width:auto;min-width:80px;">
+          <option value="1">Map 1</option>
+          <option value="2">Map 2</option>
+          <option value="3">Map 3</option>
+          <option value="4">Map 4</option>
+          <option value="5">Map 5</option>
+          <option value="6">Map 6</option>
+          <option value="7">Map 7</option>
+          <option value="8">Map 8</option>
+          <option value="9">Map 9</option>
+          <option value="10">Map 10</option>
+        </select>
+        <button class="btn btn-danger" onclick="spawnAdmiral()">⚓ ADMİRAL SPAWNLA + PUSH</button>
+        <span id="admiralResult" style="font-size:0.75rem;color:var(--txt-m);"></span>
+      </div>
+    </div>
+    <div class="card">
       <h3>📨 Tüm Cihazlara Push Gönder</h3>
       <div class="mb-8">
         <input type="text" id="pushTitle" placeholder="Başlık" style="margin-bottom:6px;">
@@ -414,6 +433,17 @@ function grantVip(id) {
       status(data.message, 'success');
       viewPlayer(id);
     }).catch(e => status(t('admin_connection_error'), 'error'));
+}
+
+function spawnAdmiral() {
+  const mapLevel = document.getElementById('admiralMap').value;
+  const resultEl = document.getElementById('admiralResult');
+  resultEl.textContent = '⏳ Spawnlanıyor...';
+  api('/admiral-spawn', { method: 'POST', body: { mapLevel: parseInt(mapLevel) } })
+    .then(data => {
+      if (data.error) { resultEl.textContent = '❌ ' + data.error; return; }
+      resultEl.textContent = '✅ ' + (data.message || 'Spawnlandı');
+    }).catch(e => { resultEl.textContent = '❌ ' + (e.message || 'Hata'); });
 }
 
 function sendPushAll() {
