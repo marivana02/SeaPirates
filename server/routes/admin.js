@@ -204,9 +204,11 @@ router.post('/admiral-spawn', asyncHandler(async (req, res) => {
     `UPDATE npc3_kill_counter SET is_spawned = TRUE, spawned_sub_map = $1, kill_count = 0, last_reset = NOW() WHERE map_level = $2`,
     [subMap, mapLevel]
   );
+  const bossRes = await pool.query('SELECT name FROM bosses WHERE map_level = $1', [mapLevel]);
+  const bossName = bossRes.rows[0]?.name || 'Amiral';
   const { sendPushToAll } = require('../helpers/fcm');
-  sendPushToAll('admiral_spawn', { map: mapLevel, sub: subMap }, mapLevel);
-  res.json({ ok: true, message: `Admiral Map ${mapLevel}-${subMap}'de spawnlandı, push gönderildi` });
+  sendPushToAll('admiral_spawn', { map: mapLevel, sub: subMap, name: bossName }, mapLevel);
+  res.json({ ok: true, message: `${bossName} Map ${mapLevel}-${subMap}'de spawnlandı, push gönderildi` });
 }));
 
 router.post('/push-all', asyncHandler(async (req, res) => {

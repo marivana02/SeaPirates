@@ -53,7 +53,8 @@ function getNotificationText(type, params) {
     case 'tiamat_spawn':
       return { title: '🏴‍☠️ TİAMAT UYANDI!', body: 'Kaptan! Tiamat yeniden doğdu. Denizlerin en korkunç canavarı seni bekliyor!' };
     case 'admiral_spawn':
-      return { title: '⚓ AMİRAL GÖRÜLDÜ!', body: 'Harita ' + (params.map || '?') + '-' + (params.sub || '?') + ' Amiral göründü, hemen saldır!' };
+      const aName = params.name || 'Amiral';
+      return { title: `⚓ ${aName} GÖRÜLDÜ!`, body: `${aName} Harita ${params.map || '?'}-${params.sub || '?'}'de göründü, hemen saldır!` };
     case 'inactive_reminder':
       return { title: '🏴‍☠️ RÜZGAR ELVERİŞLİ!', body: 'Kaptan! Tiamat ve Admiral denizlerde. Yelkenleri fora, savaş seni bekliyor!' };
     default:
