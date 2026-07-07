@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <title>SeaPirates � Shop</title>
+  <title>SeaPirates — Shop</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
@@ -251,8 +251,8 @@
 
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? GERI</span></a>
-    <div class="page-title"><span data-i18n="shop_title" data-i18n-text>D�KKAN</span></div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ GERİ</span></a>
+    <div class="page-title"><span data-i18n="shop_title" data-i18n-text>DÜKKAN</span></div>
     <div style="width:60px;"></div>
   </div>
 
@@ -274,16 +274,16 @@
 
 <script>
   const SHOP_ITEMS = [
-    { cat:'item_cannons', id:1, nk:'shop_name_30_pounder', name:'30 Pounder', stats:[{k:'stat_damage',p:{val:'120'},c:'dmg'},{k:'stat_reload',p:{val:'4'},c:'spd'}], price:10000, currency:'gold', img:'assets/items/toppp/top1.png' },
-    { cat:'item_cannons', id:2, nk:'shop_name_55_pounder', name:'55 Pounder', stats:[{k:'stat_damage',p:{val:'185'},c:'dmg'},{k:'stat_reload',p:{val:'3'},c:'spd'}], price:2000, currency:'pearl', img:'assets/items/toppp/top2.png' },
-    { cat:'item_cannons', id:3, nk:'shop_name_60_pounder', name:'60 Pounder', stats:[{k:'stat_damage',p:{val:'260'},c:'dmg'},{k:'stat_reload',p:{val:'2'},c:'spd'}], price:6000, currency:'pearl', img:'assets/items/toppp/top3.png' },
-    { cat:'item_ammo', id:10, nk:'shop_name_grapeshot', name:'Grapeshot (x100)', stats:[{k:'stat_damage_plus',p:{val:'10'},c:'dmg'}], price:3000, currency:'gold', img:'assets/items/shop/misketgulle.png' },
-    { cat:'item_ammo', id:11, nk:'shop_name_hollow_shot', name:'Hollow Shot (x100)', stats:[{k:'stat_damage_plus',p:{val:'20'},c:'dmg'}], price:6000, currency:'gold', img:'assets/items/shop/oyukgulle.png' },
-    { cat:'item_ammo', id:12, nk:'shop_name_explosive_shot', name:'Explosive Shot (x100)', stats:[{k:'stat_damage_plus',p:{val:'50'},c:'dmg'},{k:'stat_explosive_mult',p:{},c:'atk'},{k:'stat_elite_points',p:{val:'1.0'},c:'elp'}], price:280, currency:'pearl', img:'assets/items/shop/elitgulle.png' },
-    { cat:'item_beams', id:20, nk:'shop_name_wooden_beam', name:'Wooden Beam', stats:[{k:'stat_hp_plus',p:{val:'500'},c:'hp'},{k:'stat_repair_plus',p:{val:'8'},c:'repair'}], price:35000, currency:'gold', img:'assets/items/shop/tahtakiris.png' },
-    { cat:'item_beams', id:21, nk:'shop_name_elite_beam', name:'Elite Beam', stats:[{k:'stat_hp_plus',p:{val:'1,200'},c:'hp'},{k:'stat_repair_plus',p:{val:'20'},c:'repair'}], price:1200, currency:'pearl', img:'assets/items/shop/elitkiris.png' },
-    { cat:'item_consumables', id:30, nk:'shop_name_gunpowder', name:'Gunpowder (x100)', stats:[{k:'stat_damage_pct',p:{val:'10'},c:'atk'}], price:120, currency:'pearl', img:'assets/items/shop/barut-dukkan.png' },
-    { cat:'item_consumables', id:31, nk:'shop_name_armor', name:'Armor (x100)', stats:[{k:'stat_damage_reduction',p:{val:'10'},c:'def'}], price:120, currency:'pearl', img:'assets/items/shop/zirh-dukkan.png' },
+    { cat:'item_cannons', id:1, nk:'shop_name_30_pounder', name:'30 Pounder', qty:1, stats:[{k:'stat_damage',p:{val:'120'},c:'dmg'},{k:'stat_reload',p:{val:'4'},c:'spd'}], price:10000, currency:'gold', img:'assets/items/toppp/top1.png' },
+    { cat:'item_cannons', id:2, nk:'shop_name_55_pounder', name:'55 Pounder', qty:1, stats:[{k:'stat_damage',p:{val:'185'},c:'dmg'},{k:'stat_reload',p:{val:'3'},c:'spd'}], price:2000, currency:'pearl', img:'assets/items/toppp/top2.png' },
+    { cat:'item_cannons', id:3, nk:'shop_name_60_pounder', name:'60 Pounder', qty:1, stats:[{k:'stat_damage',p:{val:'260'},c:'dmg'},{k:'stat_reload',p:{val:'2'},c:'spd'}], price:6000, currency:'pearl', img:'assets/items/toppp/top3.png' },
+    { cat:'item_ammo', id:10, nk:'shop_name_grapeshot', name:'Grapeshot (x100)', qty:100, stats:[{k:'stat_damage_plus',p:{val:'10'},c:'dmg'}], price:3000, currency:'gold', img:'assets/items/shop/misketgulle.png' },
+    { cat:'item_ammo', id:11, nk:'shop_name_hollow_shot', name:'Hollow Shot (x100)', qty:100, stats:[{k:'stat_damage_plus',p:{val:'20'},c:'dmg'}], price:6000, currency:'gold', img:'assets/items/shop/oyukgulle.png' },
+    { cat:'item_ammo', id:12, nk:'shop_name_explosive_shot', name:'Explosive Shot (x100)', qty:100, stats:[{k:'stat_damage_plus',p:{val:'50'},c:'dmg'},{k:'stat_elite_points',p:{val:'1.0'},c:'elp'}], price:280, currency:'pearl', img:'assets/items/shop/elitgulle.png' },
+    { cat:'item_beams', id:20, nk:'shop_name_wooden_beam', name:'Wooden Beam', qty:1, stats:[{k:'stat_hp_plus',p:{val:'500'},c:'hp'},{k:'stat_repair_plus',p:{val:'8'},c:'repair'}], price:35000, currency:'gold', img:'assets/items/shop/tahtakiris.png' },
+    { cat:'item_beams', id:21, nk:'shop_name_elite_beam', name:'Elite Beam', qty:1, stats:[{k:'stat_hp_plus',p:{val:'1,200'},c:'hp'},{k:'stat_repair_plus',p:{val:'20'},c:'repair'}], price:1200, currency:'pearl', img:'assets/items/shop/elitkiris.png' },
+    { cat:'item_consumables', id:30, nk:'shop_name_gunpowder', name:'Gunpowder (x100)', qty:100, stats:[{k:'stat_damage_pct',p:{val:'10'},c:'atk'}], price:120, currency:'pearl', img:'assets/items/shop/barut-dukkan.png' },
+    { cat:'item_consumables', id:31, nk:'shop_name_armor', name:'Armor (x100)', qty:100, stats:[{k:'stat_damage_reduction',p:{val:'10'},c:'def'}], price:120, currency:'pearl', img:'assets/items/shop/zirh-dukkan.png' },
     { cat:'SHIPS', id:40, nk:'shop_name_elite_ship', name:'Elite Ship I', stats:[{k:'stat_hp',p:{val:'25,000'},c:'hp'},{k:'stat_cannon_slots',p:{val:'30'},c:'dmg'},{k:'stat_mast_slots',p:{val:'10'},c:'spd'}], price:10000, currency:'pearl', img:'assets/items/shop/elit gemi 1.png' },
     { cat:'DESIGNS', id:41, nk:'shop_name_crystal_queen', name:'Crystal Queen', stats:[{k:'stat_skin',p:{val:'Crystal Coating'},c:'spd'},{k:'stat_note_cosmetic',p:{},c:'hp'}], price:5000, currency:'pearl', img:'assets/items/shop/kristalquen/1.png' }
   ];
@@ -312,22 +312,18 @@
       saved.ownedDesigns = data.ownedDesigns;
       localStorage.setItem('sp_player', JSON.stringify(saved));
       updateCurrency();
-    } catch (e) {
-      logError('shop:load-qtys', e);
-      if (window.isNetworkError && window.isNetworkError(e)) {
-        if (window.startOfflineTimer) window.startOfflineTimer();
-      }
-    }
+    } catch (e) {}
   }
 
+  var QTY_MAP = {
+    1: ['cannons', 1], 2: ['cannons', 2], 3: ['cannons', 3],
+    10: ['ammo', 1], 11: ['ammo', 2], 12: ['ammo', 3],
+    20: ['planks', 'tahta'], 21: ['planks', 'elit'],
+    30: ['items', 'barut'], 31: ['items', 'zirh']
+  };
+  function getQtyMap(shopId) { return QTY_MAP[shopId] || null; }
   function getQty(shopId) {
-    const map = {
-      1: ['cannons', 1], 2: ['cannons', 2], 3: ['cannons', 3],
-      10: ['ammo', 1], 11: ['ammo', 2], 12: ['ammo', 3],
-      20: ['planks', 'tahta'], 21: ['planks', 'elit'],
-      30: ['items', 'barut'], 31: ['items', 'zirh']
-    };
-    const m = map[shopId];
+    var m = getQtyMap(shopId);
     if (!m) return null;
     return playerQtys[m[0]][m[1]] || 0;
   }
@@ -376,7 +372,7 @@
       card.innerHTML = `
         <div class="item-icon-wrap">
           <img src="${item.img}" class="item-icon" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-          <span class="item-icon fallback" style="display:none;">${isGold ? '??' : '??'}</span>
+          <span class="item-icon fallback" style="display:none;">${isGold ? '🔫' : '💎'}</span>
         </div>
         <div class="item-info">
           <div class="item-name">${item.nk ? t(item.nk) : item.name}</div>
@@ -417,7 +413,13 @@
       
       const data = await res.json();
       if (!res.ok) {
-        toast(data.error || t('unauthorized'), 'err');
+        var errMsg = data.error || '';
+        if (errMsg.indexOf('Insufficient balance') !== -1) {
+          var isPearl = errMsg.indexOf('Pearl') !== -1;
+          toast(isPearl ? t('insufficient_pearl') : t('insufficient_gold'), 'warn');
+        } else {
+          toast(errMsg || t('unauthorized'), 'err');
+        }
         return;
       }
       
@@ -429,10 +431,19 @@
       if (data.has_elite_ship !== undefined) saved.has_elite_ship = data.has_elite_ship;
       if (data.ownedDesigns) saved.ownedDesigns = data.ownedDesigns;
       localStorage.setItem('sp_player', JSON.stringify(saved));
+
+      // Update in-memory playerQtys so Mevcut updates instantly
+      var item = SHOP_ITEMS.find(function(i){ return i.id === id; });
+      if (item && item.qty) {
+        var added = item.qty * qty;
+        var m = getQtyMap(id);
+        if (m) {
+          var cat = m[0], key = m[1];
+          playerQtys[cat][key] = (playerQtys[cat][key] || 0) + added;
+        }
+      }
       
       updateCurrency();
-      // Mevcut item miktarlarini g�ncelle
-      await loadQtys();
       render();
     } catch (err) {
       logError('shop:buy', err);
@@ -441,7 +452,11 @@
   }
 
   function toast(msg, type) {
-    window.showAlert(msg, type === 'err' ? t('server_error') : 'SEAPIRATES', type === 'err');
+    var title = 'SEAPIRATES';
+    var isErr = type === 'err';
+    if (type === 'err') title = t('server_error');
+    else if (type === 'warn') title = t('warning');
+    window.showAlert(msg, title, isErr);
   }
 
   function updateCurrency() {

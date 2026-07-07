@@ -74,9 +74,9 @@ router.post('/register', registerRateLimiter, validate(registerRules), asyncHand
 
   const result = await pool.query(
     `INSERT INTO players 
-      (username, display_name, email, password, gold, pearl, xp, level, elite_points, ship_level, device_id)
-     VALUES ($1, $1, $2, $3, 5000, 0, 0, 1, 0, 0, $4)
-     RETURNING id, username, display_name, email, gold, pearl, xp, level, elite_points, ship_level`,
+      (username, display_name, email, password, gold, pearl, xp, level, elite_points, ship_level, hp, max_hp, device_id)
+     VALUES ($1, $1, $2, $3, 5000, 0, 0, 1, 0, 0, 10000, 10000, $4)
+     RETURNING id, username, display_name, email, gold, pearl, xp, level, elite_points, ship_level, hp, max_hp`,
     [username, email, hashedPassword, deviceIdHeader]
   );
 

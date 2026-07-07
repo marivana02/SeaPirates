@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <title data-i18n="auction_title">SeaPirates � A�ik Artirma</title>
+  <title data-i18n="auction_title">SeaPirates — Açık Artırma</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
@@ -55,7 +55,7 @@
     .gold-ico img{width:100%;height:100%;object-fit:contain;}
     .gold-amt{font-family:'Cinzel',serif;font-size:0.75rem;font-weight:700;color:var(--gold-b);}
 
-    /* ----------- TIMER ----------- */
+    /* ═══════════ TIMER ═══════════ */
     .timer-bar{
       position:relative;z-index:8;flex-shrink:0;padding:18px 14px 14px;
       display:flex;flex-direction:column;align-items:center;
@@ -235,10 +235,10 @@
 <div class="page">
   <!-- TOP BAR -->
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? GERI</span></a>
-    <div class="page-title"><span data-i18n="auction_title" data-i18n-text>A�IK ARTIRMA</span></div>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ GERİ</span></a>
+    <div class="page-title"><span data-i18n="auction_title" data-i18n-text>AÇIK ARTIRMA</span></div>
     <div class="gold-display">
-      <span class="gold-ico"><img src="assets/ui/gold.png" alt="Altin" data-i18n-alt="alt_gold"/></span>
+      <span class="gold-ico"><img src="assets/ui/gold.png" alt="Altın" data-i18n-alt="alt_gold"/></span>
       <span class="gold-amt" id="gold-display">0</span>
     </div>
   </div>
@@ -251,11 +251,11 @@
       <div class="timer-ring-wrap">
         <div class="timer-aura" id="timer-aura"></div>
         <svg viewBox="0 0 100 100">
-          <!-- --- SHIP WHEEL --- -->
+          <!-- ═══ SHIP WHEEL ═══ -->
           <!-- Outer rim -->
           <circle class="wheel-rim" id="wheel-rim" cx="50" cy="50" r="47.5"/>
           <circle class="wheel-rim-seg" id="wheel-rim-seg" cx="50" cy="50" r="47.5"/>
-          <!-- 8 spokes (center ? rim) -->
+          <!-- 8 spokes (center → rim) -->
           <line class="wheel-spoke" id="ws0" x1="50" y1="50" x2="50" y2="2.5"/>
           <line class="wheel-spoke" id="ws1" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(45 50 50)"/>
           <line class="wheel-spoke" id="ws2" x1="50" y1="50" x2="50" y2="2.5" transform="rotate(90 50 50)"/>
@@ -292,7 +292,7 @@
           <circle class="timer-ring-bg" cx="50" cy="50" r="42"/>
         </svg>
         <div class="timer-center">
-          <span class="timer-label" data-i18n="time_left">KALAN S�RE</span>
+          <span class="timer-label" data-i18n="time_left">KALAN SÜRE</span>
           <span class="timer-val" id="timer-val">60:00</span>
         </div>
       </div>
@@ -306,12 +306,12 @@
 var ITEMS = {
   barut:      { name: 'Gunpowder x100',      desc: '+10% attack damage. Consumed on each shot.',       img: 'assets/items/shop/barut-dukkan.png',  ph: 'B' },
   zirh:       { name: 'Armor x100',          desc: '-10% incoming damage. Consumed on each shot.',     img: 'assets/items/shop/zirh-dukkan.png',   ph: 'Z' },
-  gul3:       { name: 'Explosive Cannonball x2000', desc: 'Damage: +130. Elite Points: 1.0/cannon.',  img: 'assets/items/shop/elitgulle.png',    ph: 'G3' },
+  gul3:       { name: 'Explosive Cannonball x2000', desc: 'Damage: +50. Elite Points: 1.0/cannon.',  img: 'assets/items/shop/elitgulle.png',    ph: 'G3' },
   top2:       { name: '55 Pounder',          desc: '185 dmg/cannon. Reload: 3 sec.',                   img: 'assets/items/toppp/top2.png',           ph: 'T2' },
   top3:       { name: '60 Pounder',          desc: '260 dmg/cannon. Reload: 2 sec.',                   img: 'assets/items/toppp/top3.png',           ph: '60P' },
   elit_kiris: { name: 'Elite Beam',          desc: '+1,200 HP bonus, Repair +20. Low break chance.',   img: 'assets/items/shop/elitkiris.png',     ph: 'EB' },
   gemi1:      { name: 'Elite Ship I',        desc: '25,000 HP, 30 cannon / 10 beam slots.',            img: 'assets/items/shop/elit gemi 1.png',  ph: 'G1' },
-  kristal_queen_design: { name: 'Kristal Queen Tasarimi', desc: 'Sadece kozmetik. Geminize kristal kaplama g�r�n�m� verir.', img: 'assets/items/shop/kristalquen/1.png', ph: 'KQ' }
+  kristal_queen_design: { name: 'Kristal Queen Tasarımı', desc: 'Sadece kozmetik. Geminize kristal kaplama görünümü verir.', img: 'assets/items/shop/kristalquen/1.png', ph: 'KQ' }
 };
 var TUR_SURE = 3600;
 var KEY = 'sp_auc_v4';
@@ -328,7 +328,7 @@ var basKalan = TUR_SURE;
 function nowSec(){ return Math.floor(Date.now() / 1000); }
 function fmtN(n){ return Number(n).toLocaleString('en-US'); }
 
-/* Oyuncu altini */
+/* Oyuncu altını */
 function getPlayerGold() {
   const p = JSON.parse(localStorage.getItem('sp_player') || '{}');
   return p.gold || 0;
@@ -338,7 +338,7 @@ function updateGoldDisplay(){
   document.getElementById('gold-display').textContent = fmtN(getPlayerGold()); 
 }
 
-/* Tur y�netimi */
+/* Tur yönetimi */
 var tur = { bitis: 0, liste: [] };
 
 async function loadAuction() {
@@ -371,7 +371,7 @@ function fmtTime(sec){
   return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
 }
 
-/* Sadece timer ve altin g�ncelle � inputlara dokunma */
+/* Sadece timer ve altın güncelle — inputlara dokunma */
 function renderTimer(){
   var kalan = kalanSn();
   var urgent = kalan < 300 && kalan > 60;
@@ -417,7 +417,7 @@ function renderTimer(){
   }
 }
 
-/* Kartlari DOM'a �iz � sadece teklif sonrasi veya sayfa a�ilisinda */
+/* Kartları DOM'a çiz — sadece teklif sonrası veya sayfa açılışında */
 function renderCards(){
   var list = document.getElementById('auction-list');
   list.innerHTML = '';
@@ -456,7 +456,7 @@ function renderCards(){
   });
 }
 
-/* TEKLIF VER */
+/* TEKLİF VER */
 async function teklif(idx){
   if(kalanSn()<=0){ toast(t('auction_ended'),'err'); return; }
 
@@ -491,7 +491,7 @@ async function teklif(idx){
       return;
     }
 
-    // Oyuncu bakiyesini local cache �zerinde g�ncelle
+    // Oyuncu bakiyesini local cache üzerinde güncelle
     const saved = JSON.parse(localStorage.getItem('sp_player') || '{}');
     saved.gold = data.gold;
     localStorage.setItem('sp_player', JSON.stringify(saved));

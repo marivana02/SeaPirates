@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
-  <title data-i18n="home_title">SeaPirates — Ana Sayfa</title>
+  <title data-i18n="home_title">SeaPirates - Ana Sayfa</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
@@ -55,7 +55,7 @@
       flex-direction: column;
       position: relative;
       padding-bottom: env(safe-area-inset-bottom, 0px);
-      /* Yeni home.png arkaplani (Dikey/Midjourney çiktisi uyumlu) */
+      /* Yeni home.png arkaplani (Dikey/Midjourney -iktisi uyumlu) */
       background: url('assets/ui/background/home.png') center top / cover no-repeat;
     }
 
@@ -107,7 +107,7 @@
       text-transform: uppercase;
     }
 
-    /* LEADERBOARD SECTION — wood frame */
+    /* LEADERBOARD SECTION - wood frame */
     .lb-wrap {
       flex: 1;
       position: relative;
@@ -290,7 +290,7 @@
       color: var(--gold-b);
     }
 
-    /* Rütbe adi + puan */
+    /* R-tbe adi + puan */
     .rutbe-col {
       display: flex;
       align-items: center;
@@ -304,7 +304,7 @@
       white-space: nowrap;
     }
 
-    /* Rütbe ikonu */
+    /* R-tbe ikonu */
     .rutbe-icon {
       display: flex;
       align-items: center;
@@ -355,7 +355,7 @@
     }
 
     .rutbe-icon.r-low img {
-      /* Alt rütbe görsellerini parlatip kontrastini yükselterek ve kahve/bronz isima ekleyerek belirginlestiriyoruz */
+      /* Alt r-tbe g-rsellerini parlatip kontrastini y-kselterek ve kahve/bronz isima ekleyerek belirginlestiriyoruz */
       filter: drop-shadow(0 1.5px 2px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 4px rgba(184, 149, 106, 0.8)) brightness(1.4) contrast(1.2);
     }
 
@@ -364,8 +364,8 @@
       width: 44px;
       height: 44px;
       border-radius: 8px;
-      border: 1px solid rgba(200, 150, 42, 0.6); /* Asil eskitme altin çerçeve */
-      /* Yumusak bir iç aydinlatma / warm gold backlighting */
+      border: 1px solid rgba(200, 150, 42, 0.6); /* Asil eskitme altin -er-eve */
+      /* Yumusak bir i- aydinlatma / warm gold backlighting */
       background: radial-gradient(circle, rgba(120, 95, 50, 0.45) 0%, rgba(12, 6, 3, 0.98) 100%);
       flex-shrink: 0;
       box-shadow: inset 0 0 6px rgba(200, 150, 42, 0.25), 0 0 6px rgba(200, 150, 42, 0.2);
@@ -505,7 +505,7 @@
       color: #b8f0e8;
     }
 
-    /* XP progress bar — full width */
+    /* XP progress bar - full width */
     .xp-strip-full {
       grid-column: 1 / -1;
       display: flex;
@@ -818,7 +818,7 @@
       padding: 3px 0;
       display: flex; align-items: center; gap: 6px;
     }
-    .magaza-perk::before { content: '?'; font-size: 0.7rem; }
+    .magaza-perk::before { content: 'âœ¨'; font-size: 0.7rem; }
 
     .top-bar-left {
       display: flex;
@@ -887,7 +887,7 @@
       <div class="top-bar-left">
         <a class="shop-btn" href="#" id="btn-starter-home">
           <span class="shop-btn-icon"><img src="assets/ui/starterikon.png" class="vip-icon" alt="Starter"></span>
-          <span class="shop-btn-lbl" data-i18n="starter_pack" data-i18n-text>BASLANGIÇ PAKETI</span>
+          <span class="shop-btn-lbl" data-i18n="starter_pack" data-i18n-text>BAÅLANGIÃ‡ PAKETÄ°</span>
         </a>
       </div>
       <div class="top-bar-right">
@@ -901,7 +901,7 @@
     <!-- LEADERBOARD -->
     <div class="lb-wrap">
       <div class="lb-title-bar">
-        <span class="lb-title" data-i18n="leaderboard_title">????? SIRALAMA ?????</span>
+        <span class="lb-title" data-i18n="leaderboard_title">ğŸ´â€â˜ ï¸ SIRALAMA ğŸ´â€â˜ ï¸</span>
       </div>
       <div class="lb-body" id="lb-body">
         <!-- Rows injected by JS -->
@@ -910,18 +910,18 @@
 
     <!-- EVENT BANNER -->
     <div class="ev-banner hidden" id="ev-banner" onclick="goTo('events.html')" style="cursor:pointer;">
-      <span class="ev-icon" id="ev-icon">??</span>
+      <span class="ev-icon" id="ev-icon">ğŸ”±</span>
       <div class="ev-info">
         <div class="ev-name" id="ev-name">Etkinlik</div>
-        <div class="ev-desc" id="ev-desc">Açiklama</div>
+        <div class="ev-desc" id="ev-desc">A-iklama</div>
       </div>
-      <span class="ev-badge" id="ev-badge">×2</span>
+      <span class="ev-badge" id="ev-badge">âš”</span>
     </div>
 
     <!-- PLAYER PANEL -->
     <div class="player-panel">
       <div class="pinfo-top">
-        <div class="rutbe-icon p-rank-icon" id="p-rank-icon" title="Rütbe">?</div>
+        <div class="rutbe-icon p-rank-icon" id="p-rank-icon" title="RÃ¼tbe">â­</div>
         <span class="p-name" id="p-name">Kaptan_Korsan</span>
       </div>
       <div class="pinfo-body">
@@ -953,9 +953,9 @@
           </div>
         </div>
         <div class="p-actions">
-          <button class="act-btn" onclick="goTo('menu.html')">? <span class="btn-txt"><span data-i18n="btn_menu" data-i18n-text>MENÜ</span></span></button>
-          <button class="act-btn" onclick="goTo('events.html')"><span class="btn-txt"><span data-i18n="btn_events" data-i18n-text>?? ETKINLIK</span></span></button>
-          <button class="act-btn primary" onclick="goTo('map.html')">? <span class="btn-txt"><span data-i18n="btn_play" data-i18n-text>OYNA</span></span></button>
+          <button class="act-btn" onclick="goTo('menu.html')">âš“ <span class="btn-txt"><span data-i18n="btn_menu" data-i18n-text>MENÃœ</span></span></button>
+          <button class="act-btn" onclick="goTo('events.html')"><span class="btn-txt"><span data-i18n="btn_events" data-i18n-text>ğŸ‰ ETKÄ°NLÄ°K</span></span></button>
+            <button class="act-btn primary" onclick="goTo('map.html')">â–¶ <span class="btn-txt"><span data-i18n="btn_play" data-i18n-text>OYNA</span></span></button>
         </div>
       </div>
     </div>
@@ -965,49 +965,49 @@
   <!-- VIP MODAL -->
   <div class="magaza-overlay" id="vip-modal-home">
     <div class="magaza-modal">
-      <button class="magaza-close" id="btn-close-vip-home">?</button>
+      <button class="magaza-close" id="btn-close-vip-home">âœ•</button>
       <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack" data-i18n-text>VIP PAKETLER</span></div>
-      <div class="magaza-sub" data-i18n="vip_sub">Ayricalikli bir korsan olmak için hemen satin al!</div>
+      <div class="magaza-sub" data-i18n="vip_sub">AyrÄ±calÄ±klÄ± bir korsan olmak iÃ§in hemen satÄ±n al!</div>
       <div class="magaza-cards">
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>
-            <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayricaliklari</span>
+            <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gÃ¼n VIP ayricaliklari</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price" data-plan="7">99 ?</span>
-            <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satin Al</span></button>
+            <span class="magaza-card-price" data-plan="7">99 â‚º</span>
+            <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>SatÄ±n Al</span></button>
           </div>
         </div>
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>
-            <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayricaliklari (en popüler)</span>
+            <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gÃ¼n VIP ayricaliklari (en pop-ler)</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price" data-plan="30">249 ?</span>
-            <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satin Al</span></button>
+            <span class="magaza-card-price" data-plan="30">249 â‚º</span>
+            <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>SatÄ±n Al</span></button>
           </div>
         </div>
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>
-            <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayricaliklari (en avantajli)</span>
+            <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gÃ¼n VIP ayricaliklari (en avantajli)</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price" data-plan="90">599 ?</span>
-            <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satin Al</span></button>
+            <span class="magaza-card-price" data-plan="90">599 â‚º</span>
+            <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>SatÄ±n Al</span></button>
           </div>
         </div>
       </div>
       <div class="magaza-perks">
         <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
-        <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarim Hizi — Savasta gemini 2 kat hizli onarirsin</div>
-        <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
-        <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayisinda kat kat fazla ödül</div>
-        <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvasi — Ayni anda 2 görev alabilirsin</div>
-        <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Dog — Battiginda max caninin %10'u ile baslarsin</div>
-        <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 Dükkan Indirimi — Dükkandaki tüm ürünlerde %10 indirim</div>
+        <div class="magaza-perk" data-i18n="vip_perk_repair">â€¢ 2 OnarÄ±m HÄ±zÄ± - SavaÅŸta gemini 2 kat hÄ±zlÄ± onarÄ±rsÄ±n</div>
+        <div class="magaza-perk" data-i18n="vip_perk_daily">VIP G-nl-k -d-ller - 30 gÃ¼nl-k -zel premium -d-l takvimi</div>
+        <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ã–dÃ¼l - Her seviye atlayÄ±ÅŸÄ±nda kat kat fazla Ã¶dÃ¼l</div>
+        <div class="magaza-perk" data-i18n="vip_perk_quest">2. GÃ¶rev YuvasÄ± - AynÄ± anda 2 gÃ¶rev alabilirsin</div>
+        <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden DoÄŸ - BattÄ±ÄŸÄ±nda max canÄ±nÄ±n %10'u ile baÅŸlarsÄ±n</div>
+        <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 DÃ¼kkan Ä°ndirimi - DÃ¼kkandaki tÃ¼m Ã¼rÃ¼nlerde %10 indirim</div>
       </div>
     </div>
   </div>
@@ -1015,9 +1015,9 @@
   <!-- STARTER MODAL -->
   <div class="magaza-overlay" id="starter-modal-home">
     <div class="magaza-modal">
-      <button class="magaza-close" id="btn-close-starter-home">?</button>
+      <button class="magaza-close" id="btn-close-starter-home">âœ•</button>
       <div class="magaza-title" data-i18n="starter_pack_title">STARTER PAKETI</div>
-      <div class="magaza-sub" data-i18n="pack_subtitle">Yeni korsanlar için tek seferlik firsat!</div>
+      <div class="magaza-sub" data-i18n="pack_subtitle">Yeni korsanlar iÃ§in tek seferlik fÄ±rsat!</div>
       <div class="magaza-cards">
         <div class="magaza-card">
           <div class="magaza-card-info">
@@ -1032,8 +1032,8 @@
             </span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <span class="magaza-card-price">100 ?</span>
-            <button class="magaza-card-btn" data-pack="basic" data-i18n="btn_buy">Satin Al</button>
+            <span class="magaza-card-price">100 â‚º</span>
+            <button class="magaza-card-btn" data-pack="basic" data-i18n="btn_buy">SatÄ±n Al</button>
           </div>
         </div>
         <div class="magaza-card">
@@ -1051,8 +1051,8 @@
             </span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <span class="magaza-card-price">300 ?</span>
-            <button class="magaza-card-btn" data-pack="medium" data-i18n="btn_buy">Satin Al</button>
+            <span class="magaza-card-price">300 â‚º</span>
+            <button class="magaza-card-btn" data-pack="medium" data-i18n="btn_buy">SatÄ±n Al</button>
           </div>
         </div>
         <div class="magaza-card">
@@ -1072,8 +1072,8 @@
             </span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <span class="magaza-card-price">600 ?</span>
-            <button class="magaza-card-btn" data-pack="premium" data-i18n="btn_buy">Satin Al</button>
+            <span class="magaza-card-price">600 â‚º</span>
+            <button class="magaza-card-btn" data-pack="premium" data-i18n="btn_buy">SatÄ±n Al</button>
           </div>
         </div>
       </div>
@@ -1172,7 +1172,7 @@
         } else {
           return;
         }
-        if (ev.mult) badge.textContent = '×' + ev.mult;
+        if (ev.mult) badge.textContent = 'Ã—' + ev.mult;
         window._evType = ev.type || null;
         window._evName = ev.name || null;
         window._evDesc = ev.desc || null;
@@ -1185,7 +1185,7 @@
       }
     }
 
-    /* Dil dosyasi geç yüklenirse event banner'ini tekrar çevir */
+    /* Dil dosyasi ge- y-klenirse event banner'ini tekrar -evir */
     window.addEventListener('languageChanged', function() {
       if (!window._evType) return;
       var nm = document.getElementById('ev-name');
@@ -1254,9 +1254,9 @@
       if (!inList) {
         const badge = playerData.rankBadge || 13;
         const rbClass = badge === 1 ? 'r1' : (badge === 2 || badge === 3) ? 'r2-3' : badge <= 10 ? 'r4-10' : 'r-low';
-        html += `<div class="lb-sep">· · ·</div>
+        html += `<div class="lb-sep">- - -</div>
     <div class="lb-row me">
-      <div class="sira">—</div>
+      <div class="sira">-</div>
       <span class="nick">${esc(playerData.display_name || playerData.username)}</span>
       <div class="rutbe-col">
         <span class="rutbe-puan">${fmt(playerData.score || 0)}</span>
@@ -1270,7 +1270,7 @@
       body.innerHTML = html;
     }
 
-    // MODAL AÇ/KAPA
+    // MODAL A-/KAPA
     function modalGoster(id) { document.getElementById(id).classList.add('show'); }
     function modalGizle(id) { document.getElementById(id).classList.remove('show'); }
 
@@ -1328,7 +1328,7 @@
     if (starterClose) starterClose.addEventListener('click', () => modalGizle('starter-modal-home'));
     if (starterModal) starterModal.addEventListener('click', (e) => { if (e.target === starterModal) modalGizle('starter-modal-home'); });
 
-    // SATIN AL BUTONLARI (placeholder — ödeme entegrasyonu sonra)
+    // SATIN AL BUTONLARI (placeholder - -deme entegrasyonu sonra)
     document.querySelectorAll('#vip-modal-home .magaza-card-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -1385,7 +1385,7 @@
       });
     });
 
-    // 60 saniyede bir playtime (oyun süresi) arttirmak için sunucuyu pingle
+    // 60 saniyede bir playtime (oyun s-resi) arttirmak i-in sunucuyu pingle
     setInterval(async () => {
       try {
         const r = await fetch(`${API_URL}/ping`, {

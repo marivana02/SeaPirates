@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <title>SeaPirates — Today's Rank</title>
+  <title>SeaPirates â€” Today's Rank</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
@@ -94,7 +94,7 @@
       justify-content: center;
       padding: 20px 10px;
       border-right: 2px solid #3d4245;
-      position: relative; /* Buton yerlesimi için eklendi */
+      position: relative; /* Buton yerleÅŸimi iÃ§in eklendi */
     }
     .badge-area img{
       width: 100%;
@@ -104,18 +104,18 @@
       transition: all 0.3s ease;
     }
     
-    /* Normal Rütbeler (4-13) */
+    /* Normal RÃ¼tbeler (4-13) */
     .badge-area img.rank-normal {
       filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8));
     }
     
-    /* Ilk 3 Rütbe (2-3) */
+    /* Ä°lk 3 RÃ¼tbe (2-3) */
     .badge-area img.rank-top3 {
       filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 15px rgba(200, 200, 255, 0.4));
       transform: scale(1.05);
     }
     
-    /* 1. Rütbe (Kral Kuru Kafa) */
+    /* 1. RÃ¼tbe (Kral Kuru Kafa) */
     @keyframes pulseGold {
       0% { filter: drop-shadow(0 5px 15px rgba(0,0,0,0.9)) drop-shadow(0 0 15px rgba(255,215,0,0.5)); transform: scale(1.1); }
       50% { filter: drop-shadow(0 5px 15px rgba(0,0,0,0.9)) drop-shadow(0 0 35px rgba(255,215,0,0.9)); transform: scale(1.15); }
@@ -207,7 +207,7 @@
     .bottom-section{
       display: flex;
       flex-direction: column; 
-      /* Pürüzsüz ve karanlik bir ahsap tonu */
+      /* PÃ¼rÃ¼zsÃ¼z ve karanlÄ±k bir ahÅŸap tonu */
       background: linear-gradient(180deg, #2a1608, #120903);
     }
 
@@ -289,7 +289,7 @@
 <div class="page">
   <!-- TOP BAR -->
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? BACK</span></a>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>â—€ BACK</span></a>
     <div class="page-title"><span data-i18n="page_my_hall" data-i18n-text>MY HALL</span></div>
     <div style="width:65px;"></div>
   </div>
@@ -316,7 +316,7 @@
             <div class="math-title" data-i18n="hall_calculated_as">Your rank is calculated as follows:</div>
             
             <div class="math-row">
-              <span class="math-op">?</span>
+              <span class="math-op">âˆ‘</span>
               <span class="math-val" id="calc-dmg">0</span>
               <span class="math-desc" id="desc-dmg">Damage</span>
             </div>
@@ -386,7 +386,7 @@
     </div>
     
     <div id="loading-el" style="text-align: center; color: var(--gold-b); font-family: 'Cinzel', serif; margin: 40px auto; font-size: 1.1rem;">
-      <span data-i18n="hall_calculating">? Calculating rank...</span>
+      <span data-i18n="hall_calculating">âš“ Calculating rank...</span>
     </div>
 
   </div>
@@ -425,26 +425,26 @@ async function loadMyRank() {
       const target = data.target;
       const lower = data.lower;
 
-      // Card elementleri göster
+      // Card elementleri gÃ¶ster
       document.getElementById('loading-el').style.display = 'none';
       document.getElementById('rank-card').style.display = 'flex';
 
-      // Rütbe resmi ve havali CSS animasyonu
+      // RÃ¼tbe resmi ve havalÄ± CSS animasyonu
       const img = document.getElementById('main-rank-img');
       img.src = `assets/ui/rank/rank${me.rankBadge}.png`;
       img.className = '';
       if (me.rankBadge === 1) {
-        img.className = 'rank-top1'; // Sadece 1. rütbe (Denizlerin Hükümdari) yanip sönecek!
+        img.className = 'rank-top1'; // Sadece 1. rÃ¼tbe (Denizlerin HÃ¼kÃ¼mdarÄ±) yanÄ±p sÃ¶necek!
       } else if (me.rankBadge === 2 || me.rankBadge === 3) {
-        img.className = 'rank-top3'; // 2. ve 3. rütbe hafif parlak
+        img.className = 'rank-top3'; // 2. ve 3. rÃ¼tbe hafif parlak
       } else {
         img.className = 'rank-normal';
       }
 
-      // Rütbe Adi (dil destegi ile)
+      // RÃ¼tbe AdÄ± (dil desteÄŸi ile)
       document.getElementById('my-rank-name').textContent = t(me.rankKey || 'rank_13');
 
-      // Hesaplama Rakamlari (auto-shrink ile)
+      // Hesaplama RakamlarÄ± (auto-shrink ile)
       setFitText(document.getElementById('calc-dmg'), fmtN(me.dmg_pve));
       setFitText(document.getElementById('desc-dmg'), t('hall_desc_dmg'));
 
@@ -462,7 +462,7 @@ async function loadMyRank() {
 
       document.getElementById('calc-total').textContent = fmtN(me.score);
 
-      // Bir üst rütbe karti
+      // Bir Ã¼st rÃ¼tbe kartÄ±
       const targetCard = document.getElementById('card-target');
       if (target) {
         targetCard.innerHTML = `
@@ -481,26 +481,21 @@ async function loadMyRank() {
         `;
       }
 
-      // Bir alt rütbe karti
+      // Bir alt rÃ¼tbe kartÄ±
       const lowerCard = document.getElementById('card-lower');
       if (lower) {
+        const gap = (lower.score != null) ? me.score - lower.score : null;
         lowerCard.innerHTML = `
           <div class="info-title">${t('hall_one_below')}</div>
           <div class="rank-target">
             <span class="target-ico"><img src="assets/ui/rank/rank${lower.rankBadge}.png" alt=""></span>
             <span class="target-name">${t(lower.rankKey || 'rank_13')}</span>
           </div>
-          <div class="target-desc">${t('hall_one_below_desc', {val: fmtN(me.score - lower.score)})}</div>
+          <div class="target-desc">${gap !== null ? t('hall_one_below_desc', {val: fmtN(gap)}) : t('hall_lowest_rank')}</div>
         `;
+        lowerCard.style.display = '';
       } else {
-        lowerCard.innerHTML = `
-          <div class="info-title">${t('hall_one_below')}</div>
-          <div class="rank-target">
-            <span class="target-ico"><img src="assets/ui/rank/rank13.png" alt=""></span>
-            <span class="target-name">${t('rank_13')}</span>
-          </div>
-          <div class="target-desc">${t('hall_lowest_rank')}</div>
-        `;
+        lowerCard.style.display = 'none';
       }
 
     } else {

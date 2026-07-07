@@ -1,12 +1,13 @@
 const { broadcastBossHp } = require('../../helpers/socket');
 
-async function deductAdmiralBossHp(pool, mapLevel, playerDamage, bossMaxHp) {
-  const bossClient = await pool.connect();
+async function deductAdmiralBossHp(pool, mapLevel, playerDamage, bossMaxHp, client) {
+  const useOwnTxn = !client;
+  const bossClient = client || await pool.connect();
   let actualHpLost = 0;
   let newHp = 0;
   try {
-    await bossClient.query("SET lock_timeout = '3s'");
-    await bossClient.query('BEGIN');
+    if (useOwnTxn) await bossClient.query("SET lock_timeout = '3s'");
+    if (useOwnTxn) await bossClient.query('BEGIN');
     const bcRes = await bossClient.query(
       'SELECT boss_current_hp, is_spawned FROM npc3_kill_counter WHERE map_level = $1 FOR UPDATE',
       [mapLevel]
@@ -35,15 +36,15 @@ async function deductAdmiralBossHp(pool, mapLevel, playerDamage, bossMaxHp) {
       );
     }
 
-    await bossClient.query('COMMIT');
+    if (useOwnTxn) await bossClient.query('COMMIT');
   } catch (txErr) {
-    await bossClient.query('ROLLBACK');
+    if (useOwnTxn) await bossClient.query('ROLLBACK');
     throw txErr;
   } finally {
-    bossClient.release();
+    if (useOwnTxn) bossClient.release();
   }
 
-  if (actualHpLost > 0) {
+  if (useOwnTxn && actualHpLost > 0) {
     try {
       const lbRes = await pool.query(
         `SELECT a.player_id, a.username, a.ship_level, a.damage_dealt, a.current_hp, a.max_hp, p.active_design

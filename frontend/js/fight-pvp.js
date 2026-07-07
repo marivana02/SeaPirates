@@ -141,6 +141,9 @@
         existing.hp = serverHp !== undefined ? serverHp : player.hp;
         existing.max_hp = player.maxHp || existing.max_hp;
         if (newLevel) existing.level = newLevel;
+        if (player.ship_level != null) existing.ship_level = player.ship_level;
+        if (player.visual_ship_level != null) existing.visual_ship_level = player.visual_ship_level;
+        if (player.active_design) existing.active_design = player.active_design;
         localStorage.setItem('sp_player', JSON.stringify(existing));
       }
 

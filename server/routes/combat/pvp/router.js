@@ -40,14 +40,15 @@ router.post('/start', authMiddleware, async (req, res) => {
           playerHp: parseInt(existing.player_hp), playerMaxHp: parseInt(existing.player_max_hp), isTower: !!existing.is_tower,
           isPvP: !!existing.is_pvp, fullImg: existingFullImg, damagedImg: existingDamagedImg,
           isAdmiral: false, isTiamat: false,
-          playerCooldownMs, ...pvpResult
+          playerCooldownMs, ...pvpResult,
+          ship_level: pInfo.rows[0].ship_level, visual_ship_level: pInfo.rows[0].visual_ship_level, active_design: pInfo.rows[0].active_design
         });
       }
       await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
       clearBotLoadout(playerId);
     }
 
-    const pRes = await pool.query('SELECT id, hp, max_hp, level, username, display_name, ship_level, pvp_target_id, current_map_level FROM players WHERE id = $1', [playerId]);
+    const pRes = await pool.query('SELECT id, hp, max_hp, level, username, display_name, ship_level, visual_ship_level, active_design, pvp_target_id, current_map_level FROM players WHERE id = $1', [playerId]);
     if (pRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
     const pInfo = pRes.rows[0];
     if (pInfo.hp <= 0) return res.status(400).json({ error: 'Your ship is sunk! You cannot enter combat without repairing first.' });
@@ -90,7 +91,8 @@ router.post('/start', authMiddleware, async (req, res) => {
       npcHp: targetNpc.hp, npcMaxHp: targetNpc.hp,
       playerHp: pInfo.hp, playerMaxHp: pInfo.max_hp, isTower: false, isPvP: true,
       fullImg: targetNpc.fullImg || null, damagedImg: targetNpc.damagedImg || null,
-      isAdmiral: false, isTiamat: false, playerCooldownMs, ...pvpResult
+      isAdmiral: false, isTiamat: false, playerCooldownMs, ...pvpResult,
+      ship_level: pInfo.ship_level, visual_ship_level: pInfo.visual_ship_level, active_design: pInfo.active_design
     });
   } catch (err) {
     console.error(err);

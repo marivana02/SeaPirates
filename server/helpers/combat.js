@@ -22,36 +22,37 @@ async function getWeeklyBossRewards() {
     }
 }
 
-async function distributeAdmiralRewards(mapLevel) {
-    const client = await pool.connect();
+async function distributeAdmiralRewards(mapLevel, client) {
+    const useOwnTxn = !client;
+    const db = client || await pool.connect();
     try {
-        await client.query('BEGIN');
-        await client.query("SELECT pg_advisory_xact_lock($1)", [70000 + mapLevel]);
+        if (useOwnTxn) await db.query('BEGIN');
+        await db.query("SELECT pg_advisory_xact_lock($1)", [70000 + mapLevel]);
 
-        const resetRes = await client.query(
+        const resetRes = await db.query(
             `UPDATE npc3_kill_counter 
              SET is_spawned = FALSE, 
-                 boss_current_hp = NULL, 
-                 boss_max_hp = NULL, 
-                 kill_count = 0 
+                  boss_current_hp = NULL, 
+                  boss_max_hp = NULL, 
+                  kill_count = 0 
              WHERE map_level = $1 AND is_spawned = TRUE`,
             [mapLevel]
         );
 
         if (resetRes.rowCount === 0) {
-            await client.query('ROLLBACK');
+            if (useOwnTxn) await db.query('ROLLBACK');
             console.log(`[REWARD] Already run or not spawned for Map Level ${mapLevel}. Skipping.`);
             return { rewardsGiven: false };
         }
 
         console.log(`[REWARD] Distributing rewards for Map Level ${mapLevel}...`);
 
-        const bossInfoRes = await client.query(
+        const bossInfoRes = await db.query(
             'SELECT hp, pearl, xp FROM bosses WHERE map_level = $1 LIMIT 1',
             [mapLevel]
         );
         if (bossInfoRes.rows.length === 0) {
-            await client.query('ROLLBACK');
+            if (useOwnTxn) await db.query('ROLLBACK');
             return { rewardsGiven: false };
         }
 
@@ -60,7 +61,7 @@ async function distributeAdmiralRewards(mapLevel) {
         const totalPearls = parseInt(b.pearl) || 15000;
         const totalXp = parseInt(b.xp) || 250;
 
-        const partsRes = await client.query(
+        const partsRes = await db.query(
             'SELECT player_id, username, damage_dealt FROM admiral_damage WHERE map_level = $1 AND damage_dealt > 0',
             [mapLevel]
         );
@@ -71,7 +72,7 @@ async function distributeAdmiralRewards(mapLevel) {
             const pId = parseInt(row.player_id);
             const dmg = parseInt(row.damage_dealt);
 
-            const pRes = await client.query('SELECT level, is_bot FROM players WHERE id = $1', [pId]);
+            const pRes = await db.query('SELECT level, is_bot FROM players WHERE id = $1', [pId]);
             if (pRes.rows.length === 0) continue;
             const playerLevel = parseInt(pRes.rows[0].level);
             const isBot = pRes.rows[0].is_bot;
@@ -81,7 +82,7 @@ async function distributeAdmiralRewards(mapLevel) {
             const rewardXp = Math.floor(totalXp * pct);
 
             if (pId > 0) {
-                await client.query(
+                await db.query(
                     'UPDATE players SET pearl = pearl + $1, xp = xp + $2 WHERE id = $3',
                     [rewardPearls, rewardXp, pId]
                 );
@@ -89,20 +90,20 @@ async function distributeAdmiralRewards(mapLevel) {
             }
         }
 
-        await client.query(
+        await db.query(
             'DELETE FROM admiral_damage WHERE map_level = $1',
             [mapLevel]
         );
 
-        await client.query('COMMIT');
+        if (useOwnTxn) await db.query('COMMIT');
         console.log(`[REWARD] Completed for Map Level ${mapLevel}.`);
         return { rewardsGiven: true, skipReason };
     } catch (err) {
-        await client.query('ROLLBACK');
+        if (useOwnTxn) await db.query('ROLLBACK');
         console.error('Reward distribution error:', err);
         return { rewardsGiven: false };
     } finally {
-        client.release();
+        if (useOwnTxn) db.release();
     }
 }
 

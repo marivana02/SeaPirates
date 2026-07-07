@@ -137,7 +137,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
     const rewAdmXp = Math.floor(totalXp * pct);
     const rewAdmElite = Math.floor(rewAdmXp * 0.5);
 
-    const { rewardsGiven, skipReason } = await distributeAdmiralRewards(fight.mapLevel);
+    const { rewardsGiven, skipReason } = await distributeAdmiralRewards(fight.mapLevel, db);
 
     await db.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
 
@@ -227,6 +227,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
               const maxSubs = fightMapLvl <= 4 ? 2 : 1;
               const randomSubMap = Math.floor(Math.random() * maxSubs) + 1;
 
+              await spawnClient.query('DELETE FROM admiral_damage WHERE map_level = $1', [fightMapLvl]);
               await spawnClient.query(
                 `UPDATE npc3_kill_counter 
                  SET is_spawned = TRUE, 

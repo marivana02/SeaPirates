@@ -137,7 +137,7 @@ router.post('/start', authMiddleware, async (req, res) => {
       await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
     }
 
-    const pRes = await pool.query('SELECT id, hp, max_hp, level, username, display_name, ship_level, pvp_target_id, current_map_level FROM players WHERE id = $1', [playerId]);
+    const pRes = await pool.query('SELECT id, hp, max_hp, level, username, display_name, ship_level, visual_ship_level, active_design, pvp_target_id, current_map_level FROM players WHERE id = $1', [playerId]);
     if (pRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
     const pInfo = pRes.rows[0];
     if (pInfo.hp <= 0) return res.status(400).json({ error: 'Your ship is sunk! You cannot enter combat without repairing first.' });
@@ -199,7 +199,8 @@ router.post('/start', authMiddleware, async (req, res) => {
       npcHp: (isAdmiral || isTiamatFight) ? bossCurrentHp : targetNpc.hp, npcMaxHp: targetNpc.hp,
       playerHp: pInfo.hp, playerMaxHp: pInfo.max_hp, isTower: !!isTower, isPvP: false,
       fullImg: targetNpc.fullImg || null, damagedImg: targetNpc.damagedImg || null,
-      isAdmiral: isAdmiral || isTiamatFight, isTiamat: isTiamatFight, playerCooldownMs
+      isAdmiral: isAdmiral || isTiamatFight, isTiamat: isTiamatFight, playerCooldownMs,
+      ship_level: pInfo.ship_level, visual_ship_level: pInfo.visual_ship_level, active_design: pInfo.active_design
     });
   } catch (err) {
     console.error(err);
@@ -295,7 +296,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
       await txClient.query(`INSERT INTO admiral_damage (map_level, player_id, username, ship_level, damage_dealt, current_hp, max_hp) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (map_level, player_id) DO UPDATE SET damage_dealt = admiral_damage.damage_dealt + $5`,
         [fight.mapLevel, playerId, pDbInfo.display_name || pDbInfo.username, pDbInfo.ship_level, playerDamage, fight.playerHp, fight.playerMaxHp]);
       T('ADM_INSERTED');
-      const result = await deductAdmiralBossHp(pool, fight.mapLevel, playerDamage, parseInt(fight.npcMaxHp));
+      const result = await deductAdmiralBossHp(pool, fight.mapLevel, playerDamage, parseInt(fight.npcMaxHp), txClient);
       T('ADM_DEDUCT_DONE');
       fight.npcHp = result.newHp;
       actualHpLost = result.actualHpLost;

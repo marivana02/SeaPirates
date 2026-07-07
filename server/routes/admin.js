@@ -200,6 +200,7 @@ router.post('/admiral-spawn', asyncHandler(async (req, res) => {
   const mapLevel = parseInt(req.body.mapLevel) || 1;
   const maxSubs = mapLevel <= 4 ? 2 : 1;
   const subMap = Math.floor(Math.random() * maxSubs) + 1;
+  await pool.query('DELETE FROM admiral_damage WHERE map_level = $1', [mapLevel]);
   await pool.query(
     `UPDATE npc3_kill_counter SET is_spawned = TRUE, spawned_sub_map = $1, kill_count = 0, last_reset = NOW() WHERE map_level = $2`,
     [subMap, mapLevel]

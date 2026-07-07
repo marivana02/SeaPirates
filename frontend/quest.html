@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <title>SeaPirates � Quests</title>
+  <title>SeaPirates — Quests</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
@@ -173,7 +173,7 @@
     .q-obj-progress { color: var(--gold-p); }
     .q-obj-progress.done { color: #2ecc71; }
 
-    /* �d�ller (Rewards) */
+    /* Ödüller (Rewards) */
     .q-rewards-wrap {
       display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
     }
@@ -234,8 +234,8 @@
 <div class="page">
   <!-- TOP BAR -->
   <div class="top-bar">
-    <a href="map.html" class="btn-back" data-i18n="btn_return" data-i18n-text>? BACK TO MAP</a>
-    <div class="page-title"><img src="assets/ui/ikon/images/40_ico_quest.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;object-fit:contain;"><span data-i18n="page_quest" data-i18n-text>G�REVLER</span></div>
+    <a href="map.html" class="btn-back" data-i18n="btn_return" data-i18n-text>◀ BACK TO MAP</a>
+    <div class="page-title"><img src="assets/ui/ikon/images/40_ico_quest.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;object-fit:contain;"><span data-i18n="page_quest" data-i18n-text>GÖREVLER</span></div>
     <div style="width:85px;"></div>
   </div>
 
@@ -369,7 +369,7 @@
     const otherQuests = quests.filter(q => q.state === 'locked' || q.state === 'completed');
 
     if (activeTab === 'active') {
-      // -- RENDER ACTIVE TAB --
+      // ── RENDER ACTIVE TAB ──
       const hasSomething = bonusQuest !== undefined || activeQuests.length > 0;
       if (hasSomething) {
         if (bonusQuest) {
@@ -384,7 +384,7 @@
         container.innerHTML = `<div class="empty-state">${t('quest_no_active')}</div>`;
       }
     } else {
-      // -- RENDER AVAILABLE TAB --
+      // ── RENDER AVAILABLE TAB ──
       if (availableQuests.length > 0) {
         availableQuests.forEach(q => {
           const card = createQuestCard(q);
@@ -420,7 +420,7 @@
       rewardsHTML += `<div class="q-reward">XP: ${q.rewards.xp.toLocaleString('en-US')}</div>`;
     }
 
-    // Objectives HTML � iterate over q.objectives
+    // Objectives HTML — iterate over q.objectives
     let objectivesHTML = '';
     if (q.objectives && q.objectives.length > 0 && (q.state === 'active' || q.state === 'available' || q.state === 'locked' || q.state === 'completed')) {
       let rowsHTML = '';
@@ -433,7 +433,7 @@
         } else {
           displayVal = `${cur} / ${obj.amount}`;
         }
-        const objLabel = (function(){ var k='obj_'+obj.type+(obj.target?'_'+obj.target:''), v=t(k); return v===k ? (obj.label||obj.type) : v; })();
+        const objLabel = obj.label || (function(){ var k='obj_'+obj.type+(obj.target?'_'+obj.target:''), v=t(k); return v===k ? obj.type : v; })();
         rowsHTML += `
           <div class="q-obj-row">
             <span>${objLabel}</span>
@@ -455,7 +455,7 @@
     if (q.state === 'bonus') {
       const expiresAt = q.expiresAt ? new Date(q.expiresAt).getTime() : 0;
       timerHTML = `<div class="bonus-timer" id="bonus-timer-${q.id}" style="font-family:'Cinzel',serif;font-size:0.65rem;color:#e74c3c;text-align:center;padding:3px 6px;background:rgba(0,0,0,0.4);border-radius:4px;margin-bottom:4px;border:1px solid rgba(231,76,60,0.3);">
-        ? ${t('quest_time_left')}: <span id="bonus-countdown-${q.id}">--:--</span>
+        ⏱ ${t('quest_time_left')}: <span id="bonus-countdown-${q.id}">--:--</span>
       </div>`;
       if (bonusTimerInterval) clearInterval(bonusTimerInterval);
       if (expiresAt) {
@@ -485,7 +485,7 @@
     const isSimple = q.state === 'locked' || q.state === 'completed';
     card.innerHTML = `
       <div class="q-header" style="${isBonus ? 'background:rgba(139,105,20,0.3);border-bottom-color:rgba(200,150,42,0.5);' : ''}">
-        <div class="q-title">${isBonus ? '? ' : ''}${function(){ var k='q_title_'+q.id, v=t(k); return v === k ? q.title : v; }()}</div>
+        <div class="q-title">${isBonus ? '⏱ ' : ''}${function(){ var k='q_title_'+q.id, v=t(k); return v === k ? q.title : v; }()}</div>
         <div class="q-level" style="${isBonus ? 'background:rgba(200,150,42,0.3);border-color:#c8962a;color:#f0c040;' : ''}"> ${isBonus ? t('quest_bonus_time') : t('quest_level_badge',{val:q.levelReq}) + '+'}</div>
       </div>
       ${isSimple ? '' : `

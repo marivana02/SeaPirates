@@ -15,9 +15,9 @@
     id: 2,
     title: 'Mühimmat Alışverişi',
     levelReq: 1,
-    desc: 'Shop\'tan bir paket mermi satın al. Korsanın cephaneliği hiç boş kalmaz!',
+    desc: 'Shop\'tan cephane satın al. Topların hiç susmasın!',
     objectives: [
-      { type: 'buy', itemGroup: 'gulle', amount: 1, label: 'Shop\'tan mermi satın al' }
+      { type: 'buy', itemGroup: 'gulle', amount: 1, label: 'Shop\'tan cephane satın al' }
     ],
     rewards: { gold: 200, pearl: 5, xp: 80 }
   },
@@ -49,9 +49,9 @@
     id: 5,
     title: 'Cephane Takviyesi',
     levelReq: 2,
-    desc: 'Shop\'tan bir paket Oyuk Gülle satın al. Daha güçlü mermiler seni bekliyor!',
+    desc: 'Shop\'tan daha fazla cephane satın al. Güçlü toplar güçlü cephane ister!',
     objectives: [
-      { type: 'buy', itemGroup: 'gulle', amount: 1, label: 'Shop\'tan mermi satın al' }
+      { type: 'buy', itemGroup: 'gulle', amount: 1, label: 'Shop\'tan cephane satın al' }
     ],
     rewards: { gold: 400, pearl: 10, xp: 200 }
   },

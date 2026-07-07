@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
-  <title>SeaPirates � Events</title>
+  <title>SeaPirates - Events</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
@@ -588,9 +588,9 @@
     if (!token) { sessionStorage.setItem('sp_navigating','1'); window.location.href = 'home.html'; }
 
     var ROTATION = [
-      { type: 'npc_reward', icon: '??' },
-      { type: 'elp_reward', icon: '?' },
-      { type: 'damage', icon: '??' }
+      { type: 'npc_reward', icon: '💰' },
+      { type: 'elp_reward', icon: '⭐' },
+      { type: 'damage', icon: '⚔️' }
     ];
 
     var ev = null;
@@ -647,7 +647,7 @@
         // Saturday = index 5
         if (i === 5) {
           cls += ' event-day';
-          icon = ev && ev.isActive ? '?' : '??';
+          icon = ev && ev.isActive ? '⚓' : '📜';
         }
         if (d < now && d.toDateString() !== todayStr) cls += ' past';
         html +=
@@ -666,7 +666,7 @@
         if (!r.ok) {
           var errData;
           try { errData = await r.json(); } catch(_) {}
-          document.getElementById('root').innerHTML = '<div class="ld">? ' + t('server_error') + ' (' + r.status + ')' + (errData && errData.error ? ': ' + errData.error : '') + '</div>';
+          document.getElementById('root').innerHTML = '<div class="ld">❌ ' + t('server_error') + ' (' + r.status + ')' + (errData && errData.error ? ': ' + errData.error : '') + '</div>';
           return;
         }
         ev = await r.json();
@@ -679,7 +679,7 @@
 
         render();
       } catch (e) {
-        document.getElementById('root').innerHTML = '<div class="ld">? ' + t('connection_failed') + ': ' + e.message + '</div>';
+        document.getElementById('root').innerHTML = '<div class="ld">❌ ' + t('connection_failed') + ': ' + e.message + '</div>';
       }
     }
 
@@ -690,12 +690,12 @@
       var now = new Date();
       var monday = getMonday(now);
 
-      // Haftanin g�n� (Pazartesi=0)
+      // Haftanin g☠n☠ (Pazartesi=0)
       var dayOfWeek = now.getDay();
       if (dayOfWeek === 0) dayOfWeek = 6; // Pazar -> 6
       else dayOfWeek -= 1; // Pazartesi->0, Sali->1, ...
 
-      // Saturday'e ka� g�n kaldi
+      // Saturday'e ka☠ g☠n kaldi
       var daysUntilSat = (5 - dayOfWeek + 7) % 7;
       
       var rotHtml = '';
@@ -755,13 +755,13 @@
             '<span class="wanted-icon">' + ev.icon + '</span>' +
             '<div class="wanted-name">' + t('event_' + ev.type + '_name') + '</div>' +
             '<div class="wanted-desc">' + t('event_' + ev.type + '_desc') + '</div>' +
-            '<div class="wanted-mult"><span>�</span>' + ev.mult + 'X</div>' +
+            '<div class="wanted-mult"><span>⚔</span>' + ev.mult + 'X</div>' +
           '</div>' +
 
           effHtml +
 
           '<div class="timer-section">' +
-            '<div class="timer-lbl">? ' + t('events_time_remaining') + '</div>' +
+            '<div class="timer-lbl">⚡ ' + t('events_time_remaining') + '</div>' +
             '<div class="timer-digits' + (ev.remaining < 3600 ? ' urgent' : '') + '" id="tmr">' + fmtHMS(ev.remaining) + '</div>' +
           '</div>';
       } else {
@@ -781,11 +781,11 @@
             '<span class="wanted-icon" style="opacity:0.7;">' + ev.icon + '</span>' +
             '<div class="wanted-name" style="font-size:1.1rem;">' + t('event_' + ev.type + '_name') + '</div>' +
             '<div class="wanted-desc">' + t('event_' + ev.type + '_desc') + '</div>' +
-            '<div class="wanted-mult" style="opacity:0.5;"><span>�</span>' + ev.mult + '</div>' +
+            '<div class="wanted-mult" style="opacity:0.5;"><span>⚔</span>' + ev.mult + '</div>' +
           '</div>' +
 
           '<div class="timer-section">' +
-            '<div class="timer-lbl">?? ' + t('events_next_order_in') + '</div>' +
+            '<div class="timer-lbl">📅 ' + t('events_next_order_in') + '</div>' +
             '<div class="timer-digits" id="tmr">' + fmtHMS(ev.remaining) + '</div>' +
           '</div>';
       }
@@ -793,17 +793,17 @@
       document.getElementById('root').innerHTML =
         mainHtml +
         '<div class="weekly-cal">' +
-          '<div class="cal-title">?? ' + t('events_weekly_route') + '</div>' +
+          '<div class="cal-title">📅 ' + t('events_weekly_route') + '</div>' +
           '<div class="cal-grid">' + calHtml + '</div>' +
         '</div>' +
 
         '<div class="rot-panel">' +
-          '<div class="rot-title">?? ' + t('events_rotation_order') + '</div>' +
+          '<div class="rot-title">🔄 ' + t('events_rotation_order') + '</div>' +
           rotHtml +
         '</div>' +
 
         '<div class="history-panel">' +
-          '<div class="history-title">?? ' + t('events_past_orders') + '</div>' +
+          '<div class="history-title">📜 ' + t('events_past_orders') + '</div>' +
           histHtml +
         '</div>';
 

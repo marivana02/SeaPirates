@@ -19,18 +19,15 @@ const rankNames = {
 };
 
 function getRankBadge(pos, totalCount = 200) {
-  if (totalCount <= 1 || pos === 1) return 1;
-  // Az oyuncu varken 13 rütbenin tamamı kullanılsın
-  if (totalCount < 79) {
-    return Math.min(13, 1 + Math.ceil((pos - 1) * 12 / (totalCount - 1)));
+  if (pos <= 0) return 13;
+  // Her rütbenin maksimum kişi sayısı (kümülatif threshold)
+  var slots = [0, 1, 3, 6, 10, 16, 25, 40, 65, 100, 160, 250, 400, 650];
+  var cumulative = 0;
+  for (var badge = 1; badge <= 13; badge++) {
+    cumulative += slots[badge];
+    if (pos <= cumulative) return badge;
   }
-  // Çok oyunculu sunucularda geniş tabanlı dağılım
-  const m = Math.max(1, Math.round((totalCount - 1) / 78));
-  let threshold = 1;
-  for (let badge = 2; badge <= 13; badge++) {
-    threshold += m * (badge - 1);
-    if (pos <= threshold) return badge;
-  }
+  // threshold aşımı varsa en düşük rütbe
   return 13;
 }
 

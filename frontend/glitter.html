@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
-  <title>SeaPirates � Glitter Sea</title>
+  <title>SeaPirates — Glitter Sea</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
@@ -168,7 +168,7 @@
     .player-panel {
       flex-shrink: 0;
       margin: 0 10px 10px;
-      background: linear-gradient(135deg, #180d04 0%, #0d0602 100%);
+      background: url('assets/ui/background/playerinfobackground.png') center/cover no-repeat;
       border: 1px solid var(--gold);
       border-radius: 10px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.85);
@@ -178,8 +178,18 @@
       position: relative;
       z-index: 5;
     }
+    .player-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 4, 1, 0.6);
+      pointer-events: none;
+      z-index: 0;
+    }
 
     .p-rewards {
+      position: relative;
+      z-index: 1;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -228,6 +238,7 @@
       padding: 10px 12px;
       border-bottom: 1px solid rgba(200, 150, 42, 0.15);
       position: relative;
+      z-index: 1;
     }
     .pinfo-top::before {
       content: '';
@@ -312,6 +323,7 @@
 
     .pinfo-body {
       position: relative;
+      z-index: 1;
       display: flex;
       background: rgba(0, 0, 0, 0.3);
     }
@@ -359,37 +371,38 @@
       letter-spacing: 0.06em;
     }
 
-    .lvl-row {
-      grid-column: 1/-1;
+    .xp-strip-full {
+      grid-column: 1 / -1;
       display: flex;
       align-items: center;
-      gap: 7px;
-      padding-top: 2px;
+      gap: 6px;
+      margin-top: 2px;
     }
-    .lvl-lbl {
+    .xp-level-badge {
       font-family: 'Cinzel', serif;
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 700;
       color: var(--txt-d);
       white-space: nowrap;
     }
-    .lvl-track {
+    .xp-bar-holder {
       flex: 1;
-      height: 14px;
-      background: rgba(0, 0, 0, 0.65);
-      border: 1px solid #5a3a15;
-      border-radius: 4px;
-      overflow: hidden;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #4a2a10;
+      border-radius: 3px;
       position: relative;
+      overflow: hidden;
     }
-    .lvl-fill {
+    .xp-bar-fill {
       height: 100%;
       background: linear-gradient(90deg, #154360, #2980b9);
-      transition: width .5s ease;
+      width: 0%;
+      transition: width 0.3s ease;
     }
-    .lvl-track .xp-lbl {
+    .xp-bar-holder .xp-lbl {
       position: absolute;
-      left: 5px;
+      left: 4px;
       top: 50%;
       transform: translateY(-50%);
       font-size: 0.55rem;
@@ -398,13 +411,13 @@
       z-index: 1;
       pointer-events: none;
     }
-    .lvl-pct {
+    .xp-bar-text {
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: #fff;
       text-shadow: 0 1px 2px #000;
@@ -456,13 +469,13 @@
 
     <div class="player-panel">
       <div class="p-rewards">
-        <span class="p-rewards-title" data-i18n="glitter_reward">? Reward:</span>
+        <span class="p-rewards-title" data-i18n="glitter_reward">✨ Reward:</span>
         <div class="p-rewards-list" id="p-rewards-list">
           <span class="p-reward-empty" data-i18n="glitter_empty">Collect glitter from the sea to earn rewards!</span>
         </div>
       </div>
       <div class="pinfo-top">
-        <div class="p-rank-icon" id="p-rank-icon">?</div>
+        <div class="p-rank-icon" id="p-rank-icon">☠</div>
         <div class="p-name-wrap">
           <span class="p-name" id="p-name">Kaptan...</span>
           <div class="hp-row">
@@ -491,12 +504,12 @@
             <span class="s-key">ELP:</span>
             <span class="s-val" id="p-elp">0</span>
           </div>
-          <div class="lvl-row">
-            <span class="lvl-lbl" id="p-lvl">1 LVL</span>
-            <div class="lvl-track">
+          <div class="xp-strip-full">
+            <span class="xp-level-badge" id="p-lvl-lbl">1 LVL</span>
+            <div class="xp-bar-holder">
               <span class="xp-lbl">XP</span>
-              <div class="lvl-fill" id="p-lvl-fill" style="width:0%"></div>
-              <span class="lvl-pct" id="p-lvl-pct">0 / 0</span>
+              <div class="xp-bar-fill" id="p-lvl-fill" style="width:0%"></div>
+              <span class="xp-bar-text" id="p-lvl-pct">0 / 0</span>
             </div>
           </div>
         </div>
@@ -536,7 +549,7 @@
       window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
     }
 
-    // -- Mouse tracking for anti-bot --
+    // ── Mouse tracking for anti-bot ──
     let lastMouseX = 0;
     let lastMouseY = 0;
     let accumulatedMouseDelta = 0;
@@ -602,9 +615,6 @@
         }
       } catch (e) {
         logError('glitter:player', e);
-        if (window.isNetworkError && window.isNetworkError(e)) {
-          if (window.startOfflineTimer) window.startOfflineTimer();
-        }
       }
     }
 
@@ -620,9 +630,6 @@
         }
       } catch (e) {
         logError('glitter:limit', e);
-        if (window.isNetworkError && window.isNetworkError(e)) {
-          if (window.startOfflineTimer) window.startOfflineTimer();
-        }
       }
     }
 
@@ -638,7 +645,7 @@
       document.getElementById('p-pearl').textContent = fmt(player.pearl);
       document.getElementById('p-gold').textContent = fmt(player.gold);
       document.getElementById('p-elp').textContent = fmt(player.elp);
-      document.getElementById('p-lvl').textContent = player.level + ' LVL';
+      document.getElementById('p-lvl-lbl').textContent = player.level + ' LVL';
       document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);
 
       const vipB = document.getElementById('vip-badge');
@@ -672,14 +679,14 @@
 
       document.getElementById('p-gold').textContent = fmt(player.gold);
       document.getElementById('p-pearl').textContent = fmt(player.pearl);
-      document.getElementById('p-lvl').textContent = player.level + ' LVL';
+      document.getElementById('p-lvl-lbl').textContent = player.level + ' LVL';
       document.getElementById('p-lvl-pct').textContent = fmt(player.xp) + ' / ' + fmt(player.xpNext);
 
       const xpPct = Math.min(100, (player.xp / player.xpNext) * 100);
       document.getElementById('p-lvl-fill').style.width = xpPct + '%';
     }
 
-    // -- GLITTER SPARK ENGINE --
+    // ── GLITTER SPARK ENGINE ──
     (function() {
       const seaArea = document.querySelector('.sea-area');
       const maxGlitters = 3;
@@ -753,16 +760,13 @@
                 if (lbl) lbl.textContent = `${data.glitterRemaining}/200`;
               }
               if (data.leveledUp) {
-                toast2(`?? LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');
+                toast2(`🎉 LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');
               }
             } else if (data.error !== 'err_glitter_too_fast' && data.error !== 'err_glitter_hourly_limit') {
               toast2(data.error || t('glitter_collect_fail'), 'err');
             }
           } catch (err) {
             logError('glitter:collect', err);
-            if (window.isNetworkError && window.isNetworkError(err)) {
-              if (window.startOfflineTimer) window.startOfflineTimer();
-            }
           } finally {
             removeGlitter(div);
           }
@@ -803,7 +807,7 @@
         } else if (rewards.xp > 0) {
           html = `<div style="color:#a4b0be;">+${fmt(rewards.xp)} XP</div>`;
         } else if (rewards.ammo) {
-          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">?? +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;
+          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">💣 +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;
         }
 
         tag.innerHTML = html;
@@ -837,7 +841,7 @@
         } else if (rewards.ammo) {
           html = `
             <span class="p-reward-item" style="color:#3498db;">
-              ?? +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}
+              💣 +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}
             </span>
           `;
         }

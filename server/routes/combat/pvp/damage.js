@@ -54,6 +54,10 @@ async function calculateOpponentDamage(pool, opponentId) {
     damage = Math.floor(damage * BARUT_MULTIPLIER);
   }
 
+  if (ammoId === 3) {
+    damage = Math.floor(damage * EXPLOSIVE_MULTIPLIER);
+  }
+
   return {
     cannons: totalCannons,
     ammoId,

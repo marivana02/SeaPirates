@@ -901,8 +901,14 @@
           const playerShipImg = document.querySelector('.player-wrap .ship-img');
           if (playerShipImg) {
             playerShipImg.onload = repositionFires;
+            playerShipImg.onerror = function(){ this.onerror = null; };
             playerShipImg.src = shipImgSrc;
           }
+
+          // Gemi verilerini player'a kaydet (cache/sp_player güncellemeleri için)
+          player.ship_level = data.ship_level;
+          player.visual_ship_level = data.visual_ship_level;
+          player.active_design = data.active_design;
 
           // Envanter miktarlarını player nesnesine atalım
           player.ammoQtys = {};

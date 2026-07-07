@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <title>SeaPirates � Equipment</title>
+  <title>SeaPirates — Equipment</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="transition.js?v=10"></script>
+  <script src="transition.js?v=5"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -218,7 +218,7 @@
 <div class="page">
   <!-- TOP BAR -->
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>? BACK</span></a>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
     <div class="page-title"><span data-i18n="page_equipment" data-i18n-text>EQUIPMENT</span></div>
     <div style="width:65px;"></div>
   </div>
@@ -238,15 +238,15 @@
           <span data-i18n="equip_storage">In Storage</span>
           <span class="col-sub" id="storage-count">0 <span data-i18n="equip_pcs">pcs</span></span>
         </div>
-        <button class="btn-bulk btn-bulk-equip-pos" id="btn-bulk-equip" data-i18n-title="equip_equip_all" title="Equip All" onclick="doEquipAll()">�</button>
+        <button class="btn-bulk btn-bulk-equip-pos" id="btn-bulk-equip" data-i18n-title="equip_equip_all" title="Equip All" onclick="doEquipAll()">≫</button>
       </div>
       <div class="col-body" id="storage-list"></div>
     </div>
 
-    <!-- GEMIDE -->
+    <!-- GEMİDE -->
     <div class="col">
       <div class="col-header">
-        <button class="btn-bulk btn-bulk-remove btn-bulk-unequip-pos" id="btn-bulk-unequip" data-i18n-title="equip_unequip_all" title="Unequip All" onclick="doUnequipAll()">�</button>
+        <button class="btn-bulk btn-bulk-remove btn-bulk-unequip-pos" id="btn-bulk-unequip" data-i18n-title="equip_unequip_all" title="Unequip All" onclick="doUnequipAll()">≪</button>
         <div>
           <span data-i18n="equip_equipped">Equipped</span>
           <span class="col-sub" id="equipped-count">0 / 30 <span data-i18n="equip_slot">slot</span></span>
@@ -256,7 +256,7 @@
     </div>
   </div>
 
-  <!-- GEMI STATS -->
+  <!-- GEMİ STATS -->
   <div class="stats-bar">
     <div class="stats-title" data-i18n="equip_stats_title">Ship Stats</div>
     <div class="stats-grid">
@@ -270,7 +270,7 @@
       </div>
       <div class="stat-box">
         <span class="stat-k" data-i18n="equip_stat_reload">Reload Speed</span>
-        <span class="stat-v" id="stat-reload">�</span>
+        <span class="stat-v" id="stat-reload">—</span>
       </div>
       <div class="stat-box">
         <span class="stat-k" data-i18n="equip_stat_repair">Repair Bonus</span>
@@ -281,7 +281,7 @@
 </div>
 
 <script>
-  /* -- GDD'den alinan Katalog -- */
+  /* ── GDD'den alınan Katalog ── */
   const CANNON_CATALOG = [
     { id: 'top1', type: 'top', nk: 'shop_name_30_pounder', name: '30 Pounder',  img: 'assets/items/toppp/top1.png', hasar: 120, atisSnr: 4 },
     { id: 'top2', type: 'top', nk: 'shop_name_55_pounder', name: '55 Pounder',  img: 'assets/items/toppp/top2.png', hasar: 185, atisSnr: 3 },
@@ -293,7 +293,7 @@
     { id: 'mast2', type: 'direk', nk: 'shop_name_elite_beam', name: 'Elite Beam',  img: 'assets/items/shop/elitkiris.png', hpBonus: 1200, repairBonus: 20 }
   ];
 
-  /* -- Oyuncu durumu (API bazli) -- */
+  /* ── Oyuncu durumu (API bazlı) ── */
   const API_URL = (window.__API_URL__ || window.location.origin) + '/api';
   const token = localStorage.getItem('sp_token');
 
@@ -336,7 +336,7 @@
     render();
   }
 
-  /* -- STATS HESAP -- */
+  /* ── STATS HESAP ── */
   function calcStats() {
     let totalCannons = 0;
     let totalDmg     = 0;
@@ -362,8 +362,8 @@
     });
 
     document.getElementById('stat-hp').textContent    = (state.baseHp + hpBonus).toLocaleString('en-US');
-    document.getElementById('stat-dmg').textContent   = totalDmg > 0 ? totalDmg.toLocaleString('en-US') : '�';
-    document.getElementById('stat-reload').textContent = atisSure > 0 ? atisSure.toFixed(2) + ' sn' : '�';
+    document.getElementById('stat-dmg').textContent   = totalDmg > 0 ? totalDmg.toLocaleString('en-US') : '—';
+    document.getElementById('stat-reload').textContent = atisSure > 0 ? atisSure.toFixed(2) + ' sn' : '—';
     document.getElementById('stat-repair').textContent = repairBonus > 0 ? '+' + repairBonus : '+0';
 
     if (activeTab === 'top') {
@@ -375,12 +375,12 @@
     }
   }
 
-  /* -- RENDER -- */
+  /* ── RENDER ── */
   function render() {
     const catalog = activeTab === 'top' ? CANNON_CATALOG : MAST_CATALOG;
     const equippedKey  = activeTab === 'top' ? 'equipped'      : 'equippedMasts';
 
-    // En g��l�den zayifa sirala
+    // En güçlüden zayıfa sırala
     const sortedCatalog = [...catalog].sort((a, b) => {
       const aStr = a.hasar || a.hpBonus || 0;
       const bStr = b.hasar || b.hpBonus || 0;
@@ -434,14 +434,14 @@
     if (item.repairBonus) detail += `${t('stat_repair_plus',{val:item.repairBonus})}`;
 
     const btnClass = action === 'equip' ? 'btn-equip' : 'btn-remove';
-    const btnTxt   = action === 'equip' ? '�' : '�';
+    const btnTxt   = action === 'equip' ? '›' : '‹';
 
     const displayName = item.nk ? t(item.nk) : item.name;
 
     card.innerHTML = `
       <div class="item-img-wrap">
         <img src="${item.img}" class="item-img" alt="${displayName}"/>
-        <div class="item-qty-badge">�${Number(qty).toLocaleString('tr-TR')}</div>
+        <div class="item-qty-badge">×${Number(qty).toLocaleString('tr-TR')}</div>
       </div>
       <div class="item-meta">
         <div class="item-name">${displayName}</div>
@@ -453,7 +453,7 @@
     return card;
   }
 
-  /* -- ACTIONS -- */
+  /* ── ACTIONS ── */
   async function doEquip(id, isCannon) {
     try {
       const res = await fetch(`${API_URL}/equipment/equip`, {
