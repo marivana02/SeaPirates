@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../../config/db');
 const authMiddleware = require('../../middleware/auth');
-const { calculateAllPlayerRanks } = require('../../helpers/rank');
+const { calculateAllPlayerRanks, rankNames } = require('../../helpers/rank');
 
 router.get('/leaderboard', async (req, res) => {
   try {
