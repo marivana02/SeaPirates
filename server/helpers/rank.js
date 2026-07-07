@@ -19,23 +19,33 @@ const rankNames = {
 };
 
 const TOTAL_SLOTS = 1726; // 1+3+6+10+16+25+40+65+100+160+250+400+650
+const BASE_SLOTS = [0, 1, 3, 6, 10, 16, 25, 40, 65, 100, 160, 250, 400, 650];
 
 function getRankBadge(pos, totalCount = 200) {
   if (pos <= 0) return 13;
-  var slots = [0, 1, 3, 6, 10, 16, 25, 40, 65, 100, 160, 250, 400, 650];
   var cumulative = 0;
   if (totalCount < TOTAL_SLOTS) {
-    // Küçük sunucular: orijinal slot oranlarını koru, ölçeklendir
+    // Küçük sunucular: oranları koruyarak ölçeklendir
     var scale = totalCount / TOTAL_SLOTS;
+    var slots = [];
+    var sum = 0;
+    for (var i = 1; i <= 13; i++) {
+      slots[i] = Math.round(BASE_SLOTS[i] * scale);
+      sum += slots[i];
+    }
+    // Rank 1 en az 1 kişi
+    if (slots[1] < 1) { slots[1] = 1; sum++; }
+    // Fazlalığı rank 13'ten düş, eksiği rank 13'e ekle
+    slots[13] += totalCount - sum;
     for (var badge = 1; badge <= 13; badge++) {
-      cumulative += Math.max(1, Math.round(slots[badge] * scale));
+      cumulative += slots[badge];
       if (pos <= cumulative) return badge;
     }
     return 13;
   }
   // Büyük sunucular için sabit threshold'lar
   for (var badge = 1; badge <= 13; badge++) {
-    cumulative += slots[badge];
+    cumulative += BASE_SLOTS[badge];
     if (pos <= cumulative) return badge;
   }
   return 13;
