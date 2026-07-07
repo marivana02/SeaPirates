@@ -17,6 +17,19 @@
     }
   }
 
+  // Arka plandan dönüşte WebView hata sayfası göstermemek için sayfayı yenile
+  var bgTimer = null;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      bgTimer = Date.now();
+    } else if (bgTimer && (Date.now() - bgTimer) > 5000) {
+      bgTimer = null;
+      window.location.reload();
+    } else {
+      bgTimer = null;
+    }
+  });
+
   async function unregisterFCM() {
     if (typeof Capacitor === 'undefined' || !Capacitor.Plugins || !Capacitor.Plugins.PushNotifications) {
       return;
