@@ -82,10 +82,16 @@ async function sendPush(playerId, type, params = {}) {
   }
 }
 
-async function sendPushToAll(type, params = {}) {
+async function sendPushToAll(type, params = {}, mapLevel) {
   if (!initFirebase()) return;
   try {
-    const res = await pool.query('SELECT token FROM fcm_tokens');
+    let query = 'SELECT token FROM fcm_tokens';
+    let queryParams = [];
+    if (mapLevel != null) {
+      query = `SELECT ft.token FROM fcm_tokens ft JOIN players p ON p.id = ft.player_id WHERE ABS(p.current_map_level - $1) <= 1`;
+      queryParams = [mapLevel];
+    }
+    const res = await pool.query(query, queryParams);
     if (res.rows.length === 0) return;
 
     const tr = getNotificationText(type, params);

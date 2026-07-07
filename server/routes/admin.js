@@ -205,7 +205,7 @@ router.post('/admiral-spawn', asyncHandler(async (req, res) => {
     [subMap, mapLevel]
   );
   const { sendPushToAll } = require('../helpers/fcm');
-  sendPushToAll('admiral_spawn', { map: mapLevel, sub: subMap });
+  sendPushToAll('admiral_spawn', { map: mapLevel, sub: subMap }, mapLevel);
   res.json({ ok: true, message: `Admiral Map ${mapLevel}-${subMap}'de spawnlandı, push gönderildi` });
 }));
 
