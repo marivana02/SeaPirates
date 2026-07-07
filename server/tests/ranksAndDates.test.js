@@ -11,18 +11,15 @@ test('getRankBadge keeps top player at badge 1', () => {
   assert.equal(getRankBadge(1, 200), 1);
 });
 
-test('getRankBadge returns badge 2 for position 2 with 200 players', () => {
+test('getRankBadge returns badge 2 for positions 2-4 with 200 players', () => {
   assert.equal(getRankBadge(2, 200), 2);
+  assert.equal(getRankBadge(3, 200), 2);
+  assert.equal(getRankBadge(4, 200), 2);
 });
 
-test('getRankBadge returns badge 3 for positions 3-4 with 200 players', () => {
-  assert.equal(getRankBadge(3, 200), 3);
-  assert.equal(getRankBadge(4, 200), 3);
-});
-
-test('getRankBadge returns badge 4 for positions 5-6 with 200 players', () => {
-  assert.equal(getRankBadge(5, 200), 4);
-  assert.equal(getRankBadge(6, 200), 4);
+test('getRankBadge returns badge 3 for positions 5-10 with 200 players', () => {
+  assert.equal(getRankBadge(5, 200), 3);
+  assert.equal(getRankBadge(10, 200), 3);
 });
 
 test('getRankBadge returns fallback badge for out-of-range positions', () => {
@@ -35,9 +32,17 @@ test('getRankBadge correctly distributes 110 players', () => {
   assert.equal(getRankBadge(110, 110), 13); // last player → badge 13
 });
 
+test('getRankBadge gives rank 1=1, rank 2=3, rank 3=6 on small servers', () => {
+  assert.equal(getRankBadge(1, 50), 1);
+  assert.equal(getRankBadge(2, 50), 2);
+  assert.equal(getRankBadge(4, 50), 2);
+  assert.equal(getRankBadge(5, 50), 3);
+  assert.equal(getRankBadge(10, 50), 3);
+});
+
 test('getRankBadge correctly distributes 500 players', () => {
-  assert.equal(getRankBadge(316, 500), 12); // last pos of badge 12
-  assert.equal(getRankBadge(317, 500), 13); // badge 13 starts
+  assert.equal(getRankBadge(314, 500), 12); // last pos of badge 12
+  assert.equal(getRankBadge(315, 500), 13); // badge 13 starts
 });
 
 test('getRankBadge falls back to original thresholds for large servers', () => {
