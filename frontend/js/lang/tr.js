@@ -698,7 +698,7 @@ I18N_DATA['tr'] = {
     hall_keep_lead: 'Şu anda sunucudaki en yüksek rütbedesiniz! Liderliğinizi koruyun!',
     hall_the_gap: 'Düşme aralığı',
     hall_rank_points: 'rütbe puanı.',
-    hall_lowest_rank: 'En düşük rütbedesiniz, yerinizi korumak için puan kazanın!',
+    hall_lowest_rank: 'Şu an en düşük rütbeye sahipsiniz. Yükselmek için değerlerinizi artırın!',
     hall_calculating: '⚓ Rütbe hesaplanıyor...',
     hall_fetch_error: '⚠️ Rütbe verisi alınamadı!',
     hall_connection_error: '⚠️ Sunucu bağlantı hatası!',

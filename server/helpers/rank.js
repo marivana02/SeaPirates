@@ -20,14 +20,24 @@ const rankNames = {
 
 function getRankBadge(pos, totalCount = 200) {
   if (pos <= 0) return 13;
-  // Her rütbenin maksimum kişi sayısı (kümülatif threshold)
+  // Oyuncu sayısı 650'den azsa rütbeleri eşit dağıt (küçük sunucular için)
+  if (totalCount < 650) {
+    const base = Math.floor(totalCount / 13);
+    const remainder = totalCount % 13;
+    var cumulative = 0;
+    for (var badge = 1; badge <= 13; badge++) {
+      cumulative += base + (badge <= remainder ? 1 : 0);
+      if (pos <= cumulative) return badge;
+    }
+    return 13;
+  }
+  // Büyük sunucular için sabit threshold'lar
   var slots = [0, 1, 3, 6, 10, 16, 25, 40, 65, 100, 160, 250, 400, 650];
   var cumulative = 0;
   for (var badge = 1; badge <= 13; badge++) {
     cumulative += slots[badge];
     if (pos <= cumulative) return badge;
   }
-  // threshold aşımı varsa en düşük rütbe
   return 13;
 }
 

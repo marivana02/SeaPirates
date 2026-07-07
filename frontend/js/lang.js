@@ -585,7 +585,7 @@ I18N_DATA['en'] = {
     hall_keep_lead: 'You are currently the highest rank on the server! Keep your lead!',
     hall_the_gap: 'The gap to avoid dropping a rank is',
     hall_rank_points: 'rank points.',
-    hall_lowest_rank: 'You are at the lowest rank, earn points to keep your place!',
+    hall_lowest_rank: 'You are at the lowest rank. Improve your stats to rise up!',
     hall_calculating: '⚓ Calculating rank...',
     hall_fetch_error: '⚠️ Could not fetch rank data from server!',
     hall_connection_error: '⚠️ Server connection error!',

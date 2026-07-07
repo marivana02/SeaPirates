@@ -494,7 +494,11 @@ async function loadMyRank() {
         `;
         lowerCard.style.display = '';
       } else {
-        lowerCard.style.display = 'none';
+        lowerCard.innerHTML = `
+          <div class="info-title">${t('hall_one_below')}</div>
+          <div class="target-name" style="color:var(--gold);text-align:center;">${t('hall_lowest_rank')}</div>
+        `;
+        lowerCard.style.display = '';
       }
 
     } else {
