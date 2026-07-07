@@ -18,22 +18,22 @@ const rankNames = {
   13: { tr: "Kara Adamı", en: "Sailor", key: "rank_13" }
 };
 
+const TOTAL_SLOTS = 1726; // 1+3+6+10+16+25+40+65+100+160+250+400+650
+
 function getRankBadge(pos, totalCount = 200) {
   if (pos <= 0) return 13;
-  // Oyuncu sayısı 650'den azsa rütbeleri eşit dağıt (küçük sunucular için)
-  if (totalCount < 650) {
-    const base = Math.floor(totalCount / 13);
-    const remainder = totalCount % 13;
-    var cumulative = 0;
+  var slots = [0, 1, 3, 6, 10, 16, 25, 40, 65, 100, 160, 250, 400, 650];
+  var cumulative = 0;
+  if (totalCount < TOTAL_SLOTS) {
+    // Küçük sunucular: orijinal slot oranlarını koru, ölçeklendir
+    var scale = totalCount / TOTAL_SLOTS;
     for (var badge = 1; badge <= 13; badge++) {
-      cumulative += base + (badge <= remainder ? 1 : 0);
+      cumulative += Math.max(1, Math.round(slots[badge] * scale));
       if (pos <= cumulative) return badge;
     }
     return 13;
   }
   // Büyük sunucular için sabit threshold'lar
-  var slots = [0, 1, 3, 6, 10, 16, 25, 40, 65, 100, 160, 250, 400, 650];
-  var cumulative = 0;
   for (var badge = 1; badge <= 13; badge++) {
     cumulative += slots[badge];
     if (pos <= cumulative) return badge;
