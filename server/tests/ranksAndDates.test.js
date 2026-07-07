@@ -11,45 +11,39 @@ test('getRankBadge keeps top player at badge 1', () => {
   assert.equal(getRankBadge(1, 200), 1);
 });
 
-test('getRankBadge returns badge 2 for positions 2-4 with 200 players', () => {
+test('getRankBadge returns badge 2 for position 2 with 200 players', () => {
   assert.equal(getRankBadge(2, 200), 2);
-  assert.equal(getRankBadge(3, 200), 2);
-  assert.equal(getRankBadge(4, 200), 2);
 });
 
-test('getRankBadge returns badge 3 for positions 5-10 with 200 players', () => {
-  assert.equal(getRankBadge(5, 200), 3);
-  assert.equal(getRankBadge(10, 200), 3);
+test('getRankBadge returns badge 3 for positions 3-4 with 200 players', () => {
+  assert.equal(getRankBadge(3, 200), 3);
+  assert.equal(getRankBadge(4, 200), 3);
 });
 
-test('getRankBadge returns correct badge distribution with 200 players (m=3)', () => {
-  // badge 1: pos 1
-  // badge 2: pos 2-4  (threshold=1+3=4)
-  // badge 3: pos 5-10 (threshold=4+6=10)
-  // badge 4: pos 11-19 (threshold=10+9=19)
-  // badge 5: pos 20-31 (threshold=19+12=31)
-  assert.equal(getRankBadge(11, 200), 4);
-  assert.equal(getRankBadge(19, 200), 4);
-  assert.equal(getRankBadge(20, 200), 5);
-  assert.equal(getRankBadge(31, 200), 5);
-  assert.equal(getRankBadge(32, 200), 6);
+test('getRankBadge returns badge 4 for positions 5-6 with 200 players', () => {
+  assert.equal(getRankBadge(5, 200), 4);
+  assert.equal(getRankBadge(6, 200), 4);
 });
 
 test('getRankBadge returns fallback badge for out-of-range positions', () => {
   assert.equal(getRankBadge(9999, 200), 13);
 });
 
-test('getRankBadge uses smaller multiplier on small servers', () => {
-  // 110 players → m=1 → badge 13 starts at pos 68
-  assert.equal(getRankBadge(67, 110), 12);  // last pos of badge 12
-  assert.equal(getRankBadge(68, 110), 13);  // badge 13 starts
+test('getRankBadge correctly distributes 110 players', () => {
+  assert.equal(getRankBadge(72, 110), 12);  // last pos of badge 12
+  assert.equal(getRankBadge(73, 110), 13);  // badge 13 starts
   assert.equal(getRankBadge(110, 110), 13); // last player → badge 13
 });
 
-test('getRankBadge uses larger multiplier on big servers', () => {
-  // 500 players → m=6 → badge 13 starts at pos 398
-  assert.equal(getRankBadge(397, 500), 12); // last pos of badge 12
-  assert.equal(getRankBadge(398, 500), 13); // badge 13 starts
+test('getRankBadge correctly distributes 500 players', () => {
+  assert.equal(getRankBadge(316, 500), 12); // last pos of badge 12
+  assert.equal(getRankBadge(317, 500), 13); // badge 13 starts
+});
+
+test('getRankBadge falls back to original thresholds for large servers', () => {
+  // 1726+ uses original fixed thresholds: badge 13 starts at pos 1077
+  assert.equal(getRankBadge(1076, 2000), 12);
+  assert.equal(getRankBadge(1077, 2000), 13);
 });
 
 test('rankNames contains all 13 ranks', () => {

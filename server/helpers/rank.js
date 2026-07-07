@@ -25,7 +25,7 @@ function getRankBadge(pos, totalCount = 200) {
   if (pos <= 0) return 13;
   var cumulative = 0;
   if (totalCount < TOTAL_SLOTS) {
-    // Her rütbeye 1 taban + orantılı dağıtım (boş rütbe kalmasın)
+    // Küçük sunucular: her rütbeye 1 taban + orantılı dağıtım
     var scale = (totalCount - 13) / TOTAL_SLOTS;
     var slots = [];
     var sum = 0;
@@ -33,15 +33,13 @@ function getRankBadge(pos, totalCount = 200) {
       slots[i] = 1 + Math.round(BASE_SLOTS[i] * scale);
       sum += slots[i];
     }
-    // Kalan/eksik oyuncuları rank 13'e ekle
-    slots[13] += totalCount - sum;
+    slots[13] += totalCount - sum; // normalize
     for (var badge = 1; badge <= 13; badge++) {
       cumulative += slots[badge];
       if (pos <= cumulative) return badge;
     }
     return 13;
   }
-  // Büyük sunucular için sabit threshold'lar
   for (var badge = 1; badge <= 13; badge++) {
     cumulative += BASE_SLOTS[badge];
     if (pos <= cumulative) return badge;
