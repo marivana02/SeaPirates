@@ -57,6 +57,13 @@ function allocateSlots(totalCount) {
       }
     }
   }
+  // Boş rank olmasın: eğer rank X boş ama daha alt rankı doluysa X'e 1 ver, rank 13'ten düş
+  for (var i = 4; i <= 12; i++) {
+    if ((slots[i] || 0) === 0 && (slots[i + 1] || 0) > 0) {
+      slots[i] = 1;
+      slots[13] = (slots[13] || 1) - 1;
+    }
+  }
   // Kalan her şey rank 13'e
   var assigned = 0; for (var i = 1; i <= 13; i++) assigned += slots[i] || 0;
   slots[13] = (slots[13] || 0) + totalCount - assigned;
