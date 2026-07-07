@@ -21,65 +21,54 @@ const rankNames = {
 const TOTAL_SLOTS = 1726; // 1+3+6+10+16+25+40+65+100+160+250+400+650
 const BASE_SLOTS = [0, 1, 3, 6, 10, 16, 25, 40, 65, 100, 160, 250, 400, 650];
 
-function getRankBadge(pos, totalCount = 200) {
-  if (pos <= 0) return 13;
-  // Ranks 1-3: sabit (1, 3, 6) - küçük sunucuda bile korunsun
-  if (totalCount < TOTAL_SLOTS) {
-    var fixed = totalCount < 13 ? totalCount : 13;
-    var slots = [0];
-    var sum = 0;
-    for (var i = 1; i <= fixed; i++) {
-      // Rank 1-3 exact: 1, 3, 6; sonrasi orantili
-      if (i <= 3) {
-        var exact = i === 1 ? 1 : (i === 2 ? 3 : 6);
-        slots[i] = Math.min(exact, totalCount - sum - (fixed - i));
-        if (slots[i] < 0) slots[i] = 0;
-      } else {
-        slots[i] = 0;
-      }
-      sum += slots[i];
-    }
-    // Kalan oyuncuları rank 4-13'e orantılı dağıt
-    var remaining = totalCount - sum;
-    if (remaining > 0 && fixed > 3) {
-      var ratioSum = BASE_SLOTS.slice(4, fixed + 1).reduce(function(a, b) { return a + b; }, 0);
-      if (ratioSum > 0) {
-        var remainders = [];
-        var floorSum = 0;
-        for (var i = 4; i <= fixed; i++) {
-          var exact = BASE_SLOTS[i] * remaining / ratioSum;
-          slots[i] = Math.floor(exact);
-          remainders[i] = exact - slots[i];
-          floorSum += slots[i];
-        }
-        // Kalanı en büyük remainder'a sahip ranklere dağıt
-        var extra = remaining - floorSum;
-        while (extra > 0) {
-          var bestIdx = 4;
-          for (var i = 5; i <= fixed; i++) {
-            if (remainders[i] > remainders[bestIdx]) bestIdx = i;
-          }
-          slots[bestIdx]++;
-          remainders[bestIdx] = -1; // bir daha seçme
-          extra--;
-        }
-      }
-    }
-    // Kalan her şey rank 13'e (veya son ranke)
-    var assigned = slots.reduce(function(a, b) { return a + b; }, 0);
-    slots[fixed] += totalCount - assigned;
-
-    var cumulative = 0;
-    for (var badge = 1; badge <= fixed; badge++) {
-      cumulative += slots[badge];
-      if (pos <= cumulative) return Math.min(badge, 13);
-    }
-    return Math.min(fixed, 13);
+function allocateSlots(totalCount) {
+  var slots = [0];
+  // İlk 4 rank sabit: 1, 3, 6, 10
+  var fixed = [1, 3, 6, 10];
+  for (var i = 0; i < 4 && i < totalCount; i++) {
+    slots[i + 1] = Math.min(fixed[i], totalCount - slots.reduce(function(a, b) { return a + b; }));
+    if (slots[i + 1] < 0) slots[i + 1] = 0;
   }
-  // Büyük sunucular: orijinal thresholdlar
+  // Kalan rankları orantılı dağıt
+  var used = slots.reduce(function(a, b) { return a + b; });
+  var remaining = totalCount - used;
+  if (remaining > 0) {
+    var ratioSum = 0;
+    for (var i = 5; i <= 13; i++) ratioSum += BASE_SLOTS[i];
+    if (ratioSum > 0) {
+      var remainders = [];
+      var floorSum = 0;
+      for (var i = 5; i <= 13; i++) {
+        var exact = BASE_SLOTS[i] * remaining / ratioSum;
+        slots[i] = Math.floor(exact);
+        remainders[i] = exact - slots[i];
+        floorSum += slots[i];
+      }
+      var extra = remaining - floorSum;
+      while (extra > 0) {
+        var bestIdx = 5;
+        for (var i = 6; i <= 13; i++) {
+          if (remainders[i] > remainders[bestIdx]) bestIdx = i;
+        }
+        if (remainders[bestIdx] < 0) break;
+        slots[bestIdx]++;
+        remainders[bestIdx] = -1;
+        extra--;
+      }
+    }
+  }
+  // Kalan her şey rank 13'e
+  var assigned = 0; for (var i = 1; i <= 13; i++) assigned += slots[i] || 0;
+  slots[13] = (slots[13] || 0) + totalCount - assigned;
+  return slots;
+}
+
+function getRankBadge(pos, totalCount) {
+  if (pos <= 0) return 13;
+  var slots = totalCount < TOTAL_SLOTS ? allocateSlots(totalCount) : BASE_SLOTS;
   var cumulative = 0;
   for (var badge = 1; badge <= 13; badge++) {
-    cumulative += BASE_SLOTS[badge];
+    cumulative += slots[badge];
     if (pos <= cumulative) return badge;
   }
   return 13;

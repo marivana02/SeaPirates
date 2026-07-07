@@ -27,8 +27,8 @@ test('getRankBadge returns fallback badge for out-of-range positions', () => {
 });
 
 test('getRankBadge correctly distributes 110 players', () => {
-  assert.equal(getRankBadge(72, 110), 12);  // last pos of badge 12
-  assert.equal(getRankBadge(73, 110), 13);  // badge 13 starts
+  assert.equal(getRankBadge(76, 110), 12);  // last pos of badge 12
+  assert.equal(getRankBadge(77, 110), 13);  // badge 13 starts
   assert.equal(getRankBadge(110, 110), 13); // last player → badge 13
 });
 
@@ -41,8 +41,8 @@ test('getRankBadge gives rank 1=1, rank 2=3, rank 3=6 on small servers', () => {
 });
 
 test('getRankBadge correctly distributes 500 players', () => {
-  assert.equal(getRankBadge(314, 500), 12); // last pos of badge 12
-  assert.equal(getRankBadge(315, 500), 13); // badge 13 starts
+  assert.equal(getRankBadge(317, 500), 12); // last pos of badge 12
+  assert.equal(getRankBadge(318, 500), 13); // badge 13 starts
 });
 
 test('getRankBadge falls back to original thresholds for large servers', () => {
