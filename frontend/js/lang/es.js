@@ -596,7 +596,8 @@ I18N_DATA['es'] = {
     tower_max_hp: 'HP Máx.',
     tower_damage: 'Daño de Torre',
     tower_reward: 'Recompensa:',
-    tower_attack: 'INICIAR ATAQUE',
+    tower_attack: 'INICIAR ATAQUE'
+    tower_done: 'TODAY''S DONE',
     tower_req_level: '¡Debes ser al menos <b>Nivel 5 (Lvl 5)</b> para participar en las Batallas de la Torre!<br>Tu nivel actual: Lvl {val}',
     tower_daily_used: 'Has usado tu ataque diario de torre.<br>¡Prueba la próxima torre (<b>Lvl {val}</b>) mañana!',
     tower_status_info: 'Tu nivel de torre está establecido en <b>Lvl {val}</b>.<br>¡Solo puedes atacar una vez al día!',
@@ -765,3 +766,4 @@ I18N_DATA['es'] = {
     reward_warning_line1: 'Este mapa es demasiado fácil para ti ahora.',
     reward_warning_line2: 'Deja que los nuevos jugadores se fortalezcan.'
 };
+

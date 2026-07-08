@@ -596,7 +596,8 @@ I18N_DATA['de'] = {
     tower_max_hp: 'Max. HP',
     tower_damage: 'Turmschaden',
     tower_reward: 'Belohnung:',
-    tower_attack: 'ANGRIFF STARTEN',
+    tower_attack: 'ANGRIFF STARTEN'
+    tower_done: 'TODAY''S DONE',
     tower_req_level: 'Du musst mindestens <b>Stufe 5 (Lvl 5)</b> sein, um an Turmkämpfen teilzunehmen!<br>Deine aktuelle Stufe: Lvl {val}',
     tower_daily_used: 'Du hast deinen täglichen Turmangriff verbraucht.<br>Versuche es morgen beim nächsten Turm (<b>Lvl {val}</b>)!',
     tower_status_info: 'Deine Turmstufe ist auf <b>Lvl {val}</b> eingestellt.<br>Du kannst nur einmal pro Tag angreifen!',
@@ -765,3 +766,4 @@ I18N_DATA['de'] = {
     reward_warning_line1: 'Diese Karte ist jetzt zu einfach für dich.',
     reward_warning_line2: 'Lass neue Spieler stärker werden.'
 };
+

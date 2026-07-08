@@ -670,6 +670,7 @@ I18N_DATA['tr'] = {
     tower_damage: 'Kule Hasarı',
     tower_reward: 'Ödül:',
     tower_attack: 'SALDIRIYA BAŞLA',
+    tower_done: 'BUGÜN YAPILDI',
     tower_req_level: 'Kule Savaşlarına katılmak için en az <b>Seviye 5 (Lvl 5)</b> olmalısın!<br>Mevcut seviyen: Lvl {val}',
     tower_daily_used: 'Günlük kule saldırını kullandın.<br>Bir sonraki kuleyi (<b>Lvl {val}</b>) yarın dene!',
     tower_status_info: 'Kule seviyen <b>Lvl {val}</b> olarak ayarlandı.<br>Günde sadece bir kez saldırabilirsin!',

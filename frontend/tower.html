@@ -122,7 +122,7 @@
     }
     .btn-attack:hover { background: linear-gradient(180deg, #c0392b 0%, #8a1010 100%); border-color: #e05040; }
     .btn-attack:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
-    .btn-attack:disabled { background: #444 !important; border-color: #333 !important; color: #777 !important; cursor: not-allowed; box-shadow: none !important; }
+    .btn-attack:disabled { background: #333 !important; border-color: #222 !important; color: #666 !important; cursor: not-allowed; box-shadow: none !important; filter: grayscale(1); pointer-events: none; }
   </style>
 </head>
 <body>
@@ -236,7 +236,7 @@
             <div class="t-bottom">
               <div style="font-size:0.7rem; color:var(--txt-d);">${t('tower_reward')}</div>
               <div class="t-reward"><img src="assets/ui/pearl.png" /> +${fmt(pearl)} ${t('currency_pearl')}</div>
-              <button class="btn-attack" ${disableBtn ? 'disabled' : ''} onclick="attackTower(${calculatedTowerId})">⚔ ${t('tower_attack')}</button>
+              <button class="btn-attack" ${disableBtn ? 'disabled' : ''} onclick="attackTower(${calculatedTowerId})">${disableBtn ? '✓ ' + t('tower_done') : '⚔ ' + t('tower_attack')}</button>
             </div>
           </div>
         `;

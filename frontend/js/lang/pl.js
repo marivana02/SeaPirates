@@ -596,7 +596,8 @@ I18N_DATA['pl'] = {
     tower_max_hp: 'Maks. HP',
     tower_damage: 'Obrażenia Wieży',
     tower_reward: 'Nagroda:',
-    tower_attack: 'ROZPOCZNIJ ATAK',
+    tower_attack: 'ROZPOCZNIJ ATAK'
+    tower_done: 'TODAY''S DONE',
     tower_req_level: 'Musisz mieć przynajmniej <b>Poziom 5 (Lvl 5)</b>, aby wziąć udział w Walkach Wieży!<br>Twój obecny poziom: Lvl {val}',
     tower_daily_used: 'Wykorzystałeś swój dzienny atak na wieżę.<br>Wypróbuj następną wieżę (<b>Lvl {val}</b>) jutro!',
     tower_status_info: 'Twój poziom wieży to <b>Lvl {val}</b>.<br>Możesz atakować tylko raz dziennie!',
@@ -765,3 +766,4 @@ I18N_DATA['pl'] = {
     reward_warning_line1: 'Ta mapa jest już dla ciebie za łatwa.',
     reward_warning_line2: 'Pozwól nowym graczom stać się silniejszymi.'
 };
+
