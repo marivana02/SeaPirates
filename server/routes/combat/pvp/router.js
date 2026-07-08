@@ -29,7 +29,7 @@ router.post('/start', authMiddleware, async (req, res) => {
       if (Date.now() - new Date(existing.last_activity).getTime() < FIGHT_TIMEOUT_MS) {
         const playerCooldownMs = await calculatePlayerCooldownMs(pool, playerId, existing.is_tower);
         let pvpResult = { pvpOpponentId: null, pvpOpponentRankBadge: null, pvpOpponentRankName: null, pvpOpponentMainRankBadge: null, pvpOpponentMainRankName: null, opponentReloadMs: null };
-        const pInfo = await pool.query('SELECT pvp_target_id, level FROM players WHERE id = $1', [playerId]);
+            const pInfo = await pool.query('SELECT pvp_target_id, level, ship_level, visual_ship_level, active_design FROM players WHERE id = $1', [playerId]);
         if (pInfo.rows.length > 0) {
           pvpResult = await resolvePvPOpponentInfo(pool, pInfo.rows[0].pvp_target_id, pInfo.rows[0].level, playerId);
         }
@@ -67,7 +67,7 @@ router.post('/start', authMiddleware, async (req, res) => {
       player_id, npc_name, npc_hp, npc_max_hp, npc_damage, npc_gold, npc_pearl, npc_xp,
       player_hp, player_max_hp, weekly_boss_damage_dealt, map_level, is_admiral, is_tiamat,
       is_tower, tower_id, full_img, damaged_img, is_weekly_boss, is_pvp, last_activity, last_npc_attack
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP, NULL)
     ON CONFLICT (player_id) DO UPDATE SET
       npc_name = EXCLUDED.npc_name, npc_hp = EXCLUDED.npc_hp, npc_max_hp = EXCLUDED.npc_max_hp,
       npc_damage = EXCLUDED.npc_damage, npc_gold = EXCLUDED.npc_gold, npc_pearl = EXCLUDED.npc_pearl,
@@ -75,7 +75,7 @@ router.post('/start', authMiddleware, async (req, res) => {
       weekly_boss_damage_dealt = EXCLUDED.weekly_boss_damage_dealt, map_level = EXCLUDED.map_level,
       is_admiral = EXCLUDED.is_admiral, is_tiamat = EXCLUDED.is_tiamat, is_tower = EXCLUDED.is_tower,
       tower_id = EXCLUDED.tower_id, full_img = EXCLUDED.full_img, damaged_img = EXCLUDED.damaged_img,
-      is_weekly_boss = EXCLUDED.is_weekly_boss, is_pvp = EXCLUDED.is_pvp, last_activity = CURRENT_TIMESTAMP, last_npc_attack = CURRENT_TIMESTAMP
+      is_weekly_boss = EXCLUDED.is_weekly_boss, is_pvp = EXCLUDED.is_pvp, last_activity = CURRENT_TIMESTAMP, last_npc_attack = NULL
     `, [
       playerId, targetNpc.name, targetNpc.hp, targetNpc.hp,
       targetNpc.damage || 0, targetNpc.gold || 0, targetNpc.pearl || 0, targetNpc.xp || 0,

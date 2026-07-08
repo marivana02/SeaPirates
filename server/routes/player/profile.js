@@ -100,7 +100,7 @@ router.get('/cannons/check', authMiddleware, async (req, res) => {
 router.get('/panel', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, username, display_name, gold, pearl, xp, level, elite_points, ship_level, hp, max_hp, vip_until, tower_level, pvp_points, active_quest_id, active_quest_id2, quest_kills, quest_damage, quest_glitters, quest_kills2, quest_damage2, quest_glitters2, quest_progress, quest_progress2 FROM players WHERE id = $1',
+      'SELECT id, username, display_name, gold, pearl, xp, level, elite_points, ship_level, hp, max_hp, vip_until, tower_level, pvp_points, active_quest_id, active_quest_id2, quest_kills, quest_damage, quest_glitters, quest_kills2, quest_damage2, quest_glitters2, quest_progress, quest_progress2, completed_quests FROM players WHERE id = $1',
       [req.player.id]
     );
     if (result.rows.length === 0) return res.json({ success: false });

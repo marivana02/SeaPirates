@@ -1,0 +1,5 @@
+-- Up
+ALTER TABLE tiamat ADD COLUMN IF NOT EXISTS manual_spawn BOOLEAN DEFAULT FALSE;
+
+-- Down
+ALTER TABLE tiamat DROP COLUMN IF EXISTS manual_spawn;

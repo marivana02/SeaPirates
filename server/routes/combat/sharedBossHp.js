@@ -135,12 +135,12 @@ async function deductTiamatBossHp(pool, playerDamage, bossMaxHp, client) {
   return { newHp, actualHpLost };
 }
 
-async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage, excludePlayerId) {
-  const targetClient = await pool.connect();
+async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage, excludePlayerId, client) {
+  const useOwnTxn = !client;
+  const targetClient = client || await pool.connect();
   try {
-    await targetClient.query("SET lock_timeout = '3s'");
-    await targetClient.query('BEGIN');
-    // Saldıran oyuncuyu target seçiminden çıkar → self-deadlock önler
+    if (useOwnTxn) await targetClient.query("SET lock_timeout = '3s'");
+    if (useOwnTxn) await targetClient.query('BEGIN');
     const partRes = await targetClient.query(
       'SELECT player_id, username, current_hp FROM admiral_damage WHERE map_level = $1 AND current_hp > 0 AND player_id != $2',
       [mapLevel, excludePlayerId]
@@ -170,23 +170,23 @@ async function selectRandomAdmiralTarget(pool, mapLevel, npcDamage, excludePlaye
       }
     }
 
-    await targetClient.query('COMMIT');
+    if (useOwnTxn) await targetClient.query('COMMIT');
 
     return { targetHitId, targetHitUsername, actualNpcDamage };
   } catch (txErr) {
-    await targetClient.query('ROLLBACK');
+    if (useOwnTxn) await targetClient.query('ROLLBACK');
     throw txErr;
   } finally {
-    targetClient.release();
+    if (useOwnTxn) targetClient.release();
   }
 }
 
-async function selectRandomTiamatTarget(pool, npcDamage, excludePlayerId) {
-  const targetClient = await pool.connect();
+async function selectRandomTiamatTarget(pool, npcDamage, excludePlayerId, client) {
+  const useOwnTxn = !client;
+  const targetClient = client || await pool.connect();
   try {
-    await targetClient.query("SET lock_timeout = '3s'");
-    await targetClient.query('BEGIN');
-    // Saldıran oyuncuyu target seçiminden çıkar → self-deadlock önler
+    if (useOwnTxn) await targetClient.query("SET lock_timeout = '3s'");
+    if (useOwnTxn) await targetClient.query('BEGIN');
     const partRes = await targetClient.query(
       'SELECT player_id, username, current_hp FROM tiamat_damage WHERE current_hp > 0 AND player_id != $1 AND spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)',
       [excludePlayerId]
@@ -216,13 +216,13 @@ async function selectRandomTiamatTarget(pool, npcDamage, excludePlayerId) {
       }
     }
 
-    await targetClient.query('COMMIT');
+    if (useOwnTxn) await targetClient.query('COMMIT');
     return { targetHitId, targetHitUsername, actualNpcDamage };
   } catch (txErr) {
-    await targetClient.query('ROLLBACK');
+    if (useOwnTxn) await targetClient.query('ROLLBACK');
     throw txErr;
   } finally {
-    targetClient.release();
+    if (useOwnTxn) targetClient.release();
   }
 }
 

@@ -237,7 +237,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
                 [randomSubMap, fightMapLvl]
               );
               console.log(`[BOSS SPAWN] ${bossInfo.name} spawned in Map ${fightMapLvl}-${randomSubMap}!`);
-              sendPushToAll('admiral_spawn', { map: fightMapLvl, sub: randomSubMap, name: bossInfo.name }, fightMapLvl);
+              sendPushToAll('admiral_spawn', { map: fightMapLvl, sub: randomSubMap, name: bossInfo.name }, fightMapLvl, randomSubMap);
             }
           }
           await spawnClient.query('COMMIT');

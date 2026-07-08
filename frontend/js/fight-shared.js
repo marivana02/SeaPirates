@@ -632,6 +632,7 @@
 
     /* Ana canvas döngüsü */
     function gLoop() {
+      if (!gCtx || !gCanvas) return;
       gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
 
       const now = performance.now();
@@ -709,7 +710,7 @@
       }
 
       // Tiamat yarı can yanma kıvılcımları
-      if (window._tiamatBurning && Math.random() > 0.35) {
+      if (isTiamat && window._tiamatBurning && Math.random() > 0.35) {
         const npcNode = document.getElementById('npc-node');
         const tCanv = npcNode ? npcNode.querySelector('.ship-img') : null;
         if (tCanv) {
@@ -1162,7 +1163,10 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
     let selectedAmmo = player.ammo;
     function saveSlots() { localStorage.setItem('sp_slot_layout', JSON.stringify(slots)); }
     function formatCompactQty(n) {
-      return n.toLocaleString('tr-TR');
+      if (n >= 1000000000) return Math.floor(n / 1000000000) + 'B';
+      if (n >= 1000000) return Math.floor(n / 1000000) + 'M';
+      if (n >= 1000) return Math.floor(n / 1000) + 'K';
+      return n.toString();
     }
     function renderSlots() {
       const bar = document.getElementById('ammo-bar');

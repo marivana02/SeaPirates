@@ -46,7 +46,7 @@ router.get('/active', authMiddleware, async (req, res) => {
       active: true, npcName: fight.npc_name, npcHp: parseInt(fight.npc_hp), npcMaxHp: parseInt(fight.npc_max_hp),
       playerHp: parseInt(fight.player_hp), playerMaxHp: parseInt(fight.player_max_hp), isTower: !!fight.is_tower,
       isPvP: !!fight.is_pvp, isWeeklyBoss: !!fight.is_weekly_boss, isTiamat: !!fight.is_tiamat,
-      isAdmiral: !!(fight.is_admiral || fight.is_tiamat), towerId: fight.tower_id,
+      isAdmiral: !!fight.is_admiral, towerId: fight.tower_id,
       fullImg: fight.full_img, damagedImg: fight.damaged_img, mapLevel: fight.map_level
     });
   } catch (err) {
@@ -126,12 +126,15 @@ router.post('/start', authMiddleware, async (req, res) => {
       if (Date.now() - new Date(existing.last_activity).getTime() < FIGHT_TIMEOUT_MS) {
         let playerCooldownMs = await calculatePlayerCooldownMs(pool, playerId, existing.is_tower);
       if (existing.is_tiamat) playerCooldownMs = 3000;
+        const shipInfo = await pool.query('SELECT ship_level, visual_ship_level, active_design FROM players WHERE id = $1', [playerId]);
+        const pShip = shipInfo.rows[0] || {};
         return res.json({
           message: 'Fight ongoing', npcName: existing.npc_name, npcHp: parseInt(existing.npc_hp), npcMaxHp: parseInt(existing.npc_max_hp),
           playerHp: parseInt(existing.player_hp), playerMaxHp: parseInt(existing.player_max_hp), isTower: !!existing.is_tower,
           isPvP: !!existing.is_pvp, fullImg: existing.full_img, damagedImg: existing.damaged_img,
-          isAdmiral: !!(existing.is_admiral || existing.is_tiamat), isTiamat: !!existing.is_tiamat,
-          playerCooldownMs
+          isAdmiral: !!existing.is_admiral, isTiamat: !!existing.is_tiamat,
+          playerCooldownMs,
+          ship_level: pShip.ship_level, visual_ship_level: pShip.visual_ship_level, active_design: pShip.active_design
         });
       }
       await pool.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
@@ -177,7 +180,7 @@ router.post('/start', authMiddleware, async (req, res) => {
       player_id, npc_name, npc_hp, npc_max_hp, npc_damage, npc_gold, npc_pearl, npc_xp,
       player_hp, player_max_hp, weekly_boss_damage_dealt, map_level, is_admiral, is_tiamat,
       is_tower, tower_id, full_img, damaged_img, is_weekly_boss, is_pvp, last_activity, last_npc_attack
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP, NULL)
     ON CONFLICT (player_id) DO UPDATE SET
       npc_name = EXCLUDED.npc_name, npc_hp = EXCLUDED.npc_hp, npc_max_hp = EXCLUDED.npc_max_hp,
       npc_damage = EXCLUDED.npc_damage, npc_gold = EXCLUDED.npc_gold, npc_pearl = EXCLUDED.npc_pearl,
@@ -199,7 +202,7 @@ router.post('/start', authMiddleware, async (req, res) => {
       npcHp: (isAdmiral || isTiamatFight) ? bossCurrentHp : targetNpc.hp, npcMaxHp: targetNpc.hp,
       playerHp: pInfo.hp, playerMaxHp: pInfo.max_hp, isTower: !!isTower, isPvP: false,
       fullImg: targetNpc.fullImg || null, damagedImg: targetNpc.damagedImg || null,
-      isAdmiral: isAdmiral || isTiamatFight, isTiamat: isTiamatFight, playerCooldownMs,
+      isAdmiral: isAdmiral, isTiamat: isTiamatFight, playerCooldownMs,
       ship_level: pInfo.ship_level, visual_ship_level: pInfo.visual_ship_level, active_design: pInfo.active_design
     });
   } catch (err) {
@@ -325,6 +328,7 @@ router.post('/attack', authMiddleware, async (req, res) => {
     if (npcObj.isWeeklyBoss) {
       fight.npcHp = fight.npcMaxHp;
       fight.weeklyBossDamageDealt = (fight.weeklyBossDamageDealt || 0) + playerDamage;
+      try { await distributeOldWeekRewards(pool); } catch (_) {}
       const currentWeekStr = getCurrentWeekString();
       await txClient.query(`UPDATE players SET weekly_boss_damage = CASE WHEN weekly_boss_week = $1 THEN weekly_boss_damage + $2 ELSE $2 END, weekly_boss_week = $1 WHERE id = $3`, [currentWeekStr, playerDamage, playerId]);
       T('WEEKLY_DONE');
@@ -342,9 +346,9 @@ router.post('/attack', authMiddleware, async (req, res) => {
     }
     T('NPC_ALIVE');
 
-    if (fight.isAdmiral) {
+    if (fight.isAdmiral && npcDamage > 0) {
       T('SEL_ADM_TARGET');
-      const sel = await selectRandomAdmiralTarget(pool, fight.mapLevel, npcDamage, playerId);
+      const sel = await selectRandomAdmiralTarget(pool, fight.mapLevel, npcDamage, playerId, txClient);
       T('ADM_TARGET_SELECTED');
       targetHitId = sel.targetHitId;
       targetHitUsername = sel.targetHitUsername;
@@ -352,14 +356,18 @@ router.post('/attack', authMiddleware, async (req, res) => {
       if (targetHitId === playerId) {
         fight.playerHp -= npcDamage;
         if (fight.playerHp < 0) fight.playerHp = 0;
-      } else if (targetHitId > 0) {
+      } else if (targetHitId !== null && targetHitId > 0) {
         actualNpcDamage = 0;
-        await pool.query('UPDATE players SET hp = GREATEST(0, hp - $1) WHERE id = $2', [npcDamage, targetHitId]);
-        await pool.query('UPDATE active_fights SET player_hp = GREATEST(0, player_hp - $1) WHERE player_id = $2', [npcDamage, targetHitId]);
+        await txClient.query('UPDATE players SET hp = GREATEST(0, hp - $1) WHERE id = $2', [npcDamage, targetHitId]);
+        await txClient.query('UPDATE active_fights SET player_hp = GREATEST(0, player_hp - $1) WHERE player_id = $2', [npcDamage, targetHitId]);
+      } else {
+        actualNpcDamage = npcDamage;
+        fight.playerHp -= npcDamage;
+        if (fight.playerHp < 0) fight.playerHp = 0;
       }
-    } else if (fight.isTiamat) {
+    } else if (fight.isTiamat && npcDamage > 0) {
       T('SEL_TIAMAT_TARGET');
-      const sel = await selectRandomTiamatTarget(pool, npcDamage, playerId);
+      const sel = await selectRandomTiamatTarget(pool, npcDamage, playerId, txClient);
       T('TIAMAT_TARGET_SELECTED');
       targetHitId = sel.targetHitId;
       targetHitUsername = sel.targetHitUsername;
@@ -369,8 +377,8 @@ router.post('/attack', authMiddleware, async (req, res) => {
         if (fight.playerHp < 0) fight.playerHp = 0;
       } else if (targetHitId !== null && targetHitId > 0) {
         actualNpcDamage = 0;
-        await pool.query('UPDATE players SET hp = GREATEST(0, hp - $1) WHERE id = $2', [npcDamage, targetHitId]);
-        await pool.query('UPDATE active_fights SET player_hp = GREATEST(0, player_hp - $1) WHERE player_id = $2', [npcDamage, targetHitId]);
+        await txClient.query('UPDATE players SET hp = GREATEST(0, hp - $1) WHERE id = $2', [npcDamage, targetHitId]);
+        await txClient.query('UPDATE active_fights SET player_hp = GREATEST(0, player_hp - $1) WHERE player_id = $2', [npcDamage, targetHitId]);
       } else {
         fight.playerHp -= npcDamage;
         if (fight.playerHp < 0) fight.playerHp = 0;
@@ -412,17 +420,29 @@ router.post('/attack', authMiddleware, async (req, res) => {
     T('TXN_COMMIT');
 
     // Tiamat/Admiral → broadcast güncel HP'yi tüm client'lara
-    if ((fight.isTiamat || fight.isAdmiral) && actualHpLost > 0) {
+    if (actualHpLost > 0) {
       try {
-        const lbRes = await pool.query(
-          `SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp
-           FROM tiamat_damage
-           WHERE player_id > 0 AND spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)
-           ORDER BY damage_dealt DESC LIMIT 30`
-        );
-        broadcastBossHp(0, { bossHp: fight.npcHp, bossMaxHp: fight.npcMaxHp, leaderboard: lbRes.rows });
+        if (fight.isAdmiral) {
+          const lbRes = await pool.query(
+            `SELECT a.player_id, a.username, a.ship_level, a.damage_dealt, a.current_hp, a.max_hp, p.active_design
+             FROM admiral_damage a
+             JOIN players p ON p.id = a.player_id
+             WHERE a.map_level = $1 AND a.player_id > 0
+             ORDER BY a.damage_dealt DESC LIMIT 30`,
+            [fight.mapLevel]
+          );
+          broadcastBossHp(fight.mapLevel, { bossHp: fight.npcHp, bossMaxHp: fight.npcMaxHp, leaderboard: lbRes.rows });
+        } else if (fight.isTiamat) {
+          const lbRes = await pool.query(
+            `SELECT player_id, username, ship_level, damage_dealt, current_hp, max_hp
+             FROM tiamat_damage
+             WHERE player_id > 0 AND spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)
+             ORDER BY damage_dealt DESC LIMIT 30`
+          );
+          broadcastBossHp(0, { bossHp: fight.npcHp, bossMaxHp: fight.npcMaxHp, leaderboard: lbRes.rows });
+        }
       } catch (e) {
-        console.error('Tiamat socket broadcast error:', e.message);
+        console.error('Broadcast error:', e.message);
       }
     }
 
