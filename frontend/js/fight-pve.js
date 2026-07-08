@@ -141,7 +141,7 @@
           refreshHP();
           attackInterval = setInterval(doAttack, player.cooldownMs || 4000);
 
-          if (data.isAdmiral) {
+          if (data.isAdmiral || data.isTiamat) {
             document.getElementById('admiral-leaderboard').style.display = 'block';
             startAdmiralStatusTracking();
           }

@@ -100,7 +100,9 @@ async function initTiamatState(pool) {
       gold: 0,
       pearl: parseInt(t.pearl),
       xp: parseInt(t.xp),
-      isTiamat: true
+      isTiamat: true,
+      fullImg: 'assets/enemies/tiamat/sprite-256px-36_1.webp',
+      damagedImg: 'assets/enemies/tiamat/sprite-256px-36_1.webp'
     },
     bossCurrentHp: tiamatHp
   };

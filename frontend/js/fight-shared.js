@@ -1921,7 +1921,6 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       const offCanvas = document.createElement('canvas');
       const offCtx = offCanvas.getContext('2d');
       const sheetImg = new Image();
-      sheetImg.crossOrigin = 'anonymous';
 
       const displayCanvas = document.createElement('canvas');
       const dispCtx = displayCanvas.getContext('2d');
@@ -1934,6 +1933,13 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         offCanvas.width = sheetImg.naturalWidth;
         offCanvas.height = sheetImg.naturalHeight;
         offCtx.drawImage(sheetImg, 0, 0);
+
+        const expectedW = TIAMAT_FRAME_W * TIAMAT_FRAME_COLS;
+        const expectedH = TIAMAT_FRAME_H * TIAMAT_FRAME_ROWS;
+        const useFrameW = (sheetImg.naturalWidth === expectedW && sheetImg.naturalHeight === expectedH)
+          ? TIAMAT_FRAME_W : Math.floor(sheetImg.naturalWidth / TIAMAT_FRAME_COLS);
+        const useFrameH = (sheetImg.naturalWidth === expectedW && sheetImg.naturalHeight === expectedH)
+          ? TIAMAT_FRAME_H : Math.floor(sheetImg.naturalHeight / TIAMAT_FRAME_ROWS);
 
         const DISPLAY_SIZE = 220;
         displayCanvas.width = DISPLAY_SIZE;
@@ -1950,7 +1956,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         displayCanvas.style.animation = 'tiamatPulse 2s ease-in-out infinite';
 
         // Center the frame in the canvas to preserve aspect ratio
-        const srcRatio = TIAMAT_FRAME_W / TIAMAT_FRAME_H;
+        const srcRatio = useFrameW / useFrameH;
         let drawW, drawH, drawX, drawY;
         if (srcRatio > 1) {
           drawW = DISPLAY_SIZE;
@@ -1972,10 +1978,10 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
         function drawFrame(idx) {
           const col = idx % TIAMAT_FRAME_COLS;
           const row = Math.floor(idx / TIAMAT_FRAME_COLS);
-          const sx = col * TIAMAT_FRAME_W;
-          const sy = row * TIAMAT_FRAME_H;
+          const sx = col * useFrameW;
+          const sy = row * useFrameH;
           dispCtx.clearRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
-          dispCtx.drawImage(offCanvas, sx, sy, TIAMAT_FRAME_W, TIAMAT_FRAME_H, drawX, drawY, drawW, drawH);
+          dispCtx.drawImage(offCanvas, sx, sy, useFrameW, useFrameH, drawX, drawY, drawW, drawH);
         }
 
         drawFrame(0);
@@ -1993,7 +1999,13 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
       };
 
       sheetImg.onerror = function() {
-        if (imgEl) imgEl.style.display = 'block';
+        if (imgEl) {
+          imgEl.style.display = 'block';
+          imgEl.style.maxWidth = '220px';
+          imgEl.style.maxHeight = '220px';
+          imgEl.style.mixBlendMode = 'normal';
+          imgEl.style.filter = 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(255, 50, 0, 0.5))';
+        }
       };
 
       sheetImg.src = spriteSrc;
