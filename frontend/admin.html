@@ -165,6 +165,11 @@
         <button class="btn btn-danger" onclick="spawnAdmiral()">⚓ ADMİRAL SPAWNLA + PUSH</button>
         <span id="admiralResult" style="font-size:0.75rem;color:var(--txt-m);"></span>
       </div>
+      <h3 style="margin-top:12px;">🐉 Tiamat Spawn Tetikle</h3>
+      <div class="flex mb-8">
+        <button class="btn btn-danger" onclick="spawnTiamat()">🐉 TIAMAT SPAWNLA</button>
+        <span id="tiamatResult" style="font-size:0.75rem;color:var(--txt-m);"></span>
+      </div>
     </div>
     <div class="card">
       <h3>📨 Tüm Cihazlara Push Gönder</h3>
@@ -440,6 +445,16 @@ function spawnAdmiral() {
   const resultEl = document.getElementById('admiralResult');
   resultEl.textContent = '⏳ Spawnlanıyor...';
   api('/admiral-spawn', { method: 'POST', body: { mapLevel: parseInt(mapLevel) } })
+    .then(data => {
+      if (data.error) { resultEl.textContent = '❌ ' + data.error; return; }
+      resultEl.textContent = '✅ ' + (data.message || 'Spawnlandı');
+    }).catch(e => { resultEl.textContent = '❌ ' + (e.message || 'Hata'); });
+}
+
+function spawnTiamat() {
+  const resultEl = document.getElementById('tiamatResult');
+  resultEl.textContent = '⏳ Spawnlanıyor...';
+  api('/tiamat-spawn', { method: 'POST' })
     .then(data => {
       if (data.error) { resultEl.textContent = '❌ ' + data.error; return; }
       resultEl.textContent = '✅ ' + (data.message || 'Spawnlandı');
