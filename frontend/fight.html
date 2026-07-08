@@ -276,10 +276,15 @@
     .rank-icon {
       object-fit: contain;
     }
-    #player-rank-left, #npc-rank-left,
-    #player-rank-right, #npc-rank-right {
+    #player-rank-left, #npc-rank-left {
       width: 28px;
       height: 28px;
+    }
+    #player-rank-right, #npc-rank-right {
+      width: 22px;
+      height: 22px;
+      image-rendering: auto;
+      -ms-interpolation-mode: bicubic;
     }
 
     .rank-icon {
