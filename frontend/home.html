@@ -1157,6 +1157,7 @@
         const evRes = await fetch(`${ROOT}/api/events`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!evRes.ok) return;
         const ev = await evRes.json();
+        if (!ev.isActive) return;
         const banner = document.getElementById('ev-banner');
         const icon = document.getElementById('ev-icon');
         const name = document.getElementById('ev-name');
