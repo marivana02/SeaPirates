@@ -74,6 +74,32 @@
     .hof-header select option{
       background:#1e0e03;color:var(--gold-b);
     }
+    .cat-dropdown{
+      position:relative;display:inline-block;
+    }
+    .cat-dropdown-toggle{
+      background:linear-gradient(180deg,#3d2108,#1e0e03);
+      border:1px solid #7a4a18;border-radius:6px;
+      color:var(--gold-b);font-size:0.75rem;font-weight:600;
+      padding:6px 10px;font-family:'Cinzel',serif;
+      cursor:pointer;min-width:150px;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+      white-space:nowrap;
+    }
+    .cat-dropdown-arrow{font-size:0.5rem;color:#c8962a;}
+    .cat-dropdown-menu{
+      display:none;position:absolute;top:100%;right:0;
+      background:#1e0e03;border:1px solid #7a4a18;border-radius:6px;
+      min-width:180px;z-index:100;margin-top:4px;
+    }
+    .cat-dropdown-menu.open{display:block;}
+    .cat-dropdown-item{
+      padding:8px 12px;color:var(--gold-b);
+      font-size:0.75rem;font-family:'Cinzel',serif;
+      cursor:pointer;border-bottom:1px solid rgba(122,74,24,0.3);
+    }
+    .cat-dropdown-item:last-child{border-bottom:none;}
+    .cat-dropdown-item:hover{background:rgba(255,255,255,0.1);}
     
     /* RANKING INFO ROW */
     .rank-info-row{
@@ -174,17 +200,23 @@
     <div class="hof-header-left">
       <span class="cat-label" id="cat-label">Experience Points</span>
     </div>
-    <select id="cat-select" onchange="changeCategory(this.value)">
-      <option value="xp" data-i18n="hof_cat_xp">Experience Points</option>
-      <option value="ep" data-i18n="hof_cat_ep">Elite Points</option>
-      <option value="dmg_pve" data-i18n="hof_cat_dmg_pve">Damage Score PvE</option>
-      <option value="dmg_pvp" data-i18n="hof_cat_dmg_pvp">Damage Score PvP</option>
-      <option value="kill_npc" data-i18n="hof_cat_kill_npc">NPCs Sunk</option>
-      <option value="kill_pvp" data-i18n="hof_cat_kill_pvp">Players Sunk</option>
-      <option value="dmg_amiral" data-i18n="hof_cat_dmg_amiral">Admiral Damage</option>
-      <option value="playtime" data-i18n="hof_cat_playtime">Playtime</option>
-      <option value="pvp_points" data-i18n="hof_cat_pvp_points">Battle Points</option>
-    </select>
+    <div class="cat-dropdown" id="cat-dropdown">
+      <button class="cat-dropdown-toggle" id="cat-dropdown-toggle" onclick="toggleDropdown(event)">
+        <span id="cat-dropdown-text">Experience Points</span>
+        <span class="cat-dropdown-arrow">▾</span>
+      </button>
+      <div class="cat-dropdown-menu" id="cat-dropdown-menu">
+        <div class="cat-dropdown-item" data-value="xp" onclick="selectCat('xp')"><span data-i18n="hof_cat_xp">Experience Points</span></div>
+        <div class="cat-dropdown-item" data-value="ep" onclick="selectCat('ep')"><span data-i18n="hof_cat_ep">Elite Points</span></div>
+        <div class="cat-dropdown-item" data-value="dmg_pve" onclick="selectCat('dmg_pve')"><span data-i18n="hof_cat_dmg_pve">Damage Score PvE</span></div>
+        <div class="cat-dropdown-item" data-value="dmg_pvp" onclick="selectCat('dmg_pvp')"><span data-i18n="hof_cat_dmg_pvp">Damage Score PvP</span></div>
+        <div class="cat-dropdown-item" data-value="kill_npc" onclick="selectCat('kill_npc')"><span data-i18n="hof_cat_kill_npc">NPCs Sunk</span></div>
+        <div class="cat-dropdown-item" data-value="kill_pvp" onclick="selectCat('kill_pvp')"><span data-i18n="hof_cat_kill_pvp">Players Sunk</span></div>
+        <div class="cat-dropdown-item" data-value="dmg_amiral" onclick="selectCat('dmg_amiral')"><span data-i18n="hof_cat_dmg_amiral">Admiral Damage</span></div>
+        <div class="cat-dropdown-item" data-value="playtime" onclick="selectCat('playtime')"><span data-i18n="hof_cat_playtime">Playtime</span></div>
+        <div class="cat-dropdown-item" data-value="pvp_points" onclick="selectCat('pvp_points')"><span data-i18n="hof_cat_pvp_points">Battle Points</span></div>
+      </div>
+    </div>
   </div>
 
   <div class="rank-info-row">
@@ -292,9 +324,20 @@ function renderTable() {
   document.getElementById('my-rank-display').textContent = t('hof_my_rank') + ' ' + (myRank > 0 ? fmtN(myRank) : '-');
 }
 
+function toggleDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('cat-dropdown-menu').classList.toggle('open');
+}
+function selectCat(cat) {
+  changeCategory(cat);
+  document.getElementById('cat-dropdown-text').textContent = t(CAT_LABELS[cat]) || cat;
+  document.getElementById('cat-dropdown-menu').classList.remove('open');
+}
+document.addEventListener('click', function() {
+  document.getElementById('cat-dropdown-menu').classList.remove('open');
+});
 function changeCategory(cat) {
   currentCat = cat;
-  document.getElementById('cat-select').value = cat;
   document.getElementById('cat-label').textContent = t(CAT_LABELS[cat]) || cat;
   currentPage = 1;
   loadLeaderboard();
@@ -317,8 +360,16 @@ function nextPage() {
 }
 
 // Init
-document.getElementById('cat-label').textContent = t(CAT_LABELS[currentCat]) || currentCat;
+var initLabel = t(CAT_LABELS[currentCat]) || currentCat;
+document.getElementById('cat-label').textContent = initLabel;
+document.getElementById('cat-dropdown-text').textContent = initLabel;
 loadLeaderboard();
+
+window.addEventListener('languageChanged', function() {
+  var lbl = t(CAT_LABELS[currentCat]) || currentCat;
+  document.getElementById('cat-label').textContent = lbl;
+  document.getElementById('cat-dropdown-text').textContent = lbl;
+});
 </script>
 </body>
 </html>
