@@ -107,25 +107,26 @@ async function distributeAdmiralRewards(mapLevel, client) {
     }
 }
 
-async function distributeTiamatRewards(playerId = null) {
-    const client = await pool.connect();
+async function distributeTiamatRewards(playerId = null, existingClient = null) {
+    const ownClient = existingClient === null;
+    const client = existingClient || (await pool.connect());
     let myRewards = { pearl: 0, xp: 0 };
     try {
         console.log(`[TIAMAT REWARD] Distributing rewards...`);
-        await client.query('BEGIN');
+        if (ownClient) await client.query('BEGIN');
 
         const tiamatRes = await client.query(
             'SELECT hp, pearl, xp, current_hp FROM tiamat WHERE id = 1 FOR UPDATE'
         );
         if (tiamatRes.rows.length === 0) {
-            await client.query('ROLLBACK');
+            if (ownClient) await client.query('ROLLBACK');
             return myRewards;
         }
 
         const t = tiamatRes.rows[0];
         // Tiamat zaten yeniden doğmuşsa (current_hp === NULL veya > 0) ödül dağıtma — geç kalmış async call
         if (t.current_hp === null || parseInt(t.current_hp) > 0) {
-            await client.query('ROLLBACK');
+            if (ownClient) await client.query('ROLLBACK');
             return myRewards;
         }
 
@@ -174,16 +175,16 @@ async function distributeTiamatRewards(playerId = null) {
             'DELETE FROM tiamat_damage WHERE spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)'
         );
 
-        await client.query('COMMIT');
+        if (ownClient) await client.query('COMMIT');
 
         sendPushToAll('tiamat_spawn', {});
 
         console.log(`[TIAMAT REWARD] Completed successfully.`);
     } catch (err) {
-        await client.query('ROLLBACK');
+        if (ownClient) await client.query('ROLLBACK');
         console.error('Tiamat reward distribution error:', err);
     } finally {
-        client.release();
+        if (ownClient) client.release();
     }
     return myRewards;
 }

@@ -158,7 +158,7 @@ async function grantRewards(pool, { fight, playerId, playerDamage, npcObj, isBos
        WHERE id = $2`,
       [playerDamage, playerId]
     );
-    const tiamatRewards = await distributeTiamatRewards(playerId);
+    const tiamatRewards = await distributeTiamatRewards(playerId, db);
 
     await db.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
 

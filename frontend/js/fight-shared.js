@@ -359,7 +359,7 @@
       let from = getShipCenter(fromId);
       const to = getShipCenter(toId);
       // Tiamat'ın ağzından ateş çıksın
-      const isTiamatFiring = fromId === 'npc-node' && localStorage.getItem('sp_combat_is_tiamat') === 'true';
+      const isTiamatFiring = fromId === 'npc-node' && (localStorage.getItem('sp_combat_is_tiamat') === 'true' || window.isTiamatFight === true);
       if (isTiamatFiring) {
         const npcNode = document.getElementById('npc-node');
         const br = document.getElementById('battlefield').getBoundingClientRect();
@@ -1039,7 +1039,6 @@
     function fmt(n) { return Number(n).toLocaleString('en-US'); }
     function toggleSmoke(id, on) { const el = document.getElementById(id); if (!el) return; if (on) { el.classList.add('visible'); el.style.opacity = '1'; } else { el.classList.remove('visible'); el.style.opacity = '0'; } }
     function toggleFire(id, on) {
-      if (isTiamat && id === 'npc-fire') return;
       const el = document.getElementById(id);
       if (el) { el.style.opacity = on ? '0.75' : '0'; }
     }
@@ -1609,6 +1608,7 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
           // t=600ms: NPC karşı ateş açar
           const isAdmiral = npc.name && npc.name.toLowerCase().includes('admiral');
           const isDataTiamat = data.isTiamat || isTiamat;
+          if (isDataTiamat) window.isTiamatFight = true;
           const isGlobalBoss = isAdmiral || isDataTiamat;
           const shouldNpcAttackPlayer = data.npcDamage && data.npcDamage > 0;
 
