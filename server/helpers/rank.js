@@ -18,61 +18,54 @@ const rankNames = {
   13: { tr: "Kara Adamı", en: "Sailor", key: "rank_13" }
 };
 
-const TOTAL_SLOTS = 1726; // 1+3+6+10+16+25+40+65+100+160+250+400+650
 const BASE_SLOTS = [0, 1, 3, 6, 10, 16, 25, 40, 65, 100, 160, 250, 400, 650];
+const MAX_CAPS = [0, 1, 3, 6, 10];
+const RATIO_TOTAL = 1726;
 
 function allocateSlots(totalCount) {
   var slots = [0];
-  // İlk 4 rank sabit: 1, 3, 6, 10
-  var fixed = [1, 3, 6, 10];
-  for (var i = 0; i < 4 && i < totalCount; i++) {
-    slots[i + 1] = Math.min(fixed[i], totalCount - slots.reduce(function(a, b) { return a + b; }));
-    if (slots[i + 1] < 0) slots[i + 1] = 0;
+  var remaining = totalCount;
+
+  // Phase 1: each rank gets 1 base (minimum guarantee)
+  for (var i = 1; i <= 13 && remaining > 0; i++) {
+    slots[i] = 1;
+    remaining--;
   }
-  // Kalan rankları orantılı dağıt
-  var used = slots.reduce(function(a, b) { return a + b; });
-  var remaining = totalCount - used;
-  if (remaining > 0) {
-    var ratioSum = 0;
-    for (var i = 5; i <= 13; i++) ratioSum += BASE_SLOTS[i];
-    if (ratioSum > 0) {
-      var remainders = [];
-      var floorSum = 0;
-      for (var i = 5; i <= 13; i++) {
-        var exact = BASE_SLOTS[i] * remaining / ratioSum;
-        slots[i] = Math.floor(exact);
-        remainders[i] = exact - slots[i];
-        floorSum += slots[i];
-      }
-      var extra = remaining - floorSum;
-      while (extra > 0) {
-        var bestIdx = 5;
-        for (var i = 6; i <= 13; i++) {
-          if (remainders[i] > remainders[bestIdx]) bestIdx = i;
-        }
-        if (remainders[bestIdx] < 0) break;
-        slots[bestIdx]++;
-        remainders[bestIdx] = -1;
-        extra--;
-      }
+
+  // Phase 2: cap ranks 1-4 (excess goes back to pool)
+  for (var i = 1; i <= 4; i++) {
+    if (slots[i] > MAX_CAPS[i]) {
+      remaining += slots[i] - MAX_CAPS[i];
+      slots[i] = MAX_CAPS[i];
     }
   }
-  // Boş rank olmasın: eğer rank X boş ama daha alt rankı doluysa X'e 1 ver, rank 13'ten düş
-  for (var i = 4; i <= 12; i++) {
-    if ((slots[i] || 0) === 0 && (slots[i + 1] || 0) > 0) {
-      slots[i] = 1;
-      slots[13] = (slots[13] || 1) - 1;
+
+  // Phase 3: distribute remaining via largest-shortfall method (Hare quota)
+  // Each player goes to the rank with the biggest gap between expected and actual
+  while (remaining > 0) {
+    var bestIdx = -1;
+    var bestShortfall = -1;
+    for (var i = 1; i <= 13; i++) {
+      var maxAllowed = i <= 4 ? MAX_CAPS[i] : 9999999;
+      if (slots[i] >= maxAllowed) continue;
+      var expected = BASE_SLOTS[i] * totalCount / RATIO_TOTAL;
+      var shortfall = expected - slots[i];
+      if (shortfall > bestShortfall) {
+        bestShortfall = shortfall;
+        bestIdx = i;
+      }
     }
+    if (bestIdx === -1) { slots[13] += remaining; break; }
+    slots[bestIdx]++;
+    remaining--;
   }
-  // Kalan her şey rank 13'e
-  var assigned = 0; for (var i = 1; i <= 13; i++) assigned += slots[i] || 0;
-  slots[13] = (slots[13] || 0) + totalCount - assigned;
+
   return slots;
 }
 
 function getRankBadge(pos, totalCount) {
   if (pos <= 0) return 13;
-  var slots = totalCount < TOTAL_SLOTS ? allocateSlots(totalCount) : BASE_SLOTS;
+  var slots = allocateSlots(totalCount);
   var cumulative = 0;
   for (var badge = 1; badge <= 13; badge++) {
     cumulative += slots[badge];
