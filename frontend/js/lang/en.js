@@ -4,7 +4,7 @@ I18N_DATA['en'] = {
     btn_back: '◀ BACK',
     btn_menu: 'MENU',
     btn_save: 'SAVE',
-    btn_login: 'SET SAIL',
+    btn_login: 'LOGIN',
     btn_register: 'BECOME A PIRATE',
     btn_logout: '⚓ LOG OUT',
     btn_play: 'PLAY',

@@ -105,7 +105,7 @@ if (!localStorage.getItem('sp_remember_me')) { Auth.logout(); }
 window.t = window.t || function(key, vars) {
   var texts = {
     login_welcome: '⚓ Welcome aboard, Captain!', register_welcome: '⚔ Welcome aboard, Captain!',
-    connection_failed: 'Connection failed', btn_login: '⚓ Set Sail',
+    connection_failed: 'Connection failed', btn_login: '⚓ Login',
     login_title: '⚓ Login', register_title: '⚔ Register',
     username_label: 'Username', password_label: 'Password',
     strength_weak: 'Weak', strength_medium: 'Medium', strength_good: 'Good', strength_strong: 'Strong',
@@ -557,7 +557,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         <div class="form-msg" id="l-msg"></div>
 
         <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
-          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>⚓ &nbsp;Set Sail</span></span>
+          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>⚓ &nbsp;Login</span></span>
           <div class="spinner"></div>
         </button>
 
