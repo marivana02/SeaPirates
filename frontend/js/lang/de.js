@@ -295,6 +295,8 @@ I18N_DATA['de'] = {
     any: 'Beliebig',
     payment_coming_soon: '🔒 {type} "{plan}" Paket ausgewählt. Zahlungssystem bald verfügbar!',
     captain: 'Kapitän',
+    pirate: 'Pirat',
+    admiral: 'Admiral',
     black_knight: 'Schwarzer Korsar',
     search_failed: 'Keine Monster im Wasser gefunden!',
     ranking_loading: '⏳ Lade Rangliste...',

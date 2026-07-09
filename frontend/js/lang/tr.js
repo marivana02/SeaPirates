@@ -473,7 +473,9 @@ I18N_DATA['tr'] = {
     notif_inactive_reminder_body: 'Kaptan! Tiamat ve Admiral denizlerde. Yelkenleri fora, savaş seni bekliyor!',
 
     payment_coming_soon: '🔒 {type} "{plan}" paketi seçildi. Ödeme sistemi yakında!',
+    pirate: 'Korsan',
     captain: 'Kaptan',
+    admiral: 'Amiral',
     black_knight: 'Kara Korsan',
     search_failed: 'Suda canavar tespit edilemedi!',
     ranking_loading: '⏳ Sıralama yükleniyor...',

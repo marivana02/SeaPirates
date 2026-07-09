@@ -14,10 +14,10 @@
     };
     const tInit = TOWERS_LOAD[towerId] || TOWERS_LOAD[1];
 
-    npc.name = isWeeklyBoss ? t('weekly_boss') : (isTiamat ? 'Tiamat' : (isTowerMode ? tInit.name : (localStorage.getItem('sp_current_target_name') || 'Korsan')));
+    npc.name = isWeeklyBoss ? t('weekly_boss') : (isTiamat ? 'Tiamat' : (isTowerMode ? tInit.name : (localStorage.getItem('sp_current_target_name') || t('pirate'))));
     npc.img = isWeeklyBoss ? 'assets/ui/weekly_boss.png' : (isTiamat ? 'assets/enemies/tiamat/sprite-256px-36_1.webp' : (isTowerMode ? tInit.img : (localStorage.getItem('sp_current_target_img') || 'assets/ships/npcc/map1/1/7.png')));
-    npc.hp = isWeeklyBoss ? 999999999 : (isTiamat ? 12000000 : 30000);
-    npc.maxHp = isWeeklyBoss ? 999999999 : (isTiamat ? 12000000 : 30000);
+    npc.hp = 0;
+    npc.maxHp = 0;
 
     /* Init */
     if (npcNameEl) npcNameEl.textContent = npc.name;
@@ -120,7 +120,6 @@
           player.hp = data.playerHp; player.maxHp = data.playerMaxHp;
           npc.hp = data.npcHp; npc.maxHp = data.npcMaxHp;
           player.cooldownMs = data.playerCooldownMs || 4000;
-          if (isTiamat) player.cooldownMs = 3000;
 
           if (!isWeeklyBoss && data.isTower && data.fullImg) {
             npc.isTower = true;
@@ -162,15 +161,21 @@
               if (bossTimeLeft <= 0) {
                 clearInterval(timerInterval);
                 clearInterval(attackInterval);
-                fetch(`${SHARED_API_URL}/end`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-                }).catch(e => {
-                  logError('fight-pve:end', e);
-                  if (window.isNetworkError && window.isNetworkError(e)) {
-                    if (window.startOfflineTimer) window.startOfflineTimer();
-                  }
-                }).finally(() => endFight(true));
+                (function retryEnd(attempts) {
+                  fetch(`${SHARED_API_URL}/end`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'X-Requested-With': 'XMLHttpRequest' }
+                  }).then(res => {
+                    if (!res.ok && attempts > 0) setTimeout(() => retryEnd(attempts - 1), 500);
+                  }).catch(e => {
+                    logError('fight-pve:end', e);
+                    if (attempts > 0) setTimeout(() => retryEnd(attempts - 1), 500);
+                    else if (window.isNetworkError && window.isNetworkError(e)) {
+                      if (window.startOfflineTimer) window.startOfflineTimer();
+                    }
+                  });
+                })(3);
+                setTimeout(() => endFight(true), 2000);
               }
             }, 1000);
           }
@@ -210,6 +215,7 @@
     ══════════════════════════════════════════════ */
     function endFight(won, rewards, leveledUp, newLevel, serverHp, note) {
       active = false;
+      window.isTiamatFight = false;
       if (bossSocket) {
         try {
           const room = isTiamat ? 0 : (parseInt(localStorage.getItem('sp_current_map')) || 1);

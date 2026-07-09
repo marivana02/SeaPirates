@@ -632,7 +632,7 @@
 
     /* Ana canvas döngüsü */
     function gLoop() {
-      if (!gCtx || !gCanvas) return;
+      if (!active || !gCtx || !gCanvas) return;
       gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
 
       const now = performance.now();
@@ -841,7 +841,7 @@
     const savedZirh = localStorage.getItem('sp_use_zirh') === 'true';
 
     var player = {
-      name: 'Kaptan',
+      name: t('captain'),
       hp: 15000, maxHp: 15000,
       ammo: savedAmmo, barut: savedBarut, zirh: savedZirh
     };
@@ -867,7 +867,7 @@
           if (rankLeftEl) {
             const rankSrc = `assets/ui/rank/rank${data.rankBadge || 13}.png`;
             rankLeftEl.src = rankSrc;
-            rankLeftEl.title = data.rankName || 'Kara Adamı';
+            rankLeftEl.title = data.rankName || t('rank_13');
             rankLeftEl.classList.remove('hidden');
           }
           // PvP rütbe ikonu (sağ)
@@ -1494,6 +1494,8 @@ try { slots = JSON.parse(localStorage.getItem('sp_slot_layout') || 'null'); } ca
     }
 
     function handleReturn() {
+      window.isTiamatFight = false;
+      window.removeEventListener('resize', resizeCanvas);
       localStorage.removeItem('sp_combat_is_tower');
       localStorage.removeItem('sp_combat_tower_id');
       localStorage.removeItem('sp_combat_is_weekly_boss');

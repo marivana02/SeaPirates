@@ -41,7 +41,7 @@ router.get('/hall-of-fame', authMiddleware, async (req, res) => {
       `SELECT id, username, COALESCE(display_name, username) AS display_name, ${column} AS score,
               ROW_NUMBER() OVER (ORDER BY ${column} DESC, id ASC) as rank
        FROM players
-       WHERE is_admin = false OR is_admin IS NULL
+       WHERE (is_admin = false OR is_admin IS NULL) AND (is_banned = false OR is_banned IS NULL)
        ORDER BY score DESC, id ASC`
     );
 

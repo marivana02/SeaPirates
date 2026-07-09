@@ -288,7 +288,7 @@
 
       // İsim
       el = document.getElementById('p-name');
-      if (el) el.textContent = p.display_name || p.username || 'Kaptan';
+      if (el) el.textContent = p.display_name || p.username || t('captain');
 
       // Altın
       el = document.getElementById('p-gold') || document.getElementById('disp-gold');

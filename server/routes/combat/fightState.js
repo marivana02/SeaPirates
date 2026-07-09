@@ -78,7 +78,7 @@ async function initTiamatState(pool) {
       if (locked.current_hp !== null && locked.current_hp > 0) {
         tiamatHp = parseInt(locked.current_hp);
       } else {
-        await client.query('UPDATE tiamat SET current_hp = hp, respawn_at = NULL, manual_spawn = false WHERE id = 1');
+        await client.query('UPDATE tiamat SET spawn_generation = spawn_generation + 1, current_hp = hp, respawn_at = NULL, manual_spawn = false WHERE id = 1');
         await client.query('DELETE FROM tiamat_damage');
         tiamatHp = parseInt(t.hp);
       }

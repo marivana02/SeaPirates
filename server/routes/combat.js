@@ -16,6 +16,7 @@ const { broadcastBossHp } = require('../helpers/socket');
 const { updateQuestProgress } = require('./combat/questTracking');
 const { grantRewards, handlePlayerDeath, distributeOldWeekRewards } = require('./combat/rewards');
 const { resolveTargetNpc, initAdmiralState } = require('./combat/fightState');
+const { sendPushToAll } = require('../helpers/fcm');
 
 const pvpRouter = require('./combat/pvp/router');
 router.use('/pvp', pvpRouter);
@@ -102,7 +103,7 @@ router.post('/end', authMiddleware, async (req, res) => {
     if (fightRes.rows.length === 0) return res.json({ ok: true, message: 'No active fight' });
     const fight = fightRes.rows[0];
     if (fight.is_weekly_boss && fight.weekly_boss_damage_dealt > 0) {
-      await pool.query('UPDATE players SET dmg_amiral = dmg_amiral + $1, hp = GREATEST(0, $2) WHERE id = $3', [fight.weekly_boss_damage_dealt, fight.player_hp, playerId]);
+      await pool.query('UPDATE players SET hp = GREATEST(0, $1) WHERE id = $2', [fight.player_hp, playerId]);
     } else {
       await pool.query('UPDATE players SET hp = GREATEST(0, $1) WHERE id = $2', [fight.player_hp, playerId]);
     }
@@ -257,12 +258,12 @@ router.post('/attack', authMiddleware, async (req, res) => {
       const aliveRes = await pool.query('SELECT boss_current_hp FROM npc3_kill_counter WHERE map_level = $1', [fight.mapLevel]);
       const rawBossHp = aliveRes.rows[0] ? aliveRes.rows[0].boss_current_hp : null;
       const bossHp = rawBossHp !== null ? parseInt(rawBossHp) : 0;
-      if (bossHp <= 0) { T('ADM_DEAD'); return res.json({ state: 'boss_defeated', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, message: 'This boss has already been defeated!' }); }
+      if (bossHp <= 0) { T('ADM_DEAD'); return res.json({ state: 'boss_defeated', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, isAdmiral: true, message: 'This boss has already been defeated!' }); }
     } else if (fight.isTiamat) {
       const aliveRes = await pool.query('SELECT current_hp FROM tiamat WHERE id = 1');
       const rawBossHp = aliveRes.rows[0] ? aliveRes.rows[0].current_hp : null;
       const bossHp = rawBossHp !== null ? parseInt(rawBossHp) : 0;
-      if (bossHp <= 0) { T('TIAMAT_DEAD'); return res.json({ state: 'boss_defeated', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, message: 'Tiamat has already been defeated!' }); }
+      if (bossHp <= 0) { T('TIAMAT_DEAD'); return res.json({ state: 'boss_defeated', npcHp: 0, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, isTiamat: true, message: 'Tiamat has already been defeated!' }); }
     }
     T('BOSS_CHECK_OK');
 
@@ -330,7 +331,6 @@ router.post('/attack', authMiddleware, async (req, res) => {
     if (npcObj.isWeeklyBoss) {
       fight.npcHp = fight.npcMaxHp;
       fight.weeklyBossDamageDealt = (fight.weeklyBossDamageDealt || 0) + playerDamage;
-      try { await distributeOldWeekRewards(pool); } catch (_) {}
       const currentWeekStr = getCurrentWeekString();
       await txClient.query(`UPDATE players SET weekly_boss_damage = CASE WHEN weekly_boss_week = $1 THEN weekly_boss_damage + $2 ELSE $2 END, weekly_boss_week = $1 WHERE id = $3`, [currentWeekStr, playerDamage, playerId]);
       T('WEEKLY_DONE');
@@ -344,6 +344,16 @@ router.post('/attack', authMiddleware, async (req, res) => {
       txClient.release();
       txClient = null;
       T('NPC_KILLED');
+      // Broadcast Tiamat/Admiral death to all players
+      try {
+        if (fight.isAdmiral) {
+          broadcastBossHp(fight.mapLevel, { bossHp: 0, bossMaxHp: fight.npcMaxHp, leaderboard: [] });
+        } else if (fight.isTiamat) {
+          broadcastBossHp(0, { bossHp: 0, bossMaxHp: fight.npcMaxHp, leaderboard: [] });
+        }
+      } catch (e) {
+        console.error('Broadcast death error:', e.message);
+      }
       return res.json(rewardResult);
     }
     T('NPC_ALIVE');
@@ -475,7 +485,7 @@ router.get('/admiral-status', authMiddleware, async (req, res) => {
     if (playerRes.rows.length === 0) return res.status(404).json({ error: 'Player not found' });
     const mapLevel = playerRes.rows[0].current_map_level || 1;
     const bcRes = await pool.query('SELECT boss_current_hp, boss_max_hp, is_spawned FROM npc3_kill_counter WHERE map_level = $1', [mapLevel]);
-    if (bcRes.rows.length === 0 || !bcRes.rows[0].is_spawned || bcRes.rows[0].boss_current_hp === null) return res.json({ spawned: false });
+    if (bcRes.rows.length === 0 || !bcRes.rows[0].is_spawned || bcRes.rows[0].boss_current_hp === null || parseInt(bcRes.rows[0].boss_current_hp) <= 0) return res.json({ spawned: false });
     const dmgRes = await pool.query(
       `SELECT a.player_id, a.username, a.ship_level, a.damage_dealt, a.current_hp, a.max_hp, p.active_design, p.visual_ship_level FROM admiral_damage a LEFT JOIN players p ON p.id = a.player_id WHERE a.map_level = $1 ORDER BY a.damage_dealt DESC`,
       [mapLevel]
@@ -506,6 +516,7 @@ router.get('/tiamat-status', authMiddleware, async (req, res) => {
         await client.query('UPDATE tiamat SET spawn_generation = spawn_generation + 1, current_hp = hp, respawn_at = NULL, manual_spawn = false WHERE id = 1');
         await client.query('DELETE FROM tiamat_damage');
         await client.query('COMMIT');
+        sendPushToAll('tiamat_spawn', {});
       } catch (txErr) {
         await client.query('ROLLBACK');
         throw txErr;

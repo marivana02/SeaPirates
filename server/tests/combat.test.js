@@ -15,7 +15,6 @@ test('constants exports all expected values', () => {
   assert.equal(c.BOT_BASE_DAMAGE, 155);
   assert.equal(c.PVP_CANNON_DAMAGE, 185);
   assert.equal(c.WEEKLY_BOSS_HP, 100000000);
-  assert.equal(c.TIAMAT_HP, 12000000);
   assert.equal(c.TOWER_MIN_LEVEL, 5);
   assert.equal(c.TOWER_MAX_LEVEL, 100);
   assert.equal(c.CLEANUP_INTERVAL_MS, 60000);

@@ -214,11 +214,21 @@ router.post('/admiral-spawn', asyncHandler(async (req, res) => {
   const mapLevel = parseInt(req.body.mapLevel) || 1;
   const maxSubs = mapLevel <= 4 ? 2 : 1;
   const subMap = Math.floor(Math.random() * maxSubs) + 1;
-  await pool.query('DELETE FROM admiral_damage WHERE map_level = $1', [mapLevel]);
-  await pool.query(
-    `UPDATE npc3_kill_counter SET is_spawned = TRUE, spawned_sub_map = $1, kill_count = 0, last_reset = NOW() WHERE map_level = $2`,
-    [subMap, mapLevel]
-  );
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('DELETE FROM admiral_damage WHERE map_level = $1', [mapLevel]);
+    await client.query(
+      `UPDATE npc3_kill_counter SET is_spawned = TRUE, spawned_sub_map = $1, kill_count = 0, last_reset = NOW() WHERE map_level = $2`,
+      [subMap, mapLevel]
+    );
+    await client.query('COMMIT');
+  } catch (txErr) {
+    await client.query('ROLLBACK');
+    throw txErr;
+  } finally {
+    client.release();
+  }
   const bossRes = await pool.query('SELECT name FROM bosses WHERE map_level = $1', [mapLevel]);
   const bossName = bossRes.rows[0]?.name || 'Amiral';
   const { sendPushToAll } = require('../helpers/fcm');

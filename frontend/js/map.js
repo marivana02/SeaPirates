@@ -386,7 +386,7 @@
               goTo('fight-pvp.html');
               return;
             } else if (activeData.isAdmiral) {
-              localStorage.setItem('sp_current_target_name', activeData.npcName || 'Amiral');
+              localStorage.setItem('sp_current_target_name', activeData.npcName || t('admiral'));
               localStorage.setItem('sp_current_target_img', activeData.fullImg || '');
             } else {
               localStorage.setItem('sp_current_target_name', activeData.npcName || 'Canavar');
@@ -425,7 +425,7 @@
         let savedPlayer = {};
         try { savedPlayer = JSON.parse(localStorage.getItem('sp_player') || '{}'); } catch(e2) {}
         player = {
-          username: savedPlayer.username || "Korsan_Kaptan",
+          username: savedPlayer.username || (t('pirate') + ' ' + t('captain')),
           level: savedPlayer.level || 2,
           gold: savedPlayer.gold || 450000,
           pearl: savedPlayer.pearl || 1400,

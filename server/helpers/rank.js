@@ -23,7 +23,7 @@ const MAX_CAPS = [0, 1, 3, 6, 10];
 const RATIO_TOTAL = 1726;
 
 function allocateSlots(totalCount) {
-  var slots = [0];
+  var slots = new Array(14).fill(0);
   var remaining = totalCount;
 
   // Phase 1: each rank gets 1 base (minimum guarantee)

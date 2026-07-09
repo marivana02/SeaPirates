@@ -75,7 +75,7 @@ async function deductTiamatBossHp(pool, playerDamage, bossMaxHp, client) {
   let actualHpLost = 0;
   let newHp = 0;
   try {
-    await tiamatClient.query("SET lock_timeout = '3s'");
+    if (useOwnTxn) await tiamatClient.query("SET lock_timeout = '3s'");
     if (useOwnTxn) await tiamatClient.query('BEGIN');
     const tRes = await tiamatClient.query(
       'SELECT current_hp FROM tiamat WHERE id = 1 FOR UPDATE'
@@ -94,8 +94,8 @@ async function deductTiamatBossHp(pool, playerDamage, bossMaxHp, client) {
       [newHp]
     );
 
-    // Tiamat öldüyse 1-3 saat random spawn süresi ayarla
-    if (newHp <= 0) {
+    // Tiamat öldüyse 1-3 saat random spawn süresi ayarla (sadece ilk ölümde)
+    if (newHp <= 0 && oldTiamatHp > 0) {
       const respawnDelayMs = Math.floor(Math.random() * (3 * 3600000 - 1 * 3600000 + 1)) + 1 * 3600000;
       await tiamatClient.query(
         "UPDATE tiamat SET respawn_at = NOW() + (($1 || ' milliseconds')::interval) WHERE id = 1",

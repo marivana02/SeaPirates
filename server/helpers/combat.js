@@ -164,20 +164,14 @@ async function distributeTiamatRewards(playerId = null, existingClient = null) {
             }
         }
 
-        const minMin = 60, maxMin = 180;
-        const respawnMin = Math.floor(Math.random() * (maxMin - minMin + 1)) + minMin;
-        const respawnAt = new Date(Date.now() + respawnMin * 60 * 1000);
         await client.query(
-            'UPDATE tiamat SET current_hp = NULL, respawn_at = $1 WHERE id = 1',
-            [respawnAt]
+            'UPDATE tiamat SET current_hp = NULL WHERE id = 1'
         );
         await client.query(
             'DELETE FROM tiamat_damage WHERE spawn_generation = (SELECT spawn_generation FROM tiamat WHERE id = 1)'
         );
 
         if (ownClient) await client.query('COMMIT');
-
-        sendPushToAll('tiamat_spawn', {});
 
         console.log(`[TIAMAT REWARD] Completed successfully.`);
     } catch (err) {

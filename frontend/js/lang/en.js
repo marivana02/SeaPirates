@@ -361,6 +361,8 @@ I18N_DATA['en'] = {
     currency_pearl: 'Pearl',
     payment_coming_soon: '🔒 {type} "{plan}" package selected. Payment system coming soon!',
     captain: 'Captain',
+    pirate: 'Pirate',
+    admiral: 'Admiral',
     black_knight: 'Black Knight',
     search_failed: 'No monsters detected in the water!',
     ranking_loading: '⏳ Loading rankings...',

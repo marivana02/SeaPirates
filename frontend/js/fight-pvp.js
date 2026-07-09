@@ -7,14 +7,11 @@
        PvP NPC SETUP - Sadece npc propert'lerini ayarla
        Görsel işini fight-shared.js refreshHP halletsin
     ══════════════════════════════════════════════ */
-    npc.name = localStorage.getItem('sp_current_target_name') || 'Korsan';
-    var pvpBasePath = (localStorage.getItem('sp_current_target_img') || 'assets/ships/elitship/default/1.png').replace(/\/\d+\.png$/, '');
-    var pvpFullImg = pvpBasePath + '/1.png';
-    var pvpDamagedImg = pvpBasePath + '/9.png';
-
-    npc.img = pvpFullImg;
-    npc.fullImg = pvpFullImg;
-    npc.damagedImg = pvpDamagedImg;
+    npc.name = localStorage.getItem('sp_current_target_name') || t('pirate');
+    var _pvpBase = (localStorage.getItem('sp_current_target_img') || 'assets/ships/elitship/default/1.png').replace(/\/\d+\.png$/, '');
+    npc.img = _pvpBase + '/1.png';
+    npc.fullImg = _pvpBase + '/1.png';
+    npc.damagedImg = _pvpBase + '/9.png';
     npc.isPvP = true;
     npc.hp = 30000;
     npc.maxHp = 30000;
