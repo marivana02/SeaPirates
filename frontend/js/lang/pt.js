@@ -60,6 +60,7 @@ I18N_DATA['pt'] = {
     monster_not_found: 'Nenhum monstro encontrado!',
     level_required: 'Nível muito baixo! Necessário: ',
     weekly_boss_title: 'LEVIATHAN',
+    weekly_boss: 'Leviatã Lendário',
     daily_tower_title: 'TORRE DIÁRIA',
     coordinate: 'Coordenada',
     victory: 'VITÓRIA',

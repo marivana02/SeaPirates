@@ -14,7 +14,7 @@
     };
     const tInit = TOWERS_LOAD[towerId] || TOWERS_LOAD[1];
 
-    npc.name = isWeeklyBoss ? 'Efsanevi Leviathan' : (isTiamat ? 'Tiamat' : (isTowerMode ? tInit.name : (localStorage.getItem('sp_current_target_name') || 'Korsan')));
+    npc.name = isWeeklyBoss ? t('weekly_boss') : (isTiamat ? 'Tiamat' : (isTowerMode ? tInit.name : (localStorage.getItem('sp_current_target_name') || 'Korsan')));
     npc.img = isWeeklyBoss ? 'assets/ui/weekly_boss.png' : (isTiamat ? 'assets/enemies/tiamat/sprite-256px-36_1.webp' : (isTowerMode ? tInit.img : (localStorage.getItem('sp_current_target_img') || 'assets/ships/npcc/map1/1/7.png')));
     npc.hp = isWeeklyBoss ? 999999999 : (isTiamat ? 12000000 : 30000);
     npc.maxHp = isWeeklyBoss ? 999999999 : (isTiamat ? 12000000 : 30000);

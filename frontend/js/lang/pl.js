@@ -60,6 +60,7 @@ I18N_DATA['pl'] = {
     monster_not_found: 'Nie znaleziono potworów!',
     level_required: 'Zbyt niski poziom! Wymagany: ',
     weekly_boss_title: 'LEVIATHAN',
+    weekly_boss: 'Legendarny Lewiatan',
     daily_tower_title: 'CODZIENNA WIEŻA',
     coordinate: 'Współrzędne',
     victory: 'ZWYCIĘSTWO',

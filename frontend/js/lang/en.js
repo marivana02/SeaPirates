@@ -60,6 +60,7 @@ I18N_DATA['en'] = {
     monster_not_found: 'No monsters detected!',
     level_required: 'Level too low! Required Level: ',
     weekly_boss_title: 'LEVIATHAN',
+    weekly_boss: 'Legendary Leviathan',
     btn_weekly_boss: 'WEEKLY BOSS',
     boss_subtitle: '⚓ Weekly Admiral Hunt',
     boss_section_title: '🏴‍☠️ Highest Damage Rankings',

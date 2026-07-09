@@ -67,6 +67,7 @@ I18N_DATA['tr'] = {
     monster_not_found: 'Suda canavar tespit edilemedi!',
     level_required: 'Seviye yetersiz! Gereken Seviye: ',
     weekly_boss_title: 'LEVİATHAN',
+    weekly_boss: 'Efsanevi Leviathan',
     btn_weekly_boss: 'HAFTALIK PATRON',
     boss_subtitle: '⚓ HAFTALIK AMİRAL AVI',
     admiral_appeared: '{name} Harita {map}-{sub}\'de göründü!',
