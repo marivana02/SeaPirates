@@ -182,8 +182,22 @@ router.get('/logs', asyncHandler(async (req, res) => {
 }));
 
 router.post('/tiamat-spawn', asyncHandler(async (req, res) => {
-  await pool.query("UPDATE tiamat SET manual_spawn = true WHERE id = 1");
-  res.json({ ok: true, message: 'Tiamat will respawn on next status check' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('UPDATE tiamat SET spawn_generation = spawn_generation + 1, current_hp = hp, respawn_at = NULL, manual_spawn = false WHERE id = 1');
+    await client.query('DELETE FROM tiamat_damage');
+    await client.query('COMMIT');
+    const { sendPushToAll } = require('../helpers/fcm');
+    sendPushToAll('tiamat_spawn', {});
+    res.json({ ok: true, message: 'Tiamat spawned + push sent!' });
+  } catch (txErr) {
+    await client.query('ROLLBACK');
+    console.error('Tiamat spawn error:', txErr);
+    res.status(500).json({ error: 'Spawn failed' });
+  } finally {
+    client.release();
+  }
 }));
 
 router.post('/test-push', asyncHandler(async (req, res) => {
