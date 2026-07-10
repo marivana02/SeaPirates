@@ -147,19 +147,61 @@ jobs:
             sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
           fi
 
-      - name: Build APK + AAB
+      - name: Setup keystore for release signing
+        run: |
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "Decoding keystore..."
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > frontend/android/app/keystore.jks
+            echo "Creating key.properties..."
+            cat > frontend/android/key.properties <<EOF
+storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+keyPassword=${{ secrets.KEY_PASSWORD }}
+keyAlias=${{ secrets.KEY_ALIAS }}
+storeFile=app/keystore.jks
+EOF
+            echo "Patching build.gradle for release signing..."
+            cat >> frontend/android/app/build.gradle <<'GRADLE'
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+}
+GRADLE
+            echo "Keystore setup complete"
+          else
+            echo "No KEYSTORE_BASE64 secret set — building debug only"
+          fi
+
+      - name: Build APK (debug) + AAB (release)
         run: |
           cd frontend/android
           chmod +x gradlew
-          BUILD_TYPE="${{ github.event.inputs.build_type }}"
-          if [ -z "$BUILD_TYPE" ]; then BUILD_TYPE="both"; fi
-          if [ "$BUILD_TYPE" = "apk" ] || [ "$BUILD_TYPE" = "both" ]; then
-            echo "::group::Building APK (debug)"
-            ./gradlew assembleDebug --stacktrace 2>&1
+          echo "::group::Building APK (debug)"
+          ./gradlew assembleDebug --stacktrace 2>&1
+          echo "::endgroup::"
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "::group::Building AAB (release signed)"
+            ./gradlew bundleRelease --stacktrace 2>&1
             echo "::endgroup::"
-          fi
-          if [ "$BUILD_TYPE" = "aab" ] || [ "$BUILD_TYPE" = "both" ]; then
-            echo "::group::Building AAB (debug)"
+          else
+            echo "::group::Building AAB (debug — no keystore)"
             ./gradlew bundleDebug --stacktrace 2>&1
             echo "::endgroup::"
           fi
@@ -172,4 +214,5 @@ jobs:
           path: |
             frontend/android/app/build/outputs/apk/debug/app-debug.apk
             frontend/android/app/build/outputs/bundle/debug/app-debug.aab
+            frontend/android/app/build/outputs/bundle/release/app-release.aab
             frontend/playstore-icon.png
