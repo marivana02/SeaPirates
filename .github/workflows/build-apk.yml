@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK + AAB
 
 on:
   workflow_dispatch:
@@ -7,6 +7,10 @@ on:
         description: 'Server URL (boş = https://www.seapirates.site)'
         required: false
         default: ''
+      build_type:
+        description: 'Build type: apk, aab, both'
+        required: false
+        default: 'both'
 
 jobs:
   build:
@@ -143,16 +147,29 @@ jobs:
             sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
           fi
 
-      - name: Build APK
+      - name: Build APK + AAB
         run: |
           cd frontend/android
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace 2>&1
+          BUILD_TYPE="${{ github.event.inputs.build_type }}"
+          if [ -z "$BUILD_TYPE" ]; then BUILD_TYPE="both"; fi
+          if [ "$BUILD_TYPE" = "apk" ] || [ "$BUILD_TYPE" = "both" ]; then
+            echo "::group::Building APK (debug)"
+            ./gradlew assembleDebug --stacktrace 2>&1
+            echo "::endgroup::"
+          fi
+          if [ "$BUILD_TYPE" = "aab" ] || [ "$BUILD_TYPE" = "both" ]; then
+            echo "::group::Building AAB (debug)"
+            ./gradlew bundleDebug --stacktrace 2>&1
+            echo "::endgroup::"
+          fi
 
-      - name: Upload APK
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: SeaPirates-APK
+          name: SeaPirates-Build
+          if-no-files-found: warn
           path: |
             frontend/android/app/build/outputs/apk/debug/app-debug.apk
+            frontend/android/app/build/outputs/bundle/debug/app-debug.aab
             frontend/playstore-icon.png
