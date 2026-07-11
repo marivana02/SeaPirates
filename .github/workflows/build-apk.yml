@@ -148,42 +148,22 @@ jobs:
           fi
 
       - name: Setup keystore for release signing
+        env:
+          KS_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         run: |
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+          if [ -n "$KS_BASE64" ]; then
             echo "Decoding keystore..."
-            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > frontend/android/app/keystore.jks
+            echo "$KS_BASE64" | base64 -d > frontend/android/app/keystore.jks
             echo "Creating key.properties..."
             cat > frontend/android/key.properties <<EOF
-storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-keyPassword=${{ secrets.KEY_PASSWORD }}
-keyAlias=${{ secrets.KEY_ALIAS }}
+storePassword=$KS_PASS
+keyPassword=$KEY_PASS
+keyAlias=$KEY_ALIAS
 storeFile=app/keystore.jks
 EOF
-            echo "Patching build.gradle for release signing..."
-            cat >> frontend/android/app/build.gradle <<'GRADLE'
-
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
-android {
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-        }
-    }
-}
-GRADLE
             echo "Keystore setup complete"
           else
             echo "No KEYSTORE_BASE64 secret — generating dev keystore..."
@@ -197,7 +177,9 @@ keyPassword=seapirates
 keyAlias=sea_pirates
 storeFile=app/keystore.jks
 EOF
-            cat >> frontend/android/app/build.gradle <<'GRADLE'
+            echo "Dev keystore generated (password: seapirates)"
+          fi
+          cat >> frontend/android/app/build.gradle <<'GRADLE'
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -221,8 +203,6 @@ android {
     }
 }
 GRADLE
-            echo "Dev keystore generated (password: seapirates)"
-          fi
 
       - name: Build APK (debug) + AAB (release)
         run: |
