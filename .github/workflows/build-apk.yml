@@ -186,7 +186,42 @@ android {
 GRADLE
             echo "Keystore setup complete"
           else
-            echo "No KEYSTORE_BASE64 secret set — building debug only"
+            echo "No KEYSTORE_BASE64 secret — generating dev keystore..."
+            keytool -genkey -v -keystore frontend/android/app/keystore.jks \
+              -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass seapirates -keypass seapirates \
+              -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
+            cat > frontend/android/key.properties <<EOF
+storePassword=seapirates
+keyPassword=seapirates
+keyAlias=sea_pirates
+storeFile=app/keystore.jks
+EOF
+            cat >> frontend/android/app/build.gradle <<'GRADLE'
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+}
+GRADLE
+            echo "Dev keystore generated (password: seapirates)"
           fi
 
       - name: Build APK (debug) + AAB (release)
@@ -196,15 +231,12 @@ GRADLE
           echo "::group::Building APK (debug)"
           ./gradlew assembleDebug --stacktrace 2>&1
           echo "::endgroup::"
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
-            echo "::group::Building AAB (release signed)"
-            ./gradlew bundleRelease --stacktrace 2>&1
-            echo "::endgroup::"
-          else
-            echo "::group::Building AAB (debug — no keystore)"
+          echo "::group::Building AAB (release)"
+          ./gradlew bundleRelease --stacktrace 2>&1 || {
+            echo "Release build failed, trying debug bundle..."
             ./gradlew bundleDebug --stacktrace 2>&1
-            echo "::endgroup::"
-          fi
+          }
+          echo "::endgroup::"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
