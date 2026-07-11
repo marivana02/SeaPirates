@@ -161,7 +161,7 @@ jobs:
 
       - name: Setup dev keystore for release signing
         run: |
-          echo "Generating dev keystore for release signing..."
+          echo "Generating dev keystore..."
           keytool -genkey -v -keystore frontend/android/app/keystore.jks \
             -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass seapirates -keypass seapirates \
@@ -170,8 +170,30 @@ jobs:
           echo "keyPassword=seapirates" >> frontend/android/key.properties
           echo "keyAlias=sea_pirates" >> frontend/android/key.properties
           echo "storeFile=app/keystore.jks" >> frontend/android/key.properties
-          echo "Appending release signing config..."
-          cat frontend/android/app/release-signing.gradle >> frontend/android/app/build.gradle
+
+          echo "Injecting signing config into build.gradle via Node.js..."
+          node -e '
+            var fs = require("fs");
+            var f = "frontend/android/app/build.gradle";
+            var c = fs.readFileSync(f, "utf8");
+            c =
+`def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+` + c;
+            c = c.replace(
+              /namespace = "([^"]+)"/,
+              `namespace = "$1"\n    signingConfigs {\n        release {\n            keyAlias keystoreProperties["keyAlias"]\n            keyPassword keystoreProperties["keyPassword"]\n            storeFile keystoreProperties["storeFile"] ? file(keystoreProperties["storeFile"]) : null\n            storePassword keystoreProperties["storePassword"]\n        }\n    }`
+            );
+            c = c.replace(
+              /release \{/,
+              "release {\n            signingConfig signingConfigs.release"
+            );
+            fs.writeFileSync(f, c);
+          '
           echo "Dev keystore created (password: seapirates)"
 
       - name: Build APK (debug) + AAB (release)
@@ -182,10 +204,7 @@ jobs:
           ./gradlew assembleDebug --stacktrace 2>&1
           echo "::endgroup::"
           echo "::group::Building AAB (release)"
-          ./gradlew bundleRelease --stacktrace 2>&1 || {
-            echo "Release build failed, trying debug bundle..."
-            ./gradlew bundleDebug --stacktrace 2>&1
-          }
+          ./gradlew bundleRelease --stacktrace 2>&1
           echo "::endgroup::"
 
       - name: Upload Artifacts
