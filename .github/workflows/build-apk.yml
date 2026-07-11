@@ -147,38 +147,20 @@ jobs:
             sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
           fi
 
-      - name: Setup keystore for release signing
-        env:
-          KS_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASS: ${{ secrets.KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      - name: Setup dev keystore for release signing
         run: |
-          if [ -n "$KS_BASE64" ]; then
-            echo "Decoding keystore..."
-            echo "$KS_BASE64" | base64 -d > frontend/android/app/keystore.jks
-            echo "Creating key.properties..."
-            cat > frontend/android/key.properties <<EOF
-storePassword=$KS_PASS
-keyPassword=$KEY_PASS
-keyAlias=$KEY_ALIAS
-storeFile=app/keystore.jks
-EOF
-            echo "Keystore setup complete"
-          else
-            echo "No KEYSTORE_BASE64 secret — generating dev keystore..."
-            keytool -genkey -v -keystore frontend/android/app/keystore.jks \
-              -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass seapirates -keypass seapirates \
-              -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
-            cat > frontend/android/key.properties <<EOF
+          echo "Generating dev keystore for release signing..."
+          keytool -genkey -v -keystore frontend/android/app/keystore.jks \
+            -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass seapirates -keypass seapirates \
+            -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
+          cat > frontend/android/key.properties <<EOF
 storePassword=seapirates
 keyPassword=seapirates
 keyAlias=sea_pirates
 storeFile=app/keystore.jks
 EOF
-            echo "Dev keystore generated (password: seapirates)"
-          fi
+          echo "Patching build.gradle for release signing..."
           cat >> frontend/android/app/build.gradle <<'GRADLE'
 
 def keystoreProperties = new Properties()
@@ -203,6 +185,7 @@ android {
     }
 }
 GRADLE
+          echo "Dev keystore created (password: seapirates)"
 
       - name: Build APK (debug) + AAB (release)
         run: |
