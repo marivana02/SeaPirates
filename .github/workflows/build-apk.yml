@@ -78,6 +78,13 @@ jobs:
           else
             echo "No google-services.json to save"
           fi
+          # release-signing.gradle'ı kaydet
+          if [ -f "android/app/release-signing.gradle" ]; then
+            cp android/app/release-signing.gradle /tmp/release-signing.gradle
+            echo "Saved release-signing.gradle"
+          else
+            echo "No release-signing.gradle to save"
+          fi
           rm -rf android
           npx cap add android
           # google-services.json'u geri yükle
@@ -85,6 +92,11 @@ jobs:
             mkdir -p android/app
             cp /tmp/google-services.json android/app/google-services.json
             echo "Restored google-services.json"
+          fi
+          # release-signing.gradle'ı geri yükle
+          if [ -f "/tmp/release-signing.gradle" ]; then
+            cp /tmp/release-signing.gradle android/app/release-signing.gradle
+            echo "Restored release-signing.gradle"
           fi
 
       - name: Generate app icons from login.png
