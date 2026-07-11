@@ -154,37 +154,12 @@ jobs:
             -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass seapirates -keypass seapirates \
             -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
-          cat > frontend/android/key.properties <<EOF
-storePassword=seapirates
-keyPassword=seapirates
-keyAlias=sea_pirates
-storeFile=app/keystore.jks
-EOF
-          echo "Patching build.gradle for release signing..."
-          cat >> frontend/android/app/build.gradle <<'GRADLE'
-
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
-android {
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-        }
-    }
-}
-GRADLE
+          echo "storePassword=seapirates" > frontend/android/key.properties
+          echo "keyPassword=seapirates" >> frontend/android/key.properties
+          echo "keyAlias=sea_pirates" >> frontend/android/key.properties
+          echo "storeFile=app/keystore.jks" >> frontend/android/key.properties
+          echo "Appending release signing config..."
+          cat frontend/android/app/release-signing.gradle >> frontend/android/app/build.gradle
           echo "Dev keystore created (password: seapirates)"
 
       - name: Build APK (debug) + AAB (release)
