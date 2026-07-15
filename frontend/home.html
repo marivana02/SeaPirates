@@ -1219,10 +1219,11 @@
 
       {
         const b = document.getElementById('vip-badge');
-        if (playerData.vip_until) {
+        var vipActive = !!(playerData.vip_until && new Date(playerData.vip_until) > new Date());
+        if (vipActive) {
           b.className = 'vip-badge on';
-          const daysLeft = Math.ceil((new Date(playerData.vip_until) - new Date()) / 86400000);
-          b.innerHTML = daysLeft > 0 ? '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP \u00b7 ' + daysLeft + ' ' + t('daily_day') : '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP';
+          var daysLeft = Math.ceil((new Date(playerData.vip_until) - new Date()) / 86400000);
+          b.innerHTML = '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP \u00b7 ' + daysLeft + ' ' + t('daily_day');
         } else {
           b.className = 'vip-badge off';
           b.innerHTML = '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> ' + t('vip_status_off');

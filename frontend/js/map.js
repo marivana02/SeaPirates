@@ -210,10 +210,11 @@
 
       const vipB = document.getElementById('vip-badge');
       if (vipB) {
-        if (player.vip_until) {
+        var vipActive = !!(player.vip_until && new Date(player.vip_until) > new Date());
+        if (vipActive) {
           vipB.className = 'vip-badge on';
-          const daysLeft = Math.ceil((new Date(player.vip_until) - new Date()) / 86400000);
-          vipB.innerHTML = daysLeft > 0 ? '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP \u00b7 ' + daysLeft + ' ' + t('daily_day') : '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP';
+          var daysLeft = Math.ceil((new Date(player.vip_until) - new Date()) / 86400000);
+          vipB.innerHTML = '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> VIP \u00b7 ' + daysLeft + ' ' + t('daily_day');
         } else {
           vipB.className = 'vip-badge off';
           vipB.innerHTML = '<img src=\"assets/ui/vip-ikon.png\" class=\"vip-icon\" alt=\"\"> ' + t('vip_status_off');
