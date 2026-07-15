@@ -356,7 +356,7 @@
           }
         } else {
           el.className = 'vip-badge off';
-          el.innerHTML = '';
+          el.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> ' + (typeof t === 'function' ? t('vip_status_off') : 'Not VIP');
         }
       }
 
