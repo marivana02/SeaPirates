@@ -25,8 +25,8 @@ c = c.replace(
 );
 
 c = c.replace(
-  /release \{/,
-  'release {\n            signingConfig signingConfigs.release'
+  /buildTypes \{\n\s+release \{/,
+  'buildTypes {\n        release {\n            signingConfig signingConfigs.release'
 );
 
 fs.writeFileSync(f, c);
