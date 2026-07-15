@@ -100,7 +100,7 @@ router.post('/login', loginRateLimiter, validate(loginRules), asyncHandler(async
   const result = await pool.query(
     `SELECT id, username, display_name, gold, pearl, xp, level, elite_points, ship_level,
             hp, max_hp, vip_until, is_admin, is_banned, ban_reason, banned_at, ban_expires_at,
-            password, current_map_level, has_elite_ship, active_design, created_at,
+            password, current_map_level, has_elite_ship, active_design, visual_ship_level, created_at,
             pvp_points, dmg_pve, dmg_pvp, kill_npc, kill_pvp, dmg_amiral
      FROM players WHERE username = $1`,
     [username]

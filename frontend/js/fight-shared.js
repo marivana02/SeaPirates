@@ -911,6 +911,21 @@
           player.visual_ship_level = data.visual_ship_level;
           player.active_design = data.active_design;
 
+          // Önbelleği güncelle (sonraki sayfa yüklemelerinde transition.js güncel veriyi kullansın)
+          try {
+            const existing = JSON.parse(localStorage.getItem('sp_player') || '{}');
+            existing.ship_level = data.ship_level;
+            existing.visual_ship_level = data.visual_ship_level;
+            existing.active_design = data.active_design;
+            existing.hp = data.hp;
+            existing.max_hp = data.max_hp;
+            existing.level = data.level;
+            existing.gold = data.gold;
+            existing.pearl = data.pearl;
+            existing.xp = data.xp;
+            localStorage.setItem('sp_player', JSON.stringify(existing));
+          } catch (_) {}
+
           // Envanter miktarlarını player nesnesine atalım
           player.ammoQtys = {};
           if (data.ammo) data.ammo.forEach(a => player.ammoQtys[a.ammo_type] = a.quantity);
@@ -930,7 +945,7 @@
           if (typeof renderSlots === 'function') renderSlots();
         }
       } catch (e) {
-        logError('fight-shared:setup', e);
+        logError('fetchPlayerData', e);
         if (window.isNetworkError && window.isNetworkError(e)) {
           if (window.startOfflineTimer) window.startOfflineTimer();
         }

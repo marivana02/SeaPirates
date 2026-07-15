@@ -344,14 +344,19 @@
 
       // VIP rozeti
       el = document.getElementById('vip-badge');
-      if (el && p.vip_until) {
-        var daysLeft = Math.ceil((new Date(p.vip_until) - new Date()) / 86400000);
-        if (daysLeft > 0) {
-          el.className = 'vip-badge on';
-          el.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP \u00b7 ' + daysLeft + ' ' + (typeof t === 'function' ? t('daily_day') : 'gün');
+      if (el) {
+        if (p.vip_until) {
+          var daysLeft = Math.ceil((new Date(p.vip_until) - new Date()) / 86400000);
+          if (daysLeft > 0) {
+            el.className = 'vip-badge on';
+            el.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP \u00b7 ' + daysLeft + ' ' + (typeof t === 'function' ? t('daily_day') : 'gün');
+          } else {
+            el.className = 'vip-badge on';
+            el.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP';
+          }
         } else {
-          el.className = 'vip-badge on';
-          el.innerHTML = '<img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> VIP';
+          el.className = 'vip-badge off';
+          el.innerHTML = '';
         }
       }
 
