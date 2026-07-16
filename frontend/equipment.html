@@ -136,6 +136,7 @@
     }
     .btn-equip{background:linear-gradient(180deg,#3d2a15,#1e1205);border:1px solid var(--gold);color:var(--gold-b);text-shadow:0 0 4px rgba(240,192,64,0.4);}
     .btn-equip:hover{background:linear-gradient(180deg,#52391e,#301d0a);border-color:var(--gold-b);box-shadow:0 0 6px rgba(240,192,64,0.3);}
+    .btn-equip.disabled,.btn-equip.disabled:hover{background:#1a140e;border-color:#3a2a18;color:#4a3a28;box-shadow:none;cursor:default;pointer-events:none;}
     .btn-remove{background:linear-gradient(180deg,#2b1616,#150a0a);border:1px solid #7a3a3a;color:#dca6a6;}
     .btn-remove:hover{background:linear-gradient(180deg,#3d1f1f,#211010);border-color:#ba5a5a;box-shadow:0 0 6px rgba(186,90,90,0.3);}
 
@@ -402,7 +403,10 @@
       equippedTotal += eqQty;
 
       if (stQty > 0) {
-        storageEl.appendChild(makeCard(item, stQty, 'equip', () => doEquip(item.id, activeTab === 'top')));
+        var isFull = activeTab === 'top'
+          ? equippedTotal >= state.maxCannons
+          : equippedTotal >= state.maxMasts;
+        storageEl.appendChild(makeCard(item, stQty, 'equip', () => doEquip(item.id, activeTab === 'top'), isFull));
       }
 
       if (eqQty > 0) {
@@ -423,7 +427,7 @@
     calcStats();
   }
 
-  function makeCard(item, qty, action, callback) {
+  function makeCard(item, qty, action, callback, isFull) {
     const card = document.createElement('div');
     card.className = 'item-card';
 
@@ -433,7 +437,7 @@
     if (item.hpBonus) detail += `${t('stat_hp_plus',{val:item.hpBonus})} `;
     if (item.repairBonus) detail += `${t('stat_repair_plus',{val:item.repairBonus})}`;
 
-    const btnClass = action === 'equip' ? 'btn-equip' : 'btn-remove';
+    const btnClass = action === 'equip' ? ('btn-equip' + (isFull ? ' disabled' : '')) : 'btn-remove';
     const btnTxt   = action === 'equip' ? '›' : '‹';
 
     const displayName = item.nk ? t(item.nk) : item.name;
@@ -449,7 +453,8 @@
       </div>
       <button class="${btnClass} btn-action">${btnTxt}</button>
     `;
-    card.querySelector('button').addEventListener('click', callback);
+    const btn = card.querySelector('button');
+    if (!isFull) btn.addEventListener('click', callback);
     return card;
   }
 
