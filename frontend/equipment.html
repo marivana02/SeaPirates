@@ -170,6 +170,7 @@
       background: linear-gradient(180deg,#7a2828,#421212);
       box-shadow: 0 0 8px #ba5a5a;
     }
+    .btn-bulk.disabled,.btn-bulk.disabled:hover{background:#1a140e;border-color:#3a2a18;color:#4a3a28;box-shadow:none;cursor:default;pointer-events:none;}
     .btn-bulk-equip-pos {
       position: absolute;
       right: 8px;
@@ -424,6 +425,12 @@
     }
 
     document.getElementById('storage-count').textContent  = storageTotal  + ' ' + t('equip_pcs');
+    // Bulk equip butonunu slot doluysa pasif yap
+    var bulkEl = document.getElementById('btn-bulk-equip');
+    var bulkFull = activeTab === 'top'
+      ? equippedTotal >= state.maxCannons
+      : equippedTotal >= state.maxMasts;
+    if (bulkEl) bulkEl.className = 'btn-bulk btn-bulk-equip-pos' + (bulkFull && storageTotal > 0 ? ' disabled' : '');
     calcStats();
   }
 
@@ -508,6 +515,8 @@
   }
 
   async function doEquipAll() {
+    var bulkEl = document.getElementById('btn-bulk-equip');
+    if (bulkEl && bulkEl.classList.contains('disabled')) return;
     try {
       const res = await fetch(`${API_URL}/equipment/equip-all`, {
         method: 'POST',
