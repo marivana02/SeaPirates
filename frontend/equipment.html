@@ -396,18 +396,21 @@
 
     let storageTotal  = 0;
     let equippedTotal = 0;
+    var maxSlots = activeTab === 'top' ? state.maxCannons : state.maxMasts;
 
     sortedCatalog.forEach(item => {
       const stQty  = state.storage[item.id]                         || 0;
       const eqQty  = (state[equippedKey] || {})[item.id]            || 0;
       storageTotal  += stQty;
       equippedTotal += eqQty;
+    });
+
+    sortedCatalog.forEach(item => {
+      const stQty  = state.storage[item.id]                         || 0;
+      const eqQty  = (state[equippedKey] || {})[item.id]            || 0;
 
       if (stQty > 0) {
-        var isFull = activeTab === 'top'
-          ? equippedTotal >= state.maxCannons
-          : equippedTotal >= state.maxMasts;
-        storageEl.appendChild(makeCard(item, stQty, 'equip', () => doEquip(item.id, activeTab === 'top'), isFull));
+        storageEl.appendChild(makeCard(item, stQty, 'equip', () => doEquip(item.id, activeTab === 'top'), equippedTotal >= maxSlots));
       }
 
       if (eqQty > 0) {
