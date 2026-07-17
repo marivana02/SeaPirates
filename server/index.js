@@ -139,20 +139,25 @@ const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
       startBotTicks();
       startTiamatBotTicks();
 
-      // Her saat başı uzun süre girmeyen oyunculara bildirim
+      // Her saat başı uzun süre girmeyen oyunculara bildirim (günde 1 kez)
       setInterval(async () => {
         try {
           const { sendPush } = require('./helpers/fcm');
-          const { sendPushToAll } = require('./helpers/fcm');
+          await pool.query(
+            `ALTER TABLE players ADD COLUMN IF NOT EXISTS last_inactive_reminder TIMESTAMP`
+          );
           const res = await pool.query(
             `SELECT DISTINCT p.id FROM players p
              JOIN fcm_tokens ft ON ft.player_id = p.id
              WHERE p.last_seen IS NOT NULL
                AND p.last_seen < NOW() - INTERVAL '24 hours'
-               AND p.last_seen > NOW() - INTERVAL '72 hours'`
+               AND p.last_seen > NOW() - INTERVAL '72 hours'
+               AND (p.last_inactive_reminder IS NULL
+                    OR p.last_inactive_reminder < NOW() - INTERVAL '24 hours')`
           );
           for (const row of res.rows) {
             sendPush(row.id, 'inactive_reminder', {});
+            await pool.query('UPDATE players SET last_inactive_reminder = NOW() WHERE id = $1', [row.id]);
           }
         } catch (e) {
           console.error('[CRON] inactive reminder error:', e.message);
