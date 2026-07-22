@@ -9,3 +9,4 @@ server/node
 
 server/firebase-key.json
 !frontend/android/app/google-services.json
+!frontend/android/app/keystore.jks
