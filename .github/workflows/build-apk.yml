@@ -155,13 +155,19 @@ jobs:
             sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
           fi
 
-      - name: Setup dev keystore for release signing
+      - name: Setup signing key (create if missing)
         run: |
-          echo "Generating dev keystore..."
-          keytool -genkey -v -keystore frontend/android/app/keystore.jks \
-            -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass seapirates -keypass seapirates \
-            -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
+          KEYSTORE="frontend/android/app/keystore.jks"
+          if [ -f "$KEYSTORE" ]; then
+            echo "Keystore already exists — reusing"
+          else
+            echo "Generating new keystore..."
+            keytool -genkey -v -keystore "$KEYSTORE" \
+              -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass seapirates -keypass seapirates \
+              -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
+            echo "New keystore created"
+          fi
           echo "storePassword=seapirates" > frontend/android/key.properties
           echo "keyPassword=seapirates" >> frontend/android/key.properties
           echo "keyAlias=sea_pirates" >> frontend/android/key.properties
@@ -169,7 +175,6 @@ jobs:
 
           echo "Injecting signing config into build.gradle..."
           node frontend/scripts/inject-signing.js
-          echo "Dev keystore created (password: seapirates)"
 
       - name: Build AAB (release)
         run: |
@@ -185,4 +190,5 @@ jobs:
           if-no-files-found: error
           path: |
             frontend/android/app/build/outputs/bundle/release/app-release.aab
+            frontend/android/app/keystore.jks
             frontend/playstore-icon.png
