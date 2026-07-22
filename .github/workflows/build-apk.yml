@@ -1,4 +1,4 @@
-name: Build APK + AAB
+name: Build AAB (Release)
 
 on:
   workflow_dispatch:
@@ -7,10 +7,6 @@ on:
         description: 'Server URL (boş = https://www.seapirates.site)'
         required: false
         default: ''
-      build_type:
-        description: 'Build type: apk, aab, both'
-        required: false
-        default: 'both'
 
 jobs:
   build:
@@ -175,24 +171,18 @@ jobs:
           node frontend/scripts/inject-signing.js
           echo "Dev keystore created (password: seapirates)"
 
-      - name: Build APK (debug) + AAB (release)
+      - name: Build AAB (release)
         run: |
           cd frontend/android
           chmod +x gradlew
-          echo "::group::Building APK (debug)"
-          ./gradlew assembleDebug --stacktrace 2>&1
-          echo "::endgroup::"
           echo "::group::Building AAB (release)"
           ./gradlew bundleRelease --stacktrace 2>&1
           echo "::endgroup::"
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: SeaPirates-Build
-          if-no-files-found: warn
+          name: app-release
+          if-no-files-found: error
           path: |
-            frontend/android/app/build/outputs/apk/debug/app-debug.apk
-            frontend/android/app/build/outputs/bundle/debug/app-debug.aab
             frontend/android/app/build/outputs/bundle/release/app-release.aab
             frontend/playstore-icon.png
