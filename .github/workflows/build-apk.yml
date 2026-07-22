@@ -199,5 +199,11 @@ jobs:
           path: |
             frontend/android/app/build/outputs/bundle/release/app-release.aab
             frontend/android/app/keystore.jks
-            frontend/android/app/upload_certificate.pem
             frontend/playstore-icon.png
+
+      - name: Upload signing certificate separately
+        uses: actions/upload-artifact@v4
+        with:
+          name: upload-certificate
+          if-no-files-found: error
+          path: frontend/android/app/upload_certificate.pem
