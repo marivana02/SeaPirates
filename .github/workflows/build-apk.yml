@@ -184,6 +184,14 @@ jobs:
           ./gradlew bundleRelease --stacktrace 2>&1
           echo "::endgroup::"
 
+      - name: Extract certificate PEM for Play Console
+        run: |
+          keytool -exportcert -alias sea_pirates -keystore frontend/android/app/keystore.jks \
+            -storepass seapirates -rfc -file frontend/android/app/upload_certificate.pem
+          echo "=== Upload Certificate (PEM) ==="
+          cat frontend/android/app/upload_certificate.pem
+          echo "=== PEM saved ==="
+
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
@@ -191,4 +199,5 @@ jobs:
           path: |
             frontend/android/app/build/outputs/bundle/release/app-release.aab
             frontend/android/app/keystore.jks
+            frontend/android/app/upload_certificate.pem
             frontend/playstore-icon.png
