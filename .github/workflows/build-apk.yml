@@ -172,6 +172,7 @@ jobs:
           echo "keyPassword=seapirates" >> frontend/android/key.properties
 
           echo "storeFile=keystore.jks" >> frontend/android/key.properties
+          echo "keyAlias=sea_pirates" >> frontend/android/key.properties
 
           echo "Injecting signing config into build.gradle..."
           node frontend/scripts/inject-signing.js
