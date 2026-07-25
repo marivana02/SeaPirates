@@ -1,0 +1,59 @@
+name: Build AAB (Release)
+on:
+  workflow_dispatch:
+    inputs:
+      server_url:
+        description: 'Server URL'
+        required: false
+        default: ''
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - name: Setup Android SDK
+        run: |
+          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> \
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" 2>&1
+      - name: Install Capacitor
+        run: cd frontend && npm install && npx cap --version
+      - name: Setup Android platform
+        run: |
+          cd frontend
+          [ -f "android/app/google-services.json" ] && cp android/app/google-services.json /tmp/gs.json
+          [ -f "android/app/release-signing.gradle" ] && cp android/app/release-signing.gradle /tmp/rsg
+          rm -rf android && npx cap add android
+          [ -f "/tmp/gs.json" ] && cp /tmp/gs.json android/app/google-services.json
+          [ -f "/tmp/rsg" ] && cp /tmp/rsg android/app/release-signing.gradle
+      - name: Sync Capacitor
+        run: cd frontend && npx cap sync android
+      - name: Setup signing key
+        run: |
+          KEYSTORE="frontend/android/app/keystore.jks"
+          if [ -f "\" ]; then
+            echo "Keystore exists"
+          else
+            keytool -genkey -v -keystore "\" -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 -storepass seapirates -keypass seapirates -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
+          fi
+          echo "storePassword=seapirates" > frontend/android/key.properties
+          echo "keyPassword=seapirates" >> frontend/android/key.properties
+          echo "storeFile=keystore.jks" >> frontend/android/key.properties
+          node frontend/scripts/inject-signing.js
+      - name: Build AAB
+        run: cd frontend/android && chmod +x gradlew && ./gradlew bundleRelease --stacktrace 2>&1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          if-no-files-found: error
+          path: |
+            frontend/android/app/build/outputs/bundle/release/app-release.aab
+            frontend/android/app/keystore.jks
