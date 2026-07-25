@@ -21,8 +21,8 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           script: |
-            cd /path/to/app
+            cd C:\server\game
             git pull origin master
             cd server
             npm install --production
-            pm2 restart seapirates || pm2 start index.js --name seapirates
+            pm2 restart seapirates
