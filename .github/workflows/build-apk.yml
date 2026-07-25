@@ -81,6 +81,13 @@ jobs:
           else
             echo "No release-signing.gradle to save"
           fi
+          # keystore'u kaydet (rm -rf android silmeden önce)
+          if [ -f "android/app/keystore.jks" ]; then
+            cp android/app/keystore.jks /tmp/keystore.jks
+            echo "Saved keystore.jks"
+          else
+            echo "No keystore.jks to save"
+          fi
           rm -rf android
           npx cap add android
           # google-services.json'u geri yükle
@@ -93,6 +100,12 @@ jobs:
           if [ -f "/tmp/release-signing.gradle" ]; then
             cp /tmp/release-signing.gradle android/app/release-signing.gradle
             echo "Restored release-signing.gradle"
+          fi
+          # keystore'u geri yükle
+          if [ -f "/tmp/keystore.jks" ]; then
+            mkdir -p android/app
+            cp /tmp/keystore.jks android/app/keystore.jks
+            echo "Restored keystore.jks"
           fi
 
       - name: Generate app icons from login.png
