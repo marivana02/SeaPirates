@@ -125,7 +125,7 @@
       sessionStorage.removeItem('sp_session_active');
       if (window.location.href.indexOf('index.html') === -1) window.location.href = 'index.html';
     }
-  }, 3000);
+  }, 3000));
   /* Uygulama geri geldiğinde session'ı tazele (30dk timeout mekanizması yeterli) */
   window.onReopen = function() {
     if (typeof Auth !== 'undefined' && typeof Auth.touch === 'function') Auth.touch();
