@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy - SeaPirates</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d0a05; color: #d4c5a0; line-height: 1.8; padding: 20px; }
+  .container { max-width: 800px; margin: 0 auto; background: #1a120a; border: 1px solid #3a2a18; border-radius: 12px; padding: 40px; }
+  h1 { color: #f0c040; font-size: 28px; margin-bottom: 8px; font-family: 'Georgia', serif; }
+  .subtitle { color: #8a7a5a; font-size: 14px; margin-bottom: 30px; }
+  h2 { color: #e0b030; font-size: 18px; margin: 28px 0 12px; }
+  p { margin-bottom: 14px; color: #c0b090; }
+  ul { margin: 10px 0 16px 24px; }
+  li { margin-bottom: 8px; color: #b0a080; }
+  strong { color: #d4c5a0; }
+  .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #3a2a18; font-size: 13px; color: #7a6a4a; text-align: center; }
+  a { color: #e0b030; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .lang-toggle { text-align: right; margin-bottom: 20px; }
+  .lang-toggle a { color: #8a7a5a; font-size: 13px; cursor: pointer; }
+  .lang-toggle a.active { color: #f0c040; font-weight: bold; }
+  [lang="tr"] { display: none; }
+  body.tr [lang="tr"] { display: block; }
+  body.tr [lang="en"] { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="lang-toggle">
+    <a class="active" onclick="setLang('en')" id="l-en">English</a> &middot;
+    <a onclick="setLang('tr')" id="l-tr">T&uuml;rk&ccedil;e</a>
+  </div>
+
+  <div lang="en">
+    <h1>Privacy Policy</h1>
+    <p class="subtitle">Last updated: July 26, 2026 &mdash; SeaPirates (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;the Game&rdquo;)</p>
+
+    <p>This Privacy Policy explains how SeaPirates collects, uses, stores, and protects your personal information when you play our web-based game at <strong>seapirates.site</strong> and use the SeaPirates mobile application available on Google Play.</p>
+    <p>By registering and playing SeaPirates, you agree to the data practices described in this policy.</p>
+
+    <h2>1. Data Controller</h2>
+    <p>SeaPirates is operated by an independent developer team. If you have questions about this policy, contact us at: <strong>orivane.app@gmail.com</strong></p>
+
+    <h2>2. Information We Collect</h2>
+
+    <p><strong>2.1 Information You Provide</strong></p>
+    <ul>
+      <li><strong>Account Data:</strong> When you register, we collect your chosen <strong>username</strong>, <strong>email address</strong>, and a <strong>password</strong> (hashed and salted &mdash; we never store plain-text passwords).</li>
+      <li><strong>Device ID:</strong> A randomly generated device identifier stored in your browser&rsquo;s localStorage to help secure your session.</li>
+    </ul>
+
+    <p><strong>2.2 Information Collected Automatically</strong></p>
+    <ul>
+      <li><strong>Game Progress:</strong> Your in-game statistics (level, gold, pearls, XP, elite points, items, equipment, ship upgrades, combat history, quest progress, PvP rankings, boss damage dealt) are stored on our server to persist your progress across sessions.</li>
+      <li><strong>Session Data:</strong> Login timestamps, IP addresses, and last-seen timestamps are logged for security and anti-abuse purposes.</li>
+      <li><strong>Push Notification Tokens:</strong> If you enable push notifications, we store a Firebase Cloud Messaging (FCM) token on our server to send you game-related notifications.</li>
+      <li><strong>Client Logs:</strong> Error logs from the game client may be sent to our server for debugging and stability improvements. These logs contain technical data (browser, device type, error message) and never include your password.</li>
+    </ul>
+
+    <p><strong>2.3 Information from Third Parties</strong></p>
+    <ul>
+      <li><strong>Google Play:</strong> If you download the app from Google Play, Google may share anonymized installation and crash data with us through the Google Play Console. We do not receive your name, email, or Google account ID from Google Play.</li>
+    </ul>
+
+    <h2>3. How We Use Your Information</h2>
+    <ul>
+      <li>To create and maintain your game account</li>
+      <li>To save and load your game progress</li>
+      <li>To send you push notifications (if enabled) &mdash; e.g., daily reminders, boss alerts</li>
+      <li>To detect and prevent cheating, botting, and abuse</li>
+      <li>To improve game stability by analyzing error logs</li>
+      <li>To comply with legal obligations</li>
+    </ul>
+
+    <h2>4. Data Storage and Security</h2>
+    <ul>
+      <li><strong>Server Storage:</strong> Your data is stored on secured servers operated by our hosting provider. We use industry-standard encryption (TLS) for data in transit.</li>
+      <li><strong>Password Security:</strong> Passwords are hashed using bcrypt or a comparable algorithm. Plain-text passwords are never accessible to anyone, including administrators.</li>
+      <li><strong>Local Storage:</strong> The game stores a session token and a cached copy of your player profile in your browser&rsquo;s localStorage. This data never leaves your device except when communicating with our API.</li>
+      <li><strong>Retention:</strong> We retain your account data for as long as your account is active. Inactive accounts may be deleted after 12 months of inactivity.</li>
+    </ul>
+
+    <h2>5. Data Sharing</h2>
+    <p><strong>We do not sell, rent, or share your personal data with third parties for advertising or any other commercial purposes.</strong></p>
+    <p>The only exceptions are:</p>
+    <ul>
+      <li><strong>Service Providers:</strong> Our hosting provider (server infrastructure) and Firebase (push notifications) process data on our behalf under strict contractual terms. They cannot use your data for their own purposes.</li>
+      <li><strong>Legal Requirements:</strong> We may disclose data if required by law or to protect our rights and the safety of our users.</li>
+    </ul>
+
+    <h2>6. Children&rsquo;s Privacy</h2>
+    <p>SeaPirates is not intended for children under the age of <strong>13</strong>. We do not knowingly collect data from children under 13. If you believe a child has provided us with personal data, contact us immediately so we can delete it.</p>
+
+    <h2>7. Your Rights</h2>
+    <p>Depending on your jurisdiction, you may have the right to:</p>
+    <ul>
+      <li><strong>Access:</strong> Request a copy of the personal data we hold about you.</li>
+      <li><strong>Rectification:</strong> Request correction of inaccurate data.</li>
+      <li><strong>Deletion:</strong> Request deletion of your account and associated data (you can also do this in-game via Settings).</li>
+      <li><strong>Withdraw Consent:</strong> Disable push notifications at any time in Settings.</li>
+    </ul>
+    <p>To exercise these rights, contact us at <strong>orivane.app@gmail.com</strong>. We will respond within 30 days.</p>
+
+    <h2>8. Cookies and Tracking</h2>
+    <p>SeaPirates does not use cookies for advertising or tracking purposes. We use only technically necessary localStorage (not cookies) to store your session token and game preferences. This data is not shared with any third party.</p>
+
+    <h2>9. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Significant changes will be notified via in-game announcement or push notification. Continued use of the Game after changes constitutes acceptance of the updated policy.</p>
+
+    <h2>10. Contact</h2>
+    <p>For any questions, concerns, or data requests:<br>
+    Email: <strong>orivane.app@gmail.com</strong></p>
+
+    <div class="footer">
+      <p>&copy; 2026 SeaPirates. All rights reserved.</p>
+      <p><a href="https://www.seapirates.site">www.seapirates.site</a></p>
+    </div>
+  </div>
+
+  <div lang="tr">
+    <h1>Gizlilik Politikas&imath;</h1>
+    <p class="subtitle">Son g&uuml;ncellenme: 26 Temmuz 2026 &mdash; SeaPirates (&ldquo;biz&rdquo;, &ldquo;oyun&rdquo;)</p>
+
+    <p>Bu Gizlilik Politikas&imath;, SeaPirates web tabanl&imath; oyununu (<strong>seapirates.site</strong>) ve Google Play&rsquo;deki mobil uygulamas&imath;n&imath; kullan&imath;rken kişisel verilerinizin nas&imath;l topland&imath;ğ&imath;n&imath;, kullan&imath;ld&imath;ğ&imath;n&imath;, sakland&imath;ğ&imath;n&imath; ve korunduğunu a&ccedil;&imath;klar.</p>
+    <p>SeaPirates&rsquo;e kay&imath;t olarak ve oynayarak bu politikada a&ccedil;&imath;klanan veri uygulamalar&imath;n&imath; kabul etmiş olursunuz.</p>
+
+    <h2>1. Veri Sorumlusu</h2>
+    <p>SeaPirates bağ&imath;ms&imath;z bir geliştirici ekibi taraf&imath;ndan işletilmektedir. Bu politika hakk&imath;nda sorular&imath;n&imath;z i&ccedil;in: <strong>orivane.app@gmail.com</strong></p>
+
+    <h2>2. Toplad&imath;ğ&imath;m&imath;z Bilgiler</h2>
+
+    <p><strong>2.1 Sizin Sağlad&imath;ğ&imath;n&imath;z Bilgiler</strong></p>
+    <ul>
+      <li><strong>Hesap Verileri:</strong> Kay&imath;t s&imash;ras&imath;nda <strong>kullan&imath;c&imath; ad&imath;</strong>, <strong>e-posta adresi</strong> ve <strong>şifre</strong> (hash&rsquo;lenmiş ve tuzlanmış &mdash; şifreniz d&uuml;z metin olarak asla saklanmaz) toplan&imath;r.</li>
+      <li><strong>Cihaz ID:</strong> Oturum g&uuml;venliği i&ccedil;in taray&imath;c&imath;n&imath;z&imath;n localStorage&rsquo;ında saklanan rastgele bir cihaz tan&imath;mlay&imath;c&imath;s&imath;.</li>
+    </ul>
+
+    <p><strong>2.2 Otomatik Toplanan Bilgiler</strong></p>
+    <ul>
+      <li><strong>Oyun İlerlemesi:</strong> Seviye, alt&imath;n, inci, XP, elite puan, eşya, gemi y&uuml;kseltmeleri, savaş ge&ccedil;mişi, g&ouml;rev ilerlemesi, PvP s&imath;ralamas&imath;, boss hasar&imath; gibi oyun i&ccedil;i istatistikleriniz ilerlemenizi kaydetmek i&ccedil;in sunucuda saklan&imath;r.</li>
+      <li><strong>Oturum Verileri:</strong> Giriş zaman damgalar&imath;, IP adresleri ve son g&ouml;r&uuml;lme zamanlar&imath; g&uuml;venlik ve k&ouml;t&uuml;ye kullan&imath;mı &ouml;nleme amac&imath;yla kaydedilir.</li>
+      <li><strong>Bildirim Tokenlar&imath;:</strong> Push bildirimlerini a&ccedil;arsan&imath;z, oyunla ilgili bildirimler g&ouml;ndermek i&ccedil;in Firebase Cloud Messaging (FCM) token&rsquo;ınız sunucuda saklan&imath;r.</li>
+      <li><strong>İstemci Hata Kay&imath;tlar&imath;:</strong> Oyun istemcisinden gelen hata kay&imath;tları hata ay&imak;klama ve kararl&imath;l&imath;k iyileştirmeleri i&ccedil;in sunucumuza g&ouml;nderilebilir. Bu kay&imath;tlar teknik veri (taray&imacr;c&imath;, cihaz t&uuml;r&uuml;, hata mesaj&imath;) i&ccedil;erir ve şifrenizi asla i&ccedil;ermez.</li>
+    </ul>
+
+    <p><strong>2.3 &Uuml;&ccedil;&uuml;nc&uuml; Taraflardan Gelen Bilgiler</strong></p>
+    <ul>
+      <li><strong>Google Play:</strong> Uygulamay&imath; Google Play&rsquo;den indirirseniz, Google anonimleştirilmiş y&uuml;kleme ve &ccedil;&ouml;kme verilerini Google Play Console &uuml;zerinden bizimle paylaşabilir. Adınızı, e-posta adresinizi veya Google hesap kimliğinizi Google Play&rsquo;den almıyoruz.</li>
+    </ul>
+
+    <h2>3. Bilgilerinizi Kullanma Ama&ccedil;lar&imath;m&imath;z</h2>
+    <ul>
+      <li>Oyun hesab&imath;n&imath;zı oluşturmak ve y&ouml;netmek</li>
+      <li>Oyun ilerlemenizi kaydetmek ve y&uuml;klemek</li>
+      <li>Size push bildirimleri g&ouml;ndermek (izin verirseniz) &mdash; &ouml;rn. g&uuml;nl&uuml;k hat&imath;rlatmalar, amiral uyar&imath;lar&imath;</li>
+      <li>Hile, bot ve k&ouml;t&uuml;ye kullan&imath;mı tespit etmek ve &ouml;nlemek</li>
+      <li>Hata kay&imath;tlar&imath;n&imath; analiz ederek oyun kararl&imath;l&imath;ğ&imath;n&imath; iyileştirmek</li>
+      <li>Yasal y&uuml;k&uuml;ml&uuml;l&uuml;klere uymak</li>
+    </ul>
+
+    <h2>4. Veri Saklama ve G&uuml;venlik</h2>
+    <ul>
+      <li><strong>Sunucu Saklamas&imath;:</strong> Verileriniz bar&imath;nd&imath;rma sağlayıc&imath;m&imath;zın g&uuml;venli sunucularında saklan&imath;r. Aktarım sırasında end&uuml;stri standardı şifreleme (TLS) kullan&imath;r.</li>
+      <li><strong>Şifre G&uuml;venliği:</strong> Şifreler bcrypt veya benzeri bir algoritma ile hash&rsquo;lenir. D&uuml;z metin şifreler y&ouml;neticiler dahil hi&ccedil; kimse tarafından g&ouml;r&uuml;lemez.</li>
+      <li><strong>Yerel Depolama:</strong> Oyun, oturum token&rsquo;ınızı ve oyuncu profilinizin &ouml;nbelleğe alınmış bir kopyasını tarayıcı localStorage&rsquo;ınızda saklar. Bu veri, API&rsquo;mizle iletişim dışında cihazınızdan ayrılmaz.</li>
+      <li><strong>Saklama S&uuml;resi:</strong> Hesap verilerinizi hesabınız aktif olduğu s&uuml;rece saklarız. 12 ay boyunca aktif olmayan hesaplar silinebilir.</li>
+    </ul>
+
+    <h2>5. Veri Paylaşımı</h2>
+    <p><strong>Kişisel verilerinizi reklam veya başka ticari ama&ccedil;larla &uuml;&ccedil;&uuml;nc&uuml; taraflarla satmıyor, kiralamıyor veya paylaşmıyoruz.</strong></p>
+    <p>İstisnalar:</p>
+    <ul>
+      <li><strong>Hizmet Sağlayıcılar:</strong> Barındırma altyapımız ve Firebase (push bildirimleri) verilerinizi bizim adımıza sıkı s&ouml;zleşme şartları altında işler. Kendi ama&ccedil;ları i&ccedil;in kullanamazlar.</li>
+      <li><strong>Yasal Gereklilikler:</strong> Yasaların gerektirmesi halinde veya haklarımızı ve kullanıcılarımızın g&uuml;venliğini korumak i&ccedil;in verileri ifşa edebiliriz.</li>
+    </ul>
+
+    <h2>6. &Ccedil;ocukların Gizliliği</h2>
+    <p>SeaPirates <strong>13</strong> yaş altındaki &ccedil;ocuklar i&ccedil;in tasarlanmamıştır. 13 yaş altından bilerek veri toplamıyoruz. Bir &ccedil;ocuğun bize kişisel veri sağladığını d&uuml;ş&uuml;n&uuml;yorsanız, silmemiz i&ccedil;in hemen bizimle iletişime ge&ccedil;in.</p>
+
+    <h2>7. Haklarınız</h2>
+    <p>Yetki alanınıza bağlı olarak şu haklara sahip olabilirsiniz:</p>
+    <ul>
+      <li><strong>Erişim:</strong> Hakkınızda tuttuğumuz kişisel verilerin bir kopyasını talep etme.</li>
+      <li><strong>D&uuml;zeltme:</strong> Yanlış verilerin d&uuml;zeltilmesini isteme.</li>
+      <li><strong>Silme:</strong> Hesabınızın ve ilişkili verilerin silinmesini talep etme (bunu oyun i&ccedil;inden Ayarlar &gt; Hesabı Sil b&ouml;l&uuml;m&uuml;nden de yapabilirsiniz).</li>
+      <li><strong>İzni Geri &Ccedil;ekme:</strong> Push bildirimlerini Ayarlar&rsquo;dan istediğiniz zaman devre dışı bırakma.</li>
+    </ul>
+    <p>Bu haklarınızı kullanmak i&ccedil;in <strong>orivane.app@gmail.com</strong> adresinden bize ulaşın. 30 g&uuml;n i&ccedil;inde yanıt vereceğiz.</p>
+
+    <h2>8. &Ccedil;erezler ve İzleme</h2>
+    <p>SeaPirates reklam veya izleme amacıyla &ccedil;erez kullanmaz. Oturum token&rsquo;ınızı ve oyun tercihlerinizi saklamak i&ccedil;in yalnızca teknik olarak gerekli localStorage kullanırız. Bu veri &uuml;&ccedil;&uuml;nc&uuml; taraflarla paylaşılmaz.</p>
+
+    <h2>9. Politikada Değişiklikler</h2>
+    <p>Bu Gizlilik Politikasını zaman zaman g&uuml;ncelleyebiliriz. &Ouml;nemli değişiklikler oyun i&ccedil;i duyuru veya push bildirimi ile bildirilir. Değişikliklerden sonra oyunu kullanmaya devam etmeniz g&uuml;ncellenmiş politikayı kabul ettiğiniz anlamına gelir.</p>
+
+    <h2>10. İletişim</h2>
+    <p>Sorularınız, endişeleriniz veya veri talepleriniz i&ccedil;in:<br>
+    E-posta: <strong>orivane.app@gmail.com</strong></p>
+
+    <div class="footer">
+      <p>&copy; 2026 SeaPirates. T&uuml;m haklar&imath; sakl&imath;d&imath;r.</p>
+      <p><a href="https://www.seapirates.site">www.seapirates.site</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+function setLang(l) {
+  document.body.className = l === 'tr' ? 'tr' : '';
+  document.querySelectorAll('.lang-toggle a').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('l-' + l).classList.add('active');
+}
+</script>
+</body>
+</html>
