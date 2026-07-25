@@ -1,55 +1,179 @@
 name: Build AAB (Release)
+
 on:
   workflow_dispatch:
     inputs:
       server_url:
-        description: 'Server URL'
+        description: 'Server URL (boÅŸ = https://www.seapirates.site)'
         required: false
         default: ''
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 21
+
       - name: Setup Android SDK
         run: |
-          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> \
-          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" 2>&1
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          echo "ANDROID_HOME=" >> 
+          echo "ANDROID_SDK_ROOT=" >> 
+          yes | /cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" 2>&1
+
       - name: Install Capacitor
-        run: cd frontend && npm install && npx cap --version
-      - name: Setup Android platform
         run: |
           cd frontend
-          [ -f "android/app/google-services.json" ] && cp android/app/google-services.json /tmp/gs.json
-          [ -f "android/app/release-signing.gradle" ] && cp android/app/release-signing.gradle /tmp/rsg
-          rm -rf android && npx cap add android
-          [ -f "/tmp/gs.json" ] && cp /tmp/gs.json android/app/google-services.json
-          [ -f "/tmp/rsg" ] && cp /tmp/rsg android/app/release-signing.gradle
+          npm install
+          npx cap --version
+
+      - name: Copy frontend to www and create config
+        run: |
+          URL=
+          if [ -z "" ]; then
+            URL="https://www.seapirates.site"
+            echo "Using default URL: "
+          else
+            echo "Using server URL: "
+          fi
+
+          cd frontend
+          rm -rf www
+          mkdir -p www/js
+          cp -r *.html *.js *.css js/ assets/ effects/ manifest.json sw.js www/
+          echo "window.__API_URL__ = '';" > www/js/config.js
+
+          for f in www/js/api.js www/js/map.js www/js/fight-shared.js www/js/fight-pvp.js; do
+            if [ -f "" ]; then
+              echo "window.__API_URL__ = window.__API_URL__ || '';" > www/api_temp.js
+              cat "" >> www/api_temp.js
+              mv www/api_temp.js ""
+            fi
+          done
+
+      - name: Setup Android platform (clean)
+        run: |
+          cd frontend
+          if [ -f "android/app/google-services.json" ]; then
+            cp android/app/google-services.json /tmp/google-services.json
+            echo "Saved google-services.json"
+          else
+            echo "No google-services.json to save"
+          fi
+          if [ -f "android/app/release-signing.gradle" ]; then
+            cp android/app/release-signing.gradle /tmp/release-signing.gradle
+            echo "Saved release-signing.gradle"
+          else
+            echo "No release-signing.gradle to save"
+          fi
+          rm -rf android
+          npx cap add android
+          if [ -f "/tmp/google-services.json" ]; then
+            mkdir -p android/app
+            cp /tmp/google-services.json android/app/google-services.json
+            echo "Restored google-services.json"
+          fi
+          if [ -f "/tmp/release-signing.gradle" ]; then
+            cp /tmp/release-signing.gradle android/app/release-signing.gradle
+            echo "Restored release-signing.gradle"
+          fi
+
+      - name: Generate app icons from login.png
+        run: |
+          set -e
+          SRC="frontend/assets/ui/login.png"
+          ANDROID_RES="frontend/android/app/src/main/res"
+          echo "Generating icons from  ..."
+          if [ ! -f "" ]; then echo "ERROR:  not found"; exit 1; fi
+          if ! command -v convert &>/dev/null; then
+            echo "Installing imagemagick..."
+            sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
+          fi
+          for SIZE in 48 72 96 144 192; do
+            case  in
+              48)  DENSITY="mdpi" ;;
+              72)  DENSITY="hdpi" ;;
+              96)  DENSITY="xhdpi" ;;
+              144) DENSITY="xxhdpi" ;;
+              192) DENSITY="xxxhdpi" ;;
+            esac
+            OUT_DIR="/mipmap-"
+            mkdir -p ""
+            convert "" -gravity center -extent 1:1 -resize x "/ic_launcher.png"
+            cp "/ic_launcher.png" "/ic_launcher_round.png"
+            echo "   â†’ x"
+          done
+          rm -rf "/mipmap-anydpi-v26"
+          echo "  Removed adaptive icon fallback (using density-based icons)"
+          convert "" -gravity center -extent 1:1 -resize 512x512 frontend/playstore-icon.png
+          echo "  playstore-icon.png â†’ 512x512"
+
       - name: Sync Capacitor
-        run: cd frontend && npx cap sync android
-      - name: Setup signing key
+        run: |
+          cd frontend
+          npx cap sync android
+
+      - name: Disable WebView state restoration (APK kill = fresh start)
+        run: |
+          MAIN_ACTIVITY=
+          if [ -n "" ]; then
+            sed -i 's/super.onCreate(savedInstanceState)/super.onCreate(null)/' ""
+            echo "Patched  â†’ state restoration disabled"
+          else
+            echo "MainActivity.java not found!"
+          fi
+
+      - name: Enable cleartext traffic in AndroidManifest
+        run: |
+          MANIFEST=
+          if [ -z "" ]; then echo "AndroidManifest.xml not found"; exit 0; fi
+          if grep -q 'usesCleartextTraffic' ""; then
+            echo "usesCleartextTraffic already set"
+          else
+            echo "Adding android:usesCleartextTraffic=\"true\" to <application>"
+            sed -i 's|<application|<application android:usesCleartextTraffic="true"|' ""
+          fi
+
+      - name: Setup signing key (create if missing)
         run: |
           KEYSTORE="frontend/android/app/keystore.jks"
-          if [ -f "\" ]; then
-            echo "Keystore exists"
+          if [ -f "" ]; then
+            echo "Keystore already exists â€” reusing"
           else
-            keytool -genkey -v -keystore "\" -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 -storepass seapirates -keypass seapirates -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
+            echo "Generating new keystore..."
+            keytool -genkey -v -keystore "" \
+              -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass seapirates -keypass seapirates \
+              -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
+            echo "New keystore created"
           fi
           echo "storePassword=seapirates" > frontend/android/key.properties
           echo "keyPassword=seapirates" >> frontend/android/key.properties
           echo "storeFile=keystore.jks" >> frontend/android/key.properties
+
+          echo "Injecting signing config into build.gradle..."
           node frontend/scripts/inject-signing.js
-      - name: Build AAB
-        run: cd frontend/android && chmod +x gradlew && ./gradlew bundleRelease --stacktrace 2>&1
+
+      - name: Build AAB (release)
+        run: |
+          cd frontend/android
+          chmod +x gradlew
+          echo "::group::Building AAB (release)"
+          ./gradlew bundleRelease --stacktrace 2>&1
+          echo "::endgroup::"
+
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
@@ -57,3 +181,4 @@ jobs:
           path: |
             frontend/android/app/build/outputs/bundle/release/app-release.aab
             frontend/android/app/keystore.jks
+            frontend/playstore-icon.png
