@@ -808,11 +808,12 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       } else {
         title.innerHTML = t('modal_privacy_title');
         body.innerHTML = `
-          <p><strong>1. Data Collected:</strong> The username, email address, and password (securely encrypted) you provide during registration are stored on our server.</p>
-          <p><strong>2. Use of Data:</strong> Your information is used solely to allow you to log in and save your game progress.</p>
-          <p><strong>3. Sharing with Third Parties:</strong> SeaPirates does not share your data with advertising companies or third parties under any circumstances.</p>
-          <p><strong>4. Data Storage:</strong> Session data is stored locally to keep you logged in. Your password is never stored in plain text.</p>
-        `;
+           <p><strong>1. Data Collected:</strong> The username, email address, and password (securely encrypted) you provide during registration are stored on our server.</p>
+           <p><strong>2. Use of Data:</strong> Your information is used solely to allow you to log in and save your game progress.</p>
+           <p><strong>3. Sharing with Third Parties:</strong> SeaPirates does not share your data with advertising companies or third parties under any circumstances.</p>
+           <p><strong>4. Data Storage:</strong> Session data is stored locally to keep you logged in. Your password is never stored in plain text.</p>
+           <p style="margin-top:16px;text-align:center"><a href="privacy.html" target="_blank" style="color:#e0b030;">📄 Read full Privacy Policy</a></p>
+         `;
       }
       modal.style.display = 'flex';
     }
