@@ -343,7 +343,11 @@
 
         if (newSpawns.length > 0) {
           el.style.display = 'block';
-          el.innerHTML = '⚓ ' + newSpawns.map(s => t('admiral_appeared').replace('{map}', s.map_level).replace('{sub}', s.spawned_sub_map).replace('{name}', s.name)).join('<br>⚓ ');
+          el.textContent = '';
+          newSpawns.forEach((s, i) => {
+            if (i > 0) el.appendChild(document.createElement('br'));
+            el.appendChild(document.createTextNode('⚓ ' + t('admiral_appeared').replace('{map}', s.map_level).replace('{sub}', s.spawned_sub_map).replace('{name}', s.name)));
+          });
           if (admiralNotifTimer) clearTimeout(admiralNotifTimer);
           admiralNotifTimer = setTimeout(() => { el.style.display = 'none'; }, 20000);
         }

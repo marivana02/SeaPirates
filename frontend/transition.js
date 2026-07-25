@@ -2,8 +2,16 @@
 (function () {
   'use strict';
 
+  window._pageIntervals = [];
+
+  function clearPageIntervals() {
+    window._pageIntervals.forEach(function (id) { clearInterval(id); });
+    window._pageIntervals = [];
+  }
+
   window.goTo = function (url) {
     if (!url || url === '#' || url.startsWith('javascript:')) return;
+    clearPageIntervals();
     sessionStorage.setItem('sp_navigating', '1');
     window.location.href = url;
   };
@@ -46,16 +54,16 @@
   };
 
   /* Kalp atışı (1sn) — sp_session_ts her zaman tazele (auth.js olmayan sayfalar için de) */
-  setInterval(function() {
+  window._pageIntervals.push(setInterval(function() {
     var now = Date.now();
     sessionStorage.setItem('sp_hb_time', now.toString());
     if (localStorage.getItem('sp_token')) {
       localStorage.setItem('sp_session_ts', now.toString());
     }
-  }, 1000);
+  }, 1000));
 
   /* Ping (60sn) — sunucu last_seen güncelle + sp_session_ts yenile */
-  setInterval(function() {
+  window._pageIntervals.push(setInterval(function() {
     if (typeof Auth === 'undefined' || !Auth.isLoggedIn()) return;
     API.post('/player/ping').then(function() {
       if (typeof Auth.touch === 'function') Auth.touch();
@@ -64,7 +72,7 @@
         if (window.startOfflineTimer) window.startOfflineTimer();
       }
     });
-  }, 60000);
+  }, 60000));
 
   /* İNTERNET KESİNTİSİ — offline olunca 30sn sayaç, dolunca logout */
   var _offlineTimer = null;
@@ -95,8 +103,8 @@
   }
   window.startOfflineTimer = startOfflineTimer;
   window.clearOfflineTimer = clearOfflineTimer;
-  window.addEventListener('offline', startOfflineTimer);
-  window.addEventListener('online', clearOfflineTimer);
+  window.addEventListener('offline', startOfflineTimer, { passive: true });
+  window.addEventListener('online', clearOfflineTimer, { passive: true });
 
   /* Global helper: network error kontrolü (fetch başarısız, DNS çözülmez, timeout) */
   window.isNetworkError = function(e) {
@@ -108,7 +116,7 @@
   };
 
   /* APP KILL TESPİTİ — her 3sn kontrol et, sp_session_ts >60sn ise logout */
-  setInterval(function sessionTimeout() {
+  window._pageIntervals.push(setInterval(function sessionTimeout() {
     if (!localStorage.getItem('sp_token')) return;
     var ts = parseInt(localStorage.getItem('sp_session_ts') || '0');
     if (ts > 0 && Date.now() - ts > 60000) {

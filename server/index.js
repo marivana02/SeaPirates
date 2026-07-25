@@ -71,7 +71,7 @@ app.use(cors({
 
 // CSRF koruması: state değiştiren POST isteklerinde X-Requested-With zorunlu (400 = global 401/403 override'ı tetiklemez)
 app.use('/api', (req, res, next) => {
-  if (req.method === 'POST' && !req.path.startsWith('/auth/') && !req.path.startsWith('/client/')) {
+  if (req.method === 'POST' && !req.path.startsWith('/api/auth/') && !req.path.startsWith('/client/')) {
     if (req.headers['x-requested-with'] !== 'XMLHttpRequest') {
       return res.status(400).json({ error: 'CSRF protection: missing X-Requested-With header' });
     }
@@ -127,6 +127,14 @@ const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
   const certDir = path.join(__dirname, 'certs');
   if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
 
+  // Startup migration (DDL bir kere çalışır)
+  try {
+    await pool.query('ALTER TABLE players ADD COLUMN IF NOT EXISTS last_inactive_reminder TIMESTAMP');
+    console.log('[MIGRATION] players.last_inactive_reminder OK');
+  } catch (e) {
+    console.error('[MIGRATION] error:', e.message);
+  }
+
   const servers = [];
 
   // HTTP sunucu (APK için) — development'ta her zaman, production'da disable
@@ -143,9 +151,6 @@ const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
       setInterval(async () => {
         try {
           const { sendPush } = require('./helpers/fcm');
-          await pool.query(
-            `ALTER TABLE players ADD COLUMN IF NOT EXISTS last_inactive_reminder TIMESTAMP`
-          );
           const res = await pool.query(
             `SELECT DISTINCT p.id FROM players p
              JOIN fcm_tokens ft ON ft.player_id = p.id

@@ -132,8 +132,15 @@ router.post('/attack', authMiddleware, async (req, res) => {
         return res.json({ state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), npcMaxHp: parseInt(fightRow.npc_max_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: 0, elpGained: 0, consumed: { ammo: 0, barut: 0, zirh: 0 }, opponentConsumed: { barut: 0, zirh: 0, ammoId: null } });
       }
       lastOpponentAttack.set(playerId, now);
-      await deductOpponentInventory(pool, opponentId, simResult);
-      await pool.query('UPDATE active_fights SET last_activity = CURRENT_TIMESTAMP WHERE player_id = $1', [playerId]);
+      await pool.query('BEGIN');
+      try {
+        await deductOpponentInventory(pool, opponentId, simResult);
+        await pool.query('UPDATE active_fights SET last_activity = CURRENT_TIMESTAMP WHERE player_id = $1', [playerId]);
+        await pool.query('COMMIT');
+      } catch (e) {
+        await pool.query('ROLLBACK');
+        throw e;
+      }
       res.json({
         state: 'ongoing', npcHp: parseInt(fightRow.npc_hp), npcMaxHp: parseInt(fightRow.npc_max_hp), playerHp: parseInt(fightRow.player_hp), playerDamage: 0, npcDamage: simResult.npcDamage,
         elpGained: 0,
@@ -166,42 +173,49 @@ router.post('/attack', authMiddleware, async (req, res) => {
     let npcDamage = dm.finalNpcDamage;
     let gainedElp = dm.gainedElp;
 
-    if (gainedElp > 0) {
-      await pool.query('UPDATE players SET elite_points = elite_points + $1 WHERE id = $2', [gainedElp, playerId]);
+    await pool.query('BEGIN');
+
+    try {
+      if (gainedElp > 0) {
+        await pool.query('UPDATE players SET elite_points = elite_points + $1 WHERE id = $2', [gainedElp, playerId]);
+      }
+
+      let fight = { npcHp: parseInt(fightRow.npc_hp), playerHp: parseInt(fightRow.player_hp), npcMaxHp: parseInt(fightRow.npc_max_hp) };
+      const prevNpcHp = fight.npcHp;
+      fight.npcHp -= playerDamage;
+      if (fight.npcHp < 0) fight.npcHp = 0;
+      const actualHpLost = prevNpcHp - fight.npcHp;
+
+      fight.playerHp -= npcDamage;
+      if (fight.playerHp < 0) fight.playerHp = 0;
+
+      await pool.query('UPDATE players SET hp = $1, dmg_pvp = COALESCE(dmg_pvp, 0) + $2 WHERE id = $3', [fight.playerHp, playerDamage, playerId]);
+      await pool.query('UPDATE active_fights SET npc_hp = $1, player_hp = $2, last_activity = CURRENT_TIMESTAMP WHERE player_id = $3',
+        [fight.npcHp, fight.playerHp, playerId]);
+
+      let result;
+      if (fight.npcHp === 0) {
+        clearBotLoadout(playerId);
+        result = await grantPvPRewards(pool, { fight, playerId, playerDamage, gainedElp, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh, npcUseBarut: simResult.npcUseBarut, npcUseZirh: simResult.npcUseZirh, npcAmmoId: simResult.npcAmmoId });
+      } else if (fight.playerHp === 0) {
+        clearBotLoadout(playerId);
+        result = await handlePvPPlayerDeath(pool, { fight, playerId, playerDamage, gainedElp, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh, npcUseBarut: simResult.npcUseBarut, npcUseZirh: simResult.npcUseZirh, npcAmmoId: simResult.npcAmmoId, actualNpcDamage: npcDamage });
+      } else {
+        result = {
+          state: 'ongoing', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: npcDamage,
+          elpGained: gainedElp, weeklyBossDamageDealt: 0,
+          consumed: { ammo: pd.actualCannonsFired, barut: (useBarut && pd.actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
+          opponentConsumed: { barut: simResult.npcUseBarut ? 1 : 0, zirh: simResult.npcUseZirh ? 1 : 0, ammoId: simResult.npcAmmoId },
+          npcCannons: simResult.npcCannons
+        };
+      }
+
+      await pool.query('COMMIT');
+      res.json(result);
+    } catch (txErr) {
+      await pool.query('ROLLBACK');
+      throw txErr;
     }
-
-    let fight = { npcHp: parseInt(fightRow.npc_hp), playerHp: parseInt(fightRow.player_hp), npcMaxHp: parseInt(fightRow.npc_max_hp) };
-    const prevNpcHp = fight.npcHp;
-    fight.npcHp -= playerDamage;
-    if (fight.npcHp < 0) fight.npcHp = 0;
-    const actualHpLost = prevNpcHp - fight.npcHp;
-
-    fight.playerHp -= npcDamage;
-    if (fight.playerHp < 0) fight.playerHp = 0;
-
-    await pool.query('UPDATE players SET hp = $1, dmg_pvp = COALESCE(dmg_pvp, 0) + $2 WHERE id = $3', [fight.playerHp, playerDamage, playerId]);
-    await pool.query('UPDATE active_fights SET npc_hp = $1, player_hp = $2, last_activity = CURRENT_TIMESTAMP WHERE player_id = $3',
-      [fight.npcHp, fight.playerHp, playerId]);
-
-    if (fight.npcHp === 0) {
-      clearBotLoadout(playerId);
-      const rewardResult = await grantPvPRewards(pool, { fight, playerId, playerDamage, gainedElp, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh, npcUseBarut: simResult.npcUseBarut, npcUseZirh: simResult.npcUseZirh, npcAmmoId: simResult.npcAmmoId });
-      return res.json(rewardResult);
-    }
-
-    if (fight.playerHp === 0) {
-      clearBotLoadout(playerId);
-      const deathResult = await handlePvPPlayerDeath(pool, { fight, playerId, playerDamage, gainedElp, actualCannonsFired: pd.actualCannonsFired, useBarut, useZirh, npcUseBarut: simResult.npcUseBarut, npcUseZirh: simResult.npcUseZirh, npcAmmoId: simResult.npcAmmoId, actualNpcDamage: npcDamage });
-      return res.json(deathResult);
-    }
-
-    res.json({
-      state: 'ongoing', npcHp: fight.npcHp, npcMaxHp: fight.npcMaxHp, playerHp: fight.playerHp, playerDamage: actualHpLost, npcDamage: npcDamage,
-      elpGained: gainedElp, weeklyBossDamageDealt: 0,
-      consumed: { ammo: pd.actualCannonsFired, barut: (useBarut && pd.actualCannonsFired > 0) ? 1 : 0, zirh: useZirh ? 1 : 0 },
-      opponentConsumed: { barut: simResult.npcUseBarut ? 1 : 0, zirh: simResult.npcUseZirh ? 1 : 0, ammoId: simResult.npcAmmoId },
-      npcCannons: simResult.npcCannons
-    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error during combat' });
