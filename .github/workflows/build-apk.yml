@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       server_url:
-        description: 'Server URL (boÅŸ = https://www.seapirates.site)'
+        description: 'Server URL (boş = https://www.seapirates.site)'
         required: false
         default: ''
 
@@ -29,9 +29,9 @@ jobs:
       - name: Setup Android SDK
         run: |
           export ANDROID_HOME=/usr/local/lib/android/sdk
-          echo "ANDROID_HOME=" >> 
-          echo "ANDROID_SDK_ROOT=" >> 
-          yes | /cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" 2>&1
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" 2>&1
 
       - name: Install Capacitor
         run: |
@@ -41,37 +41,40 @@ jobs:
 
       - name: Copy frontend to www and create config
         run: |
-          URL=
-          if [ -z "" ]; then
+          URL="${{ github.event.inputs.server_url }}"
+          if [ -z "$URL" ]; then
             URL="https://www.seapirates.site"
-            echo "Using default URL: "
+            echo "Using default URL: $URL"
           else
-            echo "Using server URL: "
+            echo "Using server URL: $URL"
           fi
 
           cd frontend
           rm -rf www
           mkdir -p www/js
           cp -r *.html *.js *.css js/ assets/ effects/ manifest.json sw.js www/
-          echo "window.__API_URL__ = '';" > www/js/config.js
+          echo "window.__API_URL__ = '$URL';" > www/js/config.js
 
+          # Ana JS dosyalarinin basina __API_URL__ fallback ekle (tum sayfalarda gecerli olsun)
           for f in www/js/api.js www/js/map.js www/js/fight-shared.js www/js/fight-pvp.js; do
-            if [ -f "" ]; then
-              echo "window.__API_URL__ = window.__API_URL__ || '';" > www/api_temp.js
-              cat "" >> www/api_temp.js
-              mv www/api_temp.js ""
+            if [ -f "$f" ]; then
+              echo "window.__API_URL__ = window.__API_URL__ || '$URL';" > www/api_temp.js
+              cat "$f" >> www/api_temp.js
+              mv www/api_temp.js "$f"
             fi
           done
 
       - name: Setup Android platform (clean)
         run: |
           cd frontend
+          # google-services.json'u kaydet (rm -rf android silmeden önce)
           if [ -f "android/app/google-services.json" ]; then
             cp android/app/google-services.json /tmp/google-services.json
             echo "Saved google-services.json"
           else
             echo "No google-services.json to save"
           fi
+          # release-signing.gradle'ı kaydet
           if [ -f "android/app/release-signing.gradle" ]; then
             cp android/app/release-signing.gradle /tmp/release-signing.gradle
             echo "Saved release-signing.gradle"
@@ -80,11 +83,13 @@ jobs:
           fi
           rm -rf android
           npx cap add android
+          # google-services.json'u geri yükle
           if [ -f "/tmp/google-services.json" ]; then
             mkdir -p android/app
             cp /tmp/google-services.json android/app/google-services.json
             echo "Restored google-services.json"
           fi
+          # release-signing.gradle'ı geri yükle
           if [ -f "/tmp/release-signing.gradle" ]; then
             cp /tmp/release-signing.gradle android/app/release-signing.gradle
             echo "Restored release-signing.gradle"
@@ -95,30 +100,34 @@ jobs:
           set -e
           SRC="frontend/assets/ui/login.png"
           ANDROID_RES="frontend/android/app/src/main/res"
-          echo "Generating icons from  ..."
-          if [ ! -f "" ]; then echo "ERROR:  not found"; exit 1; fi
+          echo "Generating icons from $SRC ..."
+          if [ ! -f "$SRC" ]; then echo "ERROR: $SRC not found"; exit 1; fi
+          # Install imagemagick
           if ! command -v convert &>/dev/null; then
             echo "Installing imagemagick..."
             sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
           fi
+          # Generate each Android mipmap density
           for SIZE in 48 72 96 144 192; do
-            case  in
+            case $SIZE in
               48)  DENSITY="mdpi" ;;
               72)  DENSITY="hdpi" ;;
               96)  DENSITY="xhdpi" ;;
               144) DENSITY="xxhdpi" ;;
               192) DENSITY="xxxhdpi" ;;
             esac
-            OUT_DIR="/mipmap-"
-            mkdir -p ""
-            convert "" -gravity center -extent 1:1 -resize x "/ic_launcher.png"
-            cp "/ic_launcher.png" "/ic_launcher_round.png"
-            echo "   â†’ x"
+            OUT_DIR="$ANDROID_RES/mipmap-${DENSITY}"
+            mkdir -p "$OUT_DIR"
+            convert "$SRC" -gravity center -extent 1:1 -resize ${SIZE}x${SIZE} "$OUT_DIR/ic_launcher.png"
+            cp "$OUT_DIR/ic_launcher.png" "$OUT_DIR/ic_launcher_round.png"
+            echo "  $DENSITY → ${SIZE}x${SIZE}"
           done
-          rm -rf "/mipmap-anydpi-v26"
+          # Remove adaptive icon dir (API 26+) to avoid broken XML references
+          rm -rf "$ANDROID_RES/mipmap-anydpi-v26"
           echo "  Removed adaptive icon fallback (using density-based icons)"
-          convert "" -gravity center -extent 1:1 -resize 512x512 frontend/playstore-icon.png
-          echo "  playstore-icon.png â†’ 512x512"
+          # Play Store icon
+          convert "$SRC" -gravity center -extent 1:1 -resize 512x512 frontend/playstore-icon.png
+          echo "  playstore-icon.png → 512x512"
 
       - name: Sync Capacitor
         run: |
@@ -127,33 +136,33 @@ jobs:
 
       - name: Disable WebView state restoration (APK kill = fresh start)
         run: |
-          MAIN_ACTIVITY=
-          if [ -n "" ]; then
-            sed -i 's/super.onCreate(savedInstanceState)/super.onCreate(null)/' ""
-            echo "Patched  â†’ state restoration disabled"
+          MAIN_ACTIVITY=$(find frontend/android -name "MainActivity.java" | head -1)
+          if [ -n "$MAIN_ACTIVITY" ]; then
+            sed -i 's/super.onCreate(savedInstanceState)/super.onCreate(null)/' "$MAIN_ACTIVITY"
+            echo "Patched $MAIN_ACTIVITY → state restoration disabled"
           else
             echo "MainActivity.java not found!"
           fi
 
       - name: Enable cleartext traffic in AndroidManifest
         run: |
-          MANIFEST=
-          if [ -z "" ]; then echo "AndroidManifest.xml not found"; exit 0; fi
-          if grep -q 'usesCleartextTraffic' ""; then
+          MANIFEST=$(find frontend/android -name "AndroidManifest.xml" -path "*/main/*" | head -1)
+          if [ -z "$MANIFEST" ]; then echo "AndroidManifest.xml not found"; exit 0; fi
+          if grep -q 'usesCleartextTraffic' "$MANIFEST"; then
             echo "usesCleartextTraffic already set"
           else
             echo "Adding android:usesCleartextTraffic=\"true\" to <application>"
-            sed -i 's|<application|<application android:usesCleartextTraffic="true"|' ""
+            sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
           fi
 
       - name: Setup signing key (create if missing)
         run: |
           KEYSTORE="frontend/android/app/keystore.jks"
-          if [ -f "" ]; then
-            echo "Keystore already exists â€” reusing"
+          if [ -f "$KEYSTORE" ]; then
+            echo "Keystore already exists — reusing"
           else
             echo "Generating new keystore..."
-            keytool -genkey -v -keystore "" \
+            keytool -genkey -v -keystore "$KEYSTORE" \
               -alias sea_pirates -keyalg RSA -keysize 2048 -validity 10000 \
               -storepass seapirates -keypass seapirates \
               -dname "CN=SeaPirates, OU=Dev, O=SeaPirates, L=Istanbul, ST=Istanbul, C=TR"
@@ -161,6 +170,7 @@ jobs:
           fi
           echo "storePassword=seapirates" > frontend/android/key.properties
           echo "keyPassword=seapirates" >> frontend/android/key.properties
+
           echo "storeFile=keystore.jks" >> frontend/android/key.properties
 
           echo "Injecting signing config into build.gradle..."
@@ -174,6 +184,14 @@ jobs:
           ./gradlew bundleRelease --stacktrace 2>&1
           echo "::endgroup::"
 
+      - name: Extract certificate PEM for Play Console
+        run: |
+          keytool -exportcert -alias sea_pirates -keystore frontend/android/app/keystore.jks \
+            -storepass seapirates -rfc -file frontend/android/app/upload_certificate.pem
+          echo "=== Upload Certificate (PEM) ==="
+          cat frontend/android/app/upload_certificate.pem
+          echo "=== PEM saved ==="
+
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
@@ -182,3 +200,10 @@ jobs:
             frontend/android/app/build/outputs/bundle/release/app-release.aab
             frontend/android/app/keystore.jks
             frontend/playstore-icon.png
+
+      - name: Upload signing certificate separately
+        uses: actions/upload-artifact@v4
+        with:
+          name: upload-certificate
+          if-no-files-found: error
+          path: frontend/android/app/upload_certificate.pem
