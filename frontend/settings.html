@@ -534,6 +534,7 @@
         </div>
         <div class="logout-wrap">
           <button class="btn-danger" id="btn-logout"><span data-i18n="btn_logout" data-i18n-text>⚓ OTURUMU KAPAT</span></button>
+          <button class="btn-danger" id="btn-delete-account" style="margin-top:8px;background:linear-gradient(180deg,#6b0000,#3a0000);border-color:#8b0000;"><span data-i18n="btn_delete_account" data-i18n-text>🗑 HESABI SIL</span></button>
         </div>
       </div>
     </div>
@@ -698,6 +699,26 @@
     setTimeout(() => {
       goTo('index.html');
     }, 1500);
+  });
+
+  // --- Delete Account ---
+  const btnDeleteAccount = document.getElementById('btn-delete-account');
+  btnDeleteAccount.addEventListener('click', async () => {
+    if (!confirm(t('delete_account_confirm1'))) return;
+    const password = prompt(t('delete_account_confirm2'));
+    if (!password) return;
+    try {
+      const res = await API.post('/auth/delete-account', { password });
+      if (res && res.error) {
+        toastMsg(res.error, true);
+        return;
+      }
+      localStorage.clear();
+      sessionStorage.clear();
+      goTo('index.html');
+    } catch (e) {
+      toastMsg(t('server_error'), true);
+    }
   });
 
   // --- Toast ---

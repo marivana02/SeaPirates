@@ -168,6 +168,11 @@ I18N_DATA['tr'] = {
     username_length_error: 'Kullanıcı adı 3-30 karakter arasında olmalıdır.',
     username_error: 'Kullanıcı adı değiştirilemedi!',
     logout_msg: 'Başarıyla çıkış yapıldı.',
+    btn_delete_account: '🗑 HESABI SİL',
+    delete_account_confirm1: 'Emin misiniz? Hesabınız ve tüm verileriniz kalıcı olarak silinecektir.',
+    delete_account_confirm2: 'Hesap silme işlemini onaylamak için şifrenizi girin:',
+    modal_delete_title: 'Hesabı Sil',
+    account_deleted: 'Hesap başarıyla silindi.',
 
     // Toast Messages
     toast_sound_updated: 'Ses ayarları güncellendi.',

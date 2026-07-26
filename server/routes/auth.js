@@ -179,4 +179,48 @@ router.post('/logout', authMiddleware, asyncHandler(async (req, res) => {
   }
 }));
 
+// Hesap silme: şifre doğrulaması ile tüm veriyi temizle
+router.post('/delete-account', authMiddleware, asyncHandler(async (req, res) => {
+  const playerId = req.player.id;
+  const { password } = req.body;
+
+  if (!password) {
+    return response.badRequest(res, 'Password is required');
+  }
+
+  const pwRes = await pool.query('SELECT password FROM players WHERE id = $1', [playerId]);
+  if (pwRes.rows.length === 0) {
+    return response.badRequest(res, 'Account not found');
+  }
+
+  const valid = await bcrypt.compare(password, pwRes.rows[0].password);
+  if (!valid) {
+    return response.badRequest(res, 'Incorrect password');
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('DELETE FROM active_fights WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM fcm_tokens WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM player_cannons WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM player_ammo WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM player_items WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM player_planks WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM action_logs WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM admiral_damage WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM tiamat_damage WHERE player_id = $1', [playerId]);
+    await client.query('DELETE FROM players WHERE id = $1', [playerId]);
+    await client.query('COMMIT');
+    logAction(playerId, 'delete_account', {}, req.ip);
+    response.success(res, { message: 'Account deleted successfully' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Delete account error:', err);
+    response.error(res, 'Server error during account deletion', 500);
+  } finally {
+    client.release();
+  }
+}));
+
 module.exports = router;
