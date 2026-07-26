@@ -53,6 +53,59 @@
     alertOverlay.classList.add('show');
   };
 
+  window.showConfirmModal = function (message, title = 'SEAPIRATES') {
+    return new Promise(function (resolve) {
+      var overlay = document.createElement('div');
+      overlay.className = 'sp-alert-overlay';
+      overlay.style.display = 'flex';
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'auto';
+      overlay.innerHTML =
+        '<div class="sp-alert-card" style="max-width:360px;">' +
+          '<div class="sp-alert-header" style="font-size:1rem;">⚠️ ' + title.toUpperCase() + '</div>' +
+          '<div class="sp-alert-body" style="font-size:0.85rem;">' + message + '</div>' +
+          '<div class="sp-alert-footer" style="gap:10px;">' +
+            '<button class="sp-alert-btn" id="sp-confirm-cancel" style="background:linear-gradient(180deg,#555,#333);box-shadow:none;">' + (typeof t === 'function' ? t('modal_cancel') : 'CANCEL') + '</button>' +
+            '<button class="sp-alert-btn" id="sp-confirm-ok" style="background:linear-gradient(180deg,#c0392b,#96281b);box-shadow:0 4px 12px rgba(192,57,43,0.3);">' + (typeof t === 'function' ? t('modal_delete_title') : 'DELETE') + '</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) { overlay.remove(); resolve(false); } });
+      document.getElementById('sp-confirm-cancel').addEventListener('click', function () { overlay.remove(); resolve(false); });
+      document.getElementById('sp-confirm-ok').addEventListener('click', function () { overlay.remove(); resolve(true); });
+    });
+  };
+
+  window.showPromptModal = function (message, title = 'SEAPIRATES', isPassword) {
+    return new Promise(function (resolve) {
+      var overlay = document.createElement('div');
+      overlay.className = 'sp-alert-overlay';
+      overlay.style.display = 'flex';
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'auto';
+      overlay.innerHTML =
+        '<div class="sp-alert-card" style="max-width:360px;">' +
+          '<div class="sp-alert-header">⚓ ' + title.toUpperCase() + '</div>' +
+          '<div class="sp-alert-body" style="text-align:left;">' +
+            '<label style="display:block;font-size:0.8rem;color:var(--txt-dim);margin-bottom:6px;">' + message + '</label>' +
+            '<input type="' + (isPassword ? 'password' : 'text') + '" id="sp-prompt-input" style="width:100%;padding:10px 12px;background:#0d1321;border:1px solid #2a3a5c;border-radius:6px;color:#e0e0e0;font-size:14px;outline:none;" autocomplete="off">' +
+          '</div>' +
+          '<div class="sp-alert-footer" style="gap:10px;">' +
+            '<button class="sp-alert-btn" id="sp-prompt-cancel" style="background:linear-gradient(180deg,#555,#333);box-shadow:none;">' + (typeof t === 'function' ? t('modal_cancel') : 'CANCEL') + '</button>' +
+            '<button class="sp-alert-btn" id="sp-prompt-ok">' + (typeof t === 'function' ? t('modal_close') : 'OK') + '</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(overlay);
+      var input = document.getElementById('sp-prompt-input');
+      setTimeout(function () { input.focus(); }, 50);
+      function done(val) { overlay.remove(); resolve(val); }
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) { done(null); } });
+      document.getElementById('sp-prompt-cancel').addEventListener('click', function () { done(null); });
+      document.getElementById('sp-prompt-ok').addEventListener('click', function () { done(input.value || null); });
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { done(input.value || null); } });
+    });
+  };
+
   /* Kalp atışı (1sn) — sp_session_ts her zaman tazele (auth.js olmayan sayfalar için de) */
   window._pageIntervals.push(setInterval(function() {
     var now = Date.now();

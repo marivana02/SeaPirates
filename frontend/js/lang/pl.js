@@ -270,6 +270,7 @@ I18N_DATA['pl'] = {
     bottom_privacy: 'Polityka Prywatności',
     bottom_terms: 'Warunki Korzystania',
     modal_close: 'OK',
+    modal_cancel: 'ANULUJ',
 
     // Exit Confirm
     exit_confirm_title: 'WYJŚCIE Z APLIKACJI',

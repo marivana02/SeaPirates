@@ -270,6 +270,7 @@ I18N_DATA['pt'] = {
     bottom_privacy: 'Política de Privacidade',
     bottom_terms: 'Termos de Uso',
     modal_close: 'OK',
+    modal_cancel: 'CANCELAR',
 
     // Exit Confirm
     exit_confirm_title: 'SAIR DO APP',

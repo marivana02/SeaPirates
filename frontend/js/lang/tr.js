@@ -271,6 +271,7 @@ I18N_DATA['tr'] = {
     bottom_privacy: 'Gizlilik Politikası',
     bottom_terms: 'Kullanım Şartları',
     modal_close: 'Tamam',
+    modal_cancel: 'İPTAL',
 
     // Exit Confirm
     exit_confirm_title: 'UYGULAMADAN ÇIK',

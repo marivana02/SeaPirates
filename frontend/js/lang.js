@@ -223,6 +223,7 @@ I18N_DATA['en'] = {
     bottom_privacy: 'Privacy Policy',
     bottom_terms: 'Terms of Service',
     modal_close: 'OK',
+    modal_cancel: 'CANCEL',
     exit_confirm_title: 'EXIT APP',
     exit_confirm_msg: 'Are you sure you want to exit?',
     exit_confirm_yes: 'YES',

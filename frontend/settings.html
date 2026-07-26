@@ -704,8 +704,9 @@
   // --- Delete Account ---
   const btnDeleteAccount = document.getElementById('btn-delete-account');
   btnDeleteAccount.addEventListener('click', async () => {
-    if (!confirm(t('delete_account_confirm1'))) return;
-    const password = prompt(t('delete_account_confirm2'));
+    const confirmed = await window.showConfirmModal(t('delete_account_confirm1'), t('modal_delete_title'));
+    if (!confirmed) return;
+    const password = await window.showPromptModal(t('delete_account_confirm2'), t('modal_delete_title'), true);
     if (!password) return;
     try {
       const res = await API.post('/auth/delete-account', { password });
