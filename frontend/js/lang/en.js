@@ -589,7 +589,7 @@ I18N_DATA['en'] = {
     tower_damage: 'Tower Damage',
     tower_reward: 'Reward:',
     tower_attack: 'START ATTACK',
-    tower_done: 'TODAY''S DONE',
+    tower_done: "TODAY'S DONE",
     tower_req_level: 'You must be at least <b>Level 5 (Lvl 5)</b> to participate in Tower Battles!<br>Your current level: Lvl {val}',
     tower_daily_used: 'You have used your daily tower attack.<br>Try the next tower (<b>Lvl {val}</b>) tomorrow!',
     tower_status_info: 'Your tower level is set to <b>Lvl {val}</b>.<br>You can only attack once per day!',

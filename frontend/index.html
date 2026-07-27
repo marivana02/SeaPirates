@@ -534,16 +534,16 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
       <!-- LOGIN PANEL -->
       <div class="panel active" id="panel-login">
-
+        <form autocomplete="off" onsubmit="doLogin();return false">
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>
+          <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" data-form-type="other" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>
         </div>
         <span class="err" id="l-user-err" data-i18n="login_error_fields">Username is required.</span>
 
         <div class="field">
           <span class="field-icon">🔒</span>
-          <input type="password" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" autocomplete="current-password"/>
+          <input type="password" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" data-form-type="other" readonly onfocus="this.removeAttribute('readonly')"/>
         </div>
         <span class="err" id="l-pass-err" data-i18n="login_error_fields">Password is required.</span>
 
@@ -560,27 +560,27 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
           <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>⚓ &nbsp;Login</span></span>
           <div class="spinner"></div>
         </button>
-
+        </form>
       </div>
 
       <!-- REGISTER PANEL -->
       <div class="panel" id="panel-register">
-
+        <form autocomplete="off" onsubmit="doRegister();return false">
         <div class="field">
           <span class="field-icon">👤</span>
-          <input type="text" id="r-user" placeholder="Username (5-12 characters)" data-i18n-placeholder="username_placeholder" autocomplete="username" autocapitalize="none" minlength="5" maxlength="12" oninput="liveValidUser(this)"/>
+          <input type="text" id="r-user" placeholder="Username (5-12 characters)" data-i18n-placeholder="username_placeholder" data-form-type="other" autocapitalize="none" minlength="5" maxlength="12" oninput="liveValidUser(this)"/>
         </div>
         <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 characters, use letters/numbers/_.</span>
 
         <div class="field">
           <span class="field-icon">📧</span>
-          <input type="email" id="r-email" placeholder="Email address" data-i18n-placeholder="email_placeholder" autocomplete="email"/>
+          <input type="email" id="r-email" placeholder="Email address" data-i18n-placeholder="email_placeholder" data-form-type="other" autocapitalize="off"/>
         </div>
         <span class="err" id="r-email-err" data-i18n="reg_error_email">Enter a valid email address.</span>
 
         <div class="field">
           <span class="field-icon">🔒</span>
-          <input type="password" id="r-pass" placeholder="Password (min. 6 chars)" data-i18n-placeholder="password_placeholder" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+          <input type="password" id="r-pass" placeholder="Password (min. 6 chars)" data-i18n-placeholder="password_placeholder" data-form-type="other" readonly onfocus="this.removeAttribute('readonly')" oninput="checkStrength(this.value)"/>
         </div>
         <span class="err" id="r-pass-err" data-i18n="reg_error_password">Password must be at least 6 characters.</span>
 
@@ -594,7 +594,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
         <div class="field">
           <span class="field-icon">🔐</span>
-          <input type="password" id="r-pass2" placeholder="Confirm password" data-i18n-placeholder="repassword_placeholder" autocomplete="new-password"/>
+          <input type="password" id="r-pass2" placeholder="Confirm password" data-i18n-placeholder="repassword_placeholder" data-form-type="other" readonly onfocus="this.removeAttribute('readonly')"/>
         </div>
         <span class="err" id="r-pass2-err" data-i18n="reg_error_pass2">Passwords do not match.</span>
 
@@ -610,7 +610,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
           <span class="btn-txt"><span data-i18n="btn_register" data-i18n-text>⚔ &nbsp;Become a Pirate</span></span>
           <div class="spinner"></div>
         </button>
-
+        </form>
       </div>
     </div>
 
