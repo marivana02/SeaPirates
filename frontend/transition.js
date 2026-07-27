@@ -88,7 +88,7 @@
           '<div class="sp-alert-header">⚓ ' + title.toUpperCase() + '</div>' +
           '<div class="sp-alert-body" style="text-align:left;">' +
             '<label style="display:block;font-size:0.8rem;color:var(--txt-dim);margin-bottom:6px;">' + message + '</label>' +
-            '<input type="' + (isPassword ? 'password' : 'text') + '" id="sp-prompt-input" style="width:100%;padding:10px 12px;background:#0d1321;border:1px solid #2a3a5c;border-radius:6px;color:#e0e0e0;font-size:14px;outline:none;" autocomplete="off">' +
+            '<input type="' + (isPassword ? 'text' : 'text') + '" id="sp-prompt-input" style="width:100%;padding:10px 12px;background:#0d1321;border:1px solid #2a3a5c;border-radius:6px;color:#e0e0e0;font-size:14px;outline:none;' + (isPassword ? '-webkit-text-security:disc;' : '') + '" autocomplete="off">' +
           '</div>' +
           '<div class="sp-alert-footer" style="gap:10px;">' +
             '<button class="sp-alert-btn" id="sp-prompt-cancel" style="background:linear-gradient(180deg,#555,#333);box-shadow:none;">' + (typeof t === 'function' ? t('modal_cancel') : 'CANCEL') + '</button>' +
