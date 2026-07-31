@@ -170,13 +170,13 @@ jobs:
 
       - name: Set version 1.0.1
         run: |
-          VG="frontend/android/variables.gradle"
-          if [ -f "$VG" ]; then
-            sed -i 's/^versionName.*/versionName = "1.0.1"/' "$VG"
-            sed -i 's/^versionCode.*/versionCode = 2/' "$VG"
-            echo "variables.gradle: $(grep -E 'version(Name|Code)' $VG)"
+          BG="frontend/android/app/build.gradle"
+          if [ -f "$BG" ]; then
+            sed -i 's/versionCode [0-9]*/versionCode 2/' "$BG"
+            sed -i 's/versionName "[^"]*"/versionName "1.0.1"/' "$BG"
+            echo "build.gradle: $(grep -E 'version(Name|Code)' $BG)"
           else
-            echo "WARNING: variables.gradle not found"
+            echo "WARNING: app/build.gradle not found"
           fi
 
       - name: Setup signing key (create if missing)
