@@ -168,6 +168,17 @@ jobs:
             sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
           fi
 
+      - name: Set version 1.0.1
+        run: |
+          VG="frontend/android/variables.gradle"
+          if [ -f "$VG" ]; then
+            sed -i 's/^versionName.*/versionName = "1.0.1"/' "$VG"
+            sed -i 's/^versionCode.*/versionCode = 2/' "$VG"
+            echo "variables.gradle: $(grep -E 'version(Name|Code)' $VG)"
+          else
+            echo "WARNING: variables.gradle not found"
+          fi
+
       - name: Setup signing key (create if missing)
         run: |
           KEYSTORE="frontend/android/app/keystore.jks"
