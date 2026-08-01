@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
-  <title>SeaPirates — Sea Map</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet" />
+  <title>SeaPirates ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Sea Map</title>
+  <link rel="stylesheet" href="fonts.css?v=1">
   <link rel="stylesheet" href="style.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -399,7 +397,7 @@
     .npc-stat-val.loot {
       color: var(--gold-p);
     }
-    .btn-npc-saldır {
+    .btn-npc-saldÃƒâ€žÃ‚Â±r {
       padding: 8px 14px;
       background: linear-gradient(180deg, #e74c3c 0%, #962d22 100%);
       border: 1.5px solid #ff7675;
@@ -417,7 +415,7 @@
       z-index: 1;
       transition: filter 0.15s;
     }
-    .btn-npc-saldır:hover {
+    .btn-npc-saldÃƒâ€žÃ‚Â±r:hover {
       filter: brightness(1.1);
     }
 
@@ -943,7 +941,7 @@
     .boss-reward-prizes .pearl { color: #a78bfa; }
     .boss-reward-prizes .ammo { color: #f97316; }
 
-    .btn-boss-saldır {
+    .btn-boss-saldÃƒâ€žÃ‚Â±r {
       background: linear-gradient(180deg, var(--gold) 0%, #8a5e14 100%);
       color: #1c1005;
       border: 2px solid var(--gold-p);
@@ -960,15 +958,15 @@
       transition: filter 0.2s, transform 0.1s;
     }
 
-    .btn-boss-saldır:hover {
+    .btn-boss-saldÃƒâ€žÃ‚Â±r:hover {
       filter: brightness(1.1);
     }
 
-    .btn-boss-saldır:active {
+    .btn-boss-saldÃƒâ€žÃ‚Â±r:active {
       transform: scale(0.96);
     }
 
-    .btn-boss-saldır:disabled {
+    .btn-boss-saldÃƒâ€žÃ‚Â±r:disabled {
       filter: grayscale(0.8) brightness(0.6);
       cursor: not-allowed;
     }
@@ -1043,11 +1041,11 @@
     
     <!-- TOP HEADER: DUAL NAVIGATION BAR -->
     <div class="top-header">
-      <button class="nav-arrow-btn" id="btn-prev-map">◀</button>
+      <button class="nav-arrow-btn" id="btn-prev-map">ÃƒÂ¢Ã¢â‚¬â€Ã¢â€šÂ¬</button>
       <div class="map-title-box">
         <div class="map-coordinate-title" id="lbl-current-map">1-1</div>
       </div>
-      <button class="nav-arrow-btn" id="btn-next-map">▶</button>
+      <button class="nav-arrow-btn" id="btn-next-map">ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â¶</button>
     </div>
 
     <!-- ADMIRAL SPAWN NOTIFICATION -->
@@ -1076,7 +1074,7 @@
         </span>
         <span class="action-card-lbl" data-i18n="page_pvp">PVP</span>
         <div class="lock-overlay" id="pvp-lock-overlay" style="display:none;">
-          <span class="lock-icon">🔒</span>
+          <span class="lock-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢</span>
           <span class="lock-label">10 Level</span>
         </div>
       </a>
@@ -1120,7 +1118,7 @@
               <div id="npc-panel-loot-box" style="display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:6px;">-</div>
             </div>
           </div>
-          <button class="btn-npc-saldır" id="btn-saldır-trigger"><img src="assets/ui/actionmenu/attack.png" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack" data-i18n-text>SALDIR</span></button>
+          <button class="btn-npc-saldÃƒâ€žÃ‚Â±r" id="btn-saldÃƒâ€žÃ‚Â±r-trigger"><img src="assets/ui/actionmenu/attack.png" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack" data-i18n-text>SALDIR</span></button>
         </div>
       </div>
     </div>
@@ -1174,9 +1172,9 @@
 
         <!-- Navigation column stack -->
         <div class="nav-actions-stack">
-          <button class="stack-btn" onclick="goTo('home.html')"><span data-i18n="btn_harbor" data-i18n-text>🏠 Ana Sayfa</span></button>
-          <button class="stack-btn" id="btn-tamir"><span data-i18n="btn_repair" data-i18n-text>🔨 Tamir</span></button>
-          <button class="stack-btn" onclick="goTo('equipment.html')"><span data-i18n="btn_equipment" data-i18n-text>⚔️ Ekipman</span></button>
+          <button class="stack-btn" onclick="goTo('home.html')"><span data-i18n="btn_harbor" data-i18n-text>ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â  Ana Sayfa</span></button>
+          <button class="stack-btn" id="btn-tamir"><span data-i18n="btn_repair" data-i18n-text>ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â¨ Tamir</span></button>
+          <button class="stack-btn" onclick="goTo('equipment.html')"><span data-i18n="btn_equipment" data-i18n-text>ÃƒÂ¢Ã…Â¡Ã¢â‚¬ÂÃƒÂ¯Ã‚Â¸Ã‚Â Ekipman</span></button>
         </div>
       </div>
     </div>
@@ -1190,47 +1188,47 @@
   <div class="boss-modal-overlay" id="boss-modal">
     <div class="boss-modal-content" style="position:relative;overflow:hidden;">
       <img src="assets/enemies/BOSS/boss.png" style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:260px;opacity:0.45;pointer-events:none;z-index:0;">
-      <button class="boss-modal-close" id="btn-close-boss-modal">✕</button>
-      <div class="boss-modal-title" style="position:relative;z-index:1;">☠️ <span data-i18n="weekly_boss_title">LEVIATHAN</span></div>
-      <div class="boss-modal-subtitle" style="position:relative;z-index:1;" data-i18n="boss_subtitle">⚓ Weekly Admiral Hunt</div>
+      <button class="boss-modal-close" id="btn-close-boss-modal">ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢</button>
+      <div class="boss-modal-title" style="position:relative;z-index:1;">ÃƒÂ¢Ã‹Å“Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â <span data-i18n="weekly_boss_title">LEVIATHAN</span></div>
+      <div class="boss-modal-subtitle" style="position:relative;z-index:1;" data-i18n="boss_subtitle">ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ Weekly Admiral Hunt</div>
       <div class="boss-modal-info" id="boss-modal-status-info" style="position:relative;z-index:1;">
-        ⚠️ Can attack once daily. Loading...
+        ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Can attack once daily. Loading...
       </div>
 
-      <div class="boss-section-title" data-i18n="boss_section_title">🏴‍☠️ Highest Damage Rankings</div>
+      <div class="boss-section-title" data-i18n="boss_section_title">ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â´ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã‹Å“Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Highest Damage Rankings</div>
       <div class="boss-ranking-list" id="boss-ranking-list">
-        <div style="text-align:center; color:var(--txt-d); padding:12px; font-size:0.7rem;">⏳ Loading rankings...</div>
+        <div style="text-align:center; color:var(--txt-d); padding:12px; font-size:0.7rem;">ÃƒÂ¢Ã‚ÂÃ‚Â³ Loading rankings...</div>
       </div>
 
 
 
-      <button class="btn-boss-saldır" id="btn-boss-saldır-real"><img src="assets/ui/actionmenu/attack.png" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack">ATTACK</span></button>
+      <button class="btn-boss-saldÃƒâ€žÃ‚Â±r" id="btn-boss-saldÃƒâ€žÃ‚Â±r-real"><img src="assets/ui/actionmenu/attack.png" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack">ATTACK</span></button>
     </div>
   </div>
 
   <!-- TIAMAT MODAL -->
   <div class="boss-modal-overlay" id="tiamat-modal">
     <div class="boss-modal-content" style="position:relative;">
-      <button class="boss-modal-close" id="btn-close-tiamat-modal">✕</button>
+      <button class="boss-modal-close" id="btn-close-tiamat-modal">ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢</button>
       <div class="boss-modal-title">TIAMAT</div>
       <div style="text-align:center;padding:10px 0;font-size:0.85rem;line-height:2;">
-        <div><span style="color:#e74c3c;">❤️</span> 12,000,000 HP</div>
+        <div><span style="color:#e74c3c;">ÃƒÂ¢Ã‚ÂÃ‚Â¤ÃƒÂ¯Ã‚Â¸Ã‚Â</span> 12,000,000 HP</div>
         <div><img src="assets/ui/actionmenu/attack.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px;"> 3,800 DMG</div>
         <div><img src="assets/ui/pearl.png" style="width:16px;height:16px;vertical-align:middle;margin-right:2px;"> 38,000 Pearl</div>
       </div>
-      <button class="btn-boss-saldır" id="btn-tiamat-saldir"><img src="assets/ui/actionmenu/attack.png" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack">ATTACK</span></button>
+      <button class="btn-boss-saldÃƒâ€žÃ‚Â±r" id="btn-tiamat-saldir"><img src="assets/ui/actionmenu/attack.png" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack">ATTACK</span></button>
     </div>
   </div>
 
   <!-- ADMIRAL REWARD WARNING MODAL -->
   <div class="boss-modal-overlay" id="admiral-warning-modal" style="display:none;">
     <div class="boss-modal-content" style="position:relative;overflow:hidden;max-width:360px;padding:20px;">
-      <button class="boss-modal-close" id="btn-close-admiral-warning">✕</button>
+      <button class="boss-modal-close" id="btn-close-admiral-warning">ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢</button>
       <div class="boss-modal-info" id="admiral-warning-text" style="position:relative;z-index:1;font-size:0.78rem;line-height:1.6;text-align:center;padding:16px 0 6px;color:var(--txt);">
       </div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;position:relative;z-index:1;">
-        <button class="btn-boss-saldır" id="btn-admiral-warning-cancel" style="background:rgba(80,30,30,0.85);"><span data-i18n="btn_back">🔙 Geri Dön</span></button>
-        <button class="btn-boss-saldır" id="btn-admiral-warning-continue" style="background:rgba(30,60,30,0.85);">⚔️ <span data-i18n="btn_attack_anyway">Yine de Saldır</span></button>
+        <button class="btn-boss-saldÃƒâ€žÃ‚Â±r" id="btn-admiral-warning-cancel" style="background:rgba(80,30,30,0.85);"><span data-i18n="btn_back">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â€žÂ¢ Geri DÃƒÆ’Ã‚Â¶n</span></button>
+        <button class="btn-boss-saldÃƒâ€žÃ‚Â±r" id="btn-admiral-warning-continue" style="background:rgba(30,60,30,0.85);">ÃƒÂ¢Ã…Â¡Ã¢â‚¬ÂÃƒÂ¯Ã‚Â¸Ã‚Â <span data-i18n="btn_attack_anyway">Yine de SaldÃƒâ€žÃ‚Â±r</span></button>
       </div>
     </div>
   </div>
@@ -1238,14 +1236,14 @@
   <!-- NO-CANNON MODAL -->
   <div class="nocannon-overlay" id="nocannon-modal">
     <div class="nocannon-box">
-      <div class="nocannon-icon">⚓</div>
+      <div class="nocannon-icon">ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“</div>
       <div class="nocannon-title" data-i18n="fight_no_cannons_title">NO CANNONS EQUIPPED!</div>
       <div class="nocannon-desc" data-i18n="fight_no_cannons_desc">
         You must equip at least <b>1 cannon</b> to enter battle.<br><br>
         Equip cannons from the <b>Equipment</b> screen.
       </div>
       <div class="nocannon-actions">
-        <button class="nocannon-btn primary" id="nocannon-goto-equip" data-i18n="fight_btn_go_equipment">⚔️ GO TO EQUIPMENT</button>
+        <button class="nocannon-btn primary" id="nocannon-goto-equip" data-i18n="fight_btn_go_equipment">ÃƒÂ¢Ã…Â¡Ã¢â‚¬ÂÃƒÂ¯Ã‚Â¸Ã‚Â GO TO EQUIPMENT</button>
         <button class="nocannon-btn secondary" id="nocannon-close" data-i18n="fight_btn_go_back">Go Back</button>
       </div>
     </div>
@@ -1258,6 +1256,6 @@
   <script src="js/map.js?v=1"></script>
   <script src="effects/clouds.js?v=1"></script>
   <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
-  <script src="transition.js?v=10"></script>
+  <script src="transition.js?v=11"></script>
 </body>
 </html>

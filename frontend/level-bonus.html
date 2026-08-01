@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <title>SeaPirates — Level Bonus</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <title>SeaPirates ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Level Bonus</title>
+  <link rel="stylesheet" href="fonts.css?v=1">
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="transition.js?v=10"></script>
+  <script src="transition.js?v=11"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -696,7 +696,7 @@
       padding:3px 0;
       display:flex;align-items:center;gap:6px;
     }
-    .magaza-perk::before { content:'✨';font-size:0.7rem; }
+    .magaza-perk::before { content:'ÃƒÂ¢Ã…â€œÃ‚Â¨';font-size:0.7rem; }
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -708,15 +708,15 @@
 
 <div class="page">
   <div class="top-bar">
-    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
+    <a href="menu.html" class="btn-back"><span data-i18n="btn_back" data-i18n-text>ÃƒÂ¢Ã¢â‚¬â€Ã¢â€šÂ¬ BACK</span></a>
     <div class="page-title"><span data-i18n="page_level_bonus" data-i18n-text>LEVEL BONUS</span></div>
     <div style="width:44px;"></div>
   </div>
   <div class="body">
     <!-- STATS -->
     <div class="info-row">
-      <div class="info-box"><div class="l" data-i18n="level_label">⭐ Seviye</div><div class="v" id="lvl-val">1</div></div>
-      <div class="info-box"><div class="l" data-i18n="level_unlocked">🎯 Unlocked</div><div class="v" id="open-val">1 <span data-i18n="level_lvl">level</span></div></div>
+      <div class="info-box"><div class="l" data-i18n="level_label">ÃƒÂ¢Ã‚Â­Ã‚Â Seviye</div><div class="v" id="lvl-val">1</div></div>
+      <div class="info-box"><div class="l" data-i18n="level_unlocked">ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Unlocked</div><div class="v" id="open-val">1 <span data-i18n="level_lvl">level</span></div></div>
       <div class="info-box vip-status-box" id="vip-box">
         <div class="l" data-i18n="level_vip_status">VIP Status</div>
         <div class="v" id="vip-val" data-i18n="vip_status_off">NOT ACTIVE</div>
@@ -829,7 +829,7 @@
       const norm = LV_normal[i - 1];
       const vip = LV_vip[i - 1];
 
-      // ── NORMAL CARD ──
+      // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ NORMAL CARD ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
       const isNormClaimed = claimedNormal[norm.l];
       const isNormUnlocked = norm.l <= playerLv;
       const isNormAvailable = isNormUnlocked && !isNormClaimed;
@@ -853,8 +853,8 @@
       }
 
       let normBadgeHTML = '';
-      if (isNormClaimed) normBadgeHTML = `<div class="day-badge claimed">✓</div>`;
-      else if (!isNormUnlocked) normBadgeHTML = `<div class="day-badge locked">🔒</div>`;
+      if (isNormClaimed) normBadgeHTML = `<div class="day-badge claimed">ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“</div>`;
+      else if (!isNormUnlocked) normBadgeHTML = `<div class="day-badge locked">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢</div>`;
 
       // Localize text
       let normText = norm.text;
@@ -863,7 +863,7 @@
       normCard.innerHTML = `
         <div class="day-header">
           <div class="lv-badge"><span class="lv-num">${norm.l}</span></div>
-          <div class="lv-lbl">${norm.x ? '★ BONUS' : t('ships_level') + ' ' + norm.l}</div>
+          <div class="lv-lbl">${norm.x ? 'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â¦ BONUS' : t('ships_level') + ' ' + norm.l}</div>
         </div>
         <div class="lv-rwd-container">
           ${normImgHTML}
@@ -881,7 +881,7 @@
         normCard.onclick = () => claimReward('normal', norm.l);
       }
 
-      // ── VIP CARD ──
+      // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ VIP CARD ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
       const isVipClaimed = claimedVip[vip.l];
       const isVipUnlocked = vip.l <= playerLv;
       const isVipAvailable = isVipUnlocked && !isVipClaimed && isVip;
@@ -906,9 +906,9 @@
       }
 
       let vipBadgeHTML = '';
-      if (isVipClaimed) vipBadgeHTML = `<div class="day-badge claimed">✓</div>`;
+      if (isVipClaimed) vipBadgeHTML = `<div class="day-badge claimed">ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“</div>`;
       else if (isVipAvailable) vipBadgeHTML = `<div class="day-badge claimed" style="background:#c8962a"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""></div>`;
-      else vipBadgeHTML = `<div class="day-badge locked-vip">🔒</div>`;
+      else vipBadgeHTML = `<div class="day-badge locked-vip">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢</div>`;
 
       // Localize text
       let vipText = vip.text;
@@ -981,7 +981,7 @@
 
   init();
 
-  // ── VIP Pricing (auto currency via IP) ──
+  // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ VIP Pricing (auto currency via IP) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
   let vipPrices = null;
   let vipCurrencies = null;
   let currentCurrency = 'TRY';
@@ -1004,7 +1004,7 @@
   }
 
   function updateVipPrices() {
-    const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
+    const sym = vipCurrencies?.symbols[currentCurrency] || 'ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº';
     document.querySelectorAll('#vip-modal-level .magaza-card-price').forEach(el => {
       const plan = parseInt(el.dataset.plan);
       if (vipPrices?.[plan]) el.textContent = `${vipPrices[plan][currentCurrency]} ${sym}`;
@@ -1027,7 +1027,7 @@
       e.stopPropagation();
       const plan = btn.dataset.plan;
       const type = btn.dataset.type;
-      const sym = vipCurrencies?.symbols[currentCurrency] || '₺';
+      const sym = vipCurrencies?.symbols[currentCurrency] || 'ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº';
       const price = vipPrices?.[plan]?.[currentCurrency] || '?';
       alert(t('payment_coming_soon', { type: type === 'vip' ? t('vip_pack') : t('starter_pack'), plan }));
     });
@@ -1037,49 +1037,49 @@
 <!-- VIP Purchase Modal -->
 <div class="magaza-overlay" id="vip-modal-level" onclick="if(event.target===this)this.style.display='none'">
   <div class="magaza-modal">
-    <button class="magaza-close" id="btn-close-vip-level" onclick="document.getElementById('vip-modal-level').style.display='none'">✕</button>
+    <button class="magaza-close" id="btn-close-vip-level" onclick="document.getElementById('vip-modal-level').style.display='none'">ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢</button>
     <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack">VIP PAKETLER</span></div>
-    <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
+    <div class="magaza-sub" data-i18n="vip_sub">AyrÃƒâ€žÃ‚Â±calÃƒâ€žÃ‚Â±klÃƒâ€žÃ‚Â± bir korsan olmak iÃƒÆ’Ã‚Â§in hemen satÃƒâ€žÃ‚Â±n al!</div>
     <div class="magaza-cards">
       <div class="magaza-card">
         <div class="magaza-card-info">
           <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>
-          <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayrıcalıkları</span>
+          <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gÃƒÆ’Ã‚Â¼n VIP ayrÃƒâ€žÃ‚Â±calÃƒâ€žÃ‚Â±klarÃƒâ€žÃ‚Â±</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="magaza-card-price" data-plan="7">99 ₺</span>
+          <span class="magaza-card-price" data-plan="7">99 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
           <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
         </div>
       </div>
       <div class="magaza-card">
         <div class="magaza-card-info">
           <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>
-          <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayrıcalıkları (en popüler)</span>
+          <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gÃƒÆ’Ã‚Â¼n VIP ayrÃƒâ€žÃ‚Â±calÃƒâ€žÃ‚Â±klarÃƒâ€žÃ‚Â± (en popÃƒÆ’Ã‚Â¼ler)</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="magaza-card-price" data-plan="30">249 ₺</span>
+          <span class="magaza-card-price" data-plan="30">249 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
           <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
         </div>
       </div>
       <div class="magaza-card">
         <div class="magaza-card-info">
           <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>
-          <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayrıcalıkları (en avantajlı)</span>
+          <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gÃƒÆ’Ã‚Â¼n VIP ayrÃƒâ€žÃ‚Â±calÃƒâ€žÃ‚Â±klarÃƒâ€žÃ‚Â± (en avantajlÃƒâ€žÃ‚Â±)</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="magaza-card-price" data-plan="90">599 ₺</span>
+          <span class="magaza-card-price" data-plan="90">599 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
           <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Buy Now</span></button>
         </div>
       </div>
     </div>
     <div class="magaza-perks">
       <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
-      <div class="magaza-perk" data-i18n="vip_perk_repair">×2 Onarım Hızı — Savaşta gemini 2 kat hızlı onarırsın</div>
-      <div class="magaza-perk" data-i18n="vip_perk_daily">VIP Günlük Ödüller — 30 günlük özel premium ödül takvimi</div>
-      <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödülleri — Her seviye atlayışında kat kat fazla ödül</div>
-      <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvası — Aynı anda 2 görev alabilirsin</div>
-      <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Doğ — Battığında max canının %10'u ile başlarsın</div>
-      <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 Dükkan İndirimi — Dükkandaki tüm ürünlerde %10 indirim</div>
+      <div class="magaza-perk" data-i18n="vip_perk_repair">ÃƒÆ’Ã¢â‚¬â€2 OnarÃƒâ€žÃ‚Â±m HÃƒâ€žÃ‚Â±zÃƒâ€žÃ‚Â± ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â SavaÃƒâ€¦Ã…Â¸ta gemini 2 kat hÃƒâ€žÃ‚Â±zlÃƒâ€žÃ‚Â± onarÃƒâ€žÃ‚Â±rsÃƒâ€žÃ‚Â±n</div>
+      <div class="magaza-perk" data-i18n="vip_perk_daily">VIP GÃƒÆ’Ã‚Â¼nlÃƒÆ’Ã‚Â¼k ÃƒÆ’Ã¢â‚¬â€œdÃƒÆ’Ã‚Â¼ller ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 30 gÃƒÆ’Ã‚Â¼nlÃƒÆ’Ã‚Â¼k ÃƒÆ’Ã‚Â¶zel premium ÃƒÆ’Ã‚Â¶dÃƒÆ’Ã‚Â¼l takvimi</div>
+      <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye ÃƒÆ’Ã¢â‚¬â€œdÃƒÆ’Ã‚Â¼lleri ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Her seviye atlayÃƒâ€žÃ‚Â±Ãƒâ€¦Ã…Â¸Ãƒâ€žÃ‚Â±nda kat kat fazla ÃƒÆ’Ã‚Â¶dÃƒÆ’Ã‚Â¼l</div>
+      <div class="magaza-perk" data-i18n="vip_perk_quest">2. GÃƒÆ’Ã‚Â¶rev YuvasÃƒâ€žÃ‚Â± ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â AynÃƒâ€žÃ‚Â± anda 2 gÃƒÆ’Ã‚Â¶rev alabilirsin</div>
+      <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden DoÃƒâ€žÃ…Â¸ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â BattÃƒâ€žÃ‚Â±Ãƒâ€žÃ…Â¸Ãƒâ€žÃ‚Â±nda max canÃƒâ€žÃ‚Â±nÃƒâ€žÃ‚Â±n %10'u ile baÃƒâ€¦Ã…Â¸larsÃƒâ€žÃ‚Â±n</div>
+      <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 DÃƒÆ’Ã‚Â¼kkan Ãƒâ€žÃ‚Â°ndirimi ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â DÃƒÆ’Ã‚Â¼kkandaki tÃƒÆ’Ã‚Â¼m ÃƒÆ’Ã‚Â¼rÃƒÆ’Ã‚Â¼nlerde %10 indirim</div>
     </div>
   </div>
 </div>

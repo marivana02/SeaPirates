@@ -331,11 +331,11 @@
   window.revealPage = function () {
     if (window._pageReady) return;
     renderFromCache();
-    var timer = setTimeout(function () { _waitImages(_showPage, 400); }, 150);
+    var timer = setTimeout(function () { _waitImages(_showPage, 150); }, 30);
     window.readyNow = function () {
       if (window._pageReady) return;
       clearTimeout(timer);
-      _waitImages(_showPage, 400);
+      _waitImages(_showPage, 150);
     };
   };
 

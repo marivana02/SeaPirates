@@ -52,8 +52,8 @@ app.use(helmet({
       defaultSrc: ["'self'", "https://static.cloudflareinsights.com", "https://cloudflareinsights.com"],
       scriptSrc: ["'self'", "'unsafe-inline'", "blob:", "https://static.cloudflareinsights.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'", "data:"],
       imgSrc: ["'self'", "data:", "blob:", "http:"],
       upgradeInsecureRequests: null,
     }
@@ -85,6 +85,8 @@ app.use(express.static(path.join(__dirname, '../frontend'), {
   setHeaders: (res, path) => {
     if (/\.(png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|eot)$/i.test(path)) {
       res.setHeader('Cache-Control', 'public, max-age=86400');
+    } else if (/\.(js|css)$/i.test(path)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=86400');
     } else {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     }

@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <meta name="description" content="SeaPirates PvP - Düello alanında rakiplerinle çarpış, savaş puanlarını topla ve rütbeni yükselt!" />
-  <title>SeaPirates — PvP</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="description" content="SeaPirates PvP - DÃƒÆ’Ã‚Â¼ello alanÃƒâ€žÃ‚Â±nda rakiplerinle ÃƒÆ’Ã‚Â§arpÃƒâ€žÃ‚Â±Ãƒâ€¦Ã…Â¸, savaÃƒâ€¦Ã…Â¸ puanlarÃƒâ€žÃ‚Â±nÃƒâ€žÃ‚Â± topla ve rÃƒÆ’Ã‚Â¼tbeni yÃƒÆ’Ã‚Â¼kselt!" />
+  <title>SeaPirates ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â PvP</title>
+  <link rel="stylesheet" href="fonts.css?v=1">
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
   <script src="js/api.js?v=4"></script>
   <script src="js/logger.js"></script>
   <script src="js/auth.js?v=2"></script>
-  <script src="transition.js?v=10"></script>
+  <script src="transition.js?v=11"></script>
   <script src="effects/clouds.js?v=1"></script>
   <script>document.addEventListener('DOMContentLoaded', startClouds);</script>
   <style>
@@ -473,7 +473,7 @@
 
 <div class="page">
   <div class="top-bar">
-    <a href="#" class="btn-back" onclick="goTo('map.html')"><span data-i18n="btn_back" data-i18n-text>◀ BACK</span></a>
+    <a href="#" class="btn-back" onclick="goTo('map.html')"><span data-i18n="btn_back" data-i18n-text>ÃƒÂ¢Ã¢â‚¬â€Ã¢â€šÂ¬ BACK</span></a>
     <h1 class="page-title" data-i18n="page_pvp">PVP</h1>
     <div style="width:58px;"></div>
   </div>
@@ -483,7 +483,7 @@
     <div class="progression-panel">
       <div class="rank-node current-rank">
         <div class="rank-node-badge">
-          <img id="pvp-current-badge-img" src="assets/ui/pvp-badges/badge_01.png" alt="Mevcut Rütbe" data-i18n-alt="alt_current_rank" />
+          <img id="pvp-current-badge-img" src="assets/ui/pvp-badges/badge_01.png" alt="Mevcut RÃƒÆ’Ã‚Â¼tbe" data-i18n-alt="alt_current_rank" />
         </div>
         <span class="rank-node-name" id="pvp-current-rank-name">Crew</span>
       </div>
@@ -498,7 +498,7 @@
       
       <div class="rank-node next-rank">
         <div class="rank-node-badge">
-          <img id="pvp-next-badge-img" src="assets/ui/pvp-badges/badge_02.png" alt="Sonraki Rütbe" data-i18n-alt="alt_next_rank" />
+          <img id="pvp-next-badge-img" src="assets/ui/pvp-badges/badge_02.png" alt="Sonraki RÃƒÆ’Ã‚Â¼tbe" data-i18n-alt="alt_next_rank" />
         </div>
         <span class="rank-node-name" id="pvp-next-rank-name">Apprentice Sailor</span>
       </div>
@@ -548,13 +548,13 @@
     <!-- Actions -->
     <div class="action-row">
       <button class="btn-change-premium" id="btn-pvp-change">
-        <span class="btn-icon">🔄</span>
+        <span class="btn-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Å¾</span>
         <span class="btn-text-wrap">
           <span class="btn-main-txt" data-i18n="pvp_refresh">Refresh Opponents</span>
           <span class="btn-sub-txt" id="pvp-changes-lbl">(Remaining: 10)</span>
         </span>
       </button>
-      <button class="btn-attack-premium" id="btn-pvp-saldır">
+      <button class="btn-attack-premium" id="btn-pvp-saldÃƒâ€žÃ‚Â±r">
         <img src="assets/ui/actionmenu/attack.png" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;"><span data-i18n="btn_attack">ATTACK</span>
       </button>
     </div>
@@ -589,10 +589,10 @@
     
     const pvpChangesLblEl = document.getElementById('pvp-changes-lbl');
     const btnPvpChangeEl = document.getElementById('btn-pvp-change');
-    const btnPvpSaldırEl = document.getElementById('btn-pvp-saldır');
+    const btnPvpSaldÃƒâ€žÃ‚Â±rEl = document.getElementById('btn-pvp-saldÃƒâ€žÃ‚Â±r');
     
     if (btnPvpChangeEl) btnPvpChangeEl.disabled = true;
-    if (btnPvpSaldırEl) btnPvpSaldırEl.disabled = true;
+    if (btnPvpSaldÃƒâ€žÃ‚Â±rEl) btnPvpSaldÃƒâ€žÃ‚Â±rEl.disabled = true;
     
     try {
       const res = await fetch((window.__API_URL__ || window.location.origin) + '/api/player/pvp/status', {
@@ -601,7 +601,7 @@
       const data = await res.json();
       
       if (data.error) {
-        toast(`❌ PvP error: ${data.error}`, 'err');
+        toast(`ÃƒÂ¢Ã‚ÂÃ…â€™ PvP error: ${data.error}`, 'err');
         return;
       }
       
@@ -692,7 +692,7 @@
         localStorage.setItem('sp_current_target_name', target.username);
         localStorage.setItem('sp_current_target_img', targetImg);
         
-        if (btnPvpSaldırEl) btnPvpSaldırEl.disabled = false;
+        if (btnPvpSaldÃƒâ€žÃ‚Â±rEl) btnPvpSaldÃƒâ€žÃ‚Â±rEl.disabled = false;
       } else {
         if (pvpTargetNameEl) pvpTargetNameEl.textContent = t('pvp_unknown_opponent');
         if (pvpTargetShipImgEl) pvpTargetShipImgEl.src = 'assets/ships/elitship/default/7.png';
@@ -700,7 +700,7 @@
       
     } catch (e) {
       logError('pvp:status', e);
-      toast('⚠️ Server error, could not load PvP info!', 'err');
+      toast('ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Server error, could not load PvP info!', 'err');
     }
   }
 
@@ -726,19 +726,19 @@
           }
           loadPvPStatus();
         } else {
-          toast(`❌ ${data.error || 'Could not change opponent.'}`, 'err');
+          toast(`ÃƒÂ¢Ã‚ÂÃ…â€™ ${data.error || 'Could not change opponent.'}`, 'err');
         }
       } catch (e) {
         logError('pvp:change', e);
-        toast('⚠️ Could not connect to server!', 'err');
+        toast('ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Could not connect to server!', 'err');
       }
     });
   }
 
-  const btnPvpSaldır = document.getElementById('btn-pvp-saldır');
-  if (btnPvpSaldır) {
-    btnPvpSaldır.addEventListener('click', () => {
-      if (btnPvpSaldır.disabled) return;
+  const btnPvpSaldÃƒâ€žÃ‚Â±r = document.getElementById('btn-pvp-saldÃƒâ€žÃ‚Â±r');
+  if (btnPvpSaldÃƒâ€žÃ‚Â±r) {
+    btnPvpSaldÃƒâ€žÃ‚Â±r.addEventListener('click', () => {
+      if (btnPvpSaldÃƒâ€žÃ‚Â±r.disabled) return;
       localStorage.setItem('sp_combat_is_pvp', 'true');
       setTimeout(() => {
         goTo('fight-pvp.html');
