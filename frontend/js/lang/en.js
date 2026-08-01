@@ -5,7 +5,7 @@ I18N_DATA['en'] = {
     btn_menu: 'MENU',
     btn_save: 'SAVE',
     btn_login: 'LOGIN',
-    btn_register: 'BECOME A PIRATE',
+    btn_register: 'REGISTER',
     btn_logout: '⚓ LOG OUT',
     btn_play: 'PLAY',
     btn_harbor: 'HOME',

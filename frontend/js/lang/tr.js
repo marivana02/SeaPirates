@@ -6,7 +6,7 @@ I18N_DATA['tr'] = {
     btn_menu: 'MENÜ',
     btn_save: 'KAYDET',
     btn_login: 'GİRİŞ YAP',
-    btn_register: '⚔ KORSAN OL',
+    btn_register: 'KAYIT OL',
     btn_logout: '⚓ OTURUMU KAPAT',
     btn_play: 'OYNA',
     btn_harbor: 'ANA SAYFA',
