@@ -168,12 +168,12 @@ jobs:
             sed -i 's|<application|<application android:usesCleartextTraffic="true"|' "$MANIFEST"
           fi
 
-      - name: Set version 1.0.1
+      - name: Set version 1.0.2
         run: |
           BG="frontend/android/app/build.gradle"
           if [ -f "$BG" ]; then
-            sed -i 's/versionCode [0-9]*/versionCode 2/' "$BG"
-            sed -i 's/versionName "[^"]*"/versionName "1.0.1"/' "$BG"
+            sed -i 's/versionCode [0-9]*/versionCode 3/' "$BG"
+            sed -i 's/versionName "[^"]*"/versionName "1.0.2"/' "$BG"
             echo "build.gradle: $(grep -E 'version(Name|Code)' $BG)"
           else
             echo "WARNING: app/build.gradle not found"
