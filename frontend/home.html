@@ -816,7 +816,7 @@
       padding: 3px 0;
       display: flex; align-items: center; gap: 6px;
     }
-    .magaza-perk::before { content: 'ÃƒÂ¢Ã…â€œÃ‚Â¨'; font-size: 0.7rem; }
+    .magaza-perk::before { content: '✨'; font-size: 0.7rem; }
 
     .top-bar-left {
       display: flex;
@@ -885,7 +885,7 @@
       <div class="top-bar-left">
         <a class="shop-btn" href="#" id="btn-starter-home">
           <span class="shop-btn-icon"><img src="assets/ui/starterikon.png" class="vip-icon" alt="Starter"></span>
-          <span class="shop-btn-lbl" data-i18n="starter_pack" data-i18n-text>BAÃƒâ€¦Ã…Â¾LANGIÃƒÆ’Ã¢â‚¬Â¡ PAKETÃƒâ€žÃ‚Â°</span>
+          <span class="shop-btn-lbl" data-i18n="starter_pack" data-i18n-text>BAŞLANGIÇ PAKETİ</span>
         </a>
       </div>
       <div class="top-bar-right">
@@ -899,7 +899,7 @@
     <!-- LEADERBOARD -->
     <div class="lb-wrap">
       <div class="lb-title-bar">
-        <span class="lb-title" data-i18n="leaderboard_title">ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â´ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã‹Å“Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â SIRALAMA ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â´ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã‹Å“Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â</span>
+        <span class="lb-title" data-i18n="leaderboard_title">🏴‍☠️ SIRALAMA 🏴‍☠️</span>
       </div>
       <div class="lb-body" id="lb-body">
         <!-- Rows injected by JS -->
@@ -908,18 +908,18 @@
 
     <!-- EVENT BANNER -->
     <div class="ev-banner hidden" id="ev-banner" onclick="goTo('events.html')" style="cursor:pointer;">
-      <span class="ev-icon" id="ev-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â±</span>
+      <span class="ev-icon" id="ev-icon">🔱</span>
       <div class="ev-info">
         <div class="ev-name" id="ev-name">Etkinlik</div>
         <div class="ev-desc" id="ev-desc">A-iklama</div>
       </div>
-      <span class="ev-badge" id="ev-badge">ÃƒÂ¢Ã…Â¡Ã¢â‚¬Â</span>
+      <span class="ev-badge" id="ev-badge">⚔</span>
     </div>
 
     <!-- PLAYER PANEL -->
     <div class="player-panel">
       <div class="pinfo-top">
-        <div class="rutbe-icon p-rank-icon" id="p-rank-icon" title="RÃƒÆ’Ã‚Â¼tbe">ÃƒÂ¢Ã‚Â­Ã‚Â</div>
+        <div class="rutbe-icon p-rank-icon" id="p-rank-icon" title="Rütbe">⭐</div>
         <span class="p-name" id="p-name">Kaptan_Korsan</span>
       </div>
       <div class="pinfo-body">
@@ -951,9 +951,9 @@
           </div>
         </div>
         <div class="p-actions">
-          <button class="act-btn" onclick="goTo('menu.html')">ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ <span class="btn-txt"><span data-i18n="btn_menu" data-i18n-text>MENÃƒÆ’Ã…â€œ</span></span></button>
-          <button class="act-btn" onclick="goTo('events.html')"><span class="btn-txt"><span data-i18n="btn_events" data-i18n-text>ÃƒÂ°Ã…Â¸Ã…Â½Ã¢â‚¬Â° ETKÃƒâ€žÃ‚Â°NLÃƒâ€žÃ‚Â°K</span></span></button>
-            <button class="act-btn primary" onclick="goTo('map.html')">ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â¶ <span class="btn-txt"><span data-i18n="btn_play" data-i18n-text>OYNA</span></span></button>
+          <button class="act-btn" onclick="goTo('menu.html')">⚓ <span class="btn-txt"><span data-i18n="btn_menu" data-i18n-text>MENÜ</span></span></button>
+          <button class="act-btn" onclick="goTo('events.html')"><span class="btn-txt"><span data-i18n="btn_events" data-i18n-text>🎉 ETKİNLİK</span></span></button>
+            <button class="act-btn primary" onclick="goTo('map.html')">▶ <span class="btn-txt"><span data-i18n="btn_play" data-i18n-text>OYNA</span></span></button>
         </div>
       </div>
     </div>
@@ -963,49 +963,49 @@
   <!-- VIP MODAL -->
   <div class="magaza-overlay" id="vip-modal-home">
     <div class="magaza-modal">
-      <button class="magaza-close" id="btn-close-vip-home">ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢</button>
+      <button class="magaza-close" id="btn-close-vip-home">✕</button>
       <div class="magaza-title"><img src="assets/ui/vip-ikon.png" class="vip-icon" alt=""> <span data-i18n="vip_pack" data-i18n-text>VIP PAKETLER</span></div>
-      <div class="magaza-sub" data-i18n="vip_sub">AyrÃƒâ€žÃ‚Â±calÃƒâ€žÃ‚Â±klÃƒâ€žÃ‚Â± bir korsan olmak iÃƒÆ’Ã‚Â§in hemen satÃƒâ€žÃ‚Â±n al!</div>
+      <div class="magaza-sub" data-i18n="vip_sub">Ayrıcalıklı bir korsan olmak için hemen satın al!</div>
       <div class="magaza-cards">
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name" data-i18n="vip_7day">7 Day VIP</span>
-            <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gÃƒÆ’Ã‚Â¼n VIP ayricaliklari</span>
+            <span class="magaza-card-dur" data-i18n="vip_7day_dur">7 gün VIP ayricaliklari</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price" data-plan="7">99 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
-            <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>SatÃƒâ€žÃ‚Â±n Al</span></button>
+            <span class="magaza-card-price" data-plan="7">99 ₺</span>
+            <button class="magaza-card-btn" data-plan="7" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satın Al</span></button>
           </div>
         </div>
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name" data-i18n="vip_30day">1 Month VIP</span>
-            <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gÃƒÆ’Ã‚Â¼n VIP ayricaliklari (en pop-ler)</span>
+            <span class="magaza-card-dur" data-i18n="vip_30day_dur">30 gün VIP ayricaliklari (en pop-ler)</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price" data-plan="30">249 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
-            <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>SatÃƒâ€žÃ‚Â±n Al</span></button>
+            <span class="magaza-card-price" data-plan="30">249 ₺</span>
+            <button class="magaza-card-btn" data-plan="30" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satın Al</span></button>
           </div>
         </div>
         <div class="magaza-card">
           <div class="magaza-card-info">
             <span class="magaza-card-name" data-i18n="vip_90day">3 Month VIP</span>
-            <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gÃƒÆ’Ã‚Â¼n VIP ayricaliklari (en avantajli)</span>
+            <span class="magaza-card-dur" data-i18n="vip_90day_dur">90 gün VIP ayricaliklari (en avantajli)</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="magaza-card-price" data-plan="90">599 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
-            <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>SatÃƒâ€žÃ‚Â±n Al</span></button>
+            <span class="magaza-card-price" data-plan="90">599 ₺</span>
+            <button class="magaza-card-btn" data-plan="90" data-type="vip"><span data-i18n="buy_now" data-i18n-text>Satın Al</span></button>
           </div>
         </div>
       </div>
       <div class="magaza-perks">
         <div class="magaza-perks-title" data-i18n="vip_pack">VIP PRIVILEGES</div>
-        <div class="magaza-perk" data-i18n="vip_perk_repair">ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 2 OnarÃƒâ€žÃ‚Â±m HÃƒâ€žÃ‚Â±zÃƒâ€žÃ‚Â± - SavaÃƒâ€¦Ã…Â¸ta gemini 2 kat hÃƒâ€žÃ‚Â±zlÃƒâ€žÃ‚Â± onarÃƒâ€žÃ‚Â±rsÃƒâ€žÃ‚Â±n</div>
-        <div class="magaza-perk" data-i18n="vip_perk_daily">VIP G-nl-k -d-ller - 30 gÃƒÆ’Ã‚Â¼nl-k -zel premium -d-l takvimi</div>
-        <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye ÃƒÆ’Ã¢â‚¬â€œdÃƒÆ’Ã‚Â¼l - Her seviye atlayÃƒâ€žÃ‚Â±Ãƒâ€¦Ã…Â¸Ãƒâ€žÃ‚Â±nda kat kat fazla ÃƒÆ’Ã‚Â¶dÃƒÆ’Ã‚Â¼l</div>
-        <div class="magaza-perk" data-i18n="vip_perk_quest">2. GÃƒÆ’Ã‚Â¶rev YuvasÃƒâ€žÃ‚Â± - AynÃƒâ€žÃ‚Â± anda 2 gÃƒÆ’Ã‚Â¶rev alabilirsin</div>
-        <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden DoÃƒâ€žÃ…Â¸ - BattÃƒâ€žÃ‚Â±Ãƒâ€žÃ…Â¸Ãƒâ€žÃ‚Â±nda max canÃƒâ€žÃ‚Â±nÃƒâ€žÃ‚Â±n %10'u ile baÃƒâ€¦Ã…Â¸larsÃƒâ€žÃ‚Â±n</div>
-        <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 DÃƒÆ’Ã‚Â¼kkan Ãƒâ€žÃ‚Â°ndirimi - DÃƒÆ’Ã‚Â¼kkandaki tÃƒÆ’Ã‚Â¼m ÃƒÆ’Ã‚Â¼rÃƒÆ’Ã‚Â¼nlerde %10 indirim</div>
+        <div class="magaza-perk" data-i18n="vip_perk_repair">• 2 Onarım Hızı - Savaşta gemini 2 kat hızlı onarırsın</div>
+        <div class="magaza-perk" data-i18n="vip_perk_daily">VIP G-nl-k -d-ller - 30 günl-k -zel premium -d-l takvimi</div>
+        <div class="magaza-perk" data-i18n="vip_perk_level">VIP Seviye Ödül - Her seviye atlayışında kat kat fazla ödül</div>
+        <div class="magaza-perk" data-i18n="vip_perk_quest">2. Görev Yuvası - Aynı anda 2 görev alabilirsin</div>
+        <div class="magaza-perk" data-i18n="vip_perk_respawn">+%10 Can ile Yeniden Doğ - Battığında max canının %10'u ile başlarsın</div>
+        <div class="magaza-perk" data-i18n="vip_perk_shop_discount">%10 Dükkan İndirimi - Dükkandaki tüm ürünlerde %10 indirim</div>
       </div>
     </div>
   </div>
@@ -1013,9 +1013,9 @@
   <!-- STARTER MODAL -->
   <div class="magaza-overlay" id="starter-modal-home">
     <div class="magaza-modal">
-      <button class="magaza-close" id="btn-close-starter-home">ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢</button>
+      <button class="magaza-close" id="btn-close-starter-home">✕</button>
       <div class="magaza-title" data-i18n="starter_pack_title">STARTER PAKETI</div>
-      <div class="magaza-sub" data-i18n="pack_subtitle">Yeni korsanlar iÃƒÆ’Ã‚Â§in tek seferlik fÃƒâ€žÃ‚Â±rsat!</div>
+      <div class="magaza-sub" data-i18n="pack_subtitle">Yeni korsanlar için tek seferlik fırsat!</div>
       <div class="magaza-cards">
         <div class="magaza-card">
           <div class="magaza-card-info">
@@ -1030,8 +1030,8 @@
             </span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <span class="magaza-card-price">100 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
-            <button class="magaza-card-btn" data-pack="basic" data-i18n="btn_buy">SatÃƒâ€žÃ‚Â±n Al</button>
+            <span class="magaza-card-price">100 ₺</span>
+            <button class="magaza-card-btn" data-pack="basic" data-i18n="btn_buy">Satın Al</button>
           </div>
         </div>
         <div class="magaza-card">
@@ -1049,8 +1049,8 @@
             </span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <span class="magaza-card-price">300 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
-            <button class="magaza-card-btn" data-pack="medium" data-i18n="btn_buy">SatÃƒâ€žÃ‚Â±n Al</button>
+            <span class="magaza-card-price">300 ₺</span>
+            <button class="magaza-card-btn" data-pack="medium" data-i18n="btn_buy">Satın Al</button>
           </div>
         </div>
         <div class="magaza-card">
@@ -1070,8 +1070,8 @@
             </span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <span class="magaza-card-price">600 ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Âº</span>
-            <button class="magaza-card-btn" data-pack="premium" data-i18n="btn_buy">SatÃƒâ€žÃ‚Â±n Al</button>
+            <span class="magaza-card-price">600 ₺</span>
+            <button class="magaza-card-btn" data-pack="premium" data-i18n="btn_buy">Satın Al</button>
           </div>
         </div>
       </div>
@@ -1171,7 +1171,7 @@
         } else {
           return;
         }
-        if (ev.mult) badge.textContent = 'ÃƒÆ’Ã¢â‚¬â€' + ev.mult;
+        if (ev.mult) badge.textContent = '×' + ev.mult;
         window._evType = ev.type || null;
         window._evName = ev.name || null;
         window._evDesc = ev.desc || null;

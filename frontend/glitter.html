@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover" />
-  <title>SeaPirates ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Glitter Sea</title>
+  <title>SeaPirates — Glitter Sea</title>
   <link rel="stylesheet" href="fonts.css?v=1">
   <link rel="stylesheet" href="style.css">
   <script src="js/lang.js?v=2"></script>
@@ -467,13 +467,13 @@
 
     <div class="player-panel">
       <div class="p-rewards">
-        <span class="p-rewards-title" data-i18n="glitter_reward">ÃƒÂ¢Ã…â€œÃ‚Â¨ Reward:</span>
+        <span class="p-rewards-title" data-i18n="glitter_reward">✨ Reward:</span>
         <div class="p-rewards-list" id="p-rewards-list">
           <span class="p-reward-empty" data-i18n="glitter_empty">Collect glitter from the sea to earn rewards!</span>
         </div>
       </div>
       <div class="pinfo-top">
-        <div class="p-rank-icon" id="p-rank-icon">ÃƒÂ¢Ã‹Å“Ã‚Â </div>
+        <div class="p-rank-icon" id="p-rank-icon">☠</div>
         <div class="p-name-wrap">
           <span class="p-name" id="p-name">Kaptan...</span>
           <div class="hp-row">
@@ -547,7 +547,7 @@
       window.showAlert(t(msg), type === 'err' ? t('error') : 'SEAPIRATES', type === 'err');
     }
 
-    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Mouse tracking for anti-bot ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+    // ── Mouse tracking for anti-bot ──
     let lastMouseX = 0;
     let lastMouseY = 0;
     let accumulatedMouseDelta = 0;
@@ -685,7 +685,7 @@
       document.getElementById('p-lvl-fill').style.width = xpPct + '%';
     }
 
-    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ GLITTER SPARK ENGINE ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+    // ── GLITTER SPARK ENGINE ──
     (function() {
       const seaArea = document.querySelector('.sea-area');
       const maxGlitters = 3;
@@ -759,7 +759,7 @@
                 if (lbl) lbl.textContent = `${data.glitterRemaining}/200`;
               }
               if (data.leveledUp) {
-                toast2(`ÃƒÂ°Ã…Â¸Ã…Â½Ã¢â‚¬Â° LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');
+                toast2(`🎉 LEVEL UP! \u2192 ${data.newLevel} LVL`, 'ok');
               }
             } else if (data.error !== 'err_glitter_too_fast' && data.error !== 'err_glitter_hourly_limit') {
               toast2(data.error || t('glitter_collect_fail'), 'err');
@@ -806,7 +806,7 @@
         } else if (rewards.xp > 0) {
           html = `<div style="color:#a4b0be;">+${fmt(rewards.xp)} XP</div>`;
         } else if (rewards.ammo) {
-          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â£ +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;
+          html = `<div style="display: flex; align-items: center; gap: 4px; color:#3498db;">💣 +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}</div>`;
         }
 
         tag.innerHTML = html;
@@ -840,7 +840,7 @@
         } else if (rewards.ammo) {
           html = `
             <span class="p-reward-item" style="color:#3498db;">
-              ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â£ +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}
+              💣 +${rewards.ammo.qty} ${ammoLabel(rewards.ammo.type)}
             </span>
           `;
         }

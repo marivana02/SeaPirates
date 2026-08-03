@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
   <title>Admin Panel</title>
+  
+  
   <link rel="stylesheet" href="fonts.css?v=1">
   <link rel="stylesheet" href="style.css">
   <script src="js/api.js?v=4"></script>
@@ -127,8 +129,8 @@
 
   <div class="tab-bar">
     <div class="tab active" data-tab="players" onclick="switchTab('players')"><span data-i18n="admin_tab_players">Oyuncular</span></div>
-    <div class="tab" data-tab="push" onclick="switchTab('push')">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â¨ Push</div>
-    <div class="tab" data-tab="logs" onclick="switchTab('logs')"><span data-i18n="admin_tab_logs">Ãƒâ€žÃ‚Â°Ãƒâ€¦Ã…Â¸lem GeÃƒÆ’Ã‚Â§miÃƒâ€¦Ã…Â¸i</span></div>
+    <div class="tab" data-tab="push" onclick="switchTab('push')">📨 Push</div>
+    <div class="tab" data-tab="logs" onclick="switchTab('logs')"><span data-i18n="admin_tab_logs">İşlem Geçmişi</span></div>
   </div>
 
   <div id="statusBar" class="status-bar"></div>
@@ -146,7 +148,7 @@
   <!-- PUSH TAB -->
   <div id="panel-push" class="panel">
     <div class="card">
-      <h3>ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ Admiral Spawn Tetikle</h3>
+      <h3>⚓ Admiral Spawn Tetikle</h3>
       <div class="flex mb-8">
         <select id="admiralMap" class="w-auto" style="width:auto;min-width:80px;">
           <option value="1">Map 1</option>
@@ -160,23 +162,23 @@
           <option value="9">Map 9</option>
           <option value="10">Map 10</option>
         </select>
-        <button class="btn btn-danger" onclick="spawnAdmiral()">ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ ADMÃƒâ€žÃ‚Â°RAL SPAWNLA + PUSH</button>
+        <button class="btn btn-danger" onclick="spawnAdmiral()">⚓ ADMİRAL SPAWNLA + PUSH</button>
         <span id="admiralResult" style="font-size:0.75rem;color:var(--txt-m);"></span>
       </div>
-      <h3 style="margin-top:12px;">ÃƒÂ°Ã…Â¸Ã‚ÂÃ¢â‚¬Â° Tiamat Spawn Tetikle</h3>
+      <h3 style="margin-top:12px;">🐉 Tiamat Spawn Tetikle</h3>
       <div class="flex mb-8">
-        <button class="btn btn-danger" onclick="spawnTiamat()">ÃƒÂ°Ã…Â¸Ã‚ÂÃ¢â‚¬Â° TIAMAT SPAWNLA</button>
+        <button class="btn btn-danger" onclick="spawnTiamat()">🐉 TIAMAT SPAWNLA</button>
         <span id="tiamatResult" style="font-size:0.75rem;color:var(--txt-m);"></span>
       </div>
     </div>
     <div class="card">
-      <h3>ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â¨ TÃƒÆ’Ã‚Â¼m Cihazlara Push GÃƒÆ’Ã‚Â¶nder</h3>
+      <h3>📨 Tüm Cihazlara Push Gönder</h3>
       <div class="mb-8">
-        <input type="text" id="pushTitle" placeholder="BaÃƒâ€¦Ã…Â¸lÃƒâ€žÃ‚Â±k" style="margin-bottom:6px;">
-        <textarea id="pushBody" placeholder="Mesaj iÃƒÆ’Ã‚Â§eriÃƒâ€žÃ…Â¸i..." rows="3"></textarea>
+        <input type="text" id="pushTitle" placeholder="Başlık" style="margin-bottom:6px;">
+        <textarea id="pushBody" placeholder="Mesaj içeriği..." rows="3"></textarea>
       </div>
       <div class="flex">
-        <button class="btn btn-warn" onclick="sendPushAll()">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â¨ TÃƒÆ’Ã…â€œMÃƒÆ’Ã…â€œNE GÃƒÆ’Ã¢â‚¬â€œNDER</button>
+        <button class="btn btn-warn" onclick="sendPushAll()">📨 TÜMÜNE GÖNDER</button>
         <span id="pushResult" style="font-size:0.75rem;color:var(--txt-m);"></span>
       </div>
     </div>
@@ -186,7 +188,7 @@
   <div id="panel-logs" class="panel">
     <div class="search-wrap">
       <select id="logTypeFilter" class="w-auto" style="width:auto;min-width:120px;">
-        <option value="" data-i18n="admin_log_all">TÃƒÆ’Ã‚Â¼mÃƒÆ’Ã‚Â¼</option>
+        <option value="" data-i18n="admin_log_all">Tümü</option>
         <option value="admin_ban">Ban</option>
         <option value="admin_unban">Unban</option>
         <option value="admin_vip">VIP</option>
@@ -251,12 +253,12 @@ function searchPlayers(page = 1) {
 function renderPlayerList(data) {
   const el = document.getElementById('playerList');
   if (!data.players || data.players.length === 0) {
-    el.innerHTML = '<div class="card" style="text-align:center;color:var(--txt-m);padding:30px;"><span data-i18n="admin_no_results">SonuÃƒÆ’Ã‚Â§ bulunamadÃƒâ€žÃ‚Â±</span></div>';
+    el.innerHTML = '<div class="card" style="text-align:center;color:var(--txt-m);padding:30px;"><span data-i18n="admin_no_results">Sonuç bulunamadı</span></div>';
     return;
   }
 
   let html = `<div class="card"><div class="table-wrap"><table><thead><tr>
-    <th>ID</th><th data-i18n="admin_col_username">KullanÃƒâ€žÃ‚Â±cÃƒâ€žÃ‚Â±</th><th data-i18n="admin_col_display">Display Name</th><th>Lv</th>
+    <th>ID</th><th data-i18n="admin_col_username">Kullanıcı</th><th data-i18n="admin_col_display">Display Name</th><th>Lv</th>
     <th data-i18n="admin_col_status">Durum</th><th>Email</th><th data-i18n="admin_col_actions">Actions</th>
   </tr></thead><tbody>`;
 
@@ -441,35 +443,35 @@ function grantVip(id) {
 function spawnAdmiral() {
   const mapLevel = document.getElementById('admiralMap').value;
   const resultEl = document.getElementById('admiralResult');
-  resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ‚Â³ SpawnlanÃƒâ€žÃ‚Â±yor...';
+  resultEl.textContent = '⏳ Spawnlanıyor...';
   api('/admiral-spawn', { method: 'POST', body: { mapLevel: parseInt(mapLevel) } })
     .then(data => {
-      if (data.error) { resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ…â€™ ' + data.error; return; }
-      resultEl.textContent = 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ ' + (data.message || 'SpawnlandÃƒâ€žÃ‚Â±');
-    }).catch(e => { resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ…â€™ ' + (e.message || 'Hata'); });
+      if (data.error) { resultEl.textContent = '❌ ' + data.error; return; }
+      resultEl.textContent = '✅ ' + (data.message || 'Spawnlandı');
+    }).catch(e => { resultEl.textContent = '❌ ' + (e.message || 'Hata'); });
 }
 
 function spawnTiamat() {
   const resultEl = document.getElementById('tiamatResult');
-  resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ‚Â³ SpawnlanÃƒâ€žÃ‚Â±yor...';
+  resultEl.textContent = '⏳ Spawnlanıyor...';
   api('/tiamat-spawn', { method: 'POST' })
     .then(data => {
-      if (data.error) { resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ…â€™ ' + data.error; return; }
-      resultEl.textContent = 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ ' + (data.message || 'SpawnlandÃƒâ€žÃ‚Â±');
-    }).catch(e => { resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ…â€™ ' + (e.message || 'Hata'); });
+      if (data.error) { resultEl.textContent = '❌ ' + data.error; return; }
+      resultEl.textContent = '✅ ' + (data.message || 'Spawnlandı');
+    }).catch(e => { resultEl.textContent = '❌ ' + (e.message || 'Hata'); });
 }
 
 function sendPushAll() {
   const title = document.getElementById('pushTitle').value.trim();
   const body = document.getElementById('pushBody').value.trim();
   const resultEl = document.getElementById('pushResult');
-  if (!title || !body) { resultEl.textContent = 'ÃƒÂ¢Ã…Â¡Ã‚Â  BaÃƒâ€¦Ã…Â¸lÃƒâ€žÃ‚Â±k ve mesaj gerekli'; return; }
-  resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ‚Â³ GÃƒÆ’Ã‚Â¶nderiliyor...';
+  if (!title || !body) { resultEl.textContent = '⚠ Başlık ve mesaj gerekli'; return; }
+  resultEl.textContent = '⏳ Gönderiliyor...';
   api('/push-all', { method: 'POST', body: { title, body } })
     .then(data => {
-      if (data.error) { resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ…â€™ ' + data.error; return; }
-      resultEl.textContent = 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ ' + (data.message || 'GÃƒÆ’Ã‚Â¶nderildi');
-    }).catch(e => { resultEl.textContent = 'ÃƒÂ¢Ã‚ÂÃ…â€™ ' + (e.message || 'Hata'); });
+      if (data.error) { resultEl.textContent = '❌ ' + data.error; return; }
+      resultEl.textContent = '✅ ' + (data.message || 'Gönderildi');
+    }).catch(e => { resultEl.textContent = '❌ ' + (e.message || 'Hata'); });
 }
 
 function closeModal() {

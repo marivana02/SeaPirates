@@ -3,11 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
-  <title>SeaPirates ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Login</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0d0702">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SeaPirates — Login</title>
   <link rel="stylesheet" href="fonts.css?v=1">
   <link rel="stylesheet" href="style.css">
   <script src="js/config.js"></script>
@@ -97,24 +93,24 @@ const Auth = (() => {
     redirectToLogin() { this.logout(); window.goTo('index.html'); }
   };
 })();
-// APK her aÃƒÆ’Ã‚Â§Ãƒâ€žÃ‚Â±ldÃƒâ€žÃ‚Â±Ãƒâ€žÃ…Â¸Ãƒâ€žÃ‚Â±nda login sayfasÃƒâ€žÃ‚Â± gelsin (Beni HatÃƒâ€žÃ‚Â±rla yoksa)
+// APK her açıldığında login sayfası gelsin (Beni Hatırla yoksa)
 if (!localStorage.getItem('sp_remember_me')) { Auth.logout(); }
   </script>
   <script>
 window.t = window.t || function(key, vars) {
   var texts = {
-    login_welcome: 'ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ Welcome aboard, Captain!', register_welcome: 'ÃƒÂ¢Ã…Â¡Ã¢â‚¬Â Welcome aboard, Captain!',
-    connection_failed: 'Connection failed', btn_login: 'ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ Login',
-    login_title: 'ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ Login', register_title: 'ÃƒÂ¢Ã…Â¡Ã¢â‚¬Â Register',
+    login_welcome: '⚓ Welcome aboard, Captain!', register_welcome: '⚔ Welcome aboard, Captain!',
+    connection_failed: 'Connection failed', btn_login: '⚓ Login',
+    login_title: '⚓ Login', register_title: '⚔ Register',
     username_label: 'Username', password_label: 'Password',
     strength_weak: 'Weak', strength_medium: 'Medium', strength_good: 'Good', strength_strong: 'Strong',
-    reg_error_username: '3ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“20 characters, use letters/numbers/_.',
+    reg_error_username: '3–20 characters, use letters/numbers/_.',
     modal_close: 'Close', error: 'Error',
     ban_notification_title: 'Your account has been banned!', ban_reason_label: 'Reason:',
     ban_expires_label: 'Expires:', ban_permanent_label: 'Permanent ban',
     ban_date_label: 'Date:',
 
-    modal_terms_title: 'ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ TERMS OF SERVICE', modal_privacy_title: 'ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢ PRIVACY POLICY'
+    modal_terms_title: '⚓ TERMS OF SERVICE', modal_privacy_title: '🔒 PRIVACY POLICY'
   };
   var msg = texts[key] || key;
   if (vars && vars.name) msg = msg.replace('{name}', vars.name);
@@ -155,7 +151,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       overflow-x:hidden;
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ FULL BACKGROUND ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── FULL BACKGROUND ── */
     .page-bg{
       position:fixed;inset:0;z-index:0;
       background:
@@ -177,7 +173,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       pointer-events:none;
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ FRAME ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── FRAME ── */
     .frame{
       position:relative;z-index:10;
       max-width:430px;margin:0 auto;
@@ -187,7 +183,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       padding:0 20px calc(40px + env(safe-area-inset-bottom, 0px));
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ LOGO ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── LOGO ── */
     .logo-wrap{
       width:100%;max-width:280px;
       margin:32px auto 24px;
@@ -198,7 +194,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       filter:drop-shadow(0 0 28px rgba(200,150,42,0.6));
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ BOARD (main card) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── BOARD (main card) ── */
     .board{
       width:100%;
       background: linear-gradient(180deg, #2d1a08 0%, #1e1005 100%);
@@ -268,7 +264,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       border-radius:var(--r-lg);
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ TABS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── TABS ── */
     .tabs{
       display:flex;position:relative;z-index:2;
       border-bottom:2px solid var(--wood-plank);
@@ -292,12 +288,12 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     /* Divider between tabs */
     .tabs .tab-btn:first-child{border-right:1px solid var(--wood-plank);}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ PANELS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── PANELS ── */
     .panel{display:none;flex-direction:column;gap:14px;padding:24px 20px;position:relative;z-index:2;}
     .panel.active{display:flex;animation:fadeUp 0.28s ease;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ INPUT ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── INPUT ── */
     .field{position:relative;}
     .field-icon{
       position:absolute;left:13px;top:50%;transform:translateY(-50%);
@@ -320,11 +316,11 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     }
     .field:focus-within .field-icon{color:var(--gold);}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ERROR ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── ERROR ── */
     .err{font-size:0.74rem;color:#e05a3a;padding-left:4px;display:none;}
     .err.show{display:block;}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ PASSWORD STRENGTH ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── PASSWORD STRENGTH ── */
     .strength{display:none;gap:4px;flex-direction:column;}
     .strength.show{display:flex;}
     .s-bars{display:flex;gap:4px;}
@@ -335,12 +331,12 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     .s-txt{font-size:0.7rem;color:var(--text-muted);}
     .s-txt.weak{color:#e05a3a;} .s-txt.mid{color:#d4a12a;} .s-txt.strong{color:#4caf7a;}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ TERMS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── TERMS ── */
     .terms{display:flex;align-items:flex-start;gap:9px;font-size:0.78rem;color:var(--text-dim);line-height:1.45;cursor:pointer;}
     .terms input{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer;}
     .terms a{color:var(--gold-pale);text-decoration:none;}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ BUTTON ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── BUTTON ── */
     .btn{
       width:100%;padding:15px;border:none;border-radius:var(--r-md);cursor:pointer;
       font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;
@@ -367,7 +363,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     .btn.loading .btn-txt{display:none;} .btn.loading .spinner{display:block;}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ROPE DIVIDER ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── ROPE DIVIDER ── */
     .rope-div{
       display:flex;align-items:center;gap:10px;
       color:var(--text-muted);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
@@ -377,14 +373,14 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       background:repeating-linear-gradient(90deg,var(--wood-plank) 0px,var(--wood-plank) 4px,transparent 4px,transparent 7px);
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ FORGOT ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── FORGOT ── */
     .meta-row{display:flex;align-items:center;justify-content:space-between;}
     .remember{display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--text-dim);cursor:pointer;}
     .remember input{accent-color:var(--gold);}
     .forgot{font-size:0.78rem;color:var(--text-muted);text-decoration:none;transition:color 0.2s;}
     .forgot:hover{color:var(--gold-bright);}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ NAIL DECORATIONS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── NAIL DECORATIONS ── */
     .nail{
       position:absolute;width:10px;height:10px;border-radius:50%;
       background:radial-gradient(circle at 35% 35%,#8a7060,#3a2510);
@@ -393,14 +389,14 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     .nail.tl{top:10px;left:10px;} .nail.tr{top:10px;right:10px;}
     .nail.bl{bottom:10px;left:10px;} .nail.br{bottom:10px;right:10px;}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ BOTTOM LINK ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── BOTTOM LINK ── */
     .bottom-note{
       margin-top:16px;text-align:center;font-size:0.75rem;color:var(--text-muted);
     }
     .bottom-note a{color:var(--text-dim);text-decoration:none;}
     .bottom-note a:hover{color:var(--gold-bright);}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ CORNER ORNAMENTS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── CORNER ORNAMENTS ── */
     .corner-ornament{
       position:absolute;width:40px;height:40px;
       border-color:var(--gold);border-style:solid;opacity:0.35;
@@ -410,7 +406,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     .corner-ornament.bl{bottom:0;left:0;border-width:0 0 2px 2px;border-radius:0 0 0 6px;}
     .corner-ornament.br{bottom:0;right:0;border-width:0 2px 2px 0;border-radius:0 0 6px 0;}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ MODAL OVERLAY & CONTENT ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── MODAL OVERLAY & CONTENT ── */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -527,21 +523,21 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
       <!-- TABS -->
       <div class="tabs">
-        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')"><span data-i18n="login_title" data-i18n-text>ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ Login</span></button>
-        <button class="tab-btn" id="tab-register" onclick="switchTab('register')"><span data-i18n="register_title" data-i18n-text>ÃƒÂ¢Ã…Â¡Ã¢â‚¬Â Register</span></button>
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')"><span data-i18n="login_title" data-i18n-text>⚓ Login</span></button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')"><span data-i18n="register_title" data-i18n-text>⚔ Register</span></button>
       </div>
 
       <!-- LOGIN PANEL -->
       <div class="panel active" id="panel-login">
 
         <div class="field">
-          <span class="field-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ËœÃ‚Â¤</span>
+          <span class="field-icon">👤</span>
           <input type="text" id="l-user" placeholder="Username" data-i18n-placeholder="username_label" autocapitalize="none" spellcheck="false" minlength="5" maxlength="12"/>
         </div>
         <span class="err" id="l-user-err" data-i18n="login_error_fields">Username is required.</span>
 
         <div class="field">
-          <span class="field-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢</span>
+          <span class="field-icon">🔒</span>
           <input type="text" id="l-pass" placeholder="Password" data-i18n-placeholder="password_label" style="-webkit-text-security:disc;"/>
         </div>
         <span class="err" id="l-pass-err" data-i18n="login_error_fields">Password is required.</span>
@@ -556,7 +552,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         <div class="form-msg" id="l-msg"></div>
 
         <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
-          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ &nbsp;Login</span></span>
+          <span class="btn-txt"><span data-i18n="btn_login" data-i18n-text>⚓ &nbsp;Login</span></span>
           <div class="spinner"></div>
         </button>
 
@@ -566,19 +562,19 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       <div class="panel" id="panel-register">
 
         <div class="field">
-          <span class="field-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ËœÃ‚Â¤</span>
+          <span class="field-icon">👤</span>
           <input type="text" id="r-user" placeholder="Username (5-12 characters)" data-i18n-placeholder="username_placeholder" autocapitalize="none" minlength="5" maxlength="12" oninput="liveValidUser(this)"/>
         </div>
-        <span class="err" id="r-user-err" data-i18n="reg_error_username">3ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“20 characters, use letters/numbers/_.</span>
+        <span class="err" id="r-user-err" data-i18n="reg_error_username">3–20 characters, use letters/numbers/_.</span>
 
         <div class="field">
-          <span class="field-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â§</span>
+          <span class="field-icon">📧</span>
           <input type="email" id="r-email" placeholder="Email address" data-i18n-placeholder="email_placeholder" autocapitalize="off"/>
         </div>
         <span class="err" id="r-email-err" data-i18n="reg_error_email">Enter a valid email address.</span>
 
         <div class="field">
-          <span class="field-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢</span>
+          <span class="field-icon">🔒</span>
           <input type="text" id="r-pass" placeholder="Password (min. 6 chars)" data-i18n-placeholder="password_placeholder" style="-webkit-text-security:disc;" oninput="checkStrength(this.value)"/>
         </div>
         <span class="err" id="r-pass-err" data-i18n="reg_error_password">Password must be at least 6 characters.</span>
@@ -592,7 +588,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         </div>
 
         <div class="field">
-          <span class="field-icon">ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â</span>
+          <span class="field-icon">🔐</span>
           <input type="text" id="r-pass2" placeholder="Confirm password" data-i18n-placeholder="repassword_placeholder" style="-webkit-text-security:disc;"/>
         </div>
         <span class="err" id="r-pass2-err" data-i18n="reg_error_pass2">Passwords do not match.</span>
@@ -606,7 +602,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         <div class="form-msg" id="r-msg"></div>
 
         <button class="btn btn-primary" id="reg-btn" onclick="doRegister()">
-          <span class="btn-txt"><span data-i18n="btn_register" data-i18n-text>ÃƒÂ¢Ã…Â¡Ã¢â‚¬Â &nbsp;Become a Pirate</span></span>
+          <span class="btn-txt"><span data-i18n="btn_register" data-i18n-text>⚔ &nbsp;Become a Pirate</span></span>
           <div class="spinner"></div>
         </button>
 
@@ -614,9 +610,9 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
     </div>
 
     <div class="bottom-note">
-      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Privacy Policy</span></a> &nbsp;Ãƒâ€šÃ‚Â·&nbsp;
+      <a href="#" onclick="openModal('privacy'); return false;"><span data-i18n="bottom_privacy" data-i18n-text>Privacy Policy</span></a> &nbsp;·&nbsp;
       <a href="#" onclick="openModal('terms'); return false;"><span data-i18n="bottom_terms" data-i18n-text>Terms of Service</span></a><br/>
-      <span style="margin-top:5px;display:block;">SeaPirates v1.0 Ãƒâ€šÃ‚Â© 2026</span>
+      <span style="margin-top:5px;display:block;">SeaPirates v1.0 © 2026</span>
     </div>
 
   </div>
@@ -624,18 +620,18 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
   <!-- MODAL OVERLAY -->
   <div class="modal-overlay" id="sp-modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header" id="modal-title">ÃƒÂ¢Ã…Â¡Ã¢â‚¬Å“ TERMS OF SERVICE</div>
+      <div class="modal-header" id="modal-title">⚓ TERMS OF SERVICE</div>
       <div class="modal-body" id="modal-body">
-        <!-- Dinamik iÃƒÆ’Ã‚Â§erik buraya yÃƒÆ’Ã‚Â¼klenecek -->
+        <!-- Dinamik içerik buraya yüklenecek -->
       </div>
       <button class="modal-close-btn" onclick="closeModal()"><span data-i18n="modal_close" data-i18n-text>OK</span></button>
     </div>
   </div>
 
   <script>
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ PAGE LOAD CHECK ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── PAGE LOAD CHECK ── */
     window.onload = () => {
-      // 1. Session/Beni HatÃƒâ€žÃ‚Â±rla doÃƒâ€žÃ…Â¸rulamasÃƒâ€žÃ‚Â±
+      // 1. Session/Beni Hatırla doğrulaması
       const isRemembered = localStorage.getItem('sp_remember_me') === 'true';
       const isSessionActive = sessionStorage.getItem('sp_session_active') === 'true';
       
@@ -645,7 +641,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         localStorage.removeItem('sp_remember_me');
       }
 
-      // 2. Beni HatÃƒâ€žÃ‚Â±rla kullanÃƒâ€žÃ‚Â±cÃƒâ€žÃ‚Â± adÃƒâ€žÃ‚Â± ve Ãƒâ€¦Ã…Â¸ifre doldurma (otomatik giriÃƒâ€¦Ã…Â¸ yok)
+      // 2. Beni Hatırla kullanıcı adı ve şifre doldurma (otomatik giriş yok)
       const rememberedUser = localStorage.getItem('sp_remembered_username');
       if (rememberedUser) {
         document.getElementById('l-user').value = rememberedUser;
@@ -654,7 +650,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
     };
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ TAB ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── TAB ── */
     function switchTab(t){
       ['login','register'].forEach(id=>{
         document.getElementById('tab-'+id).classList.toggle('active', id===t);
@@ -663,7 +659,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       clearErrs();
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ MESAJ ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── MESAJ ── */
     function showFormMsg(msg, type) {
       const activePanel = document.querySelector('.panel.active');
       if (!activePanel) return;
@@ -676,19 +672,19 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       document.querySelectorAll('.form-msg').forEach(e => { e.className = 'form-msg'; e.textContent = ''; });
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ERRORS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── ERRORS ── */
     function showErr(id,msg){const e=document.getElementById(id);if(msg)e.textContent=msg;e.classList.add('show');}
     function hideErr(id){document.getElementById(id).classList.remove('show');}
     function clearErrs(){document.querySelectorAll('.err').forEach(e=>e.classList.remove('show'));}
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ LIVE USERNAME VALIDATE ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── LIVE USERNAME VALIDATE ── */
     function liveValidUser(el){
       const v=el.value.trim();
       if(v&&!/^[a-zA-Z0-9_]{5,12}$/.test(v)) showErr('r-user-err', t('reg_error_username'));
       else hideErr('r-user-err');
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ PASSWORD STRENGTH ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── PASSWORD STRENGTH ── */
     function checkStrength(v){
       const w=document.getElementById('strength');
       const bars=[document.getElementById('sb1'),document.getElementById('sb2'),document.getElementById('sb3'),document.getElementById('sb4')];
@@ -706,13 +702,13 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       lbl.className='s-txt '+cls; lbl.textContent=txt;
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ LOADING ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── LOADING ── */
     function setLoading(id,on){
       const b=document.getElementById(id);
       b.classList.toggle('loading',on); b.disabled=on;
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ LOGIN ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── LOGIN ── */
     async function doLogin(){
       clearErrs();
       clearFormMsg();
@@ -730,20 +726,20 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {
           if (err.status === 403 && err.message === 'err_device_banned') {
-            showFormMsg('ÃƒÂ°Ã…Â¸Ã…Â¡Ã‚Â« ' + t('ban_notification_title') + '\n' + t('ban_reason_label') + ' This device is banned.', 'err');
+            showFormMsg('🚫 ' + t('ban_notification_title') + '\n' + t('ban_reason_label') + ' This device is banned.', 'err');
           } else if (err.status === 403 && err.message === 'err_account_banned' && err.data) {
           const d = err.data;
-          let banMsg = 'ÃƒÂ°Ã…Â¸Ã…Â¡Ã‚Â« ' + t('ban_notification_title');
-          if (d.ban_reason) banMsg += '\nÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â ' + t('ban_reason_label') + ' ' + d.ban_reason;
+          let banMsg = '🚫 ' + t('ban_notification_title');
+          if (d.ban_reason) banMsg += '\n📝 ' + t('ban_reason_label') + ' ' + d.ban_reason;
           if (d.ban_expires_at) {
             const expires = new Date(d.ban_expires_at);
-            banMsg += '\nÃƒÂ¢Ã‚ÂÃ‚Â³ ' + t('ban_expires_label') + ' ' + expires.toLocaleDateString() + ' ' + expires.toLocaleTimeString();
+            banMsg += '\n⏳ ' + t('ban_expires_label') + ' ' + expires.toLocaleDateString() + ' ' + expires.toLocaleTimeString();
           } else {
-            banMsg += '\nÃƒÂ¢Ã‚ÂÃ‚Â³ ' + t('ban_permanent_label');
+            banMsg += '\n⏳ ' + t('ban_permanent_label');
           }
           if (d.banned_at) {
             const banned = new Date(d.banned_at);
-            banMsg += '\nÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã¢â‚¬Â¦ ' + t('ban_date_label') + ' ' + banned.toLocaleDateString() + ' ' + banned.toLocaleTimeString();
+            banMsg += '\n📅 ' + t('ban_date_label') + ' ' + banned.toLocaleDateString() + ' ' + banned.toLocaleTimeString();
           }
           showFormMsg(banMsg, 'err');
         } else {
@@ -754,7 +750,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       setLoading('login-btn',false);
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ REGISTER ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── REGISTER ── */
     async function doRegister(){
       clearErrs();
       clearFormMsg();
@@ -779,7 +775,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
         setTimeout(()=>goTo('home.html'),1500);
       } catch (err) {
         if (err.status === 403 && err.message === 'err_device_banned') {
-          showFormMsg('ÃƒÂ°Ã…Â¸Ã…Â¡Ã‚Â« This device is banned. Registration not allowed.', 'err');
+          showFormMsg('🚫 This device is banned. Registration not allowed.', 'err');
         } else {
           const detail = err.message + ' (status:' + err.status + ')';
           showFormMsg(detail || t('connection_failed'), 'err');
@@ -788,7 +784,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       setLoading('reg-btn',false);
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ MODAL TERMS & PRIVACY ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── MODAL TERMS & PRIVACY ── */
     function openModal(type) {
       const modal = document.getElementById('sp-modal');
       const title = document.getElementById('modal-title');
@@ -811,7 +807,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
            <p><strong>2. Use of Data:</strong> Your information is used solely to allow you to log in and save your game progress.</p>
            <p><strong>3. Sharing with Third Parties:</strong> SeaPirates does not share your data with advertising companies or third parties under any circumstances.</p>
            <p><strong>4. Data Storage:</strong> Session data is stored locally to keep you logged in. Your password is never stored in plain text.</p>
-           <p style="margin-top:16px;text-align:center"><a href="privacy.html" target="_blank" style="color:#e0b030;">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã¢â‚¬Å¾ Read full Privacy Policy</a></p>
+           <p style="margin-top:16px;text-align:center"><a href="privacy.html" target="_blank" style="color:#e0b030;">📄 Read full Privacy Policy</a></p>
          `;
       }
       modal.style.display = 'flex';
@@ -822,7 +818,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
       if (modal) modal.style.display = 'none';
     }
 
-    /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ UTIL ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+    /* ── UTIL ── */
     function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
     /* Service Worker Registration for PWA */
@@ -836,7 +832,7 @@ window.showAlert = window.showAlert || function(msg) { alert(msg); };
 
 
 
-    /* Enter key ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â sadece buton ile giriÃƒâ€¦Ã…Â¸ */
+    /* Enter key — sadece buton ile giriş */
     document.addEventListener('keydown',function(e){
       if(e.key==='Enter') e.preventDefault();
     });
